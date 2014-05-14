@@ -162,9 +162,22 @@ public class Generation {
 			} else if (Session.isBlocked(blockMaterial)) {
 				player.sendMessage("§cThis block is banned in EvilEdit");
 			} else {
-				double radiusX = args.length == 2 ? Integer.parseInt(args[1]) + 0.5 : args.length == 3 ? Integer.parseInt(args[2]) + 0.5 : Integer.parseInt(args[2]) + 0.5;
-				double radiusY = args.length == 2 ? Integer.parseInt(args[1]) + 0.5 : args.length == 3 ? Integer.parseInt(args[2]) + 0.5 : Integer.parseInt(args[3]) + 0.5;
-				double radiusZ = args.length == 2 ? Integer.parseInt(args[1]) + 0.5 : args.length == 3 ? Integer.parseInt(args[2]) + 0.5 : Integer.parseInt(args[4]) + 0.5;
+				double radiusX;
+				double radiusY;
+				double radiusZ;
+				if (args.length == 2) {
+					radiusX = Integer.parseInt(args[1]) + 0.5;
+					radiusY = Integer.parseInt(args[1]) + 0.5;
+					radiusZ = Integer.parseInt(args[1]) + 0.5;
+				} else if (args.length == 3) {
+					radiusX = Integer.parseInt(args[2]) + 0.5;
+					radiusY = Integer.parseInt(args[2]) + 0.5;
+					radiusZ = Integer.parseInt(args[2]) + 0.5;
+				} else {
+					radiusX = Integer.parseInt(args[2]) + 0.5;
+					radiusY = Integer.parseInt(args[3]) + 0.5;
+					radiusZ = Integer.parseInt(args[4]) + 0.5;
+				}
 				if (radiusX > 50.5 || radiusY > 50.5 || radiusZ > 50.5) {
 					player.sendMessage("§7The maximum radius limit is 50");
 					return;
