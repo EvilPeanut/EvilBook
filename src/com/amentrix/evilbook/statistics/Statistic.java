@@ -1,5 +1,9 @@
 package com.amentrix.evilbook.statistics;
 
+/**
+ * Statistic enumerator
+ * @author Reece Aaron Lecrivain
+ */
 public enum Statistic {
 	EconomyGrowth("economy_growth"),
 	EconomyTrade("economy_trade"),

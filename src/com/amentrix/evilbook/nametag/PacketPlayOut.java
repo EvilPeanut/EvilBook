@@ -8,6 +8,11 @@ import java.util.Collection;
 
 import org.bukkit.entity.Player;
 
+/**
+ * PacketPlayOut instance
+ * Based on NameTagEdit by wacossusca34
+ * @author Reece Aaron Lecrivain
+ */
 class PacketPlayOut
 {
 	Object packet;

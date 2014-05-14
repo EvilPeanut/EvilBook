@@ -9,6 +9,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+/**
+ * NametagManager class
+ * Based on NameTagEdit by wacossusca34
+ * @author Reece Aaron Lecrivain
+ */
 public class NametagManager
 {
 	private static List<Integer> list = new ArrayList<>();

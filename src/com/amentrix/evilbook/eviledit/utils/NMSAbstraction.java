@@ -3,6 +3,11 @@ package com.amentrix.evilbook.eviledit.utils;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+/**
+ * EvilEdit NMSAbstraction interface
+ * Based on dhutils by desht
+ * @author Reece Aaron Lecrivain
+ */
 public interface NMSAbstraction {
 	public boolean setBlockFast(World world, int x, int y, int z, int blockId, byte data);
 	

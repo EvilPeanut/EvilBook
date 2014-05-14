@@ -18,6 +18,11 @@ import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.statistics.Statistic;
 import com.amentrix.evilbook.statistics.Statistics;
 
+/**
+ * EvilEdit engine instance
+ * Based on dhutils by desht
+ * @author Reece Aaron Lecrivain
+ */
 public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 	private final Plugin plugin;
 	private final World world;

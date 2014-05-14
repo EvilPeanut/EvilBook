@@ -9,6 +9,10 @@ import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.statistics.Statistic;
 
+/**
+ * EvilEdit tree generation delegate
+ * @author Reece Aaron Lecrivain
+ */
 public class TreeGenerationDelegate implements BlockChangeDelegate {
 	private Location loc;
 	private Player player;

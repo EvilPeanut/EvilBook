@@ -2,6 +2,11 @@ package com.amentrix.evilbook.eviledit.utils;
 
 import com.amentrix.evilbook.main.EvilBook;
 
+/**
+ * EvilEdit NMSHelper
+ * Based on dhutils by desht
+ * @author Reece Aaron Lecrivain
+ */
 public class NMSHelper {
 	private static NMSAbstraction nms = null;
 

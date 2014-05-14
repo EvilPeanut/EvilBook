@@ -10,6 +10,11 @@ import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+/**
+ * EvilEdit NMSHandler
+ * Based on dhutils by desht
+ * @author Reece Aaron Lecrivain
+ */
 public class NMSHandler implements NMSAbstraction {
 	@Override
 	public boolean setBlockFast(World world, int x, int y, int z, int blockId, byte data) {

@@ -1,33 +1,38 @@
 package com.amentrix.evilbook.nametag;
 
+/**
+ * TeamInfo instance
+ * Based on NameTagEdit by wacossusca34
+ * @author Reece Aaron Lecrivain
+ */
 class TeamInfo
 {
-  private String name;
-  private String prefix;
-  private String suffix;
+	private String name;
+	private String prefix;
+	private String suffix;
 
-  TeamInfo(String name)
-  {
-    this.name = name;
-  }
+	TeamInfo(String name)
+	{
+		this.name = name;
+	}
 
-  void setPrefix(String prefix) {
-    this.prefix = prefix;
-  }
+	void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
 
-  void setSuffix(String suffix) {
-    this.suffix = suffix;
-  }
+	void setSuffix(String suffix) {
+		this.suffix = suffix;
+	}
 
-  String getPrefix() {
-    return this.prefix;
-  }
+	String getPrefix() {
+		return this.prefix;
+	}
 
-  String getSuffix() {
-    return this.suffix;
-  }
+	String getSuffix() {
+		return this.suffix;
+	}
 
-  String getName() {
-    return this.name;
-  }
+	String getName() {
+		return this.name;
+	}
 }
