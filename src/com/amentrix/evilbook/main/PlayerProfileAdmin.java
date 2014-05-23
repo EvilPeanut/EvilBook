@@ -14,8 +14,9 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import ca.wacos.nametagedit.NametagAPI;
+
 import com.amentrix.evilbook.eviledit.utils.Clipboard;
-import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.TableType;
 
 /**
@@ -51,9 +52,9 @@ public class PlayerProfileAdmin extends PlayerProfile {
 			if (getProperty("achievement_list") != null) for (String ach : getProperty("achievement_list").toLowerCase().split(",")) this.achievements.add(Achievement.getByName(ach));
 			this.runAmplifier = Integer.parseInt(getProperty("run_amplifier"));
 			this.walkAmplifier = Float.parseFloat(getProperty("walk_amplifier"));
-			newPlayer.setWalkSpeed(this.walkAmplifier);
+			newPlayer.setWalkSpeed((float) this.walkAmplifier);
 			this.flyAmplifier = Float.parseFloat(getProperty("fly_amplifier"));
-			newPlayer.setFlySpeed(this.flyAmplifier);
+			newPlayer.setFlySpeed((float) this.flyAmplifier);
 			this.jumpAmplifier = Double.valueOf(getProperty("jump_amplifier"));
 			this.nameColor = getProperty("name_color");
 			this.nameTitle = getProperty("name_title");
@@ -102,7 +103,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 			newPlayer.sendMessage("§3Type §a/donate §3for instructions on how to donate");
 			newPlayer.sendMessage("§3Type §a/help §3for help");
 			// NametagEdit
-			NametagManager.updateNametagHard(this.name, "§" + this.rank.getColor(this), null);
+			NametagAPI.updateNametagHard(this.name, "§" + this.rank.getColor(this), null);
 			// Player profile statistics
 			Date date = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -134,8 +135,8 @@ public class PlayerProfileAdmin extends PlayerProfile {
 		setProperty("money", Integer.toString(this.money));
 		setProperty("warp_list", (this.warps.size() != 0 ? StringUtils.join(this.warps, ",").replaceAll("'", "''") : "NULL"));
 		setProperty("run_amplifier", Integer.toString(this.runAmplifier));
-		setProperty("walk_amplifier", Float.toString(this.walkAmplifier));
-		setProperty("fly_amplifier", Float.toString(this.flyAmplifier));
+		setProperty("walk_amplifier", Double.toString(this.walkAmplifier));
+		setProperty("fly_amplifier", Double.toString(this.flyAmplifier));
 		setProperty("jump_amplifier", Double.toString(this.jumpAmplifier));
 		setProperty("achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
 	}

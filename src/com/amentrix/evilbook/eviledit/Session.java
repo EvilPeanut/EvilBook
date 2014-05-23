@@ -295,6 +295,8 @@ public class Session implements CommandExecutor {
 				InventoryHolder inventoryReal = (InventoryHolder)newBlock;
 				inventoryReal.getInventory().setContents(inventory.getInventory().getContents());
 			}
+		} catch (RuntimeException e) {
+			EvilBook.logWarning("Failed to set EvilEdit block state");
 		} catch (Exception e) {
 			EvilBook.logWarning("Failed to set EvilEdit block state");
 		}

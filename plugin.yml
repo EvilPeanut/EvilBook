@@ -1,6 +1,6 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 5.3.0
+version: 5.3.2
 commands:
   mail:
     description: Handle mail commands

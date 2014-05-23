@@ -49,6 +49,8 @@ public class EventListenerPacket implements Listener {
 							return;
 						case "testfor":
 							return;
+						case "testforblock":
+							return;
 						case "scoreboard":
 							return;
 						case "effect":

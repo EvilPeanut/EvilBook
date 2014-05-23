@@ -62,6 +62,8 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
+import ca.wacos.nametagedit.NametagAPI;
+
 import com.amentrix.evilbook.eviledit.Session;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.listeners.EventListenerBlock;
@@ -70,7 +72,6 @@ import com.amentrix.evilbook.listeners.EventListenerInventory;
 import com.amentrix.evilbook.listeners.EventListenerPacket;
 import com.amentrix.evilbook.listeners.EventListenerPlayer;
 import com.amentrix.evilbook.listeners.EventListenerVehicle;
-import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.Statistic;
@@ -933,7 +934,7 @@ public class EvilBook extends JavaPlugin {
 							playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
 						}
 						// Set nametag color
-						NametagManager.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+						NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 						//
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to Admin rank");
 					} else {
@@ -989,7 +990,7 @@ public class EvilBook extends JavaPlugin {
 							//
 						}
 						// Set nametag color
-						NametagManager.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+						NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 						//
 						getProfile(args[0]).updatePlayerListName();
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been demoted to " + getProfile(args[0]).rank.getName() + " rank");
@@ -1031,7 +1032,7 @@ public class EvilBook extends JavaPlugin {
 								//
 							}
 							// Set nametag color
-							NametagManager.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+							NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 							//
 							getProfile(args[0]).updatePlayerListName();
 							broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + getProfile(args[0]).rank.getName() + " rank");
@@ -1860,7 +1861,7 @@ public class EvilBook extends JavaPlugin {
 				SQL.setProperty(TableType.PlayerProfile, sender.getName(), "rank_prefix", prefix);
 				((PlayerProfileAdmin)getProfile(player)).customRankColor = prefix.substring(1, 2);
 				((PlayerProfileAdmin)getProfile(player)).customRankPrefix = "§0[" + prefix.replaceAll("&", "§") + "§0]";
-				NametagManager.updateNametagHard(player.getName(), "§" + ((PlayerProfileAdmin)getProfile(player)).rank.getColor((getProfile(player))), null);
+				NametagAPI.updateNametagHard(player.getName(), "§" + ((PlayerProfileAdmin)getProfile(player)).rank.getColor((getProfile(player))), null);
 			} else {
 				sender.sendMessage("§5Incorrect command usage");
 				sender.sendMessage("§d/setrank [rank]");
@@ -1931,10 +1932,10 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("walk")) {
 			if (args.length == 1) {
 				if (isFloat(args[0])) {
-					float walkAmplifier = Float.valueOf(args[0]) / 100;
+					double walkAmplifier = Double.valueOf(args[0]) / 100;
 					if (walkAmplifier <= 1) {
-						getProfile(sender).walkAmplifier = walkAmplifier < 0.1 ? 0.1f : Float.valueOf(args[0]) / 100;
-						player.setWalkSpeed(getProfile(sender).walkAmplifier);
+						getProfile(sender).walkAmplifier = walkAmplifier < 0.1 ? 0.1 : Double.valueOf(args[0]) / 100;
+						player.setWalkSpeed((float) getProfile(sender).walkAmplifier);
 					} else {
 						sender.sendMessage("§7Please enter a walk speed below 100");
 					}
@@ -1953,10 +1954,10 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("fly")) {
 			if (args.length == 1) {
 				if (isFloat(args[0])) {
-					float flyAmplifier = Float.valueOf(args[0]) / 100;
+					double flyAmplifier = Double.valueOf(args[0]) / 100;
 					if (flyAmplifier <= 1) {
-						getProfile(sender).flyAmplifier = flyAmplifier < 0.1 ? 0.1f : Float.valueOf(args[0]) / 100;
-						player.setFlySpeed(getProfile(sender).flyAmplifier);
+						getProfile(sender).flyAmplifier = flyAmplifier < 0.1 ? 0.1 : Double.valueOf(args[0]) / 100;
+						player.setFlySpeed((float) getProfile(sender).flyAmplifier);
 					} else {
 						sender.sendMessage("§7Please enter a fly speed below 100");
 					}
@@ -2824,6 +2825,8 @@ public class EvilBook extends JavaPlugin {
 							if (getEnchantment(args[0].toUpperCase()) == Enchantment.SILK_TOUCH) sender.sendMessage("§7Item enchanted with silk touch");
 							if (getEnchantment(args[0].toUpperCase()) == Enchantment.THORNS) sender.sendMessage("§7Item enchanted with thorns " + toRomanNumerals(args[1]));
 							if (getEnchantment(args[0].toUpperCase()) == Enchantment.WATER_WORKER) sender.sendMessage("§7Item enchanted with aqua affinity");
+						} catch (RuntimeException exception) {
+							throw exception;
 						} catch (Exception exception) {
 							if (getEnchantment(args[0].toUpperCase()) == null) {
 								sender.sendMessage("§7This enchantment doesn't exist");
@@ -3557,7 +3560,7 @@ public class EvilBook extends JavaPlugin {
 	 * @return The time of the minecraft world
 	 */
 	public static String getTime(World world) {
-		return (int)(Math.floor(world.getTime() / 1000)) + ":" + ((int) ((world.getTime() % 1000) / 1000.0 * 60) < 10 ? "0" + (int) ((world.getTime() % 1000) / 1000.0 * 60) : (int) ((world.getTime() % 1000) / 1000.0 * 60));
+		return (int)(Math.floor(world.getTime() / 1000.0)) + ":" + ((int) ((world.getTime() % 1000.0) / 1000.0 * 60) < 10 ? "0" + (int) ((world.getTime() % 1000.0) / 1000.0 * 60) : (int) ((world.getTime() % 1000.0) / 1000.0 * 60));
 	}
 
 	/**
@@ -3673,6 +3676,8 @@ public class EvilBook extends JavaPlugin {
 	public static void updateWebPlayerStatistics(int onlinePlayers) {
 		try (BufferedWriter out = new BufferedWriter(new FileWriter("C:/Program Files (x86)/Apache Software Foundation/Apache2.2/htdocs/playerStats.htm"))) {
 			out.write("<html><body style='background:transparent;overflow:hidden'><p style='color:#31AFF5;text-align:center;font-family:Calibri'>" + onlinePlayers + " Players online<p></body></html>");
+		} catch (RuntimeException exception) {
+			throw exception;
 		} catch (Exception exception) {
 			logWarning("Failed to update player count web statistics");
 		}
@@ -3858,7 +3863,7 @@ public class EvilBook extends JavaPlugin {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Return if the container (Chest, furnace & brewing stand ect...) is protected
 	 * @param location The position of the container in the world

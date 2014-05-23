@@ -609,15 +609,14 @@ public class Region {
 	public static void count(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
-			int blockCount = 0;
-			Material blockMaterial = null;
-			Byte blockData = null;
-			if (args.length >= 1) {
-				blockMaterial = EvilBook.getBlockMaterial(args[0]);
+			if (args.length == 0 || args.length == 1 || args.length == 2) {
+				int blockCount = 0;
+				Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
 				if (blockMaterial == null) {
 					player.sendMessage("§7Please enter a valid block name or ID");
 					return;
 				}
+				Byte blockData = 0;
 				if (args.length == 2) {
 					if (!EvilBook.isByte(args[1])) {
 						player.sendMessage("§7Please enter a valid block data value");
@@ -625,21 +624,26 @@ public class Region {
 					}
 					blockData = Byte.valueOf(args[1]);
 				}
-			}
-			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
-			{
-				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 				{
-					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 					{
-						if ((args.length == 0 && selection.getBlock(x, y, z).getType() != Material.AIR) || (args.length == 1 && selection.getBlock(x, y, z).getType() == blockMaterial) || (args.length == 2 && selection.getBlock(x, y, z).getType() == blockMaterial && selection.getBlock(x, y, z).getData() == blockData)) blockCount++;
+						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+						{
+							if ((args.length == 0 && selection.getBlock(x, y, z).getType() != Material.AIR) || (args.length == 1 && selection.getBlock(x, y, z).getType() == blockMaterial) || (args.length == 2 && selection.getBlock(x, y, z).getType() == blockMaterial && selection.getBlock(x, y, z).getData() == blockData)) blockCount++;
+						}
 					}
 				}
-			}
-			if (args.length == 0) {
-				player.sendMessage("§7Selection contains " + blockCount + " blocks");
+				if (args.length == 0) {
+					player.sendMessage("§7Selection contains " + blockCount + " blocks");
+				} else {
+					player.sendMessage("§7Selection contains " + blockCount + " " + EvilBook.getFriendlyName(blockMaterial) + " blocks");
+				}
 			} else {
-				player.sendMessage("§7Selection contains " + blockCount + " " + EvilBook.getFriendlyName(blockMaterial) + " blocks");
+				player.sendMessage("§5Incorrect command usage");
+				player.sendMessage("§d/count");
+				player.sendMessage("§d/count [blockID / blockName]");
+				player.sendMessage("§d/count [blockID / blockName] [blockData]");
 			}
 		}
 	}

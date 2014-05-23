@@ -22,8 +22,7 @@ public class PlayerProfile {
 	public Boolean isAway = false, isInvisible = false;
 	public List<Achievement> achievements = new ArrayList<>();
 	public long lastMessageTime = 0, lastActionTime = 0;
-	public double jumpAmplifier = 0;
-	public float flyAmplifier = 0.1f, walkAmplifier = 0.1f;
+	public double jumpAmplifier = 0, flyAmplifier = 0, walkAmplifier = 0;
 	public Rank rank = Rank.Builder;
 	public Entity disguise;
 	public Location deathLocation, homeLocation, lastBlockInteraction;

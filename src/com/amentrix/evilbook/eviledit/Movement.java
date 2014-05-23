@@ -13,30 +13,30 @@ import org.bukkit.entity.Player;
 public class Movement {
 	public static void passPlayerThroughOpposingWall(Player player) {
 		Location pos = player.getLocation();
-		float yaw = pos.getYaw() / 90;
+		double yaw = (double)pos.getYaw() / 90;
 	    yaw = Math.round(yaw);
 		int offset = 1;
 		while (offset <= 32) {
 		    if (yaw == -4 || yaw == 0 || yaw == 4) { // +z
-				if (!pos.add(0, 0, offset / 2).getBlock().getType().isSolid()) {
+				if (!pos.add(0, 0, (double)offset / 2).getBlock().getType().isSolid()) {
 					player.teleport(pos.add(0, 0, offset + 0.5));
 					player.sendMessage(ChatColor.GRAY + "Passed through " + offset + " blocks");
 					return;
 				}
 		    } else if (yaw == -1 || yaw == 3) { // +x
-				if (!pos.add(offset / 2, 0, 0).getBlock().getType().isSolid()) {
+				if (!pos.add((double)offset / 2, 0, 0).getBlock().getType().isSolid()) {
 					player.teleport(pos.add(offset + 0.5, 0, 0));
 					player.sendMessage(ChatColor.GRAY + "Passed through " + offset + " blocks");
 					return;
 				}
 		    } else if (yaw == -2 || yaw == 2) { // -z
-				if (!pos.subtract(0, 0, offset / 2).getBlock().getType().isSolid()) {
+				if (!pos.subtract(0, 0, (double)offset / 2).getBlock().getType().isSolid()) {
 					player.teleport(pos.subtract(0, 0, offset + 0.5));
 					player.sendMessage(ChatColor.GRAY + "Passed through " + offset + " blocks");
 					return;
 				}
 		    } else { // -x
-				if (!pos.subtract(offset / 2, 0, 0).getBlock().getType().isSolid()) {
+				if (!pos.subtract((double)offset / 2, 0, 0).getBlock().getType().isSolid()) {
 					player.teleport(pos.subtract(offset + 0.5, 0, 0));
 					player.sendMessage(ChatColor.GRAY + "Passed through " + offset + " blocks");
 					return;
