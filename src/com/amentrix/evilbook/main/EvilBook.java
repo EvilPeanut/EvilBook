@@ -1932,12 +1932,17 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("walk")) {
 			if (args.length == 1) {
 				if (isFloat(args[0])) {
-					double walkAmplifier = Double.valueOf(args[0]) / 100;
-					if (walkAmplifier <= 1) {
-						getProfile(sender).walkAmplifier = walkAmplifier < 0.1 ? 0.1 : Double.valueOf(args[0]) / 100;
-						player.setWalkSpeed((float) getProfile(sender).walkAmplifier);
+					double rawWalkAmplifier = Double.valueOf(args[0]);
+					if (rawWalkAmplifier == 0) {
+						getProfile(sender).walkAmplifier = 0.2f;
 					} else {
-						sender.sendMessage("§7Please enter a walk speed below 100");
+						double walkAmplifier = rawWalkAmplifier / 125;
+						if (walkAmplifier > 0 && walkAmplifier <= 0.8) {
+							getProfile(sender).walkAmplifier = walkAmplifier + 0.2f;
+							player.setWalkSpeed((float) getProfile(sender).walkAmplifier);
+						} else {
+							sender.sendMessage("§7Please enter a walk speed between 0 and 100");
+						}
 					}
 				} else {
 					sender.sendMessage("§7Please enter a valid walk speed");
