@@ -642,8 +642,10 @@ public class EventListenerPlayer implements Listener {
 		} else {
 			if (event.getTo().getWorld() != event.getFrom().getWorld() && !event.getFrom().getWorld().getName().equals("SurvivalLandNether") && !event.getFrom().getWorld().getName().equals("Amentrix_nether") && !event.getFrom().getWorld().getName().equals("Amentrix_the_end")) EvilBook.getProfile(player.getName()).setWorldLastPosition(event.getFrom());
 			// Teleport particle effect
-			event.getFrom().getWorld().playEffect(event.getFrom(), Effect.SMOKE, 0);
-			event.getTo().getWorld().playEffect(event.getTo(), Effect.ENDER_SIGNAL, 0);
+			if (!EvilBook.getProfile(player).isInvisible) {
+				event.getFrom().getWorld().playEffect(event.getFrom(), Effect.SMOKE, 0);
+				event.getTo().getWorld().playEffect(event.getTo(), Effect.ENDER_SIGNAL, 0);
+			}
 			// Regions
 			for (Region region : EvilBook.regionList) {
 				if (region.getLeaveMessage() != null && EvilBook.isInRegion(region, event.getFrom()) && EvilBook.isInRegion(region, event.getTo()) == false) {
