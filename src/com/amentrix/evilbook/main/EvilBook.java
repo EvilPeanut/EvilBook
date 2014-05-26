@@ -1935,6 +1935,7 @@ public class EvilBook extends JavaPlugin {
 					double rawWalkAmplifier = Double.valueOf(args[0]);
 					if (rawWalkAmplifier == 0) {
 						getProfile(sender).walkAmplifier = 0.2f;
+						player.setWalkSpeed(0.2f);
 					} else {
 						double walkAmplifier = rawWalkAmplifier / 125;
 						if (walkAmplifier > 0 && walkAmplifier <= 0.8) {
@@ -1959,12 +1960,18 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("fly")) {
 			if (args.length == 1) {
 				if (isFloat(args[0])) {
-					double flyAmplifier = Double.valueOf(args[0]) / 100;
-					if (flyAmplifier <= 1) {
-						getProfile(sender).flyAmplifier = flyAmplifier < 0.1 ? 0.1 : Double.valueOf(args[0]) / 100;
-						player.setFlySpeed((float) getProfile(sender).flyAmplifier);
+					double rawFlyAmplifier = Double.valueOf(args[0]);
+					if (rawFlyAmplifier == 0) {
+						getProfile(sender).flyAmplifier = 0.1f;
+						player.setFlySpeed(0.1f);
 					} else {
-						sender.sendMessage("§7Please enter a fly speed below 100");
+						double flyAmplifier = rawFlyAmplifier / 112;
+						if (flyAmplifier > 0 && flyAmplifier <= 0.9) {
+							getProfile(sender).flyAmplifier = flyAmplifier + 0.1f;
+							player.setFlySpeed((float) getProfile(sender).flyAmplifier);
+						} else {
+							sender.sendMessage("§7Please enter a fly speed between 0 and 100");
+						}
 					}
 				} else {
 					sender.sendMessage("§7Please enter a valid fly speed");
