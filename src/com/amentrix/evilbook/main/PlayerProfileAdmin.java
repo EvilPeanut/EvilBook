@@ -14,9 +14,8 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import ca.wacos.nametagedit.NametagAPI;
-
 import com.amentrix.evilbook.eviledit.utils.Clipboard;
+import com.amentrix.evilbook.nametag.NametagAPI;
 import com.amentrix.evilbook.sql.TableType;
 
 /**

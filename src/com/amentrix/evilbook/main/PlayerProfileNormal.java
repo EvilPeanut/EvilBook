@@ -13,8 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import ca.wacos.nametagedit.NametagAPI;
-
+import com.amentrix.evilbook.nametag.NametagAPI;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.Statistic;

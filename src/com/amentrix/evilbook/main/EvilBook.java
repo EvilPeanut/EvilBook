@@ -62,8 +62,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
-import ca.wacos.nametagedit.NametagAPI;
-
 import com.amentrix.evilbook.eviledit.Session;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.listeners.EventListenerBlock;
@@ -72,6 +70,8 @@ import com.amentrix.evilbook.listeners.EventListenerInventory;
 import com.amentrix.evilbook.listeners.EventListenerPacket;
 import com.amentrix.evilbook.listeners.EventListenerPlayer;
 import com.amentrix.evilbook.listeners.EventListenerVehicle;
+import com.amentrix.evilbook.nametag.NametagAPI;
+import com.amentrix.evilbook.nametag.NametagEdit;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.Statistic;
@@ -153,6 +153,10 @@ public class EvilBook extends JavaPlugin {
 			paidWorldList.add(world);
 			getServer().createWorld(privateWorld);
 		}
+		//
+		// Load EvilBook-NametagEdit module
+		//
+		NametagEdit.load(this);
 		//
 		// Connect EvilBook to MySQL
 		//
@@ -238,6 +242,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Load command blacklist
 		// 
+		commandBlacklist.put("/setblock", Rank.ServerHost);
 		commandBlacklist.put("/restart", Rank.ServerHost);
 		commandBlacklist.put("/stop", Rank.ServerHost);
 		commandBlacklist.put("/op", Rank.ServerHost);
@@ -1060,9 +1065,10 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("rules")) {
 			sender.sendMessage("§dAmentrix Server Rules");
-			sender.sendMessage("  §5§l1 §5Do not grief");
-			sender.sendMessage("  §5§l2 §5Do not advertise");
-			sender.sendMessage("  §5§l3 §5Do not spam");
+			sender.sendMessage("  §5§l1 §5Do not grief, even in survival");
+			sender.sendMessage("  §5§l2 §5Do not advertise other servers");
+			sender.sendMessage("  §5§l3 §5Do not spam at any time");
+			sender.sendMessage("  §5§l4 §5Do not exploit bugs");
 			sender.sendMessage("§7Breaking a rule §lwill §7result in permanent ban");
 			sender.sendMessage("§7MCBans is operating on the server");
 			return true;
@@ -3712,6 +3718,10 @@ public class EvilBook extends JavaPlugin {
 		String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_creative");
 		if (inventory == null) {
 			player.getInventory().clear();
+			player.getInventory().setHelmet(new ItemStack(Material.AIR));
+			player.getInventory().setChestplate(new ItemStack(Material.AIR));
+			player.getInventory().setLeggings(new ItemStack(Material.AIR));
+			player.getInventory().setBoots(new ItemStack(Material.AIR));
 		} else {
 			YamlConfiguration config = new YamlConfiguration();
 			try {
@@ -3750,6 +3760,10 @@ public class EvilBook extends JavaPlugin {
 		String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_survival");
 		if (inventory == null) {
 			player.getInventory().clear();
+			player.getInventory().setHelmet(new ItemStack(Material.AIR));
+			player.getInventory().setChestplate(new ItemStack(Material.AIR));
+			player.getInventory().setLeggings(new ItemStack(Material.AIR));
+			player.getInventory().setBoots(new ItemStack(Material.AIR));
 		} else {
 			YamlConfiguration config = new YamlConfiguration();
 			try {
