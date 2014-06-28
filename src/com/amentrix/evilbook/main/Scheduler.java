@@ -1,5 +1,7 @@
 package com.amentrix.evilbook.main;
 
+import java.util.Random;
+
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
@@ -12,6 +14,7 @@ import com.amentrix.evilbook.statistics.Statistics;
  */
 public class Scheduler {
 	EvilBook plugin;
+	Random rand = new Random();
 	
 	/**
 	 * Define a new scheduler
@@ -28,6 +31,7 @@ public class Scheduler {
 		this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, new Runnable() {
 			@Override
 			public void run() {
+				int random = rand.nextInt(100);
 				for (Player p : Scheduler.this.plugin.getServer().getOnlinePlayers()) {
 					if (EvilBook.getProfile(p).isAway) continue;
 					if (System.currentTimeMillis() - EvilBook.getProfile(p).lastActionTime > 120000) {
@@ -38,15 +42,33 @@ public class Scheduler {
 					}
 					if (EvilBook.getProfile(p).rank.isAdmin()) {
 						if (EvilBook.getProfile(p).rank.isHigher(Rank.Investor)) {
-							p.sendMessage("§dYou can always §l/donate §dto support the server");
+							if (random >= 0 && random < 60) {
+								p.sendMessage("§dYou can always §l/donate §dto support the server");
+							} else if (random >= 60 && random < 80) {
+								p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
+							} else if (random >= 80 && random < 100) {
+								p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
+							}
 						} else {
-							p.sendMessage("§dYou can always §l/donate §dagain for a higher rank");
+							if (random >= 0 && random < 60) {
+								p.sendMessage("§dYou can always §l/donate §dagain for a higher rank");
+							} else if (random >= 60 && random < 80) {
+								p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
+							} else if (random >= 80 && random < 100) {
+								p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
+							}
 						}
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 20;
 						Statistics.incrementStatistic(Statistic.EconomyGrowth, 20);
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).setProperty("Money", Integer.toString(EvilBook.playerProfiles.get(p.getName().toLowerCase()).money));
 					} else {
-						p.sendMessage("§dDonate to become an admin §l/donate");
+						if (random >= 0 && random < 60) {
+							p.sendMessage("§dDonate to become an admin §l/donate");
+						} else if (random >= 60 && random < 80) {
+							p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
+						} else if (random >= 80 && random < 100) {
+							p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
+						}
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 10;
 						Statistics.incrementStatistic(Statistic.EconomyGrowth, 10);
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).setProperty("Money", Integer.toString(EvilBook.playerProfiles.get(p.getName().toLowerCase()).money));

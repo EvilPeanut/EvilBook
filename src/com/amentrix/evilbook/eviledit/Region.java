@@ -611,10 +611,13 @@ public class Region {
 		if (selection.isValid()) {
 			if (args.length == 0 || args.length == 1 || args.length == 2) {
 				int blockCount = 0;
-				Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-				if (blockMaterial == null) {
-					player.sendMessage("§7Please enter a valid block name or ID");
-					return;
+				Material blockMaterial = null;
+				if (args.length != 0) {
+					blockMaterial = EvilBook.getBlockMaterial(args[0]);
+					if (blockMaterial == null) {
+						player.sendMessage("§7Please enter a valid block name or ID");
+						return;
+					}
 				}
 				Byte blockData = 0;
 				if (args.length == 2) {
