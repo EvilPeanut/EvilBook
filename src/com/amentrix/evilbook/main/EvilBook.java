@@ -2,11 +2,7 @@ package com.amentrix.evilbook.main;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -26,6 +22,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,6 +44,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -61,7 +60,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+import org.dynmap.DynmapAPI;
+import org.dynmap.markers.MarkerAPI;
 
+import com.amentrix.evilbook.achievement.Achievement;
+import com.amentrix.evilbook.dynmap.PlayerHomeMarkers;
+import com.amentrix.evilbook.dynmap.WarpMarkers;
 import com.amentrix.evilbook.eviledit.Session;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.listeners.EventListenerBlock;
@@ -74,8 +78,10 @@ import com.amentrix.evilbook.nametag.NametagAPI;
 import com.amentrix.evilbook.nametag.NametagEdit;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
-import com.amentrix.evilbook.statistics.Statistic;
-import com.amentrix.evilbook.statistics.Statistics;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
+import com.amentrix.evilbook.statistics.GlobalStatistics;
+import com.amentrix.evilbook.statistics.PlayerStatistic;
+import com.amentrix.evilbook.statistics.PlayerStatistics;
 import com.amentrix.evilbook.worldgen.SkylandGenerator;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -104,6 +110,9 @@ public class EvilBook extends JavaPlugin {
 	public Random random = new Random();
 	// Log block API
 	public static Consumer lbConsumer = null;
+	// Dynmap API
+	public static DynmapAPI dynmapAPI;
+	public static MarkerAPI markerAPI;
 
 	/**
 	 * Called when the plugin is enabled
@@ -136,6 +145,9 @@ public class EvilBook extends JavaPlugin {
 		WorldCreator survivalLandNether = new WorldCreator("SurvivalLandNether");
 		survivalLandNether.environment(Environment.NETHER);
 		getServer().createWorld(survivalLandNether);
+		WorldCreator survivalLandTheEnd = new WorldCreator("SurvivalLandTheEnd");
+		survivalLandTheEnd.environment(Environment.THE_END);
+		getServer().createWorld(survivalLandTheEnd);
 		WorldCreator skyLand = new WorldCreator("SkyLand");
 		skyLand.generator(new SkylandGenerator());
 		getServer().createWorld(skyLand);
@@ -169,6 +181,26 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Preform SQL checks
 		//
+		// Make sure appropriate players have operator status
+		/*
+		try (Statement statement = SQL.connection.createStatement()) {
+			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.PlayerProfile.tableName + ";")) {
+				while (rs.next()) {
+					if (Rank.valueOf(rs.getString("rank")).isHigher(Rank.Police)) {
+						if (!getServer().getOfflinePlayer(rs.getString("player_name")).isOp()) {
+							getServer().getOfflinePlayer(rs.getString("player_name")).setOp(true);
+							logInfo("Auto-fixed incorrect op status for" + rs.getString("player_name"));
+						}
+					} else if (getServer().getOfflinePlayer(rs.getString("player_name")).isOp()) {
+						getServer().getOfflinePlayer(rs.getString("player_name")).setOp(false);
+						logInfo("Auto-fixed incorrect op status for" + rs.getString("player_name"));
+					}
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+		*/
 		// Make sure the SQL emitter table contains all emitter effect types
 		String prepStatement = "ALTER TABLE " + SQL.database + ".`evilbook-emitters` MODIFY effect ENUM(";
 		for (EmitterEffect effect : EmitterEffect.values()) prepStatement += "'" + effect.name() + "',";
@@ -255,42 +287,79 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/deop", Rank.ServerHost);
 		commandBlacklist.put("/demote", Rank.ServerHost);
 		//
+		commandBlacklist.put("/hyperhorse", Rank.Tycoon);
+		//
 		commandBlacklist.put("/setrank", Rank.Investor);
 		//
 		commandBlacklist.put("/pardon", Rank.Elite);
 		commandBlacklist.put("/promote", Rank.Elite);
 		//
 		commandBlacklist.put("/regen", Rank.Councillor);
+		commandBlacklist.put("//regen", Rank.Councillor);
 		commandBlacklist.put("/copy", Rank.Councillor);
+		commandBlacklist.put("//copy", Rank.Councillor);
 		commandBlacklist.put("/paste", Rank.Councillor);
+		commandBlacklist.put("//paste", Rank.Councillor);
 		//
+		commandBlacklist.put("/thaw", Rank.Admin);
+		commandBlacklist.put("/move", Rank.Admin);
+		commandBlacklist.put("//move", Rank.Admin);
+		commandBlacklist.put("/snow", Rank.Admin);
+		commandBlacklist.put("/flip", Rank.Admin);
+		commandBlacklist.put("//flip", Rank.Admin);
 		commandBlacklist.put("/sphere", Rank.Admin);
+		commandBlacklist.put("//sphere", Rank.Admin);
 		commandBlacklist.put("/hsphere", Rank.Admin);
+		commandBlacklist.put("//hsphere", Rank.Admin);
 		commandBlacklist.put("/esphere", Rank.Admin);
+		commandBlacklist.put("//esphere", Rank.Admin);
 		commandBlacklist.put("/cspawn", Rank.Admin);
 		commandBlacklist.put("/spawncreature", Rank.Admin);
 		commandBlacklist.put("/forestgen", Rank.Admin);
 		commandBlacklist.put("/forest", Rank.Admin);
 		commandBlacklist.put("/pyramid", Rank.Admin);
+		commandBlacklist.put("//pyramid", Rank.Admin);
 		commandBlacklist.put("/hpyramid", Rank.Admin);
+		commandBlacklist.put("//hpyramid", Rank.Admin);
 		commandBlacklist.put("/hcylinder", Rank.Admin);
+		commandBlacklist.put("//hcylinder", Rank.Admin);
 		commandBlacklist.put("/cylinder", Rank.Admin);
+		commandBlacklist.put("//cylinder", Rank.Admin);
 		commandBlacklist.put("/hcyl", Rank.Admin);
+		commandBlacklist.put("//hcyl", Rank.Admin);
 		commandBlacklist.put("/cyl", Rank.Admin);
+		commandBlacklist.put("//cyl", Rank.Admin);
 		commandBlacklist.put("/pumpkins", Rank.Admin);
 		commandBlacklist.put("/setbiome", Rank.Admin);
+		commandBlacklist.put("//setbiome", Rank.Admin);
 		commandBlacklist.put("/count", Rank.Admin);
+		commandBlacklist.put("//count", Rank.Admin);
 		commandBlacklist.put("/size", Rank.Admin);
+		commandBlacklist.put("//size", Rank.Admin);
 		commandBlacklist.put("/desel", Rank.Admin);
+		commandBlacklist.put("//desel", Rank.Admin);
 		commandBlacklist.put("/wand", Rank.Admin);
+		commandBlacklist.put("//wand", Rank.Admin);
 		commandBlacklist.put("/drain", Rank.Admin);
+		commandBlacklist.put("//drain", Rank.Admin);
+		commandBlacklist.put("/green", Rank.Admin);
+		commandBlacklist.put("//green", Rank.Admin);
 		commandBlacklist.put("/overlay", Rank.Admin);
+		commandBlacklist.put("//overlay", Rank.Admin);
 		commandBlacklist.put("/walls", Rank.Admin);
+		commandBlacklist.put("//walls", Rank.Admin);
 		commandBlacklist.put("/outline", Rank.Admin);
+		commandBlacklist.put("//outline", Rank.Admin);
 		commandBlacklist.put("/hollow", Rank.Admin);	
+		commandBlacklist.put("//hollow", Rank.Admin);	
 		commandBlacklist.put("/undo", Rank.Admin);
+		commandBlacklist.put("//undo", Rank.Admin);
 		commandBlacklist.put("/fill", Rank.Admin);
+		commandBlacklist.put("//fill", Rank.Admin);
+		commandBlacklist.put("/set", Rank.Admin);
+		commandBlacklist.put("//set", Rank.Admin);
 		commandBlacklist.put("/replace", Rank.Admin);
+		commandBlacklist.put("//replace", Rank.Admin);
 		commandBlacklist.put("/rreplace", Rank.Admin);
 		commandBlacklist.put("/rfill", Rank.Admin);
 		commandBlacklist.put("/rdel", Rank.Admin);
@@ -299,10 +368,9 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/delete", Rank.Admin);
 		commandBlacklist.put("/tree", Rank.Admin);
 		commandBlacklist.put("/rename", Rank.Admin);
-		commandBlacklist.put("/buy", Rank.Admin);
 		commandBlacklist.put("/tool", Rank.Admin);
-		//
 		commandBlacklist.put("/toggleeditwand", Rank.Admin);
+		//
 		commandBlacklist.put("/region", Rank.DiamondStaff);
 		//
 		commandBlacklist.put("/vanish", Rank.LapisStaff);
@@ -326,14 +394,12 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/rain", Rank.CopperStaff);
 		commandBlacklist.put("/sun", Rank.CopperStaff);
 		commandBlacklist.put("/time", Rank.CopperStaff);
+		commandBlacklist.put("/ban", Rank.CopperStaff);
 		//
 		commandBlacklist.put("/kick", Rank.Moderator);
 		commandBlacklist.put("/sky", Rank.Moderator);
-		commandBlacklist.put("/skyland", Rank.Moderator);
 		//
 		commandBlacklist.put("/chimney", Rank.Architect);
-		//
-		commandBlacklist.put("/flatland", Rank.AdvancedBuilder);
 		//
 		// Load Block List
 		//
@@ -571,14 +637,33 @@ public class EvilBook extends JavaPlugin {
 		getCommand("hsphere").setExecutor(this.editSession);
 		getCommand("sphere").setExecutor(this.editSession);
 		getCommand("tree").setExecutor(this.editSession);
+		getCommand("/pyramid").setExecutor(this.editSession);
+		getCommand("/hpyramid").setExecutor(this.editSession);
+		getCommand("/cyl").setExecutor(this.editSession);
+		getCommand("/hcyl").setExecutor(this.editSession);
+		getCommand("/cylinder").setExecutor(this.editSession);
+		getCommand("/hcylinder").setExecutor(this.editSession);
+		getCommand("/esphere").setExecutor(this.editSession);
+		getCommand("/hsphere").setExecutor(this.editSession);
+		getCommand("/sphere").setExecutor(this.editSession);
 		// Movement
 		getCommand("thru").setExecutor(this.editSession);
 		getCommand("ascend").setExecutor(this.editSession);
 		getCommand("descend").setExecutor(this.editSession);
 		getCommand("ceil").setExecutor(this.editSession);
 		// Region
+		getCommand("move").setExecutor(this.editSession);
+		getCommand("/move").setExecutor(this.editSession);
+		getCommand("snow").setExecutor(this.editSession);
+		getCommand("thaw").setExecutor(this.editSession);
+		getCommand("flip").setExecutor(this.editSession);
+		getCommand("/flip").setExecutor(this.editSession);
 		getCommand("undo").setExecutor(this.editSession);
+		getCommand("/undo").setExecutor(this.editSession);
 		getCommand("fill").setExecutor(this.editSession);
+		getCommand("/fill").setExecutor(this.editSession);
+		getCommand("set").setExecutor(this.editSession);
+		getCommand("/set").setExecutor(this.editSession);
 		getCommand("rfill").setExecutor(this.editSession);
 		getCommand("rreplace").setExecutor(this.editSession);
 		getCommand("del").setExecutor(this.editSession);
@@ -587,6 +672,7 @@ public class EvilBook extends JavaPlugin {
 		getCommand("copy").setExecutor(this.editSession);
 		getCommand("paste").setExecutor(this.editSession);
 		getCommand("drain").setExecutor(this.editSession);
+		getCommand("green").setExecutor(this.editSession);
 		getCommand("setbiome").setExecutor(this.editSession);
 		getCommand("regen").setExecutor(this.editSession);
 		getCommand("overlay").setExecutor(this.editSession);
@@ -594,10 +680,25 @@ public class EvilBook extends JavaPlugin {
 		getCommand("outline").setExecutor(this.editSession);
 		getCommand("hollow").setExecutor(this.editSession);
 		getCommand("replace").setExecutor(this.editSession);
+		getCommand("/copy").setExecutor(this.editSession);
+		getCommand("/paste").setExecutor(this.editSession);
+		getCommand("/drain").setExecutor(this.editSession);
+		getCommand("/green").setExecutor(this.editSession);
+		getCommand("/setbiome").setExecutor(this.editSession);
+		getCommand("/regen").setExecutor(this.editSession);
+		getCommand("/overlay").setExecutor(this.editSession);
+		getCommand("/walls").setExecutor(this.editSession);
+		getCommand("/outline").setExecutor(this.editSession);
+		getCommand("/hollow").setExecutor(this.editSession);
+		getCommand("/replace").setExecutor(this.editSession);
 		getCommand("count").setExecutor(this.editSession);
+		getCommand("/count").setExecutor(this.editSession);
 		getCommand("size").setExecutor(this.editSession);
+		getCommand("/size").setExecutor(this.editSession);
 		getCommand("desel").setExecutor(this.editSession);
+		getCommand("/desel").setExecutor(this.editSession);
 		getCommand("wand").setExecutor(this.editSession);
+		getCommand("/wand").setExecutor(this.editSession);
 		getCommand("toggleeditwand").setExecutor(this.editSession);		
 		//
 		// Log Block Integration
@@ -611,6 +712,24 @@ public class EvilBook extends JavaPlugin {
 			getServer().shutdown();
 			return;
 		}
+		//
+		// Dynmap Integration
+		//
+		final Plugin dynmapPlugin = pluginManager.getPlugin("dynmap");
+		if (dynmapPlugin != null) {
+			dynmapAPI = ((DynmapAPI) dynmapPlugin);
+			markerAPI = dynmapAPI.getMarkerAPI();
+			logInfo("Loaded Dynmap module");
+		} else {
+			logSevere("Failed to load Dynmap module");
+			getServer().shutdown();
+			return;
+		}
+		//
+		// Load Dynmap Markers
+		//
+		PlayerHomeMarkers.loadPlayerHomes();
+		WarpMarkers.loadWarps();
 		//
 		// Register protocolLib listeners
 		//
@@ -633,34 +752,32 @@ public class EvilBook extends JavaPlugin {
 		// TODO: Add questing system, mobs that talk and give quests, sendBlockChange to show route of quest by a line of wool, mabey an adventure questing world?
 		// TODO: Add ability to use EvilEdit in survival if the player has the needed blocks
 		// TODO: Add rotate command to rotate an area of blocks / copied blocks for evil edit
-		// TODO: Add achievements to earn special rewards
-		// TODO: Add own version of NametagEdit
 		//
 		// Statistics
 		//
-		Statistics.incrementStatistic(Statistic.CommandsExecuted, 1);
+		GlobalStatistics.incrementStatistic(GlobalStatistic.CommandsExecuted, 1);
 		//
 		// Dr. Watson Command
 		//
 		if (command.getName().equalsIgnoreCase("drwatson")) {
 			if (args.length == 0) {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/drwatson sql");
-				sender.sendMessage("§d/drwatson sqlclean");
-				sender.sendMessage("§d/drwatson respring");
-				sender.sendMessage("§d/drwatson memstat");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/drwatson sql");
+				sender.sendMessage("Â§d/drwatson sqlclean");
+				sender.sendMessage("Â§d/drwatson respring");
+				sender.sendMessage("Â§d/drwatson memstat");
 			} else if (args[0].equalsIgnoreCase("sql")) {
 				//
 				// Check `evilbook-dynamicsigns` table
 				//
-				sender.sendMessage("§7Dr. Watson scanning `evilbook-dynamicsigns`...");
+				sender.sendMessage("Â§7Dr. Watson scanning `evilbook-dynamicsigns`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("Â§7--> World '" + rs.getString("world") + "' is not loaded");
 							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
-								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a sign"); 
+								sender.sendMessage("Â§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a sign"); 
 							}
 						}
 					}
@@ -670,18 +787,18 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Check `evilbook-emitters` table
 				//
-				sender.sendMessage("§7Dr. Watson scanning `evilbook-emitters`...");
+				sender.sendMessage("Â§7Dr. Watson scanning `evilbook-emitters`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("Â§7--> World '" + rs.getString("world") + "' is not loaded"); 
 							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) {
-								sender.sendMessage("§7--> Location under (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is air"); 
+								sender.sendMessage("Â§7--> Location under (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is air"); 
 							} else if (rs.getInt("y") > Bukkit.getWorld(rs.getString("world")).getMaxHeight()) {
-								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is above world max height"); 
+								sender.sendMessage("Â§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is above world max height"); 
 							} else if (rs.getInt("y") < 0) {
-								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is below world min height"); 
+								sender.sendMessage("Â§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is below world min height"); 
 							}
 						}
 					}
@@ -691,14 +808,14 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Check `evilbook-protectedcontainers` table
 				//
-				sender.sendMessage("§7Dr. Watson scanning `evilbook-protectedcontainers`...");
+				sender.sendMessage("Â§7Dr. Watson scanning `evilbook-protectedcontainers`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.ContainerProtection.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("Â§7--> World '" + rs.getString("world") + "' is not loaded"); 
 							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof InventoryHolder == false) {
-								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a container"); 
+								sender.sendMessage("Â§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a container"); 
 							}
 						}
 					}
@@ -708,12 +825,12 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Check `evilbook-regions` table
 				//
-				sender.sendMessage("§7Dr. Watson scanning `evilbook-regions`...");
+				sender.sendMessage("Â§7Dr. Watson scanning `evilbook-regions`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("Â§7--> World '" + rs.getString("world") + "' is not loaded"); 
 							}
 						}
 					}
@@ -723,12 +840,12 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Check `evilbook-warps` table
 				//
-				sender.sendMessage("§7Dr. Watson scanning `evilbook-warps`...");
+				sender.sendMessage("Â§7Dr. Watson scanning `evilbook-warps`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Warps.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("location").split(">")[0]) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("location").split(">")[0] + "' is not loaded"); 
+								sender.sendMessage("Â§7--> World '" + rs.getString("location").split(">")[0] + "' is not loaded"); 
 							}
 						}
 					}
@@ -739,15 +856,15 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Clean `evilbook-dynamicsigns` table
 				//
-				sender.sendMessage("§7Dr. Watson cleaning `evilbook-dynamicsigns`...");
+				sender.sendMessage("Â§7Dr. Watson cleaning `evilbook-dynamicsigns`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + ".`evilbook-dynamicsigns`;")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("Â§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
 								SQL.deleteRowFromCriteria(TableType.DynamicSign, "world='" + rs.getString("world") + "'");
 							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
-								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a sign"); 
+								sender.sendMessage("Â§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a sign"); 
 								SQL.deleteRowFromCriteria(TableType.DynamicSign, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
 							}
 						}
@@ -758,21 +875,21 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Clean `evilbook-emitters` table
 				//
-				sender.sendMessage("§7Dr. Watson cleaning `evilbook-emitters`...");
+				sender.sendMessage("Â§7Dr. Watson cleaning `evilbook-emitters`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("Â§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
 								SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + rs.getString("world") + "'");
 							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) {
-								sender.sendMessage("§7--> FIXED: Location under (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is air"); 
+								sender.sendMessage("Â§7--> FIXED: Location under (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is air"); 
 								SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
 							} else if (rs.getInt("y") > Bukkit.getWorld(rs.getString("world")).getMaxHeight()) {
-								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is above world max height"); 
+								sender.sendMessage("Â§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is above world max height"); 
 								SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
 							} else if (rs.getInt("y") < 0) {
-								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is below world min height"); 
+								sender.sendMessage("Â§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is below world min height"); 
 								SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
 							}
 						}
@@ -783,15 +900,15 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Clean `evilbook-protectedcontainers` table
 				//
-				sender.sendMessage("§7Dr. Watson cleaning `evilbook-protectedcontainers`...");
+				sender.sendMessage("Â§7Dr. Watson cleaning `evilbook-protectedcontainers`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.ContainerProtection.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("Â§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
 								SQL.deleteRowFromCriteria(TableType.ContainerProtection, "world='" + rs.getString("world") + "'");
 							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof InventoryHolder == false) {
-								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a container"); 
+								sender.sendMessage("Â§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a container"); 
 								SQL.deleteRowFromCriteria(TableType.ContainerProtection, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
 							}	
 						}
@@ -802,13 +919,29 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Clean `evilbook-regions` table
 				//
-				sender.sendMessage("§7Dr. Watson cleaning `evilbook-regions`...");
+				sender.sendMessage("Â§7Dr. Watson cleaning `evilbook-regions`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("Â§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
 								SQL.deleteRowFromCriteria(TableType.Region, "world='" + rs.getString("world") + "'");
+							}
+						}
+					}
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+				//
+				// Clean `evilbook-warps` table
+				//
+				sender.sendMessage("Â§7Dr. Watson cleaning `evilbook-warps`...");
+				try (Statement statement = SQL.connection.createStatement()) {
+					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Warps.tableName + ";")) {
+						while (rs.next()) {
+							if (Bukkit.getWorld(rs.getString("location").split(">")[0]) == null) {
+								sender.sendMessage("Â§7--> FIXED: World '" + rs.getString("location").split(">")[0] + "' is not loaded"); 
+								SQL.deleteRowFromCriteria(TableType.Warps, "location='" + rs.getString("location") + "'");
 							}
 						}
 					}
@@ -819,7 +952,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Respring
 				//
-				broadcastPlayerMessage(sender.getName(), "§d[§5Server§d] Server respringing...");
+				broadcastPlayerMessage(sender.getName(), "Â§d[Â§5ServerÂ§d] Server respringing...");
 				blockList.clear();
 				biomeList.clear();
 				treeTypeList.clear();
@@ -833,15 +966,15 @@ public class EvilBook extends JavaPlugin {
 				lbConsumer = null;
 				HandlerList.unregisterAll();
 				onEnable();
-				broadcastPlayerMessage(sender.getName(), "§d[§5Server§d] Server resprung");
+				broadcastPlayerMessage(sender.getName(), "Â§d[Â§5ServerÂ§d] Server resprung");
 			} else if (args[0].equalsIgnoreCase("memstat")) {
 				//
 				// Memory statistics
 				//
-				sender.sendMessage("§dTotal memory §5" + Runtime.getRuntime().maxMemory() / 1048576 + "MB");
+				sender.sendMessage("Â§dTotal memory Â§5" + Runtime.getRuntime().maxMemory() / 1048576 + "MB");
 				int freePercentage = (int) Math.round((double)(Runtime.getRuntime().freeMemory()) / (double)(Runtime.getRuntime().maxMemory()) * 100);
-				sender.sendMessage("§dUsed memory " + ((100 - freePercentage) > 90 ? "§c" : "§a") + ((Runtime.getRuntime().maxMemory() / 1048576) - (Runtime.getRuntime().freeMemory() / 1048576)) + "MB §e(" + (100 - freePercentage) + "%)");
-				sender.sendMessage("§dFree memory " + (freePercentage > 10 ? "§a" : "§c") + Runtime.getRuntime().freeMemory() / 1048576 + "MB §e(" + freePercentage + "%)");
+				sender.sendMessage("Â§dUsed memory " + ((100 - freePercentage) > 90 ? "Â§c" : "Â§a") + ((Runtime.getRuntime().maxMemory() / 1048576) - (Runtime.getRuntime().freeMemory() / 1048576)) + "MB Â§e(" + (100 - freePercentage) + "%)");
+				sender.sendMessage("Â§dFree memory " + (freePercentage > 10 ? "Â§a" : "Â§c") + Runtime.getRuntime().freeMemory() / 1048576 + "MB Â§e(" + freePercentage + "%)");
 			}
 			return true;
 		}
@@ -850,11 +983,10 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("broadcast") || command.getName().equalsIgnoreCase("say")) {
 			if (args.length > 0) {
-				broadcastPlayerMessage(sender.getName(), "§d[§5" + (sender.getName().equals("CONSOLE") ? "Server" : sender.getName()) + "§d] " + toFormattedString(StringUtils.join(args, " ")));
+				broadcastPlayerMessage(sender.getName(), "Â§d[Â§5" + (sender.getName().equals("CONSOLE") ? "Server" : sender.getName()) + "Â§d] " + toFormattedString(StringUtils.join(args, " ")));
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				if (command.getName().equalsIgnoreCase("broadcast")) sender.sendMessage("§d/broadcast [message]");
-				if (command.getName().equalsIgnoreCase("say")) sender.sendMessage("§d/say [message]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [message]");
 			}
 			return true;
 		}
@@ -872,54 +1004,24 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (sender instanceof BlockCommandSender) return true;
 		//
-		// Statistics Command
-		//
-		if (command.getName().equalsIgnoreCase("statistics") || command.getName().equalsIgnoreCase("stats")) {
-			if (args.length == 1) {
-				OfflinePlayer statPlayer = getServer().getOfflinePlayer(args[0]);
-				if (statPlayer.hasPlayedBefore()) {
-					sender.sendMessage("§5Statistics for " + statPlayer.getName());
-					sender.sendMessage("§dMoney = $" + SQL.getProperty(TableType.PlayerProfile, statPlayer.getName(), "money"));
-					sender.sendMessage("§dTotal logins = " + SQL.getProperty(TableType.PlayerProfile, statPlayer.getName(), "total_logins"));
-					sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(statPlayer.getLastPlayed())));
-				} else {
-					sender.sendMessage("§7Statistics for this player weren't found");
-				}
-			} else {
-				sender.sendMessage("§5Statistics");
-				sender.sendMessage("§dEconomic growth = $" + Statistics.getStatistic(Statistic.EconomyGrowth) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_growth") + " total");
-				sender.sendMessage("§dEconomic trade = $" + Statistics.getStatistic(Statistic.EconomyTrade) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_trade") + " total");
-				sender.sendMessage("§dPlayer logins = " + Statistics.getStatistic(Statistic.LoginTotal) + " today §7" + SQL.getColumnSum(TableType.Statistics, "login_total") + " total");
-				sender.sendMessage("§dNew players = " + Statistics.getStatistic(Statistic.LoginNewPlayers) + " today");
-				sender.sendMessage("§dTotal unique players = " + SQL.getRowCount(TableType.PlayerProfile));
-				sender.sendMessage("§dCommands executed = " + Statistics.getStatistic(Statistic.CommandsExecuted) + " today §7" + SQL.getColumnSum(TableType.Statistics, "commands_executed") + " total");
-				sender.sendMessage("§dMessages sent = " + Statistics.getStatistic(Statistic.MessagesSent) + " today §7" + SQL.getColumnSum(TableType.Statistics, "messages_sent") + " total");
-				sender.sendMessage("§dBlocks broken = " + Statistics.getStatistic(Statistic.BlocksBroken) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_broken") + " total");
-				sender.sendMessage("§dBlocks placed = " + Statistics.getStatistic(Statistic.BlocksPlaced) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
-			}
-			return true;
-		}
-		//
 		// View Money Balance Command
 		//
 		if (command.getName().equalsIgnoreCase("money") || command.getName().equalsIgnoreCase("balance") || command.getName().equalsIgnoreCase("bal")) {
 			if (args.length == 0 && sender instanceof Player) {
-				sender.sendMessage("§5Your account balance is §d$" + getProfile(sender).money);
+				sender.sendMessage("Â§5Your account balance is Â§d$" + getProfile(sender).money);
 			} else if (args.length == 1) {
 				if (isProfileExistant(args[0])) {
 					if (getPlayer(args[0]) != null) {
-						sender.sendMessage("§5" + getPlayer(args[0]).getDisplayName() + "'s account balance is §d$" + getProfile(args[0]).money);
+						sender.sendMessage("Â§5" + getPlayer(args[0]).getDisplayName() + "'s account balance is Â§d$" + getProfile(args[0]).money);
 					} else {
-						sender.sendMessage("§5" + getServer().getOfflinePlayer(args[0]).getName() + "'s account balance is §d$" + SQL.getProperty(TableType.PlayerProfile, args[0], "money"));
+						sender.sendMessage("Â§5" + getServer().getOfflinePlayer(args[0]).getName() + "'s account balance is Â§d$" + SQL.getProperty(TableType.PlayerProfile, args[0], "money"));
 					}
 				} else {
-					sender.sendMessage("§7You can't view a player's account balance who doesn't exist");
+					sender.sendMessage("Â§7You can't view a player's account balance who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				if (command.getName().equalsIgnoreCase("money")) sender.sendMessage("§d/money <player>");
-				if (command.getName().equalsIgnoreCase("balance")) sender.sendMessage("§d/balance <player>");
-				if (command.getName().equalsIgnoreCase("bal")) sender.sendMessage("§d/bal <player>");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " <player>");
 			}
 			return true;
 		}
@@ -939,20 +1041,20 @@ public class EvilBook extends JavaPlugin {
 							playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
 						}
 						// Set nametag color
-						NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+						NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "Â§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 						//
-						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to Admin rank");
+						broadcastPlayerMessage(getPlayer(args[0]).getName(), "Â§c" + getPlayer(args[0]).getDisplayName() + " Â§dhas been promoted to Admin rank");
 					} else {
 						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", "Admin");
-						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to Admin rank");
+						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "Â§c" + getServer().getOfflinePlayer(args[0]).getName() + " Â§dhas been promoted to Admin rank");
 					}
 					getServer().getOfflinePlayer(args[0]).setOp(true);
 				} else {
-					sender.sendMessage("§7You can't give admin rank to a player who doesn't exist");
+					sender.sendMessage("Â§7You can't give admin rank to a player who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/makeadmin [player]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/makeadmin [player]");
 			}
 			return true;
 		}
@@ -971,9 +1073,9 @@ public class EvilBook extends JavaPlugin {
 		//
 		// List Command
 		//
-		if (command.getName().equalsIgnoreCase("list")) {
-			sender.sendMessage(getServer().getOnlinePlayers().length == 0 ? "§dThere are no online players" : "§5" + getServer().getOnlinePlayers().length + (getServer().getOnlinePlayers().length > 1 ? " §dOnline players" : " §dOnline player"));
-			for (Player p : getServer().getOnlinePlayers()) sender.sendMessage("  " + ((getProfile(p.getName()) instanceof PlayerProfileAdmin && ((PlayerProfileAdmin)getProfile(p.getName())).nameAlias == null) || (getProfile(p.getName()) instanceof PlayerProfileNormal) ? p.getDisplayName() : p.getDisplayName() + " §7(" + p.getName() + ")"));
+		if (command.getName().equalsIgnoreCase("list") || command.getName().equalsIgnoreCase("plist") || command.getName().equalsIgnoreCase("who") || command.getName().equalsIgnoreCase("playerlist") || command.getName().equalsIgnoreCase("online")) {
+			sender.sendMessage(getServer().getOnlinePlayers().size() == 0 ? "Â§dThere are no online players" : "Â§5" + getServer().getOnlinePlayers().size() + (getServer().getOnlinePlayers().size() > 1 ? " Â§dOnline players" : " Â§dOnline player"));
+			for (Player p : getServer().getOnlinePlayers()) sender.sendMessage("  " + ((getProfile(p.getName()) instanceof PlayerProfileAdmin && ((PlayerProfileAdmin)getProfile(p.getName())).nameAlias == null) || (getProfile(p.getName()) instanceof PlayerProfileNormal) ? p.getDisplayName() : p.getDisplayName() + " Â§7(" + p.getName() + ")"));
 			return true;
 		}
 		//
@@ -995,21 +1097,21 @@ public class EvilBook extends JavaPlugin {
 							//
 						}
 						// Set nametag color
-						NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+						NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "Â§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 						//
 						getProfile(args[0]).updatePlayerListName();
-						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been demoted to " + getProfile(args[0]).rank.getName() + " rank");
+						broadcastPlayerMessage(getPlayer(args[0]).getName(), "Â§c" + getPlayer(args[0]).getDisplayName() + " Â§dhas been demoted to " + getProfile(args[0]).rank.getName() + " rank");
 					} else {
 						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getPreviousRank() == Rank.Police) getServer().getOfflinePlayer(args[0]).setOp(false);
 						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getPreviousRank().toString());
-						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been demoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
+						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "Â§c" + getServer().getOfflinePlayer(args[0]).getName() + " Â§dhas been demoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
 					}
 				} else {
-					sender.sendMessage("§7You can't demote a player who doesn't exist");
+					sender.sendMessage("Â§7You can't demote a player who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/demote [player]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/demote [player]");
 			}
 			return true;
 		}
@@ -1021,13 +1123,14 @@ public class EvilBook extends JavaPlugin {
 				if (isProfileExistant(args[0])) {
 					if (getPlayer(args[0]) != null) {
 						if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.Moderator) && !getProfile(sender).rank.isHigher(Rank.Elite)) {
-							sender.sendMessage("§7You can't promote a player to above moderator");
+							sender.sendMessage("Â§7You can't promote a player to above moderator");
 						} else if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.Police) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
-							sender.sendMessage("§7You can't promote a player to above police");
+							sender.sendMessage("Â§7You can't promote a player to above police");
 						} else {
 							getProfile(args[0]).rank = getProfile(args[0]).rank.getNextRank();
-							if (getProfile(args[0]).rank.equals(Rank.Admin)) {
+							if (getProfile(args[0]).rank.equals(Rank.CopperStaff)) {
 								getServer().getOfflinePlayer(args[0]).setOp(true);
+							} else if (getProfile(args[0]).rank.equals(Rank.Admin)) {
 								// Player profile type conversion
 								if (getProfile(args[0]) instanceof PlayerProfileNormal) {
 									getProfile(args[0]).saveProfile();
@@ -1037,26 +1140,26 @@ public class EvilBook extends JavaPlugin {
 								//
 							}
 							// Set nametag color
-							NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+							NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "Â§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 							//
 							getProfile(args[0]).updatePlayerListName();
-							broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + getProfile(args[0]).rank.getName() + " rank");
+							broadcastPlayerMessage(getPlayer(args[0]).getName(), "Â§c" + getPlayer(args[0]).getDisplayName() + " Â§dhas been promoted to " + getProfile(args[0]).rank.getName() + " rank");
 						}
 					} else {
 						if (sender instanceof Player && !getProfile(sender).rank.isHigher(Rank.Tycoon)) {
-							sender.sendMessage("§7You can't promote offline players");
+							sender.sendMessage("Â§7You can't promote offline players");
 							return true;
 						}
-						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().equals(Rank.Admin)) getServer().getOfflinePlayer(args[0]).setOp(true);
+						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().equals(Rank.CopperStaff)) getServer().getOfflinePlayer(args[0]).setOp(true);
 						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().toString());
-						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
+						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "Â§c" + getServer().getOfflinePlayer(args[0]).getName() + " Â§dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
 					}
 				} else {
-					sender.sendMessage("§7You can't promote a player who doesn't exist");
+					sender.sendMessage("Â§7You can't promote a player who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/promote [player]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/promote [player]");
 			}
 			return true;
 		}
@@ -1064,13 +1167,13 @@ public class EvilBook extends JavaPlugin {
 		// Rules Command
 		//
 		if (command.getName().equalsIgnoreCase("rules")) {
-			sender.sendMessage("§dAmentrix Server Rules");
-			sender.sendMessage("  §5§l1 §5Do not grief, even in survival");
-			sender.sendMessage("  §5§l2 §5Do not advertise other servers");
-			sender.sendMessage("  §5§l3 §5Do not spam at any time");
-			sender.sendMessage("  §5§l4 §5Do not exploit bugs");
-			sender.sendMessage("§7Breaking a rule §lwill §7result in permanent ban");
-			sender.sendMessage("§7MCBans is operating on the server");
+			sender.sendMessage("Â§dAmentrix Server Rules");
+			sender.sendMessage("  Â§5Â§l1 Â§5Do not grief, even in survival");
+			sender.sendMessage("  Â§5Â§l2 Â§5Do not advertise other servers");
+			sender.sendMessage("  Â§5Â§l3 Â§5Do not spam at any time");
+			sender.sendMessage("  Â§5Â§l4 Â§5Do not exploit bugs");
+			sender.sendMessage("Â§7Breaking a rule Â§lwill Â§7result in permanent ban");
+			sender.sendMessage("Â§7MCBans is operating on the server");
 			return true;
 		}
 		//
@@ -1078,30 +1181,30 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("ranks")) {
 			if (args.length == 0 || args[0].equals("1")) {
-				sender.sendMessage("§dRanks §5- §dPage 1 of 3 §5- §7/ranks <page>");
-				sender.sendMessage("  §0[§EBuilder§0] §7Join the server");
-				sender.sendMessage("  §0[§5Adv.Builder§0] §7Impress an admin with a creation");
-				sender.sendMessage("  §0[§DArchitect§0] §7Further impress an admin with creations");
-				sender.sendMessage("  §0[§9Moderator§0] §7Show commitment and help the admins");
-				sender.sendMessage("  §0[§3Police§0] §7Further help the admins");
-				sender.sendMessage("  §7To purchase a rank please see /admin");
+				sender.sendMessage("Â§dRanks Â§5- Â§dPage 1 of 3 Â§5- Â§7/ranks <page>");
+				sender.sendMessage("  Â§0[Â§EBuilderÂ§0] Â§7Join the server");
+				sender.sendMessage("  Â§0[Â§5Adv.BuilderÂ§0] Â§7Impress an admin with a creation");
+				sender.sendMessage("  Â§0[Â§DArchitectÂ§0] Â§7Further impress an admin with creations");
+				sender.sendMessage("  Â§0[Â§9ModeratorÂ§0] Â§7Show commitment and help the admins");
+				sender.sendMessage("  Â§0[Â§3PoliceÂ§0] Â§7Further help the admins");
+				sender.sendMessage("  Â§7To purchase a rank please see /admin");
 			} else if (args[0].equals("2")) {
-				sender.sendMessage("§dRanks §5- §dPage 2 of 3 §5- §7/ranks <page>");
-				sender.sendMessage("  §0[§ECopperStaff§0] §7Show loyalty and help players");
-				sender.sendMessage("  §0[§7SilverStaff§0] §7Show loyalty and help players");
-				sender.sendMessage("  §0[§6GoldStaff§0] §7Show loyalty and help players");
-				sender.sendMessage("  §0[§1LapisStaff§0] §7Show loyalty and help players");
-				sender.sendMessage("  §0[§BDiamondStaff§0] §7Show loyalty and help players");
-				sender.sendMessage("  §7To purchase a rank please see /admin");
+				sender.sendMessage("Â§dRanks Â§5- Â§dPage 2 of 3 Â§5- Â§7/ranks <page>");
+				sender.sendMessage("  Â§0[Â§ECopperStaffÂ§0] Â§7Show loyalty and help players");
+				sender.sendMessage("  Â§0[Â§7SilverStaffÂ§0] Â§7Show loyalty and help players");
+				sender.sendMessage("  Â§0[Â§6GoldStaffÂ§0] Â§7Show loyalty and help players");
+				sender.sendMessage("  Â§0[Â§1LapisStaffÂ§0] Â§7Show loyalty and help players");
+				sender.sendMessage("  Â§0[Â§BDiamondStaffÂ§0] Â§7Show loyalty and help players");
+				sender.sendMessage("  Â§7To purchase a rank please see /admin");
 			} else if (args[0].equals("3")) {
-				sender.sendMessage("§dRanks §5- §dPage 3 of 3 §5- §7/ranks <page>");
-				sender.sendMessage("  §0[§4Admin§0] §7Purchased from the Amentrix website");
-				sender.sendMessage("  §0[§ACounciller§0] §7Purchased from the Amentrix website");
-				sender.sendMessage("  §0[§CElite§0] §7Purchased from the Amentrix website");
-				sender.sendMessage("  §0[§6Investor§0] §7Purchased from the Amentrix website");
-				sender.sendMessage("  §0[§6§OTycoon§0] §7Purchased from the Amentrix website");
-				sender.sendMessage("  §0[§BServerHost§0] §7EvilPeanut");
-				sender.sendMessage("  §7To purchase a rank please see /admin");
+				sender.sendMessage("Â§dRanks Â§5- Â§dPage 3 of 3 Â§5- Â§7/ranks <page>");
+				sender.sendMessage("  Â§0[Â§4AdminÂ§0] Â§7Purchased from the Amentrix website");
+				sender.sendMessage("  Â§0[Â§ACouncillerÂ§0] Â§7Purchased from the Amentrix website");
+				sender.sendMessage("  Â§0[Â§CEliteÂ§0] Â§7Purchased from the Amentrix website");
+				sender.sendMessage("  Â§0[Â§6InvestorÂ§0] Â§7Purchased from the Amentrix website");
+				sender.sendMessage("  Â§0[Â§6Â§OTycoonÂ§0] Â§7Purchased from the Amentrix website");
+				sender.sendMessage("  Â§0[Â§BServerHostÂ§0] Â§7EvilPeanut");
+				sender.sendMessage("  Â§7To purchase a rank please see /admin");
 			}
 			return true;
 		}
@@ -1112,44 +1215,20 @@ public class EvilBook extends JavaPlugin {
 			int entitiesRemoved = 0;
 			for (World w : getServer().getWorlds()) {
 				entitiesRemoved += w.getEntities().size();
-				if (isInSurvival(w)) {
-					for (Entity entity : w.getEntities()) {
-						if (entity.getType() == EntityType.PLAYER 
-								|| entity.getType() == EntityType.PAINTING 
-								|| entity.getType() == EntityType.FALLING_BLOCK
-								|| entity.getType() == EntityType.DROPPED_ITEM 
-								|| entity.getType() == EntityType.ENDER_SIGNAL 
-								|| entity.getType() == EntityType.EXPERIENCE_ORB
-								|| entity.getType() == EntityType.FISHING_HOOK 
-								|| entity.getType() == EntityType.ITEM_FRAME 
-								|| entity.getType() == EntityType.SNOWBALL
-								|| entity.getType() == EntityType.PRIMED_TNT 
-								|| entity.getType() == EntityType.WEATHER 
-								|| (entity instanceof Tameable && ((Tameable)entity).isTamed())
-								|| entity.getType() == EntityType.ENDER_PEARL 
-								|| entity.getType() == EntityType.EGG
-								|| entity.getType() == EntityType.THROWN_EXP_BOTTLE 
-								|| entity.getType() == EntityType.SPLASH_POTION) {
-							entitiesRemoved--;
-						} else {
-							entity.remove();
-						}
-					}
-				} else {
-					for (Entity entity : w.getEntities()) {
-						if (entity.getType() == EntityType.PLAYER 
-								|| entity.getType() == EntityType.PAINTING
-								|| entity.getType() == EntityType.FISHING_HOOK 
-								|| entity.getType() == EntityType.ITEM_FRAME
-								|| (entity instanceof Tameable && ((Tameable)entity).isTamed())) {
-							entitiesRemoved--;
-						} else {
-							entity.remove();
-						}
+				if (isInSurvival(w)) continue;
+				for (Entity entity : w.getEntities()) {
+					if (entity.getType() == EntityType.PLAYER 
+							|| entity.getType() == EntityType.PAINTING
+							|| entity.getType() == EntityType.FISHING_HOOK 
+							|| entity.getType() == EntityType.ITEM_FRAME
+							|| (entity instanceof Tameable && ((Tameable)entity).isTamed())) {
+						entitiesRemoved--;
+					} else {
+						entity.remove();
 					}
 				}
 			}
-			sender.sendMessage("§dServer clean removed §5" + entitiesRemoved + "§d entities");
+			sender.sendMessage("Â§dServer clean removed Â§5" + entitiesRemoved + "Â§d entities");
 			return true;
 		}
 		//
@@ -1157,44 +1236,25 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("colors") || command.getName().equalsIgnoreCase("colours")) {
 			if (args.length == 0 || args[0].equals("1")) {
-				sender.sendMessage("§dColors §5- §dPage 1 of 2 §5- §7/colors <page>");
-				sender.sendMessage("  §0&0 Black");
-				sender.sendMessage("  §1&1 Dark Blue");
-				sender.sendMessage("  §2&2 Dark Green");
-				sender.sendMessage("  §3&3 Dark Aqua");
-				sender.sendMessage("  §4&4 Dark Red");
-				sender.sendMessage("  §5&5 Dark Purple");
-				sender.sendMessage("  §6&6 Gold");
-				sender.sendMessage("  §7&7 Gray");
-				sender.sendMessage("  §8&8 Dark Grey");
+				sender.sendMessage("Â§dColors Â§5- Â§dPage 1 of 2 Â§5- Â§7/colors <page>");
+				sender.sendMessage("  Â§0&0 Black");
+				sender.sendMessage("  Â§1&1 Dark Blue");
+				sender.sendMessage("  Â§2&2 Dark Green");
+				sender.sendMessage("  Â§3&3 Dark Aqua");
+				sender.sendMessage("  Â§4&4 Dark Red");
+				sender.sendMessage("  Â§5&5 Dark Purple");
+				sender.sendMessage("  Â§6&6 Gold");
+				sender.sendMessage("  Â§7&7 Gray");
+				sender.sendMessage("  Â§8&8 Dark Grey");
 			} else if (args[0].equals("2")) {
-				sender.sendMessage("§dColors §5- §dPage 2 of 2 §5- §7/colors <page>");
-				sender.sendMessage("  §9&9 Blue");
-				sender.sendMessage("  §a&a Green");
-				sender.sendMessage("  §b&b Aqua");
-				sender.sendMessage("  §c&c Red");
-				sender.sendMessage("  §d&d Light Purple");
-				sender.sendMessage("  §e&e Yellow");
-				sender.sendMessage("  §f&f White");
-			}
-			return true;
-		}
-		//
-		// Kick Command
-		//
-		if (command.getName().equalsIgnoreCase("kick")) {
-			if (args.length >= 2) {
-				if (getPlayer(args[0]) != null) {
-					StringBuilder message = new StringBuilder();
-					for (int i = 1; i < args.length; i++) message.append(args[i] + " ");
-					getPlayer(args[0]).kickPlayer((sender instanceof Player ? ((Player) sender).getDisplayName() : "§4Server") + "§c: " + message);
-					alert(sender.getName() + " kicked " + args[0] + " with the message '" + message + "§7'");
-				} else {
-					sender.sendMessage("§7You can't kick an offline player");
-				}
-			} else {
-				sender.sendMessage("§7Please provide a player and a reason for the kick");
-				sender.sendMessage("§7/kick [player] [reason]");
+				sender.sendMessage("Â§dColors Â§5- Â§dPage 2 of 2 Â§5- Â§7/colors <page>");
+				sender.sendMessage("  Â§9&9 Blue");
+				sender.sendMessage("  Â§a&a Green");
+				sender.sendMessage("  Â§b&b Aqua");
+				sender.sendMessage("  Â§c&c Red");
+				sender.sendMessage("  Â§d&d Light Purple");
+				sender.sendMessage("  Â§e&e Yellow");
+				sender.sendMessage("  Â§f&f White");
 			}
 			return true;
 		}
@@ -1210,14 +1270,187 @@ public class EvilBook extends JavaPlugin {
 		}
 		Player player = (Player)sender;
 		//
+		// Statistics Command
+		//
+		if (command.getName().equalsIgnoreCase("statistics") || command.getName().equalsIgnoreCase("stats")) {
+			if (args.length == 1) {
+				if (args[0].equalsIgnoreCase("server")) {
+					sender.sendMessage("Â§5Server General Statistics");
+					sender.sendMessage("Â§dEconomic growth = $" + GlobalStatistics.getStatistic(GlobalStatistic.EconomyGrowth) + " today Â§7$" + SQL.getColumnSum(TableType.Statistics, "economy_growth") + " total");
+					sender.sendMessage("Â§dEconomic trade = $" + GlobalStatistics.getStatistic(GlobalStatistic.EconomyTrade) + " today Â§7$" + SQL.getColumnSum(TableType.Statistics, "economy_trade") + " total");
+					sender.sendMessage("Â§dPlayer logins = " + GlobalStatistics.getStatistic(GlobalStatistic.LoginTotal) + " today Â§7" + SQL.getColumnSum(TableType.Statistics, "login_total") + " total");
+					sender.sendMessage("Â§dNew players = " + GlobalStatistics.getStatistic(GlobalStatistic.LoginNewPlayers) + " today");
+					sender.sendMessage("Â§dTotal unique players = " + SQL.getRowCount(TableType.PlayerProfile));
+					sender.sendMessage("Â§dCommands executed = " + GlobalStatistics.getStatistic(GlobalStatistic.CommandsExecuted) + " today Â§7" + SQL.getColumnSum(TableType.Statistics, "commands_executed") + " total");
+					sender.sendMessage("Â§dMessages sent = " + GlobalStatistics.getStatistic(GlobalStatistic.MessagesSent) + " today Â§7" + SQL.getColumnSum(TableType.Statistics, "messages_sent") + " total");
+					sender.sendMessage("Â§dBlocks broken = " + GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken) + " today Â§7" + SQL.getColumnSum(TableType.Statistics, "blocks_broken") + " total");
+					sender.sendMessage("Â§dBlocks placed = " + GlobalStatistics.getStatistic(GlobalStatistic.BlocksPlaced) + " today Â§7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
+				} else if (args[0].equalsIgnoreCase("player")) {
+					sender.sendMessage("Â§5" + player.getName() + "'s General Statistics");
+					sender.sendMessage("Â§dMoney = $" + SQL.getProperty(TableType.PlayerProfile, player.getName(), "money"));
+					sender.sendMessage("Â§dTotal logins = " + SQL.getProperty(TableType.PlayerProfile, player.getName(), "total_logins"));
+					sender.sendMessage("Â§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(player.getLastPlayed())));
+				} else if (args[0].equalsIgnoreCase("survival")) {
+					List<String> text = new ArrayList();
+					text.add("Â§5Server Survival Statistics\n\nÂ§7Page 1 - Mined ores\nÂ§7Page 2 - Mob kills\nÂ§7Page 3 - Mob kills");
+					text.add("Â§5Â§oTotal ores mined\n\nÂ§dCoal = " + SQL.getColumnSum(TableType.PlayerStatistics, "mined_coal") + "\n" +
+							"Â§dIron = " + SQL.getColumnSum(TableType.PlayerStatistics, "mined_iron") + "\n" +
+							"Â§dRedstone = " + SQL.getColumnSum(TableType.PlayerStatistics, "mined_redstone") + "\n" +
+							"Â§dLapis Lazuli = " + SQL.getColumnSum(TableType.PlayerStatistics, "mined_lapis") + "\n" +
+							"Â§dQuartz = " + SQL.getColumnSum(TableType.PlayerStatistics, "mined_netherquartz") + "\n" +
+							"Â§dGold = " + SQL.getColumnSum(TableType.PlayerStatistics, "mined_gold") + "\n" +
+							"Â§dDiamond = " + SQL.getColumnSum(TableType.PlayerStatistics, "mined_diamond") + "\n" +
+							"Â§dEmerald = " + SQL.getColumnSum(TableType.PlayerStatistics, "mined_emerald") + "\n");
+					text.add("Â§5Â§oTotal mobs killed\n\nÂ§dPigs = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_pigs") + "\n" +
+							"Â§dVillagers = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_villagers") + "\n" +
+							"Â§dCave Spiders = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_cavespiders") + "\n" +
+							"Â§dEndermen = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_endermen") + "\n" +
+							"Â§dSpiders = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_spiders") + "\n" +
+							"Â§dWolves = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_wolves") + "\n" +
+							"Â§dZombie Pigmen = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_zombiepigs") + "\n" +
+							"Â§dBlazes = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_blazes") + "\n" + 
+							"Â§dCreepers = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_creepers") + "\n" +
+							"Â§dGhasts = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_ghasts") + "\n" +
+							"Â§dMagmacubes = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_magmacubes") + "\n");
+					text.add("Â§5Â§oTotal mobs killed\n\nÂ§dSilverfish = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_silverfish") + "\n" +
+							"Â§dSkeletons = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_skeletons") + "\n" +
+							"Â§dSlimes = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_slimes") + "\n" +
+							"Â§dWitches = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_witches") + "\n" +
+							"Â§dZombies = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_zombies") + "\n" +
+							"Â§dEnder Dragons = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_enderdragons") + "\n" +
+							"Â§dWithers = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_withers") + "\n" +
+							"Â§dPlayers = " + SQL.getColumnSum(TableType.PlayerStatistics, "killed_players") + "\n");
+					player.getInventory().addItem(getBook("Server Survival Statistics", "Amentrix", text));
+					sender.sendMessage("Â§7Please check your inventory for the survival statistics guide");
+				}
+			} else if (args.length == 2) {
+				if (args[0].equalsIgnoreCase("player")) {
+					OfflinePlayer statPlayer = getServer().getOfflinePlayer(args[1]);
+					if (statPlayer.hasPlayedBefore()) {
+						sender.sendMessage("Â§5" + statPlayer.getName() + "'s General Statistics");
+						sender.sendMessage("Â§dMoney = $" + SQL.getProperty(TableType.PlayerProfile, statPlayer.getName(), "money"));
+						sender.sendMessage("Â§dTotal logins = " + SQL.getProperty(TableType.PlayerProfile, statPlayer.getName(), "total_logins"));
+						sender.sendMessage("Â§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(statPlayer.getLastPlayed())));
+					} else {
+						sender.sendMessage("Â§7Statistics for this player weren't found");
+					}
+				} else if (args[0].equalsIgnoreCase("survival")) {
+					OfflinePlayer statPlayer = getServer().getOfflinePlayer(args[1]);
+					if (statPlayer.hasPlayedBefore()) {
+						List<String> text = new ArrayList();
+						text.add("Â§5" + statPlayer.getName() + "'s Survival Statistics\n\nÂ§7Page 1 - Mined ores\nÂ§7Page 2 - Mob kills\nÂ§7Page 3 - Mob kills");
+						text.add("Â§5Â§oTotal ores mined\n\nÂ§dCoal = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_COAL) + "\n" +
+								"Â§dIron = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_IRON) + "\n" +
+								"Â§dRedstone = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_REDSTONE) + "\n" +
+								"Â§dLapis Lazuli = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_LAPIS) + "\n" +
+								"Â§dQuartz = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_NETHERQUARTZ) + "\n" +
+								"Â§dGold = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_GOLD) + "\n" +
+								"Â§dDiamond = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_DIAMOND) + "\n" +
+								"Â§dEmerald = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_EMERALD) + "\n");
+						text.add("Â§5Â§oTotal mobs killed\n\nÂ§dPigs = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_PIGS) + "\n" +
+								"Â§dVillagers = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_VILLAGERS) + "\n" +
+								"Â§dCave Spiders = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_CAVESPIDERS) + "\n" +
+								"Â§dEndermen = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ENDERMEN) + "\n" +
+								"Â§dSpiders = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SPIDERS) + "\n" +
+								"Â§dWolves = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WOLVES) + "\n" +
+								"Â§dZombie Pigmen = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ZOMBIEPIGS) + "\n" +
+								"Â§dBlazes = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_BLAZES) + "\n" + 
+								"Â§dCreepers = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_CREEPERS) + "\n" +
+								"Â§dGhasts = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_GHASTS) + "\n" +
+								"Â§dMagmacubes = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_MAGMACUBES) + "\n");
+						text.add("Â§5Â§oTotal mobs killed\n\nÂ§dSilverfish = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SILVERFISH) + "\n" +
+								"Â§dSkeletons = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SKELETONS) + "\n" +
+								"Â§dSlimes = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SLIMES) + "\n" +
+								"Â§dWitches = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WITCHES) + "\n" +
+								"Â§dZombies = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ZOMBIES) + "\n" +
+								"Â§dEnder Dragons = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ENDERDRAGONS) + "\n" +
+								"Â§dWithers = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WITHERS) + "\n" +
+								"Â§dPlayers = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_PLAYERS) + "\n");
+						player.getInventory().addItem(getBook(statPlayer.getName() + "'s Survival Statistics", "Amentrix", text));
+						sender.sendMessage("Â§7Please check your inventory for the survival statistics guide");
+					} else {
+						sender.sendMessage("Â§7Statistics for this player weren't found");
+					}
+				}
+			} else {
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " server");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " player [player]");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " survival <player>");
+			}
+			return true;
+		}
+		//
+		// Title Command
+		//
+		if (command.getName().equalsIgnoreCase("title")) {
+			if (args.length == 0) {
+				//
+				// List the players unlocked titles
+				//
+				sender.sendMessage("Â§5My unlocked titles");
+				String titles = getUnlockedTitles(player);
+				sender.sendMessage("Â§d" + (titles.equals("") ? "You haven't unlocked any titles" : titles));
+			} else if (args.length == 1) {
+				//
+				// Player is trying to set a title
+				//
+				for (String title : getUnlockedTitles(player).split(" ")) {
+					if (args[0].equalsIgnoreCase(title)) {
+						getProfile(player).setNameTitle(title);
+						sender.sendMessage("Â§7You have changed your title to Â§d" + title);
+						return true;
+					}
+				}
+				if (!getProfile(player).rank.isHigher(Rank.Admin)) {
+					sender.sendMessage("Â§5This title doesn't exist or hasn't been unlocked");
+					sender.sendMessage("Â§dYou can't use this title, counciller rank is required to use custom titles");
+					sender.sendMessage("Â§dTo view the titles you have unlocked please see /title");
+				} else {
+					String title = toFormattedString(args[0]);
+					getProfile(player).setNameTitle(title);
+					sender.sendMessage("Â§7You have changed your title to Â§d" + title);
+				}
+			} else {
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/title");
+				sender.sendMessage("Â§d/title [title]");
+			}
+			return true;
+		}
+		//
+		// More Command
+		//
+		if (command.getName().equalsIgnoreCase("more")) {
+			player.getItemInHand().setAmount(player.getItemInHand().getMaxStackSize());
+			return true;
+		}
+		//
+		// Hyperhorse Command
+		//
+		if (command.getName().equalsIgnoreCase("hyperhorse")) {
+			if (player.getVehicle() != null && player.getVehicle() instanceof Horse) {
+				Horse entity = (Horse)player.getVehicle();
+				entity.setMaxHealth(Double.MAX_VALUE);
+				entity.setCustomName("Hyperhorse");
+				entity.setAgeLock(true);
+				entity.setHealth(entity.getMaxHealth());
+				entity.setJumpStrength(2);
+				entity.setVariant(Variant.SKELETON_HORSE);
+				entity.setTamed(true);
+			} else {
+				sender.sendMessage("Â§7You have to be riding a horse to make it a hyperhorse");
+			}
+			return true;
+		}
+		//
 		// Mail Command
 		//
 		if (command.getName().equalsIgnoreCase("mail")) {
 			if (args.length == 0) {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/mail inbox");
-				sender.sendMessage("§d/mail delete [index]");
-				sender.sendMessage("§d/mail send [player] [message]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/mail inbox");
+				sender.sendMessage("Â§d/mail send [player] [message]");
 			} else if (args[0].equalsIgnoreCase("inbox")) {
 				Inventory inboxMenu = Bukkit.createInventory(null, 27, "My inbox");
 				try (Statement statement = SQL.connection.createStatement()) {
@@ -1236,13 +1469,13 @@ public class EvilBook extends JavaPlugin {
 						StringBuilder message = new StringBuilder();
 						for (int i = 2; i < args.length; i++) message.append(" " + args[i].replaceAll("'", "''"));
 						SQL.insert(TableType.Mail, "'" + sender.getName() + "','" + getServer().getOfflinePlayer(args[1]).getName() + "','" + message + "','" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "'");
-						sender.sendMessage("§7Message sent");
+						sender.sendMessage("Â§7Message sent");
 					} else {
-						sender.sendMessage("§7The recipient player doesn't exist");
+						sender.sendMessage("Â§7The recipient player doesn't exist");
 					}
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/mail send [player] [message]");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/mail send [player] [message]");
 				}
 			}
 			return true;
@@ -1251,17 +1484,7 @@ public class EvilBook extends JavaPlugin {
 		// Minigame Command
 		//
 		if (command.getName().equalsIgnoreCase("minigame")) {
-			if (args.length == 1 && args[0].equalsIgnoreCase("DungeonOfDeath")) {
-				sender.sendMessage("§5This mini-game is currently in beta testing");
-				sender.sendMessage("§5Beta testing server: amentrix.no-ip.org:25564");
-			} else {
-				sender.sendMessage("§5Please select a mini-game");
-				sender.sendMessage("§d/minigame DungeonOfDeath");
-				sender.sendMessage("§7   Fight through an infinite dungeon");
-				sender.sendMessage("§7   solo or with friends, upgrading");
-				sender.sendMessage("§7   weapons, discovering sights and");
-				sender.sendMessage("§7   seeing how long you can survive");
-			}
+			sender.sendMessage("Â§7The minigame creator is under development");
 			return true;
 		}
 		//
@@ -1273,19 +1496,19 @@ public class EvilBook extends JavaPlugin {
 					if (!getProfile(getPlayer(args[0])).isMuted(player.getName())) {
 						StringBuilder message = new StringBuilder();
 						for (int i = 1; i < args.length; i++) message.append(" " + args[i]);
-						sender.sendMessage("§7To " + getPlayer(args[0]).getDisplayName() + "§7:§f" + message);
-						getPlayer(args[0]).sendMessage("§7From " + ((Player) sender).getDisplayName() + ":§f" + message);
-						getProfile(player).lastMsgPlayer = args[0];
+						sender.sendMessage("Â§7To " + getPlayer(args[0]).getDisplayName() + "Â§7:Â§f" + message);
+						getPlayer(args[0]).sendMessage("Â§7From " + ((Player) sender).getDisplayName() + ":Â§f" + message);
+						getProfile(player).lastMsgPlayer = getPlayer(args[0]).getName();
 						getProfile(args[0]).lastMsgPlayer = sender.getName();
 					} else {
-						sender.sendMessage("§7You can't message a player who has muted you");
+						sender.sendMessage("Â§7You can't message a player who has muted you");
 					}
 				} else {
-					sender.sendMessage("§7You can't message an offline player");
+					sender.sendMessage("Â§7You can't message an offline player");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/msg [player] [message]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/msg [player] [message]");
 			}
 			return true;
 		}
@@ -1298,16 +1521,16 @@ public class EvilBook extends JavaPlugin {
 					if (!getProfile(getPlayer(getProfile(player).lastMsgPlayer)).isMuted(player.getName())) {
 						StringBuilder message = new StringBuilder();
 						for (String msg : args) message.append(" " + msg);
-						sender.sendMessage("§7To " + getServer().getPlayer(getProfile(player).lastMsgPlayer).getDisplayName() + "§7:§f" + message);
-						getServer().getPlayer(getProfile(player).lastMsgPlayer).sendMessage("§7From " + ((Player) sender).getDisplayName() + ":§f" + message);
+						sender.sendMessage("Â§7To " + getServer().getPlayer(getProfile(player).lastMsgPlayer).getDisplayName() + "Â§7:Â§f" + message);
+						getServer().getPlayer(getProfile(player).lastMsgPlayer).sendMessage("Â§7From " + ((Player) sender).getDisplayName() + ":Â§f" + message);
 					} else {
-						sender.sendMessage("§7You can't message a player who has muted you");
+						sender.sendMessage("Â§7You can't message a player who has muted you");
 					}
 				} else {
-					sender.sendMessage("§7You can't message an offline player");
+					sender.sendMessage("Â§7You can't message an offline player");
 				}
 			} else {
-				player.sendMessage("§7There is no message to reply to");
+				player.sendMessage("Â§7There is no message to reply to");
 			}
 			return true;
 		}
@@ -1320,9 +1543,9 @@ public class EvilBook extends JavaPlugin {
 				for (int i = 1; i < args.length; i++) broadcast.append(" " + args[i]);
 				for (Player p : getServer().getOnlinePlayers()) {
 					if (getProfile(p) != getProfile(args[0])) {
-						p.sendMessage(getProfile(args[0]).rank.getPrefix(getProfile(args[0])) + " §" + getProfile(args[0]).rank.getColor(getProfile(args[0])) 
-								+ "<" + getPlayer(args[0]).getDisplayName() + "§" + getProfile(args[0]).rank.getColor(getProfile(args[0])) 
-								+ ">§f" + toFormattedString(broadcast.toString()));
+						p.sendMessage(getProfile(args[0]).rank.getPrefix(getProfile(args[0])) + " Â§" + getProfile(args[0]).rank.getColor(getProfile(args[0])) 
+								+ "<" + getPlayer(args[0]).getDisplayName() + "Â§" + getProfile(args[0]).rank.getColor(getProfile(args[0])) 
+								+ ">Â§f" + toFormattedString(broadcast.toString()));
 					}
 				}
 			}
@@ -1335,19 +1558,19 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (args[0].equalsIgnoreCase("none")) {
 					getProfile(player).wandMode = EditWandMode.None;
-					player.sendMessage("§7Edit wand disabled");
+					player.sendMessage("Â§7Edit wand disabled");
 				} else if (args[0].equalsIgnoreCase("selection")) {
 					getProfile(player).wandMode = EditWandMode.Selection;
-					player.sendMessage("§7Edit wand in selection mode");
+					player.sendMessage("Â§7Edit wand in selection mode");
 				} else if (args[0].equalsIgnoreCase("tree")) {
 					getProfile(player).wandMode = EditWandMode.Tree;
-					player.sendMessage("§7Edit wand in tree mode");
+					player.sendMessage("Â§7Edit wand in tree mode");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/tool none");
-				sender.sendMessage("§d/tool selection");
-				sender.sendMessage("§d/tool tree");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/tool none");
+				sender.sendMessage("Â§d/tool selection");
+				sender.sendMessage("Â§d/tool tree");
 			}
 			return true;
 		}
@@ -1356,11 +1579,11 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("effect")) {
 			if (args.length == 0) {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/effect smoke [direction] [frequency]");
-				sender.sendMessage("§d/effect flames [frequency]");
-				sender.sendMessage("§d/effect potion [frequency]");
-				for (EmitterEffect effectType : EmitterEffect.values()) if (effectType.isParticleEffect()) sender.sendMessage("§d/effect " + effectType.name().toLowerCase() + " [frequency] [amount]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/effect smoke [direction] [frequency]");
+				sender.sendMessage("Â§d/effect flames [frequency]");
+				sender.sendMessage("Â§d/effect potion [frequency]");
+				for (EmitterEffect effectType : EmitterEffect.values()) if (effectType.isParticleEffect()) sender.sendMessage("Â§d/effect " + effectType.name().toLowerCase() + " [frequency] [amount]");
 			} else if (args.length >= 1) {
 				if (args[0].equalsIgnoreCase("smoke")) {
 					if (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) {
@@ -1368,91 +1591,91 @@ public class EvilBook extends JavaPlugin {
 							Emitter emitter = new Emitter(player.getLocation(), EmitterEffect.Smoke, 4, 2);
 							emitterList.add(emitter);
 							emitter.save();
-							sender.sendMessage("§7Created smoke effect");
+							sender.sendMessage("Â§7Created smoke effect");
 						} else if (args.length == 2) {
 							if (isInteger(args[1])) {
 								Emitter emitter = new Emitter(player.getLocation(), EmitterEffect.Smoke, Integer.parseInt(args[1]), 2);
 								emitterList.add(emitter);
 								emitter.save();
-								sender.sendMessage("§7Created smoke effect");
+								sender.sendMessage("Â§7Created smoke effect");
 							} else {
-								sender.sendMessage("§5Please enter a valid direction");
-								sender.sendMessage("§d0 - South East");
-								sender.sendMessage("§d1 - South");
-								sender.sendMessage("§d2 - South West");
-								sender.sendMessage("§d3 - East");
-								sender.sendMessage("§d4 - Up");
-								sender.sendMessage("§d5 - West");
-								sender.sendMessage("§d6 - North East");
-								sender.sendMessage("§d7 - North");
-								sender.sendMessage("§d8 - North West");
+								sender.sendMessage("Â§5Please enter a valid direction");
+								sender.sendMessage("Â§d0 - South East");
+								sender.sendMessage("Â§d1 - South");
+								sender.sendMessage("Â§d2 - South West");
+								sender.sendMessage("Â§d3 - East");
+								sender.sendMessage("Â§d4 - Up");
+								sender.sendMessage("Â§d5 - West");
+								sender.sendMessage("Â§d6 - North East");
+								sender.sendMessage("Â§d7 - North");
+								sender.sendMessage("Â§d8 - North West");
 							}
 						} else if (args.length == 3) {
 							if (isInteger(args[1]) && isInteger(args[2]) && Integer.parseInt(args[2]) >= 0) {
 								Emitter emitter = new Emitter(player.getLocation(), EmitterEffect.Smoke, Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 								emitterList.add(emitter);
 								emitter.save();
-								sender.sendMessage("§7Created smoke effect");
+								sender.sendMessage("Â§7Created smoke effect");
 							} else {
-								sender.sendMessage("§5Please enter a valid direction and frequency");
-								sender.sendMessage("§d0 - South East");
-								sender.sendMessage("§d1 - South");
-								sender.sendMessage("§d2 - South West");
-								sender.sendMessage("§d3 - East");
-								sender.sendMessage("§d4 - Up");
-								sender.sendMessage("§d5 - West");
-								sender.sendMessage("§d6 - North East");
-								sender.sendMessage("§d7 - North");
-								sender.sendMessage("§d8 - North West");
+								sender.sendMessage("Â§5Please enter a valid direction and frequency");
+								sender.sendMessage("Â§d0 - South East");
+								sender.sendMessage("Â§d1 - South");
+								sender.sendMessage("Â§d2 - South West");
+								sender.sendMessage("Â§d3 - East");
+								sender.sendMessage("Â§d4 - Up");
+								sender.sendMessage("Â§d5 - West");
+								sender.sendMessage("Â§d6 - North East");
+								sender.sendMessage("Â§d7 - North");
+								sender.sendMessage("Â§d8 - North West");
 							}
 						} else {
-							sender.sendMessage("§5Incorrect command usage");
-							sender.sendMessage("§d/effect smoke");
-							sender.sendMessage("§d/effect smoke [direction]");
-							sender.sendMessage("§d/effect smoke [direction] [frequency]");
+							sender.sendMessage("Â§5Incorrect command usage");
+							sender.sendMessage("Â§d/effect smoke");
+							sender.sendMessage("Â§d/effect smoke [direction]");
+							sender.sendMessage("Â§d/effect smoke [direction] [frequency]");
 						}
 					} else {
-						sender.sendMessage("§7Please stand on a block before creating a smoke effect");
+						sender.sendMessage("Â§7Please stand on a block before creating a smoke effect");
 					}
 				} else if (args[0].equalsIgnoreCase("flames")) {
 					if (args.length == 1) {
 						Emitter emitter = new Emitter(player.getLocation(), EmitterEffect.Flames, 4, 2);
 						emitterList.add(emitter);
 						emitter.save();
-						sender.sendMessage("§7Created flames effect");
+						sender.sendMessage("Â§7Created flames effect");
 					} else if (args.length == 2) {
 						if (isInteger(args[1])) {
 							Emitter emitter = new Emitter(player.getLocation(), EmitterEffect.Flames, 4, Integer.parseInt(args[1]));
 							emitterList.add(emitter);
 							emitter.save();
-							sender.sendMessage("§7Created flames effect");
+							sender.sendMessage("Â§7Created flames effect");
 						} else {
-							sender.sendMessage("§5Please enter a valid frequency");
+							sender.sendMessage("Â§5Please enter a valid frequency");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/effect flames");
-						sender.sendMessage("§d/effect flames [frequency]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/effect flames");
+						sender.sendMessage("Â§d/effect flames [frequency]");
 					}
 				} else if (args[0].equalsIgnoreCase("potion")) {
 					if (args.length == 1) {
 						Emitter emitter = new Emitter(player.getLocation(), EmitterEffect.Potion, 4, 2);
 						emitterList.add(emitter);
 						emitter.save();
-						sender.sendMessage("§7Created potion effect");
+						sender.sendMessage("Â§7Created potion effect");
 					} else if (args.length == 2) {
 						if (isInteger(args[1])) {
 							Emitter emitter = new Emitter(player.getLocation(), EmitterEffect.Potion, 4, Integer.parseInt(args[1]));
 							emitterList.add(emitter);
 							emitter.save();
-							sender.sendMessage("§7Created potion effect");
+							sender.sendMessage("Â§7Created potion effect");
 						} else {
-							sender.sendMessage("§5Please enter a valid frequency");
+							sender.sendMessage("Â§5Please enter a valid frequency");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/effect potion");
-						sender.sendMessage("§d/effect potion [frequency]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/effect potion");
+						sender.sendMessage("Â§d/effect potion [frequency]");
 					}
 				} else if (EmitterEffect.contains(args[0])) {
 					EmitterEffect effect = EmitterEffect.parse(args[0]);
@@ -1461,41 +1684,41 @@ public class EvilBook extends JavaPlugin {
 							Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, 1, 6);
 							emitterList.add(emitter);
 							emitter.save();
-							sender.sendMessage("§7Created " + effect.name() + " effect");
+							sender.sendMessage("Â§7Created " + effect.name() + " effect");
 						} else if (args.length == 2) {
 							if (isInteger(args[1])) {
 								Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, 1, Integer.parseInt(args[1]));
 								emitterList.add(emitter);
 								emitter.save();
-								sender.sendMessage("§7Created " + effect.name() + " effect");
+								sender.sendMessage("Â§7Created " + effect.name() + " effect");
 							} else {
-								sender.sendMessage("§5Please enter a valid frequency");
+								sender.sendMessage("Â§5Please enter a valid frequency");
 							}
 						} else if (args.length == 3) {
 							if (isInteger(args[1]) && isInteger(args[2])) {
 								Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, Integer.parseInt(args[2]), Integer.parseInt(args[1]));
 								emitterList.add(emitter);
 								emitter.save();
-								sender.sendMessage("§7Created " + effect.name() + " effect");
+								sender.sendMessage("Â§7Created " + effect.name() + " effect");
 							} else {
-								sender.sendMessage("§5Please enter a valid frequency and amount");
+								sender.sendMessage("Â§5Please enter a valid frequency and amount");
 							}
 						} else {
-							sender.sendMessage("§5Incorrect command usage");
-							sender.sendMessage("§d/effect " + effect.name());
-							sender.sendMessage("§d/effect " + effect.name() + " [frequency]");
-							sender.sendMessage("§d/effect " + effect.name() + " [frequency] [amount]");
+							sender.sendMessage("Â§5Incorrect command usage");
+							sender.sendMessage("Â§d/effect " + effect.name());
+							sender.sendMessage("Â§d/effect " + effect.name() + " [frequency]");
+							sender.sendMessage("Â§d/effect " + effect.name() + " [frequency] [amount]");
 						}
 					} else {
-						sender.sendMessage("§5You have to be a higher rank");
-						sender.sendMessage("§d" + effect.name() + " rank is required to create this effect");
+						sender.sendMessage("Â§5You have to be a higher rank");
+						sender.sendMessage("Â§d" + effect.name() + " rank is required to create this effect");
 					}
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/effect smoke [direction] [frequency]");
-					sender.sendMessage("§d/effect flames [frequency]");
-					sender.sendMessage("§d/effect potion [frequency]");
-					for (EmitterEffect effectType : EmitterEffect.values()) if (effectType.isParticleEffect()) sender.sendMessage("§d/effect " + effectType.name().toLowerCase() + " [frequency] [amount]");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/effect smoke [direction] [frequency]");
+					sender.sendMessage("Â§d/effect flames [frequency]");
+					sender.sendMessage("Â§d/effect potion [frequency]");
+					for (EmitterEffect effectType : EmitterEffect.values()) if (effectType.isParticleEffect()) sender.sendMessage("Â§d/effect " + effectType.name().toLowerCase() + " [frequency] [amount]");
 				}
 			}
 			return true;
@@ -1509,51 +1732,51 @@ public class EvilBook extends JavaPlugin {
 					Emitter chimney = new Emitter(player.getLocation(), EmitterEffect.Smoke, 4, 2);
 					emitterList.add(chimney);
 					chimney.save();
-					sender.sendMessage("§7Created chimney");
+					sender.sendMessage("Â§7Created chimney");
 				} else if (args.length == 1) {
 					if (isInteger(args[0])) {
 						Emitter chimney = new Emitter(player.getLocation(), EmitterEffect.Smoke, Integer.parseInt(args[0]), 2);
 						emitterList.add(chimney);
 						chimney.save();
-						sender.sendMessage("§7Created chimney");
+						sender.sendMessage("Â§7Created chimney");
 					} else {
-						sender.sendMessage("§5Please enter a valid direction");
-						sender.sendMessage("§d0 - South East");
-						sender.sendMessage("§d1 - South");
-						sender.sendMessage("§d2 - South West");
-						sender.sendMessage("§d3 - East");
-						sender.sendMessage("§d4 - Up");
-						sender.sendMessage("§d5 - West");
-						sender.sendMessage("§d6 - North East");
-						sender.sendMessage("§d7 - North");
-						sender.sendMessage("§d8 - North West");
+						sender.sendMessage("Â§5Please enter a valid direction");
+						sender.sendMessage("Â§d0 - South East");
+						sender.sendMessage("Â§d1 - South");
+						sender.sendMessage("Â§d2 - South West");
+						sender.sendMessage("Â§d3 - East");
+						sender.sendMessage("Â§d4 - Up");
+						sender.sendMessage("Â§d5 - West");
+						sender.sendMessage("Â§d6 - North East");
+						sender.sendMessage("Â§d7 - North");
+						sender.sendMessage("Â§d8 - North West");
 					}
 				} else if (args.length == 2) {
 					if (isInteger(args[0]) && isInteger(args[1]) && Integer.parseInt(args[1]) >= 0) {
 						Emitter chimney = new Emitter(player.getLocation(), EmitterEffect.Smoke, Integer.parseInt(args[0]), Integer.parseInt(args[1]));
 						emitterList.add(chimney);
 						chimney.save();
-						sender.sendMessage("§7Created chimney");
+						sender.sendMessage("Â§7Created chimney");
 					} else {
-						sender.sendMessage("§5Please enter a valid direction and frequency");
-						sender.sendMessage("§d0 - South East");
-						sender.sendMessage("§d1 - South");
-						sender.sendMessage("§d2 - South West");
-						sender.sendMessage("§d3 - East");
-						sender.sendMessage("§d4 - Up");
-						sender.sendMessage("§d5 - West");
-						sender.sendMessage("§d6 - North East");
-						sender.sendMessage("§d7 - North");
-						sender.sendMessage("§d8 - North West");
+						sender.sendMessage("Â§5Please enter a valid direction and frequency");
+						sender.sendMessage("Â§d0 - South East");
+						sender.sendMessage("Â§d1 - South");
+						sender.sendMessage("Â§d2 - South West");
+						sender.sendMessage("Â§d3 - East");
+						sender.sendMessage("Â§d4 - Up");
+						sender.sendMessage("Â§d5 - West");
+						sender.sendMessage("Â§d6 - North East");
+						sender.sendMessage("Â§d7 - North");
+						sender.sendMessage("Â§d8 - North West");
 					}
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/chimney");
-					sender.sendMessage("§d/chimney [direction]");
-					sender.sendMessage("§d/chimney [direction] [frequency]");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/chimney");
+					sender.sendMessage("Â§d/chimney [direction]");
+					sender.sendMessage("Â§d/chimney [direction] [frequency]");
 				}
 			} else {
-				sender.sendMessage("§7Please stand on a block before creating a chimney");
+				sender.sendMessage("Â§7Please stand on a block before creating a chimney");
 			}
 			return true;
 		}
@@ -1562,16 +1785,16 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("world")) {
 			if (args.length < 1) {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/world [worldName]");
-				sender.sendMessage("§d/world invite [worldName] [player]");
-				sender.sendMessage("§d/world uninvite [worldName] [player]");
-				sender.sendMessage("§d/world list");
-				sender.sendMessage("§d/world create [worldName] [worldType] [worldOwner]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/world [worldName]");
+				sender.sendMessage("Â§d/world invite [worldName] [player]");
+				sender.sendMessage("Â§d/world uninvite [worldName] [player]");
+				sender.sendMessage("Â§d/world list");
+				sender.sendMessage("Â§d/world create [worldName] [worldType] [worldOwner]");
 			} else {
 				if (args[0].equalsIgnoreCase("list")) {
-					sender.sendMessage("§5Private worlds");
-					sender.sendMessage(paidWorldList.size() == 0 ? "§dThere are no private worlds" : "§d" + paidWorldList.toString().split("\\[")[1].split("\\]")[0]);
+					sender.sendMessage("Â§5Private worlds");
+					sender.sendMessage(paidWorldList.size() == 0 ? "Â§dThere are no private worlds" : "Â§d" + paidWorldList.toString().split("\\[")[1].split("\\]")[0]);
 				} else if (args[0].equalsIgnoreCase("invite")) {
 					if (args.length == 3) {
 						if (isProfileExistant(args[2])) {
@@ -1581,14 +1804,14 @@ public class EvilBook extends JavaPlugin {
 							allowedPlayers.add(args[2].toLowerCase(Locale.UK));
 							prop.setProperty("AllowedPlayers", StringUtils.join(allowedPlayers, ","));
 							prop.save();
-							sender.sendMessage("§7" + (getPlayer(args[2]) == null ? getServer().getOfflinePlayer(args[2]).getName() : getPlayer(args[2]).getDisplayName()) + " has been granted access to the private world " + args[1]);
-							if (getPlayer(args[2]) != null) getPlayer(args[2]).sendMessage("§7You have been granted access to the private world " + args[1]);
+							sender.sendMessage("Â§7" + (getPlayer(args[2]) == null ? getServer().getOfflinePlayer(args[2]).getName() : getPlayer(args[2]).getDisplayName()) + " has been granted access to the private world " + args[1]);
+							if (getPlayer(args[2]) != null) getPlayer(args[2]).sendMessage("Â§7You have been granted access to the private world " + args[1]);
 						} else {
-							sender.sendMessage("§7A player with this name does not exist");
+							sender.sendMessage("Â§7A player with this name does not exist");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/world invite [worldName] [player]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/world invite [worldName] [player]");
 					}
 				} else if (args[0].equalsIgnoreCase("uninvite")) {
 					if (args.length == 3) {
@@ -1599,14 +1822,14 @@ public class EvilBook extends JavaPlugin {
 							allowedPlayers.remove(args[2].toLowerCase(Locale.UK));
 							prop.setProperty("AllowedPlayers", StringUtils.join(allowedPlayers, ","));
 							prop.save();
-							sender.sendMessage("§7" + (getPlayer(args[2]) == null ? getServer().getOfflinePlayer(args[2]).getName() : getPlayer(args[2]).getDisplayName()) + " has been denied access to the private world " + args[1]);
-							if (getPlayer(args[2]) != null) getPlayer(args[2]).sendMessage("§7You have been denied access to the private world " + args[1]);
+							sender.sendMessage("Â§7" + (getPlayer(args[2]) == null ? getServer().getOfflinePlayer(args[2]).getName() : getPlayer(args[2]).getDisplayName()) + " has been denied access to the private world " + args[1]);
+							if (getPlayer(args[2]) != null) getPlayer(args[2]).sendMessage("Â§7You have been denied access to the private world " + args[1]);
 						} else {
-							sender.sendMessage("§7A player with this name does not exist");
+							sender.sendMessage("Â§7A player with this name does not exist");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/world invite [worldName] [player]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/world invite [worldName] [player]");
 					}
 				} else if (args[0].equalsIgnoreCase("create") && args.length == 4) {
 					if (player.getName().equals("EvilPeanut")) {
@@ -1645,7 +1868,7 @@ public class EvilBook extends JavaPlugin {
 							}
 						}
 					} else {
-						sender.sendMessage("§cYou don't have permission to create private worlds");
+						sender.sendMessage("Â§cYou don't have permission to create private worlds");
 					}
 				} else {
 					for (String world : paidWorldList) {
@@ -1653,12 +1876,12 @@ public class EvilBook extends JavaPlugin {
 							if (getPrivateWorldProperty(args[0], "AllowedPlayers").contains(sender.getName().toLowerCase()) || getProfile(player).rank == Rank.ServerHost) {
 								player.teleport(getProfile(player).getWorldLastPosition("plugins/EvilBook/Private worlds/" + args[0]));
 							} else {
-								player.sendMessage("§7You don't have access this private world");
+								player.sendMessage("Â§7You don't have access this private world");
 							}
 							return true;
 						}
 					}
-					sender.sendMessage("§7A world with this name does not exist");
+					sender.sendMessage("Â§7A world with this name does not exist");
 				}
 			}
 			return true;
@@ -1666,45 +1889,48 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Achievements Command
 		//
-		if (command.getName().equalsIgnoreCase("achievements")) {
-			if (getProfile(player).achievements.size() == 0) {
-				sender.sendMessage("§7You don't have any achievements");
-			} else {
-				//TODO: Add the following achievements
-				//Meet evilpeanut
-				//Hit evilpeanut
-				//Ride another player
-				//Use a dynamic sign command
-				//Use the helmet command
-				//Use the donate command
-				//Mine diamond in survival
-				//Mine quartzore in survival
-				//Mine gold in survival
-				//Mine iron in survival
-				//Mine coal in survival
-				//Mine redstone in survival
-				//Mine lapis in survival
-				//Mine emerald in survival
-				//Kill a ghast in survival
-				//Kill another player in survival
-				//Kill a wither in survival
-				//Kill a zombie pig man in survival
-				//Place a chest in survival
-				//Place a furnace in survival
+		if (command.getName().equalsIgnoreCase("achievements") || command.getName().equalsIgnoreCase("ach")) {
+			sender.sendMessage("Â§5Your achievement score is " + ChatColor.YELLOW + getProfile(player).getAchievementScore());
+			List<String> text = new ArrayList();
+			int achievementCount = 0;
+			String pageText = "";
+			for (Achievement ach : Achievement.values()) {
+				if (achievementCount == 2) {
+					achievementCount = 0;
+					text.add(pageText);
+					pageText = "";
+				}
+				if (getProfile(player).hasAchievement(ach)) {
+					if (ach.getReward() != null) {
+						pageText += ChatColor.DARK_GREEN + ach.getName() + ChatColor.BOLD + " " + ach.getValue() + "\n" + ChatColor.GREEN + ach.getDescription() + ChatColor.ITALIC + "\nReward: " + ach.getReward() + "\n\n";
+					} else {
+						pageText += ChatColor.DARK_GREEN + ach.getName() + ChatColor.BOLD + " " + ach.getValue() + "\n" + ChatColor.GREEN + ach.getDescription() + "\n\n";
+					}
+				} else {
+					if (ach.getReward() != null) {
+						pageText += ChatColor.DARK_GRAY + ach.getName() + ChatColor.BOLD + " " + ach.getValue() + "\n" + ChatColor.GRAY + ach.getDescription() + ChatColor.ITALIC + "\nReward: " + ach.getReward() + "\n\n";
+					} else {
+						pageText += ChatColor.DARK_GRAY + ach.getName() + ChatColor.BOLD + " " + ach.getValue() + "\n" + ChatColor.GRAY + ach.getDescription() + "\n\n";
+					}
+				}
+				achievementCount++;
 			}
+			player.getInventory().addItem(getBook("Achievement Guide", "Amentrix", text));
+			sender.sendMessage("Â§7Please check your inventory for the achievements guide");
 			return true;
 		}
 		//
 		// Donate Command
 		//
 		if (command.getName().equalsIgnoreCase("donate") || command.getName().equalsIgnoreCase("admin")) {
-			sender.sendMessage("§5How to purchase a rank or donate to the server");
-			sender.sendMessage("  §d§l1 §dGoto our website at §6http://minecraft.amentrix.com");
-			sender.sendMessage("  §d§l2 §dClick the §6Shop §dbutton on the site");
-			sender.sendMessage("  §d§l3 §dSelect the rank or item you wish to purchase");
-			sender.sendMessage("  §d§l4 §dComplete the transaction and enjoy the rewards");
-			sender.sendMessage("§7Purchased ranks allow the use of blocked items and content");
-			sender.sendMessage("§7Each rank upgrade unlocks more content");
+			sender.sendMessage("Â§5How to purchase a rank or donate to the server");
+			sender.sendMessage("  Â§dÂ§l1 Â§dGoto our website at Â§6http://minecraft.amentrix.com");
+			sender.sendMessage("  Â§dÂ§l2 Â§dClick the Â§6Shop Â§dbutton on the site");
+			sender.sendMessage("  Â§dÂ§l3 Â§dSelect the rank or item you wish to purchase");
+			sender.sendMessage("  Â§dÂ§l4 Â§dComplete the transaction and enjoy the rewards");
+			sender.sendMessage("Â§7Purchased ranks allow the use of blocked items and content");
+			sender.sendMessage("Â§7Each rank upgrade unlocks more content");
+			getProfile(player).addAchievement(Achievement.GLOBAL_COMMAND_DONATE);
 			return true;
 		}
 		//
@@ -1712,56 +1938,56 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("help")) {
 			if (args.length != 1) {
-				sender.sendMessage("§dHelp §5- §dMain page");
-				sender.sendMessage("  §5Admin assistance");
-				sender.sendMessage("    §2You can request admin assistance using the §a/req §2command");
-				sender.sendMessage("  §5Command help");
-				sender.sendMessage("    §2Type a command with no parameters for help with it");
-				sender.sendMessage("  §5Help topics");
-				sender.sendMessage("    §a/help evilbook §2for EvilBook help");
-				sender.sendMessage("    §a/help eviledit §2for EvilEdit help");
-				sender.sendMessage("    §a/help regions §2for regions help");
-				sender.sendMessage("    §a/help tips §2for useful tips");
+				sender.sendMessage("Â§dHelp Â§5- Â§dMain page");
+				sender.sendMessage("  Â§5Admin assistance");
+				sender.sendMessage("    Â§2You can request admin assistance using the Â§a/req Â§2command");
+				sender.sendMessage("  Â§5Command help");
+				sender.sendMessage("    Â§2Type a command with no parameters for help with it");
+				sender.sendMessage("  Â§5Help topics");
+				sender.sendMessage("    Â§a/help evilbook Â§2for EvilBook help");
+				sender.sendMessage("    Â§a/help eviledit Â§2for EvilEdit help");
+				sender.sendMessage("    Â§a/help regions Â§2for regions help");
+				sender.sendMessage("    Â§a/help tips Â§2for useful tips");
 			} else if (args[0].equalsIgnoreCase("evilbook")) {
-				sender.sendMessage("§dHelp §5- §dEvilBook");
-				sender.sendMessage("  §5What is EvilBook?");
-				sender.sendMessage("    §2EvilBook is the core plugin running on the server");
-				sender.sendMessage("  §5What does it do?");
-				sender.sendMessage("    §2EvilBook provides a ranking system, multiple worlds,");
-				sender.sendMessage("    §2regions, warps, commands, anti-grief and more on the server");
-				sender.sendMessage("  §5Where can i get EvilBook?");
-				sender.sendMessage("    §2EvilBook is developed by Amentrix and is available on request");
+				sender.sendMessage("Â§dHelp Â§5- Â§dEvilBook");
+				sender.sendMessage("  Â§5What is EvilBook?");
+				sender.sendMessage("    Â§2EvilBook is the core plugin running on the server");
+				sender.sendMessage("  Â§5What does it do?");
+				sender.sendMessage("    Â§2EvilBook provides a ranking system, multiple worlds,");
+				sender.sendMessage("    Â§2regions, warps, commands, anti-grief and more on the server");
+				sender.sendMessage("  Â§5Where can i get EvilBook?");
+				sender.sendMessage("    Â§2EvilBook is developed by Amentrix and is available on request");
 			} else if (args[0].equalsIgnoreCase("eviledit")) {
-				sender.sendMessage("§dHelp §5- §dEvilEdit");
-				sender.sendMessage("  §5What is EvilEdit?");
-				sender.sendMessage("    §2EvilEdit is a clone of WorldEdit included in EvilBook");
-				sender.sendMessage("    §2designed to be use friendly and more resource efficient");
-				sender.sendMessage("  §5How do I use EvilEdit?");
-				sender.sendMessage("    §2To use EvilEdit you must be at least Admin rank");
-				sender.sendMessage("    §2Step 1 - Select point 1 with golden shovel tool");
-				sender.sendMessage("    §2Step 2 - Select point 2 with golden shovel tool");
-				sender.sendMessage("    §2Step 3 - Execute an EvilEdit command on the area");
+				sender.sendMessage("Â§dHelp Â§5- Â§dEvilEdit");
+				sender.sendMessage("  Â§5What is EvilEdit?");
+				sender.sendMessage("    Â§2EvilEdit is a clone of WorldEdit included in EvilBook");
+				sender.sendMessage("    Â§2designed to be use friendly and more resource efficient");
+				sender.sendMessage("  Â§5How do I use EvilEdit?");
+				sender.sendMessage("    Â§2To use EvilEdit you must be at least Admin rank");
+				sender.sendMessage("    Â§2Step 1 - Select point 1 with golden shovel tool");
+				sender.sendMessage("    Â§2Step 2 - Select point 2 with golden shovel tool");
+				sender.sendMessage("    Â§2Step 3 - Execute an EvilEdit command on the area");
 			} else if (args[0].equalsIgnoreCase("regions")) {
-				sender.sendMessage("§dHelp §5- §dRegions");
-				sender.sendMessage("  §5What is Regions?");
-				sender.sendMessage("    §2Regions is a region protection module included in EvilBook");
-				sender.sendMessage("    §2allowing areas to be protected or preform operations");
-				sender.sendMessage("  §5How do I use Regions?");
-				sender.sendMessage("    §2To use Regions you must be at least Admin rank");
-				sender.sendMessage("    §2Step 1 - Select point 1 with golden shovel tool");
-				sender.sendMessage("    §2Step 2 - Select point 2 with golden shovel tool");
-				sender.sendMessage("    §2Step 3 - Execute an /region command on the area");
+				sender.sendMessage("Â§dHelp Â§5- Â§dRegions");
+				sender.sendMessage("  Â§5What is Regions?");
+				sender.sendMessage("    Â§2Regions is a region protection module included in EvilBook");
+				sender.sendMessage("    Â§2allowing areas to be protected or preform operations");
+				sender.sendMessage("  Â§5How do I use Regions?");
+				sender.sendMessage("    Â§2To use Regions you must be at least Admin rank");
+				sender.sendMessage("    Â§2Step 1 - Select point 1 with golden shovel tool");
+				sender.sendMessage("    Â§2Step 2 - Select point 2 with golden shovel tool");
+				sender.sendMessage("    Â§2Step 3 - Execute an /region command on the area");
 			} else if (args[0].equalsIgnoreCase("tips")) {
-				sender.sendMessage("§dHelp §5- §dTips");
-				sender.sendMessage("  §5Easy wool dyeing");
-				sender.sendMessage("    §2You can easily dye wool which is placed by right");
-				sender.sendMessage("    §2clicking the wool with a dye, the same can be");
-				sender.sendMessage("    §2done on stained glass, signs and clays");
-				sender.sendMessage("  §5Changing travel speeds");
-				sender.sendMessage("    §2You can change your flying speed with /fly");
-				sender.sendMessage("    §2You can change your walking speed with /walk");
-				sender.sendMessage("    §2You can change your running speed with /fly");
-				sender.sendMessage("    §2You can change your jump height with /jump");
+				sender.sendMessage("Â§dHelp Â§5- Â§dTips");
+				sender.sendMessage("  Â§5Easy wool dyeing");
+				sender.sendMessage("    Â§2You can easily dye wool which is placed by right");
+				sender.sendMessage("    Â§2clicking the wool with a dye, the same can be");
+				sender.sendMessage("    Â§2done on stained glass, signs and clays");
+				sender.sendMessage("  Â§5Changing travel speeds");
+				sender.sendMessage("    Â§2You can change your walking speed with /speed walk [speed]");
+				sender.sendMessage("    Â§2You can change your running speed with /speed run [speed]");
+				sender.sendMessage("    Â§2You can change your flying speed with /speed fly [speed]");
+				sender.sendMessage("    Â§2You can change your jump height with /jump");
 			}
 			return true;
 		}
@@ -1770,7 +1996,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("kill")) {
 			player.setHealth(0);
-			player.sendMessage("§7You killed yourself");
+			player.sendMessage("Â§7You killed yourself");
 			return true;
 		}
 		//
@@ -1781,20 +2007,20 @@ public class EvilBook extends JavaPlugin {
 				if (getPlayer(args[0]) != null) {
 					if (isInSurvival(getPlayer(args[0])) == false) {
 						getPlayer(args[0]).setVelocity(new Vector(this.random.nextDouble() * 2.0D - 1.0D, this.random.nextDouble() * 1.0D, this.random.nextDouble() * 2.0D - 1.0D));
-						getPlayer(args[0]).sendMessage("§7You have been slapped by " + player.getDisplayName());
-						sender.sendMessage("§7You slapped " + getPlayer(args[0]).getDisplayName());
+						getPlayer(args[0]).sendMessage("Â§7You have been slapped by " + player.getDisplayName());
+						sender.sendMessage("Â§7You slapped " + getPlayer(args[0]).getDisplayName());
 					} else {
-						sender.sendMessage("§7You can't slap players in survival");
+						sender.sendMessage("Â§7You can't slap players in survival");
 					}
 				} else {
-					sender.sendMessage("§7You can't slap an offline player");
+					sender.sendMessage("Â§7You can't slap an offline player");
 				}
 			} else if (args.length == 0) {
 				player.setVelocity(new Vector(this.random.nextDouble() * 2.0D - 1.0D, this.random.nextDouble() * 1.0D, this.random.nextDouble() * 2.0D - 1.0D));
-				sender.sendMessage("§7You slapped yourself");
+				sender.sendMessage("Â§7You slapped yourself");
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/slap <player>");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/slap <player>");
 			}
 			return true;
 		}
@@ -1806,20 +2032,20 @@ public class EvilBook extends JavaPlugin {
 				if (getPlayer(args[0]) != null) {
 					if (isInSurvival(getPlayer(args[0])) == false) {
 						getPlayer(args[0]).getWorld().strikeLightning(getPlayer(args[0]).getLocation());
-						getPlayer(args[0]).sendMessage("§7You have been shocked by " + player.getDisplayName());
-						sender.sendMessage("§7You shocked " + getPlayer(args[0]).getDisplayName());
+						getPlayer(args[0]).sendMessage("Â§7You have been shocked by " + player.getDisplayName());
+						sender.sendMessage("Â§7You shocked " + getPlayer(args[0]).getDisplayName());
 					} else {
-						sender.sendMessage("§7You can't shock players in survival");
+						sender.sendMessage("Â§7You can't shock players in survival");
 					}
 				} else {
-					sender.sendMessage("§7You can't shock an offline player");
+					sender.sendMessage("Â§7You can't shock an offline player");
 				}
 			} else if (args.length == 0) {
 				player.getWorld().strikeLightning(player.getLocation());
-				sender.sendMessage("§7You shocked yourself");
+				sender.sendMessage("Â§7You shocked yourself");
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/shock <player>");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/shock <player>");
 			}
 			return true;
 		}
@@ -1831,20 +2057,20 @@ public class EvilBook extends JavaPlugin {
 				if (getPlayer(args[0]) != null) {
 					if (isInSurvival(getPlayer(args[0])) == false) {
 						getPlayer(args[0]).setVelocity(new Vector(0, 20, 0));
-						getPlayer(args[0]).sendMessage("§7You have been rocketed by " + player.getDisplayName());
-						sender.sendMessage("§7You rocketed " + getPlayer(args[0]).getDisplayName());
+						getPlayer(args[0]).sendMessage("Â§7You have been rocketed by " + player.getDisplayName());
+						sender.sendMessage("Â§7You rocketed " + getPlayer(args[0]).getDisplayName());
 					} else {
-						sender.sendMessage("§7You can't rocket players in survival");
+						sender.sendMessage("Â§7You can't rocket players in survival");
 					}
 				} else {
-					sender.sendMessage("§7You can't rocket an offline player");
+					sender.sendMessage("Â§7You can't rocket an offline player");
 				}
 			} else if (args.length == 0) {
 				player.setVelocity(new Vector(0, 20, 0));
-				sender.sendMessage("§7You rocketed yourself");
+				sender.sendMessage("Â§7You rocketed yourself");
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/rocket <player>");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/rocket <player>");
 			}
 			return true;
 		}
@@ -1854,23 +2080,23 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("setrank")) {
 			if (args.length == 1) {
 				if (args[0].toLowerCase(Locale.UK).contains("&k")) {
-					sender.sendMessage("§7This rank's name is blocked");
+					sender.sendMessage("Â§7This rank's name is blocked");
 					return true;
 				}
 				for (Rank rank : Rank.values()) {
 					if (args[0].equalsIgnoreCase(rank.toString()) && !getProfile(player).rank.isHigher(rank.getPreviousRank())) {
-						sender.sendMessage("§7This rank's name is blocked");
+						sender.sendMessage("Â§7This rank's name is blocked");
 						return true;
 					}
 				}
 				String prefix = args[0].startsWith("&") ? args[0] : "&6" + args[0];
 				SQL.setProperty(TableType.PlayerProfile, sender.getName(), "rank_prefix", prefix);
 				((PlayerProfileAdmin)getProfile(player)).customRankColor = prefix.substring(1, 2);
-				((PlayerProfileAdmin)getProfile(player)).customRankPrefix = "§0[" + prefix.replaceAll("&", "§") + "§0]";
-				NametagAPI.updateNametagHard(player.getName(), "§" + ((PlayerProfileAdmin)getProfile(player)).rank.getColor((getProfile(player))), null);
+				((PlayerProfileAdmin)getProfile(player)).customRankPrefix = "Â§0[" + prefix.replaceAll("&", "Â§") + "Â§0]";
+				NametagAPI.updateNametagHard(player.getName(), "Â§" + ((PlayerProfileAdmin)getProfile(player)).rank.getColor((getProfile(player))), null);
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/setrank [rank]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/setrank [rank]");
 			}
 			return true;
 		}
@@ -1924,83 +2150,91 @@ public class EvilBook extends JavaPlugin {
 				if (isDouble(args[0]) && Double.valueOf(args[0]) <= 41) {
 					getProfile(sender).jumpAmplifier = Double.valueOf(args[0]) / 4;
 				} else {
-					sender.sendMessage("§7Please enter a valid jump height");
+					sender.sendMessage("Â§7Please enter a valid jump height");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/jump [height]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/jump [height]");
 			}
 			return true;
 		}
 		//
-		// Set Walk Speed Command
+		// Speed Command
 		//
-		if (command.getName().equalsIgnoreCase("walk")) {
-			if (args.length == 1) {
-				if (isFloat(args[0])) {
-					double rawWalkAmplifier = Double.valueOf(args[0]);
-					if (rawWalkAmplifier == 0) {
-						getProfile(sender).walkAmplifier = 0.2f;
-						player.setWalkSpeed(0.2f);
+		if (command.getName().equalsIgnoreCase("speed")) {
+			if (args.length == 0) {
+				getProfile(sender).walkAmplifier = 0.2f;
+				player.setWalkSpeed(0.2f);
+				getProfile(sender).flyAmplifier = 0.1f;
+				player.setFlySpeed(0.1f);
+				getProfile(sender).runAmplifier = 0;
+				sender.sendMessage("Â§7Reset all speed limits to their default values");
+			} else if (args.length == 1) {
+				if (isInteger(args[0])) {
+					int speed = Integer.parseInt(args[0]);
+					if (speed > 0 && speed <= 100) {
+						double doubleSpeed = (double)speed / 100;
+						getProfile(sender).walkAmplifier = doubleSpeed;
+						player.setWalkSpeed((float) doubleSpeed);
+						getProfile(sender).flyAmplifier = doubleSpeed;
+						player.setFlySpeed((float) doubleSpeed);
+						getProfile(sender).runAmplifier = speed;
+						sender.sendMessage("Â§7Set all speed limits to " + args[0]);
 					} else {
-						double walkAmplifier = rawWalkAmplifier / 125;
-						if (walkAmplifier > 0 && walkAmplifier <= 0.8) {
-							getProfile(sender).walkAmplifier = walkAmplifier + 0.2f;
-							player.setWalkSpeed((float) getProfile(sender).walkAmplifier);
-						} else {
-							sender.sendMessage("§7Please enter a walk speed between 0 and 100");
-						}
+						sender.sendMessage("Â§7Please enter a valid speed above 0 and below 100");
 					}
 				} else {
-					sender.sendMessage("§7Please enter a valid walk speed");
+					sender.sendMessage("Â§7Please enter a valid numerical speed");
 				}
-			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/walk [speed]");
-			}
-			return true;
-		}
-		//
-		// Set Fly Speed Command
-		//
-		if (command.getName().equalsIgnoreCase("fly")) {
-			if (args.length == 1) {
-				if (isFloat(args[0])) {
-					double rawFlyAmplifier = Double.valueOf(args[0]);
-					if (rawFlyAmplifier == 0) {
-						getProfile(sender).flyAmplifier = 0.1f;
-						player.setFlySpeed(0.1f);
-					} else {
-						double flyAmplifier = rawFlyAmplifier / 112;
-						if (flyAmplifier > 0 && flyAmplifier <= 0.9) {
-							getProfile(sender).flyAmplifier = flyAmplifier + 0.1f;
-							player.setFlySpeed((float) getProfile(sender).flyAmplifier);
+			} else if (args.length == 2) {
+				if (args[0].equalsIgnoreCase("walk")) {
+					if (isInteger(args[1])) {
+						int speed = Integer.parseInt(args[1]);
+						if (speed > 0 && speed <= 100) {
+							double doubleSpeed = (double)speed / 100;
+							getProfile(sender).walkAmplifier = doubleSpeed;
+							player.setWalkSpeed((float) doubleSpeed);
+							sender.sendMessage("Â§7Set walk speed limit to " + args[1]);
 						} else {
-							sender.sendMessage("§7Please enter a fly speed between 0 and 100");
+							sender.sendMessage("Â§7Please enter a valid speed above 0 and below 100");
 						}
+					} else {
+						sender.sendMessage("Â§7Please enter a valid numerical speed");
 					}
-				} else {
-					sender.sendMessage("§7Please enter a valid fly speed");
+				} else if (args[0].equalsIgnoreCase("fly")) {
+					if (isInteger(args[1])) {
+						int speed = Integer.parseInt(args[1]);
+						if (speed > 0 && speed <= 100) {
+							double doubleSpeed = (double)speed / 100;
+							getProfile(sender).flyAmplifier = doubleSpeed;
+							player.setFlySpeed((float) doubleSpeed);
+							sender.sendMessage("Â§7Set walk speed limit to " + args[1]);
+						} else {
+							sender.sendMessage("Â§7Please enter a valid speed above 0 and below 100");
+						}
+					} else {
+						sender.sendMessage("Â§7Please enter a valid numerical speed");
+					}
+				} else if (args[0].equalsIgnoreCase("run")) {
+					if (isInteger(args[1])) {
+						int speed = Integer.parseInt(args[1]);
+						if (speed > 0 && speed <= 100) {
+							getProfile(sender).runAmplifier = speed;
+							sender.sendMessage("Â§7Set walk speed limit to " + args[1]);
+						} else {
+							sender.sendMessage("Â§7Please enter a valid speed above 0 and below 100");
+						}
+					} else {
+						sender.sendMessage("Â§7Please enter a valid numerical speed");
+					}
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/fly [speed]");
-			}
-			return true;
-		}
-		//
-		// Set Run Speed Command
-		//
-		if (command.getName().equalsIgnoreCase("run")) {
-			if (args.length == 1) {
-				if (isInteger(args[0]) && Integer.parseInt(args[0]) <= 127) {
-					getProfile(sender).runAmplifier = Integer.parseInt(args[0]);
-				} else {
-					sender.sendMessage("§7Please enter a valid run speed below 128");
-				}
-			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/run [speed]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/speed");
+				sender.sendMessage("Â§d/speed [speed]");
+				sender.sendMessage("Â§d/speed walk [speed]");
+				sender.sendMessage("Â§d/speed fly [speed]");
+				sender.sendMessage("Â§d/speed run [speed]");
 			}
 			return true;
 		}
@@ -2008,8 +2242,8 @@ public class EvilBook extends JavaPlugin {
 		// Disguise Command
 		//
 		if (command.getName().equalsIgnoreCase("disguise")) {
-			if (isInSurvival(player) && !getProfile(sender).rank.isHigher(Rank.Elite)) {
-				sender.sendMessage("§7Mob disguise can't be used in survival");
+			if (isInSurvival(player) && getProfile(sender).rank != Rank.ServerHost) {
+				sender.sendMessage("Â§7Mob disguise can't be used in survival");
 			} else {
 				if (args.length == 1) {
 					if (args[0].equalsIgnoreCase("kill")) { 
@@ -2023,16 +2257,16 @@ public class EvilBook extends JavaPlugin {
 							if ((entityType != EntityType.ENDER_DRAGON && entityType != EntityType.WITHER && entityType != EntityType.ENDER_CRYSTAL) || getProfile(sender).rank.isHigher(Rank.Elite)) {
 								for (Player other : getServer().getOnlinePlayers()) other.hidePlayer(player);
 								getProfile(player).disguise = player.getWorld().spawnEntity(player.getLocation(), entityType);
-								sender.sendMessage("§7You are now disguised as a " + args[0].toLowerCase(Locale.UK));
+								sender.sendMessage("Â§7You are now disguised as a " + args[0].toLowerCase(Locale.UK));
 								alert(sender.getName() + " disguised themselves as a " + args[0].toLowerCase(Locale.UK));
 							}
 						}
 					}
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/disguise [mobName]");
-					sender.sendMessage("§d/disguise [mobID]");
-					sender.sendMessage("§d/disguise kill");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/disguise [mobName]");
+					sender.sendMessage("Â§d/disguise [mobID]");
+					sender.sendMessage("Â§d/disguise kill");
 				}
 			}
 			return true;
@@ -2043,42 +2277,68 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("name")) {
 			if (args.length >= 1) {
 				if (player.getItemInHand().getType() != Material.AIR) {
-					if (args[0].length() > 32) {
-						sender.sendMessage("§7The item name is too long");
+					if (player.getItemInHand().getType() == Material.SKULL_ITEM) {
+						ItemStack skull;
+						if (args[0].equalsIgnoreCase("Creeper")) {
+							skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.CREEPER.ordinal());
+						} else if (args[0].equalsIgnoreCase("Skeleton")) {
+							skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.SKELETON.ordinal());
+						} else if (args[0].equalsIgnoreCase("Wither")) {
+							skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.WITHER.ordinal());
+						} else if (args[0].equalsIgnoreCase("Zombie")) {
+							skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.ZOMBIE.ordinal());
+						} else {
+							skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.PLAYER.ordinal());
+						}
+						SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+						skullMeta.setOwner(args[0]);
+						skullMeta.setDisplayName(args[0] + "'s Skull");
+						skull.setItemMeta(skullMeta);
+						player.setItemInHand(skull);
+						sender.sendMessage("Â§7Skull owner set to Â§d" + args[0]);
 					} else {
 						String name = "";
 						for (String arg : args) name += arg + " ";
-						if (player.getItemInHand().getType() == Material.SKULL_ITEM) {
-							ItemStack skull;
-							if (name.trim().equalsIgnoreCase("Creeper")) {
-								skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.CREEPER.ordinal());
-							} else if (name.trim().equalsIgnoreCase("Skeleton")) {
-								skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.SKELETON.ordinal());
-							} else if (name.trim().equalsIgnoreCase("Wither")) {
-								skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.WITHER.ordinal());
-							} else if (name.trim().equalsIgnoreCase("Zombie")) {
-								skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.ZOMBIE.ordinal());
-							} else {
-								skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.PLAYER.ordinal());
-							}
-							SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-							skullMeta.setOwner(name.trim());
-							skullMeta.setDisplayName(name.trim() + "'s Head");
-							skull.setItemMeta(skullMeta);
-							player.setItemInHand(skull);
-						} else {
-							ItemMeta meta = player.getItemInHand().getItemMeta();
-							meta.setDisplayName(name.trim());
-							player.getItemInHand().setItemMeta(meta);
-							sender.sendMessage("§7Item renamed to §d" + name.trim());
-						}
+						ItemMeta meta = player.getItemInHand().getItemMeta();
+						meta.setDisplayName(name.trim());
+						player.getItemInHand().setItemMeta(meta);
+						sender.sendMessage("Â§7Item renamed to Â§d" + name.trim());
 					}
 				} else {
-					sender.sendMessage("§7You must be holding an item to rename it");
+					sender.sendMessage("Â§7You must be holding an item to rename it");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/name [name]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/name [name]");
+			}
+			return true;
+		}
+		//
+		// Skull Command
+		//
+		if (command.getName().equalsIgnoreCase("skull")) {
+			if (args.length == 1) {
+				ItemStack skull;
+				if (args[0].equalsIgnoreCase("Creeper")) {
+					skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.CREEPER.ordinal());
+				} else if (args[0].equalsIgnoreCase("Skeleton")) {
+					skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.SKELETON.ordinal());
+				} else if (args[0].equalsIgnoreCase("Wither")) {
+					skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.WITHER.ordinal());
+				} else if (args[0].equalsIgnoreCase("Zombie")) {
+					skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.ZOMBIE.ordinal());
+				} else {
+					skull = new ItemStack(Material.SKULL_ITEM, 1, (short)SkullType.PLAYER.ordinal());
+				}
+				SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+				skullMeta.setOwner(args[0]);
+				skullMeta.setDisplayName(args[0] + "'s Skull");
+				skull.setItemMeta(skullMeta);
+				player.setItemInHand(skull);
+				sender.sendMessage("Â§7Skull owner set to Â§d" + args[0]);
+			} else {
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/skull [owner]");
 			}
 			return true;
 		}
@@ -2090,30 +2350,29 @@ public class EvilBook extends JavaPlugin {
 				if (getProfile(sender).money >= 40 || getProfile(player).rank.isHigher(Rank.Investor)) {
 					String broadcast = "";
 					for (String msg : args) broadcast += " " + msg;
-					broadcastPlayerMessage(sender.getName(), "§d[§5Advert§d]" + broadcast);
+					broadcastPlayerMessage(sender.getName(), "Â§d[Â§5AdvertÂ§d]" + broadcast);
 					alert(sender.getName() + " executed the advertise command");
 					if (!getProfile(player).rank.isHigher(Rank.Investor)) {
 						getProfile(sender).money -= 40;
 						incrementOwnerBalance(40);
-						sender.sendMessage("§7Created advert §c-$40");
+						sender.sendMessage("Â§7Created advert Â§c-$40");
 					}
 				} else {
-					sender.sendMessage("§5You don't have enough money for this item");
-					sender.sendMessage("§dYou need to earn $" + (40 - getProfile(sender).money));
+					sender.sendMessage("Â§5You don't have enough money for this item");
+					sender.sendMessage("Â§dYou need to earn $" + (40 - getProfile(sender).money));
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/advert [message]");
-				sender.sendMessage("§d/advertise [message]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [message]");
 			}
 			return true;
 		}
 		//
 		// Helmet command
 		//
-		if (command.getName().equalsIgnoreCase("helmet")) {
+		if (command.getName().equalsIgnoreCase("helmet") || command.getName().equalsIgnoreCase("hat") || command.getName().equalsIgnoreCase("head")) {
 			if (player.getInventory().getItemInHand().getType() == Material.AIR) {
-				sender.sendMessage("§7You can't wear an air helmet");
+				sender.sendMessage("Â§7You can't wear an air helmet");
 			} else {
 				if (isInSurvival(player)) {
 					ItemStack itemHelmet = player.getInventory().getItemInHand();
@@ -2128,18 +2387,19 @@ public class EvilBook extends JavaPlugin {
 						player.getInventory().removeItem(player.getInventory().getItemInHand());
 					}
 					if (itemHelmet.getType().isBlock() == false) {
-						sender.sendMessage("§7You are now wearing a custom helmet");
+						sender.sendMessage("Â§7You are now wearing a custom helmet");
 					} else {
-						sender.sendMessage("§7You are now wearing a " + getFriendlyName(itemHelmet.getType()) + " helmet");
+						sender.sendMessage("Â§7You are now wearing a " + getFriendlyName(itemHelmet.getType()) + " helmet");
 					}
 				} else {
 					player.getInventory().setHelmet(player.getInventory().getItemInHand());
 					if (player.getInventory().getItemInHand().getType().isBlock() == false) {
-						sender.sendMessage("§7You are now wearing a custom helmet");
+						sender.sendMessage("Â§7You are now wearing a custom helmet");
 					} else {
-						sender.sendMessage("§7You are now wearing a " + getFriendlyName(player.getInventory().getItemInHand().getType()) + " helmet");
+						sender.sendMessage("Â§7You are now wearing a " + getFriendlyName(player.getInventory().getItemInHand().getType()) + " helmet");
 					}
 				}
+				getProfile(player).addAchievement(Achievement.GLOBAL_COMMAND_HELMET);
 			}
 			return true;
 		}
@@ -2148,7 +2408,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("butter")) {
 			if (isInSurvival(player)) {
-				sender.sendMessage("§7Butter is illegal in survival");
+				sender.sendMessage("Â§7Butter is illegal in survival");
 				return true;
 			}
 			ItemStack butter = new ItemStack(Material.GOLD_INGOT);
@@ -2182,7 +2442,8 @@ public class EvilBook extends JavaPlugin {
 			yourItemStackMeta.setLore(Arrays.asList("Boots made by the butter gods"));
 			butter.setItemMeta(yourItemStackMeta);
 			player.getInventory().setBoots(butter);
-			sender.sendMessage("§7You have been blessed by the gods of butter");
+			sender.sendMessage("Â§7You have been blessed by the gods of butter");
+			getProfile(player).addAchievement(Achievement.GLOBAL_EQUIP_BUTTERARMOUR);
 			return true;
 		}
 		//
@@ -2193,19 +2454,19 @@ public class EvilBook extends JavaPlugin {
 				if (args[0].equalsIgnoreCase("scan")) {
 					for (Region region : regionList) {
 						if (isInRegionXRange(region, player.getLocation()) && isInRegionYRange(region, player.getLocation()) && isInRegionZRange(region, player.getLocation())) {
-							sender.sendMessage("§7You are in the " + region.getRegionName() + " region owned by " + region.getOwner());
+							sender.sendMessage("Â§7You are in the " + region.getRegionName() + " region owned by " + region.getOwner());
 							return true;
 						}
 					}
-					sender.sendMessage("§7Your not in any regions");
+					sender.sendMessage("Â§7Your not in any regions");
 					return true;
 				} else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("create")) {
 					if (args.length == 2) {
 						if (getProfile(player).actionLocationA == null || getProfile(player).actionLocationB == null) {
-							sender.sendMessage("§7Please select two region boundaries using the golden shovel tool");
+							sender.sendMessage("Â§7Please select two region boundaries using the golden shovel tool");
 						} else {
 							if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-								sender.sendMessage("§7A region with this name already exists");
+								sender.sendMessage("Â§7A region with this name already exists");
 								return true;
 							}
 							Region region = new Region(args[1],
@@ -2219,11 +2480,11 @@ public class EvilBook extends JavaPlugin {
 									null);
 							region.saveRegion();
 							regionList.add(region);
-							sender.sendMessage("§7Region " + args[1] + " created");
+							sender.sendMessage("Â§7Region " + args[1] + " created");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/region add [regionName]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/region add [regionName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("protect")) {
@@ -2231,17 +2492,17 @@ public class EvilBook extends JavaPlugin {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
 								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
-									sender.sendMessage("§7You don't have ownership of this region");
+									sender.sendMessage("Â§7You don't have ownership of this region");
 									return true;
 								}
 								region.isProtected(true);	
 								region.saveRegion();
 								break;
 							}
-							sender.sendMessage("§7Region " + args[1] + " protected");
+							sender.sendMessage("Â§7Region " + args[1] + " protected");
 						} else {
 							if (getProfile(player).actionLocationA == null || getProfile(player).actionLocationB == null) {
-								sender.sendMessage("§7Please select two region boundaries using the golden shovel tool");
+								sender.sendMessage("Â§7Please select two region boundaries using the golden shovel tool");
 							} else {
 								Region region = new Region(args[1],
 										getProfile(player).actionLocationA,
@@ -2254,12 +2515,12 @@ public class EvilBook extends JavaPlugin {
 										null);
 								region.saveRegion();
 								regionList.add(region);
-								sender.sendMessage("§7Region " + args[1] + " created and protected");
+								sender.sendMessage("Â§7Region " + args[1] + " created and protected");
 							}
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/region protect [regionName]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/region protect [regionName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("remove")) {
@@ -2268,22 +2529,22 @@ public class EvilBook extends JavaPlugin {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
 									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
-										sender.sendMessage("§7You don't have ownership of this region");
+										sender.sendMessage("Â§7You don't have ownership of this region");
 										return true;
 									}
 									region.delete();
 									regionList.remove(region);
-									sender.sendMessage("§7Region " + args[1] + " removed");
+									sender.sendMessage("Â§7Region " + args[1] + " removed");
 									return true;
 								}
 							}
 						} else {
-							sender.sendMessage("§7No regions with this name exist");
+							sender.sendMessage("Â§7No regions with this name exist");
 							return true;
 						}
 					}
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/region remove [regionName]");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/region remove [regionName]");
 					return true;
 				} else if (args[0].equalsIgnoreCase("setwelcome")) {
 					if (args.length > 2) {
@@ -2292,20 +2553,20 @@ public class EvilBook extends JavaPlugin {
 							for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
 								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
-									sender.sendMessage("§7You don't have ownership of this region");
+									sender.sendMessage("Â§7You don't have ownership of this region");
 									return true;
 								}
 								region.setWelcomeMessage(toFormattedString(message.toString().trim()));
 								region.saveRegion();
 								break;
 							}
-							sender.sendMessage("§7Region " + args[1] + " welcome message set");
+							sender.sendMessage("Â§7Region " + args[1] + " welcome message set");
 						} else {
-							sender.sendMessage("§7No regions with this name exist");
+							sender.sendMessage("Â§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/region setWelcome [regionName] [welcomeMessage]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/region setWelcome [regionName] [welcomeMessage]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("setleave")) {
@@ -2315,20 +2576,20 @@ public class EvilBook extends JavaPlugin {
 							for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
 								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
-									sender.sendMessage("§7You don't have ownership of this region");
+									sender.sendMessage("Â§7You don't have ownership of this region");
 									return true;
 								}
 								region.setLeaveMessage(toFormattedString(message.toString().trim()));	
 								region.saveRegion();
 								break;
 							}
-							sender.sendMessage("§7Region " + args[1] + " leave message set");
+							sender.sendMessage("Â§7Region " + args[1] + " leave message set");
 						} else {
-							sender.sendMessage("§7No regions with this name exist");
+							sender.sendMessage("Â§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/region setLeave [regionName] [leaveMessage]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/region setLeave [regionName] [leaveMessage]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("allow")) {
@@ -2336,25 +2597,25 @@ public class EvilBook extends JavaPlugin {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
 								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
-									sender.sendMessage("§7You don't have ownership of this region");
+									sender.sendMessage("Â§7You don't have ownership of this region");
 									return true;
 								}
 								if (isProfileExistant(args[2])) {
 									OfflinePlayer regionPlayer = getServer().getOfflinePlayer(args[2]);
 									region.addAllowedPlayer(regionPlayer.getName());
 									region.saveRegion();
-									sender.sendMessage("§7" + args[2] + "'s allowed permissions for region " + args[1]);
+									sender.sendMessage("Â§7" + args[2] + "'s allowed permissions for region " + args[1]);
 								} else {
-									sender.sendMessage("§7This player doesn't exist");
+									sender.sendMessage("Â§7This player doesn't exist");
 								}
 								break;
 							}
 						} else {
-							sender.sendMessage("§7No regions with this name exist");
+							sender.sendMessage("Â§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/region allow [regionName] [playerName]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/region allow [regionName] [playerName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("deny")) {
@@ -2363,26 +2624,26 @@ public class EvilBook extends JavaPlugin {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
 									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
-										sender.sendMessage("§7You don't have ownership of this region");
+										sender.sendMessage("Â§7You don't have ownership of this region");
 										return true;
 									}
 									if (isProfileExistant(args[2])) {
 										OfflinePlayer regionPlayer = getServer().getOfflinePlayer(args[2]);
 										region.removeAllowedPlayer(regionPlayer.getName());
 										region.saveRegion();
-										sender.sendMessage("§7" + args[2] + "'s permissions removed for region " + args[1]);
+										sender.sendMessage("Â§7" + args[2] + "'s permissions removed for region " + args[1]);
 										break;
 									}
-									sender.sendMessage("§7This player doesn't exist");
+									sender.sendMessage("Â§7This player doesn't exist");
 									break;
 								}
 							}
 						} else {
-							sender.sendMessage("§7No regions with this name exist");
+							sender.sendMessage("Â§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/region deny [regionName] [playerName]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/region deny [regionName] [playerName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("teleport") || args[0].equalsIgnoreCase("tp")) {
@@ -2392,7 +2653,7 @@ public class EvilBook extends JavaPlugin {
 							break;
 						}
 					} else {
-						sender.sendMessage("§d/region tp [regionName]");
+						sender.sendMessage("Â§d/region tp [regionName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("setWarp")) {
@@ -2401,48 +2662,48 @@ public class EvilBook extends JavaPlugin {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
 									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
-										sender.sendMessage("§7You don't have ownership of this region");
+										sender.sendMessage("Â§7You don't have ownership of this region");
 										return true;
 									} else if (SQL.isKeyExistant(TableType.Warps, args[2].toLowerCase(Locale.UK))) {
 										region.setWarp(args[2].toLowerCase(Locale.UK));	
 										region.saveRegion();
-										sender.sendMessage("§7Region " + args[1] + " warp set");
+										sender.sendMessage("Â§7Region " + args[1] + " warp set");
 										break;
 									} else {
-										sender.sendMessage("§7No warps with this name exist");
+										sender.sendMessage("Â§7No warps with this name exist");
 										break;
 									}
 								}
 							}
 						} else {
-							sender.sendMessage("§7No regions with this name exist");
+							sender.sendMessage("Â§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5Incorrect command usage");
-						sender.sendMessage("§d/region setWarp [regionName] [warpName]");
+						sender.sendMessage("Â§5Incorrect command usage");
+						sender.sendMessage("Â§d/region setWarp [regionName] [warpName]");
 					}
 					return true;
 				}
 			}
-			sender.sendMessage("§5Incorrect command usage");
-			sender.sendMessage("§d/region scan");
-			sender.sendMessage("§d/region create [regionName]");
-			sender.sendMessage("§d/region protect [regionName]");
-			sender.sendMessage("§d/region remove [regionName]");
-			sender.sendMessage("§d/region setWelcome [regionName] [welcomeMessage]");
-			sender.sendMessage("§d/region setLeave [regionName] [leaveMessage]");
-			sender.sendMessage("§d/region tp [regionName]");
-			sender.sendMessage("§d/region setWarp [regionName] [warpName]");
-			sender.sendMessage("§d/region allow [regionName] [playerName]");
-			sender.sendMessage("§d/region deny [regionName] [playerName]");
+			sender.sendMessage("Â§5Incorrect command usage");
+			sender.sendMessage("Â§d/region scan");
+			sender.sendMessage("Â§d/region create [regionName]");
+			sender.sendMessage("Â§d/region protect [regionName]");
+			sender.sendMessage("Â§d/region remove [regionName]");
+			sender.sendMessage("Â§d/region setWelcome [regionName] [welcomeMessage]");
+			sender.sendMessage("Â§d/region setLeave [regionName] [leaveMessage]");
+			sender.sendMessage("Â§d/region tp [regionName]");
+			sender.sendMessage("Â§d/region setWarp [regionName] [warpName]");
+			sender.sendMessage("Â§d/region allow [regionName] [playerName]");
+			sender.sendMessage("Â§d/region deny [regionName] [playerName]");
 			return true;
 		}
 		//
 		// Admin assistance request command
 		//
-		if (command.getName().equalsIgnoreCase("req")) {
+		if (command.getName().equalsIgnoreCase("req") || command.getName().equalsIgnoreCase("helpop")) {
 			if (args.length >= 1) {
-				String message = "§c";
+				String message = "Â§c";
 				for (String msg : args) message += msg + " ";
 				Boolean adminOnline = false;
 				for (Player p : getServer().getOnlinePlayers()) {
@@ -2452,29 +2713,12 @@ public class EvilBook extends JavaPlugin {
 					}
 				}
 				if (!adminOnline) {
-					sender.sendMessage("§7No staff are online to recieve your request");
+					sender.sendMessage("Â§7No staff are online to recieve your request");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/req [message]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [message]");
 			}
-			return true;
-		}
-		//
-		// View The Shop Catalogue
-		//
-		if (command.getName().equalsIgnoreCase("shop") || command.getName().equalsIgnoreCase("catalogue")) {
-			player.getInventory().addItem(getBook("Shop Catalogue", "Amentrix", Arrays.asList(
-					"§cCatalogue §4- §cContents\n\n§dPage 2 to 5\n§5Name colors\n\n§dPage 6 to 8\n§5Name titles",
-					"§cName colors §7$500\n\n§0Black\n§8/buy blackname\n\n§1Dark Blue\n§8/buy darkbluename\n\n§2Dark Green\n§8/buy darkgreenname\n\n§3Dark Aqua\n§8/buy darkaquaname",
-					"§cName colors §7$500\n\n§4Dark Red\n§8/buy darkredname\n\n§5Dark Purple\n§8/buy darkpurplename\n\n§6Gold\n§8/buy goldname\n\n§7Grey\n§8/buy greyname",
-					"§cName colors §7$500\n\n§8Dark Grey\n§8/buy darkgreyname\n\n§9Blue\n§8/buy bluename\n\n§aGreen\n§8/buy greenname\n\n§bAqua\n§8/buy aquaname",
-					"§cName colors §7$500\n\n§cRed\n§8/buy redname\n\n§dPink\n§8/buy pinkname\n\n§eYellow\n§8/buy yellowname\n\n§aR§ba§ci§dn§eb§ao§bw\n§8/buy rainbowname",
-					"§cName titles §7$500\n\n§dMr\n§8/buy mrtitle\n\n§dMrs\n§8/buy mrstitle\n\n§dMiss\n§8/buy misstitle\n\n§dLord\n§8/buy lordtitle",
-					"§cName titles §7$500\n\n§dDr\n§8/buy drtitle\n\n§dProf\n§8/buy proftitle\n\n§dProf\n§8/buy proftitle\n\n§dMiner\n§8/buy minertitle",
-					"§cName titles §7$500\n\n§dCrafter\n§8/buy craftertitle\n\n§dEpic\n§8/buy epictitle\n\n§dElf\n§8/buy elftitle\n\n§dCustom title §7$2000\n§8/buy customtitle [title]",
-					"§cExtras §7Free\n\n§dRemove your title\n§8/buy notitle")));
-			sender.sendMessage("§7A shop catalogue has been put in your inventory");
 			return true;
 		}
 		//
@@ -2488,122 +2732,121 @@ public class EvilBook extends JavaPlugin {
 							if (getPlayer(args[0]) != null) {
 								getProfile(sender).money -= Integer.parseInt(args[1]);
 								getProfile(args[0]).money += Integer.parseInt(args[1]);
-								getPlayer(args[0]).sendMessage("§7You have recieved §a$" + args[1] + " §7from " + player.getDisplayName());
-								sender.sendMessage("§7You have paid " + getPlayer(args[0]).getDisplayName() + " §c$" + args[1]);
-								Statistics.incrementStatistic(Statistic.EconomyTrade, Integer.parseInt(args[1]));
+								getPlayer(args[0]).sendMessage("Â§7You have recieved Â§a$" + args[1] + " Â§7from " + player.getDisplayName());
+								sender.sendMessage("Â§7You have paid " + getPlayer(args[0]).getDisplayName() + " Â§c$" + args[1]);
+								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
 							} else {
 								String money = SQL.getProperty(TableType.PlayerProfile, args[0], "money");
 								money = Integer.toString(Integer.parseInt(money) + Integer.parseInt(args[1]));
 								SQL.setProperty(TableType.PlayerProfile, args[0], "money", money);
 								getProfile(sender).money -= Integer.parseInt(args[1]);
-								sender.sendMessage("§7You have paid " + getServer().getOfflinePlayer(args[0]).getName() + " §c$" + args[1]);
-								Statistics.incrementStatistic(Statistic.EconomyTrade, Integer.parseInt(args[1]));
+								sender.sendMessage("Â§7You have paid " + getServer().getOfflinePlayer(args[0]).getName() + " Â§c$" + args[1]);
+								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
 							}
 						} else {
-							sender.sendMessage("§7You don't have enough money to do this");
+							sender.sendMessage("Â§7You don't have enough money to do this");
 						}
 					} else {
-						sender.sendMessage("§7Please enter a valid amount of money to pay");
+						sender.sendMessage("Â§7Please enter a valid amount of money to pay");
 					}
 				} else {
-					sender.sendMessage("§7You can't pay a player who doesn't exist");
+					sender.sendMessage("Â§7You can't pay a player who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/pay [player] [amount]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [player] [amount]");
 			}
 			return true;
 		}
 		//
 		// Gamemode Command
 		//
-		if (command.getName().equalsIgnoreCase("gamemode")) {
+		if (command.getName().equalsIgnoreCase("gamemode") || command.getName().equalsIgnoreCase("gm")) {
 			if (args.length == 1) {
 				if (args[0].equalsIgnoreCase("survival") || args[0].equals("0")) {
 					player.setGameMode(GameMode.SURVIVAL);
-					sender.sendMessage("§7Your gamemode has been changed to survival");
+					sender.sendMessage("Â§7Your gamemode has been changed to survival");
 				} else if (args[0].equalsIgnoreCase("creative") || args[0].equals("1")) {
 					if (isInSurvival(player) == false || getProfile(sender).rank == Rank.ServerHost) {
 						player.setGameMode(GameMode.CREATIVE);
-						sender.sendMessage("§7Your gamemode has been changed to creative");
+						sender.sendMessage("Â§7Your gamemode has been changed to creative");
 					} else {
-						sender.sendMessage("§7Creative gamemode can't be used in survival");
+						sender.sendMessage("Â§7Creative gamemode can't be used in survival");
 					}
 				} else if (args[0].equalsIgnoreCase("adventure") || args[0].equals("2")) {
 					player.setGameMode(GameMode.ADVENTURE);
-					sender.sendMessage("§7Your gamemode has been changed to adventure");
+					sender.sendMessage("Â§7Your gamemode has been changed to adventure");
 				} else {
-					sender.sendMessage("§7This gamemode doesn't exist");
+					sender.sendMessage("Â§7This gamemode doesn't exist");
 				}
 			} else if (args.length == 2 && getProfile(sender).rank == Rank.ServerHost) {
 				if (getPlayer(args[1]) != null) {
 					if (args[0].equalsIgnoreCase("survival") || args[0].equals("0")) {
 						getPlayer(args[1]).setGameMode(GameMode.SURVIVAL);
-						getPlayer(args[1]).sendMessage(player.getDisplayName() + "§7 has changed your gamemode to survival");
-						sender.sendMessage(getPlayer(args[1]).getDisplayName() + "§7's gamemode has been change to survival");
+						getPlayer(args[1]).sendMessage(player.getDisplayName() + "Â§7 has changed your gamemode to survival");
+						sender.sendMessage(getPlayer(args[1]).getDisplayName() + "Â§7's gamemode has been change to survival");
 						alert(sender.getName() + " changed " + getPlayer(args[1]).getName() + "'s gamemode to survival");
 					} else if (args[0].equalsIgnoreCase("creative") || args[0].equals("1")) {
 						if (isInSurvival(getPlayer(args[1])) == false) {
 							getPlayer(args[1]).setGameMode(GameMode.CREATIVE);
-							getPlayer(args[1]).sendMessage(player.getDisplayName() + "§7 has changed your gamemode to creative");
-							sender.sendMessage(getPlayer(args[1]).getDisplayName() + "§7's gamemode has been change to creative");
+							getPlayer(args[1]).sendMessage(player.getDisplayName() + "Â§7 has changed your gamemode to creative");
+							sender.sendMessage(getPlayer(args[1]).getDisplayName() + "Â§7's gamemode has been change to creative");
 							alert(sender.getName() + " changed " + getPlayer(args[1]).getName() + "'s gamemode to creative");
 						} else {
-							sender.sendMessage("§7Creative gamemode can't be used on a player in survival");
+							sender.sendMessage("Â§7Creative gamemode can't be used on a player in survival");
 						}
 					} else if (args[0].equalsIgnoreCase("adventure") || args[0].equals("2")) {
 						getPlayer(args[1]).setGameMode(GameMode.ADVENTURE);
-						getPlayer(args[1]).sendMessage(player.getDisplayName() + "§7 has changed your gamemode to adventure");
-						sender.sendMessage(getPlayer(args[1]).getDisplayName() + "§7's gamemode has been change to adventure");
+						getPlayer(args[1]).sendMessage(player.getDisplayName() + "Â§7 has changed your gamemode to adventure");
+						sender.sendMessage(getPlayer(args[1]).getDisplayName() + "Â§7's gamemode has been change to adventure");
 						alert(sender.getName() + " changed " + getPlayer(args[1]).getName() + "'s gamemode to adventure");
 					} else {
-						sender.sendMessage("§7This gamemode doesn't exist");
+						sender.sendMessage("Â§7This gamemode doesn't exist");
 					}
 				} else {
-					sender.sendMessage("§7You change the gamemode of an offline player");
+					sender.sendMessage("Â§7You change the gamemode of an offline player");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/gamemode [mode]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [mode]");
 			}
 			return true;
 		}
 		//
 		// Rename Command
 		//
-		if (command.getName().equalsIgnoreCase("rename")) {
+		if (command.getName().equalsIgnoreCase("rename") || command.getName().equalsIgnoreCase("nick") || command.getName().equalsIgnoreCase("nickname")) {
 			if (args.length >= 1) {
-				if (args[0].equalsIgnoreCase("clear")) {
-					((PlayerProfileAdmin)getProfile(player)).setNameAlias(null);
-					sender.sendMessage("§7Your name alias has been removed");
-					alert(sender.getName() + " removed their name alias");
-				} else {
 					String name = "";
 					for (String arg : args) name += arg + " ";
-					if (name.trim().length() <= 14) {
-						((PlayerProfileAdmin)getProfile(player)).setNameAlias(name.trim());
-						sender.sendMessage("§7You have renamed yourself to §d" + name.trim());
-						alert(sender.getName() + " renamed themselves to " + name.trim());
+					name = name.trim();
+					String formattedName = toFormattedString(name);
+					if (ChatColor.stripColor(formattedName).length() <= 16) {
+						if (name.toLowerCase(Locale.UK).contains("&k")) {
+							sender.sendMessage("Â§7Name aliases can't contain &k");
+						} else {
+							((PlayerProfileAdmin)getProfile(player)).setNameAlias(formattedName);
+							sender.sendMessage("Â§7You have renamed yourself to " + formattedName);
+						}
 					} else {
-						sender.sendMessage("§7The maximum rename length is 14 characters");
+						sender.sendMessage("Â§7The maximum rename length excluding colors is 16 characters");
 					}
-				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/rename [name]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [name]");
 			}
 			return true;
 		}
 		//
 		// Mute Command
 		//
-		if (command.getName().equalsIgnoreCase("mute")) {
+		if (command.getName().equalsIgnoreCase("mute") || command.getName().equalsIgnoreCase("ignore")) {
 			if (args.length == 1) {
 				getProfile(sender).mutedPlayers.add(args[0].toLowerCase(Locale.UK));
-				sender.sendMessage("§7You have muted " + args[0]);
+				sender.sendMessage("Â§7You have muted " + args[0]);
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/mute [player]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [player]");
 			}
 			return true;
 		}
@@ -2613,14 +2856,14 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("unmute")) {
 			if (args.length == 1) {
 				if (getProfile(sender).mutedPlayers == null) {
-					sender.sendMessage("§7You haven't muted any players");
+					sender.sendMessage("Â§7You haven't muted any players");
 				} else {
 					getProfile(sender).mutedPlayers.remove(args[0].toLowerCase(Locale.UK));
-					sender.sendMessage("§7You have unmuted " + args[0]);
+					sender.sendMessage("Â§7You have unmuted " + args[0]);
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/unmute [player]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/unmute [player]");
 			}
 			return true;
 		}
@@ -2629,12 +2872,12 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("vanish") || command.getName().equalsIgnoreCase("hide")) {
 			if (isInSurvival(player) && getProfile(sender).rank != Rank.ServerHost) {
-				sender.sendMessage("§7Vanish can't be used in survival");
+				sender.sendMessage("Â§7Vanish can't be used in survival");
 				return true;
 			}
 			for (Player other : getServer().getOnlinePlayers()) other.hidePlayer(player);
 			getProfile(player).isInvisible = true;
-			sender.sendMessage("§7You are now invisible");
+			sender.sendMessage("Â§7You are now invisible");
 			alert(sender.getName() + " made themselves invisible");
 			return true;
 		}
@@ -2644,33 +2887,53 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("unvanish") || command.getName().equalsIgnoreCase("show")) {
 			for (Player other : getServer().getOnlinePlayers()) other.showPlayer(player);
 			getProfile(player).isInvisible = false;
-			sender.sendMessage("§7You are now visible");
+			sender.sendMessage("Â§7You are now visible");
 			return true;
 		}
 		//
 		// Set Home Command
 		//
-		if (command.getName().equalsIgnoreCase("sethome")) {
+		if (command.getName().equalsIgnoreCase("sethome") || command.getName().equalsIgnoreCase("createhome")) {
 			getProfile(sender).homeLocation = player.getLocation();
-			sender.sendMessage("§7Your home location has been set");
+			PlayerHomeMarkers.setPlayerHome(player.getName(), player.getLocation());
+			sender.sendMessage("Â§7Your home location has been set");
+			return true;
+		}
+		//
+		// Delete Home Command
+		//
+		if (command.getName().equalsIgnoreCase("delhome") || command.getName().equalsIgnoreCase("remhome") || command.getName().equalsIgnoreCase("rmhome")) {
+			getProfile(sender).homeLocation = null;
+			PlayerHomeMarkers.setPlayerHome(player.getName(), null);
+			sender.sendMessage("Â§7Your home location has been removed");
 			return true;
 		}
 		//
 		// Teleport To Home Command
 		//
-		if (command.getName().equalsIgnoreCase("home")) {
-			if (getProfile(sender).homeLocation != null) {
-				player.teleport(getProfile(sender).homeLocation);
-				sender.sendMessage("§7Welcome home");
+		if (command.getName().equalsIgnoreCase("home") || command.getName().equalsIgnoreCase("homes")) {
+			if (args.length == 0 || getProfile(sender).rank != Rank.ServerHost) {
+				if (getProfile(sender).homeLocation != null) {
+					player.teleport(getProfile(sender).homeLocation);
+					sender.sendMessage("Â§7Welcome home");
+				} else {
+					sender.sendMessage("Â§7Please set a home first using /sethome");
+				}
 			} else {
-				sender.sendMessage("§7Please set a home first using /sethome");
+				if (SQL.getProperty(TableType.PlayerLocation, args[0], "home_location") != null) {
+					String[] location = SQL.getProperty(TableType.PlayerLocation, args[0], "home_location").split(">");
+					player.teleport(new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2])));
+					sender.sendMessage("Â§7Welcome to " + args[0] + "'s home");
+				} else {
+					sender.sendMessage("Â§7This player has not set a home");
+				}
 			}
 			return true;
 		}
 		//
 		// Spawn Creature Command
 		//
-		if (command.getName().equalsIgnoreCase("spawncreature") || command.getName().equalsIgnoreCase("cspawn")) {
+		if (command.getName().equalsIgnoreCase("spawncreature") || command.getName().equalsIgnoreCase("cspawn") || command.getName().equalsIgnoreCase("mob") || command.getName().equalsIgnoreCase("spawnmob")) {
 			if (isInSurvival(player) == false || getProfile(sender).rank == Rank.ServerHost) {
 				if (args.length >= 1) {
 					EntityType entityType = getEntity(args[0]);
@@ -2678,39 +2941,38 @@ public class EvilBook extends JavaPlugin {
 						if ((entityType != EntityType.ENDER_DRAGON && entityType != EntityType.WITHER && entityType != EntityType.ENDER_CRYSTAL) || getProfile(sender).rank.isHigher(Rank.Elite)) {
 							if (args.length == 1) {
 								if (player.getNearbyEntities(64, 64, 64).size() + 1 >= 400) {
-									sender.sendMessage("§7Nearby entity limit reached");
+									sender.sendMessage("Â§7Nearby entity limit reached");
 								} else {
 									player.getWorld().spawnEntity(player.getLocation(), entityType);
-									sender.sendMessage("§7Spawned a " + args[0].toLowerCase(Locale.UK));
+									sender.sendMessage("Â§7Spawned a " + args[0].toLowerCase(Locale.UK));
 									alert(sender.getName() + " spawned a " + args[0].toLowerCase(Locale.UK));
 								}
 							} else if (args.length == 2) {
 								if (isInteger(args[1])) {
 									if (player.getNearbyEntities(64, 64, 64).size() + Integer.parseInt(args[1]) >= 400) {
-										sender.sendMessage("§7Nearby entity limit reached");
+										sender.sendMessage("Â§7Nearby entity limit reached");
 									} else {
 										int amount = Integer.parseInt(args[1]);
 										for (int i = 0; i < amount; i++) player.getWorld().spawnEntity(player.getLocation(), entityType);
-										sender.sendMessage("§7Spawned " + args[1] + " " + args[0].toLowerCase(Locale.UK) + "'s");
+										sender.sendMessage("Â§7Spawned " + args[1] + " " + args[0].toLowerCase(Locale.UK) + "'s");
 										alert(sender.getName() + " spawned " + args[1] + " " + args[0].toLowerCase(Locale.UK) + "'s");
 									}
 								} else {
-									sender.sendMessage("§7Please enter a valid number of creatures to spawn");
+									sender.sendMessage("Â§7Please enter a valid number of creatures to spawn");
 								}
 							}
 						} else {
-							sender.sendMessage("§7This creature is banned");
+							sender.sendMessage("Â§7This creature is banned");
 						}
 					} else {
-						sender.sendMessage("§7This creature doesn't exist");
+						sender.sendMessage("Â§7This creature doesn't exist");
 					}
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/cspawn [mob] <amount>");
-					sender.sendMessage("§d/spawncreature [mob] <amount>");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [mob] <amount>");
 				}
 			} else {
-				sender.sendMessage("§7Creatures can't be spawned in survival");
+				sender.sendMessage("Â§7Creatures can't be spawned in survival");
 			}
 			return true;
 		}
@@ -2721,28 +2983,38 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (args[0].equalsIgnoreCase("list")) {
 					if (!getProfile(sender).warps.isEmpty()) {
-						sender.sendMessage("§5My warps");
-						sender.sendMessage("§d" + getProfile(sender).warps);
+						sender.sendMessage("Â§5My warps");
+						sender.sendMessage("Â§d" + getProfile(sender).warps.toString().substring(1).substring(0, getProfile(sender).warps.toString().length() - 2));
 					} else {
-						sender.sendMessage("§7You don't own any warps");
+						sender.sendMessage("Â§7You don't own any warps");
 					}
 				} else {
 					if (SQL.isKeyExistant(TableType.Warps, args[0].toLowerCase(Locale.UK).replaceAll("'", "''"))) {
 						player.teleport(SQL.getWarp(args[0].toLowerCase(Locale.UK).replaceAll("'", "''")));
+						player.sendMessage("Â§7You have been warped to Â§d" + args[0]);
 					} else {
-						sender.sendMessage("§7A warp with that name doesn't exist");
+						sender.sendMessage("Â§7A warp with that name doesn't exist");
 					}
 				}
+			} else if (args.length == 2 && args[0].equalsIgnoreCase("list") && getProfile(sender).rank == Rank.ServerHost) {
+				String playerWarps = SQL.getProperty(TableType.PlayerProfile, args[1], "warp_list");
+				if (playerWarps != null) {
+					List<String> warps = Arrays.asList(playerWarps.split(","));
+					sender.sendMessage("Â§5" + args[1] + "'s warps");
+					sender.sendMessage("Â§d" + warps.toString().substring(1).substring(0, warps.toString().length() - 2));
+				} else {
+					sender.sendMessage("Â§7" + args[1] + " doesn't own any warps");
+				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/warp [warpName]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/warp [warpName]");
 			}
 			return true;
 		}
 		//
 		// Delete Warp Command
 		//
-		if (command.getName().equalsIgnoreCase("delwarp") || command.getName().equalsIgnoreCase("deletewarp")) {
+		if (command.getName().equalsIgnoreCase("delwarp") || command.getName().equalsIgnoreCase("deletewarp") || command.getName().equalsIgnoreCase("remwarp") || command.getName().equalsIgnoreCase("rmwarp")) {
 			if (args.length == 1) {
 				if (getProfile(sender).warps.size() != 0) {
 					if (getProfile(sender).rank.isHigher(Rank.Elite) || getProfile(sender).warps.contains(args[0].toLowerCase(Locale.UK))) {
@@ -2753,16 +3025,17 @@ public class EvilBook extends JavaPlugin {
 								region.setWarp(null);
 							}
 						}
-						sender.sendMessage("§7Deleted warp §d" + args[0]);
+						sender.sendMessage("Â§7Deleted warp Â§d" + args[0]);
+						WarpMarkers.removeWarp(args[0]);
 					} else {
-						sender.sendMessage("§7You don't own this warp");
+						sender.sendMessage("Â§7You don't own this warp");
 					}
 				} else {
-					sender.sendMessage("§7You don't own any warps");
+					sender.sendMessage("Â§7You don't own any warps");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/delwarp [warpName]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [warpName]");
 			}
 			return true;
 		}
@@ -2775,10 +3048,10 @@ public class EvilBook extends JavaPlugin {
 					if (args[0].length() <= 32) {
 						Location loc = player.getLocation();
 						if (loc.getY() < 1) {
-							sender.sendMessage("§7You can't create a warp below bedrock");
+							sender.sendMessage("Â§7You can't create a warp below bedrock");
 						} else {
 							if (args[0].contains(",")) {
-								sender.sendMessage("§7The ',' character is blocked in warp names");
+								sender.sendMessage("Â§7The ',' character is blocked in warp names");
 							} else {
 								if (!SQL.isKeyExistant(TableType.Warps, args[0].toLowerCase(Locale.UK).replaceAll("'", "''"))) {
 									try {
@@ -2787,28 +3060,29 @@ public class EvilBook extends JavaPlugin {
 										exception.printStackTrace();
 									}
 									if (getProfile(sender).rank.isAdmin()) {
-										sender.sendMessage("§7Created warp §d" + args[0]);
+										sender.sendMessage("Â§7Created warp Â§d" + args[0]);
 									} else {
 										getProfile(sender).money -= 20;
 										incrementOwnerBalance(20);
-										sender.sendMessage("§7Created warp §d" + args[0] + " §c-$20");
+										sender.sendMessage("Â§7Created warp Â§d" + args[0] + " Â§c-$20");
 									}
 									getProfile(sender).warps.add(args[0].toLowerCase(Locale.UK));
+									WarpMarkers.setWarp(args[0], loc);
 								} else {
-									sender.sendMessage("§7A warp named §d" + args[0] + " §7already exists");
+									sender.sendMessage("Â§7A warp named Â§d" + args[0] + " Â§7already exists");
 								}
 							}
 						}
 					} else {
-						sender.sendMessage("§7The maximum warp name length is 32 characters");
+						sender.sendMessage("Â§7The maximum warp name length is 32 characters");
 					}
 				} else {
-					sender.sendMessage("§5You don't have enough money for this item");
-					sender.sendMessage("§dYou need to earn $" + (20 - getProfile(sender).money));
+					sender.sendMessage("Â§5You don't have enough money for this item");
+					sender.sendMessage("Â§dYou need to earn $" + (20 - getProfile(sender).money));
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/setwarp [warpName]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [warpName]");
 			}
 			return true;
 		}
@@ -2821,60 +3095,60 @@ public class EvilBook extends JavaPlugin {
 					if (isInteger(args[1])) {
 						try {
 							player.getItemInHand().addEnchantment(getEnchantment(args[0].toUpperCase()), Integer.parseInt(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.ARROW_DAMAGE) sender.sendMessage("§7Item enchanted with the power of damage " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.ARROW_FIRE) sender.sendMessage("§7Item enchanted with flame");
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.ARROW_INFINITE) sender.sendMessage("§7Item enchanted with infinite arrows");
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.ARROW_KNOCKBACK) sender.sendMessage("§7Item enchanted with knockback " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DAMAGE_ALL) sender.sendMessage("§7Item enchanted with sharpness " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DAMAGE_ARTHROPODS) sender.sendMessage("§7Item enchanted with bane of arthropods " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DAMAGE_UNDEAD) sender.sendMessage("§7Item enchanted with smite " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DIG_SPEED) sender.sendMessage("§7Item enchanted with efficiency " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DURABILITY) sender.sendMessage("§7Item enchanted with unbreaking " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.FIRE_ASPECT) sender.sendMessage("§7Item enchanted with fire aspect " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.KNOCKBACK) sender.sendMessage("§7Item enchanted with knockback " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.LOOT_BONUS_BLOCKS) sender.sendMessage("§7Item enchanted with fortune " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.LOOT_BONUS_MOBS) sender.sendMessage("§7Item enchanted with looting " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.OXYGEN) sender.sendMessage("§7Item enchanted with respiration " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_ENVIRONMENTAL) sender.sendMessage("§7Item enchanted with protection " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_EXPLOSIONS) sender.sendMessage("§7Item enchanted with explosive protection " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_FALL) sender.sendMessage("§7Item enchanted with fall protection " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_FIRE) sender.sendMessage("§7Item enchanted with fire protection " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_PROJECTILE) sender.sendMessage("§7Item enchanted with projectile protection " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.SILK_TOUCH) sender.sendMessage("§7Item enchanted with silk touch");
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.THORNS) sender.sendMessage("§7Item enchanted with thorns " + toRomanNumerals(args[1]));
-							if (getEnchantment(args[0].toUpperCase()) == Enchantment.WATER_WORKER) sender.sendMessage("§7Item enchanted with aqua affinity");
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.ARROW_DAMAGE) sender.sendMessage("Â§7Item enchanted with the power of damage " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.ARROW_FIRE) sender.sendMessage("Â§7Item enchanted with flame");
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.ARROW_INFINITE) sender.sendMessage("Â§7Item enchanted with infinite arrows");
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.ARROW_KNOCKBACK) sender.sendMessage("Â§7Item enchanted with knockback " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DAMAGE_ALL) sender.sendMessage("Â§7Item enchanted with sharpness " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DAMAGE_ARTHROPODS) sender.sendMessage("Â§7Item enchanted with bane of arthropods " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DAMAGE_UNDEAD) sender.sendMessage("Â§7Item enchanted with smite " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DIG_SPEED) sender.sendMessage("Â§7Item enchanted with efficiency " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.DURABILITY) sender.sendMessage("Â§7Item enchanted with unbreaking " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.FIRE_ASPECT) sender.sendMessage("Â§7Item enchanted with fire aspect " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.KNOCKBACK) sender.sendMessage("Â§7Item enchanted with knockback " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.LOOT_BONUS_BLOCKS) sender.sendMessage("Â§7Item enchanted with fortune " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.LOOT_BONUS_MOBS) sender.sendMessage("Â§7Item enchanted with looting " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.OXYGEN) sender.sendMessage("Â§7Item enchanted with respiration " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_ENVIRONMENTAL) sender.sendMessage("Â§7Item enchanted with protection " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_EXPLOSIONS) sender.sendMessage("Â§7Item enchanted with explosive protection " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_FALL) sender.sendMessage("Â§7Item enchanted with fall protection " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_FIRE) sender.sendMessage("Â§7Item enchanted with fire protection " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.PROTECTION_PROJECTILE) sender.sendMessage("Â§7Item enchanted with projectile protection " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.SILK_TOUCH) sender.sendMessage("Â§7Item enchanted with silk touch");
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.THORNS) sender.sendMessage("Â§7Item enchanted with thorns " + toRomanNumerals(args[1]));
+							if (getEnchantment(args[0].toUpperCase()) == Enchantment.WATER_WORKER) sender.sendMessage("Â§7Item enchanted with aqua affinity");
 						} catch (RuntimeException exception) {
 							throw exception;
 						} catch (Exception exception) {
 							if (getEnchantment(args[0].toUpperCase()) == null) {
-								sender.sendMessage("§7This enchantment doesn't exist");
+								sender.sendMessage("Â§7This enchantment doesn't exist");
 							} else if (Integer.parseInt(args[1]) > getEnchantment(args[0].toUpperCase()).getMaxLevel()) {
-								sender.sendMessage("§7The maximum level for this enchantment is " + getEnchantment(args[0].toUpperCase()).getMaxLevel());
+								sender.sendMessage("Â§7The maximum level for this enchantment is " + getEnchantment(args[0].toUpperCase()).getMaxLevel());
 							} else {
-								sender.sendMessage("§7This item can't have this enchantment");
+								sender.sendMessage("Â§7This item can't have this enchantment");
 							}
 						}
 					} else {
-						sender.sendMessage("§7Please enter a valid enchantment level");
+						sender.sendMessage("Â§7Please enter a valid enchantment level");
 					}
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/enchant [enchantmentID] [enchantmentLevel]");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/enchant [enchantmentID] [enchantmentLevel]");
 				}
 			} else {
-				sender.sendMessage("§7Items can't be enchanted in survival via command");
+				sender.sendMessage("Â§7Items can't be enchanted in survival via command");
 			}
 			return true;
 		}
 		//
 		// Back Command
 		//
-		if (command.getName().equalsIgnoreCase("back")) {
-			if (getProfile(sender).deathLocation != null) {
-				player.teleport(getProfile(sender).deathLocation);
-				sender.sendMessage("§7Teleported to your death position");
+		if (command.getName().equalsIgnoreCase("back") || command.getName().equalsIgnoreCase("return")) {
+			if (getProfile(sender).lastLocation != null) {
+				player.teleport(getProfile(sender).lastLocation);
+				sender.sendMessage("Â§7Teleported to your last position");
 			} else {
-				sender.sendMessage("§7You haven't died recently");
+				sender.sendMessage("Â§7You haven't teleported or died recently");
 			}
 			return true;
 		}
@@ -2885,9 +3159,9 @@ public class EvilBook extends JavaPlugin {
 			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
 				player.getWorld().setThundering(true);
 				player.getWorld().setStorm(true);
-				sender.sendMessage("§7World weather changed to stormy");
+				sender.sendMessage("Â§7World weather changed to stormy");
 			} else {
-				sender.sendMessage("§7Weather can't be changed in survival");
+				sender.sendMessage("Â§7Weather can't be changed in survival");
 			}
 			return true;
 		}
@@ -2897,9 +3171,9 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("rain")) {
 			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
 				player.getWorld().setStorm(true);
-				sender.sendMessage("§7World weather changed to rainy");
+				sender.sendMessage("Â§7World weather changed to rainy");
 			} else {
-				sender.sendMessage("§7Weather can't be changed in survival");
+				sender.sendMessage("Â§7Weather can't be changed in survival");
 			}
 			return true;
 		}
@@ -2910,22 +3184,22 @@ public class EvilBook extends JavaPlugin {
 			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
 				player.getWorld().setThundering(false);
 				player.getWorld().setStorm(false);
-				sender.sendMessage("§7World weather changed to sunny");
+				sender.sendMessage("Â§7World weather changed to sunny");
 			} else {
-				sender.sendMessage("§7Weather can't be changed in survival");
+				sender.sendMessage("Â§7Weather can't be changed in survival");
 			}
 			return true;
 		}
 		//
 		// AFK Command
 		//
-		if (command.getName().equalsIgnoreCase("afk")) {
+		if (command.getName().equalsIgnoreCase("afk") || command.getName().equalsIgnoreCase("away")) {
 			if (!getProfile(player).isAway) {
 				getProfile(player).isAway = true;
-				broadcastPlayerMessage(sender.getName(), "§5" + player.getDisplayName() + " §dhas gone AFK");
+				broadcastPlayerMessage(sender.getName(), "Â§5" + player.getDisplayName() + " Â§dhas gone AFK");
 				getProfile(player).updatePlayerListName();
 			} else {
-				sender.sendMessage("§7You are already AFK");
+				sender.sendMessage("Â§7You are already AFK");
 			}
 			return true;
 		}
@@ -2933,7 +3207,7 @@ public class EvilBook extends JavaPlugin {
 		// Time Command
 		//
 		if (command.getName().equalsIgnoreCase("time")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.Elite)) {
 				if (args.length == 1) {
 					if (isInteger(args[0])) {
 						player.getWorld().setTime(Long.parseLong(args[0]));
@@ -2946,20 +3220,20 @@ public class EvilBook extends JavaPlugin {
 					} else if (args[0].equalsIgnoreCase("night")) {
 						player.getWorld().setTime(18000L);
 					} else {
-						sender.sendMessage("§7This is not a valid time");
+						sender.sendMessage("Â§7This is not a valid time");
 						return true;
 					}
-					sender.sendMessage("§7World time changed");
+					sender.sendMessage("Â§7World time changed");
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/time [time]");
-					sender.sendMessage("§d/time dawn");
-					sender.sendMessage("§d/time day");
-					sender.sendMessage("§d/time dusk");
-					sender.sendMessage("§d/time night");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/time [time]");
+					sender.sendMessage("Â§d/time dawn");
+					sender.sendMessage("Â§d/time day");
+					sender.sendMessage("Â§d/time dusk");
+					sender.sendMessage("Â§d/time night");
 				}
 			} else {
-				sender.sendMessage("§7Time can't be changed in survival");
+				sender.sendMessage("Â§7Time can't be changed in survival");
 			}
 			return true;
 		}
@@ -2968,7 +3242,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("setspawn")) {
 			player.getWorld().setSpawnLocation(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-			sender.sendMessage("§7The world spawn has been moved");
+			sender.sendMessage("Â§7The world spawn has been moved");
 			return true;
 		}
 		//
@@ -2981,14 +3255,14 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Butcher Command
 		//
-		if (command.getName().equalsIgnoreCase("butcher")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+		if (command.getName().equalsIgnoreCase("butcher") || command.getName().equalsIgnoreCase("remove") || command.getName().equalsIgnoreCase("killall") || command.getName().equalsIgnoreCase("mobkill")) {
+			if (!isInSurvival(player) || getProfile(sender).rank == Rank.ServerHost) {
 				int entities = player.getWorld().getLivingEntities().size();
 				for (LivingEntity entity : player.getWorld().getLivingEntities()) if (entity.getType() == EntityType.PLAYER || (entity.getType() == EntityType.WOLF && ((Tameable)entity).isTamed())) entities--; else entity.remove();
-				sender.sendMessage("§5" + entities + "§d animals butchered");
+				sender.sendMessage("Â§5" + entities + "Â§d animals butchered");
 				alert(sender.getName() + " executed the butcher command");
 			} else {
-				sender.sendMessage("§7Animals can't be butchered in survival");
+				sender.sendMessage("Â§7Animals can't be butchered in survival");
 			}
 			return true;
 		}
@@ -3019,7 +3293,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("clear")) {
 			player.getInventory().clear();
-			sender.sendMessage("§7Your inventory has been cleared");
+			sender.sendMessage("Â§7Your inventory has been cleared");
 			return true;
 		}
 		//
@@ -3028,9 +3302,9 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("dawn")) {
 			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
 				player.getWorld().setTime(0L);
-				sender.sendMessage("§7The world time has been changed to dawn");
+				sender.sendMessage("Â§7The world time has been changed to dawn");
 			} else {
-				sender.sendMessage("§7Time can't be changed in survival");
+				sender.sendMessage("Â§7Time can't be changed in survival");
 			}
 			return true;
 		}
@@ -3040,9 +3314,9 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("day")) {
 			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
 				player.getWorld().setTime(6000L);
-				sender.sendMessage("§7The world time has been changed to day");
+				sender.sendMessage("Â§7The world time has been changed to day");
 			} else {
-				sender.sendMessage("§7Time can't be changed in survival");
+				sender.sendMessage("Â§7Time can't be changed in survival");
 			}
 			return true;
 		}
@@ -3052,9 +3326,9 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("dusk")) {
 			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
 				player.getWorld().setTime(12000L);
-				sender.sendMessage("§7The world time has been changed to dusk");
+				sender.sendMessage("Â§7The world time has been changed to dusk");
 			} else {
-				sender.sendMessage("§7Time can't be changed in survival");
+				sender.sendMessage("Â§7Time can't be changed in survival");
 			}
 			return true;
 		}
@@ -3064,9 +3338,9 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("night")) {
 			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
 				player.getWorld().setTime(18000L);
-				sender.sendMessage("§7The world time has been changed to night");
+				sender.sendMessage("Â§7The world time has been changed to night");
 			} else {
-				sender.sendMessage("§7Time can't be changed in survival");
+				sender.sendMessage("Â§7Time can't be changed in survival");
 			}
 			return true;
 		}
@@ -3077,10 +3351,10 @@ public class EvilBook extends JavaPlugin {
 			if (getProfile(sender).teleportantName != null) {
 				if (getPlayer(getProfile(sender).teleportantName) != null) {
 					getPlayer(getProfile(sender).teleportantName).teleport(player);
-					getPlayer(getProfile(sender).teleportantName).sendMessage("§7Teleport request accepted");
+					getPlayer(getProfile(sender).teleportantName).sendMessage("Â§7Teleport request accepted");
 					getProfile(sender).teleportantName = null;
 				} else {
-					sender.sendMessage("§7The player who sent the request isn't online");
+					sender.sendMessage("Â§7The player who sent the request isn't online");
 				}
 			}
 			return true;
@@ -3093,14 +3367,14 @@ public class EvilBook extends JavaPlugin {
 				if (getPlayer(args[0]) != null) {
 					if (!getProfile(sender).rank.isHigher(getProfile(getPlayer(args[0])).rank.getPreviousRank())) {
 						getProfile(getPlayer(args[0])).teleportantName = sender.getName();
-						getPlayer(args[0]).sendMessage("§d" + player.getDisplayName() + " §dwishes to teleport to you");
-						getPlayer(args[0]).sendMessage("§aTo accept the request type /accept");
-						sender.sendMessage("§7A teleport request has been sent to " + getPlayer(args[0]).getDisplayName());
+						getPlayer(args[0]).sendMessage("Â§d" + player.getDisplayName() + " Â§dwishes to teleport to you");
+						getPlayer(args[0]).sendMessage("Â§aTo accept the request type /accept");
+						sender.sendMessage("Â§7A teleport request has been sent to " + getPlayer(args[0]).getDisplayName());
 					} else {
 						player.teleport(getPlayer(args[0]));
 					}
 				} else {
-					sender.sendMessage("§7You can't teleport to an offline player");
+					sender.sendMessage("Â§7You can't teleport to an offline player");
 				}
 			} else if (args.length == 3) {
 				if (isDouble(args[0]) && isDouble(args[1]) && isDouble(args[2])) {
@@ -3109,19 +3383,19 @@ public class EvilBook extends JavaPlugin {
 					destination.setY(Double.valueOf(args[1]));
 					destination.setZ(Double.valueOf(args[2]));
 					player.teleport(destination);
-					sender.sendMessage("§aTeleported to co-ordinates");
-					sender.sendMessage("§dX: " + args[0]);
-					sender.sendMessage("§dY: " + args[1]);
-					sender.sendMessage("§dZ: " + args[2]);
+					sender.sendMessage("Â§aTeleported to co-ordinates");
+					sender.sendMessage("Â§dX: " + args[0]);
+					sender.sendMessage("Â§dY: " + args[1]);
+					sender.sendMessage("Â§dZ: " + args[2]);
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/tp [x] [y] [z]");
-					sender.sendMessage("§7The X, Y and Z values must be numbers");
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]");
+					sender.sendMessage("Â§7The X, Y and Z values must be numbers");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/tp [player]");
-				sender.sendMessage("§d/tp [x] [y] [z]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [player]");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]");
 			}
 			return true;
 		}
@@ -3134,98 +3408,14 @@ public class EvilBook extends JavaPlugin {
 					if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.Elite)) {
 						getPlayer(args[0]).teleport(player);
 					} else {
-						sender.sendMessage("§7You can't teleport a player who is in survival");
+						sender.sendMessage("Â§7You can't teleport a player who is in survival");
 					}
 				} else {
-					sender.sendMessage("§7You can't teleport an offline player");
+					sender.sendMessage("Â§7You can't teleport an offline player");
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/tphere [player]");
-			}
-			return true;
-		}
-		//
-		// Buy Shop Item Command
-		//
-		if (command.getName().equalsIgnoreCase("buy")) {
-			if (args.length == 1) {
-				if (args[0].endsWith("name")) {
-					if (!getProfile(player).rank.isHigher(Rank.Investor)) {
-						if (getProfile(sender).money >= 500) {
-							getProfile(sender).money -= 500;
-							incrementOwnerBalance(500);
-						} else {
-							sender.sendMessage("§5You don't have enough money for this item");
-							sender.sendMessage("§dYou need to earn $" + (500 - getProfile(sender).money));
-							return true;
-						}
-					}
-					if (args[0].equalsIgnoreCase("blackname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("0");
-					if (args[0].equalsIgnoreCase("darkbluename")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("1");
-					if (args[0].equalsIgnoreCase("darkgreenname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("2");
-					if (args[0].equalsIgnoreCase("darkaquaname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("3");
-					if (args[0].equalsIgnoreCase("darkredname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("4");
-					if (args[0].equalsIgnoreCase("darkpurplename")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("5");
-					if (args[0].equalsIgnoreCase("goldname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("6");
-					if (args[0].equalsIgnoreCase("greyname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("7");
-					if (args[0].equalsIgnoreCase("darkgreyname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("8");
-					if (args[0].equalsIgnoreCase("bluename")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("9");
-					if (args[0].equalsIgnoreCase("greenname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("a");
-					if (args[0].equalsIgnoreCase("aquaname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("b");
-					if (args[0].equalsIgnoreCase("redname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("c");
-					if (args[0].equalsIgnoreCase("pinkname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("d");
-					if (args[0].equalsIgnoreCase("yellowname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("e");
-					if (args[0].equalsIgnoreCase("rainbowname")) ((PlayerProfileAdmin)getProfile(player)).setNameColor("?");
-					sender.sendMessage("§7Purchase complete");
-					return true;
-				} else if (args[0].equalsIgnoreCase("notitle")) {
-					((PlayerProfileAdmin)getProfile(player)).setNameTitle(null);
-					sender.sendMessage("§7Title removed");
-					return true;
-				} else if (args[0].endsWith("title")) {
-					if (!getProfile(player).rank.isHigher(Rank.Investor)) {
-						if (getProfile(sender).money >= 500) {
-							getProfile(sender).money -= 500;
-							incrementOwnerBalance(500);
-						} else {
-							sender.sendMessage("§5You don't have enough money for this item");
-							sender.sendMessage("§dYou need to earn $" + (500 - getProfile(sender).money));
-							return true;
-						}
-					}
-					if (args[0].equalsIgnoreCase("elftitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Elf");
-					if (args[0].equalsIgnoreCase("mrtitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Mr");
-					if (args[0].equalsIgnoreCase("mrstitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Mrs");
-					if (args[0].equalsIgnoreCase("misstitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Miss");
-					if (args[0].equalsIgnoreCase("lordtitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Lord");
-					if (args[0].equalsIgnoreCase("drtitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Dr");
-					if (args[0].equalsIgnoreCase("proftitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Prof");
-					if (args[0].equalsIgnoreCase("minertitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Miner");
-					if (args[0].equalsIgnoreCase("craftertitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Crafter");
-					if (args[0].equalsIgnoreCase("epictitle")) ((PlayerProfileAdmin)getProfile(player)).setNameTitle("Epic");
-					sender.sendMessage("§7Purchase complete");
-					return true;
-				}
-				sender.sendMessage("§7That item doesn't exist");
-				return true;
-			}
-			if (args.length == 2 && args[0].equalsIgnoreCase("customtitle")) {
-				if (!getProfile(player).rank.isHigher(Rank.Investor)) {
-					if (getProfile(sender).money >= 2000) {
-						getProfile(sender).money -= 2000;
-						incrementOwnerBalance(2000);
-					} else {
-						sender.sendMessage("§5You don't have enough money for this item");
-						sender.sendMessage("§dYou need to earn $" + (2000 - getProfile(sender).money));
-						return true;
-					}
-				}
-				((PlayerProfileAdmin)getProfile(player)).setNameTitle(getProfile(player).rank.isHigher(Rank.Investor) ? toFormattedString(args[1]) : args[1]);
-				sender.sendMessage("§7Purchase complete");
-			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/buy [item]");
+				sender.sendMessage("Â§5Incorrect command usage");
+				sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [player]");
 			}
 			return true;
 		}
@@ -3234,40 +3424,32 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("item") || command.getName().equalsIgnoreCase("give")) {
 			if (isInSurvival(player) && getProfile(sender).rank != Rank.ServerHost) {
-				sender.sendMessage("§7Spawning of items is blocked in survival");
+				sender.sendMessage("Â§7Spawning of items is blocked in survival");
 			} else {
 				if (args.length == 1) {
 					Material material = getBlockMaterial(args[0]);
 					if (material == null) {
-						player.sendMessage("§7Please enter a valid name or ID");
+						player.sendMessage("Â§7Please enter a valid name or ID");
 					} else {
 						player.getInventory().addItem(new ItemStack(material));
 					}
 				} else if (args.length == 2) {
 					Material material = getBlockMaterial(args[0]);
 					if (material == null || !isInteger(args[1])) {
-						player.sendMessage("§7Please enter a valid name or ID and amount");
+						player.sendMessage("Â§7Please enter a valid name or ID and amount");
 					} else {
 						player.getInventory().addItem(new ItemStack(material, Integer.parseInt(args[1])));
 					}
 				} else if (args.length == 3) {
 					Material material = getBlockMaterial(args[0]);
 					if (material == null || !isInteger(args[1]) || !isByte(args[2])) {
-						player.sendMessage("§7Please enter a valid name or ID, amount and data");
+						player.sendMessage("Â§7Please enter a valid name or ID, amount and data");
 					} else {
 						player.getInventory().addItem(new ItemStack(material, Integer.parseInt(args[1]), Byte.parseByte(args[2])));
 					}
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					if (command.getName().equalsIgnoreCase("item")) {
-						sender.sendMessage("§d/item [ID / name]");
-						sender.sendMessage("§d/item [ID / name] [amount]");
-						sender.sendMessage("§d/item [ID / name] [amount] [data]");
-					} else {
-						sender.sendMessage("§d/give [ID / name]");
-						sender.sendMessage("§d/give [ID / name] [amount]");
-						sender.sendMessage("§d/give [ID / name] [amount] [data]");
-					}
+					sender.sendMessage("Â§5Incorrect command usage");
+					sender.sendMessage("Â§d/" + command.getName().toLowerCase(Locale.UK) + " [ID / name] <amount> <data>");
 				}
 			}
 			return true;
@@ -3305,7 +3487,7 @@ public class EvilBook extends JavaPlugin {
 	 * @return If the entity is in an survival world or not
 	 */
 	public static Boolean isInSurvival(Entity entity) {
-		return entity.getWorld().getName().equals("SurvivalLand") || entity.getWorld().getName().equals("SurvivalLandNether") ? true : false;
+		return entity.getWorld().getName().equals("SurvivalLand") || entity.getWorld().getName().equals("SurvivalLandNether") || entity.getWorld().getName().equals("SurvivalLandTheEnd") ? true : false;
 	}
 
 	/**
@@ -3314,7 +3496,7 @@ public class EvilBook extends JavaPlugin {
 	 * @return If the world is a survival world or not
 	 */
 	public static Boolean isInSurvival(World world) {
-		return world.getName().equals("SurvivalLand") || world.getName().equals("SurvivalLandNether") ? true : false;
+		return world.getName().equals("SurvivalLand") || world.getName().equals("SurvivalLandNether") || world.getName().equals("SurvivalLandTheEnd") ? true : false;
 	}
 
 	/**
@@ -3378,7 +3560,7 @@ public class EvilBook extends JavaPlugin {
 	 */
 	public static void alert(String alert) {
 		for (PlayerProfile profile : playerProfiles.values()) {
-			if (profile.rank.isHigher(Rank.Architect)) Bukkit.getServer().getPlayer(profile.name).sendMessage("§7§O" + alert);
+			if (profile.rank.isHigher(Rank.Architect)) Bukkit.getServer().getPlayer(profile.name).sendMessage("Â§7Â§O" + alert);
 		}
 	}
 
@@ -3390,7 +3572,7 @@ public class EvilBook extends JavaPlugin {
 	public static Player getPlayer(String name) {
 		if (Bukkit.getServer().getPlayer(name) != null) return Bukkit.getServer().getPlayer(name);
 		for (PlayerProfile profile : playerProfiles.values()) {
-			if (profile.name.toLowerCase(Locale.UK).startsWith(name.toLowerCase(Locale.UK)) || (profile instanceof PlayerProfileAdmin && ((PlayerProfileAdmin)profile).nameAlias != null && ((PlayerProfileAdmin)profile).nameAlias.toLowerCase(Locale.UK).startsWith(name.toLowerCase(Locale.UK)))) return Bukkit.getServer().getPlayer(profile.name);
+			if (profile.name.toLowerCase(Locale.UK).startsWith(name.toLowerCase(Locale.UK)) || (profile instanceof PlayerProfileAdmin && ((PlayerProfileAdmin)profile).nameAlias != null && ((PlayerProfileAdmin)profile).getStrippedNameAlias().toLowerCase(Locale.UK).startsWith(name.toLowerCase(Locale.UK)))) return Bukkit.getServer().getPlayer(profile.name);
 		}
 		return null;
 	}
@@ -3541,12 +3723,12 @@ public class EvilBook extends JavaPlugin {
 		String name = "";
 		int color = 0;
 		for (char c : string.toCharArray()) {
-			if (color == 0) name += "§a" + c;
-			if (color == 1) name += "§b" + c;
-			if (color == 2) name += "§c" + c;
-			if (color == 3) name += "§d" + c;
+			if (color == 0) name += "Â§a" + c;
+			if (color == 1) name += "Â§b" + c;
+			if (color == 2) name += "Â§c" + c;
+			if (color == 3) name += "Â§d" + c;
 			if (color == 4) {
-				name += "§e" + c;
+				name += "Â§e" + c;
 				color = 0;
 			} else {
 				color++;
@@ -3615,6 +3797,87 @@ public class EvilBook extends JavaPlugin {
 		return null;
 	}
 
+	public static String toStrippedString(String rawText) {
+		//
+		// Color formatting
+		//
+		String text = rawText;
+		if (text.contains("Â§")) {
+			text = replaceAllIgnoreCase(text, "Â§a", "");
+			text = replaceAllIgnoreCase(text, "Â§b", "");
+			text = replaceAllIgnoreCase(text, "Â§c", "");
+			text = replaceAllIgnoreCase(text, "Â§d", "");
+			text = replaceAllIgnoreCase(text, "Â§e", "");
+			text = replaceAllIgnoreCase(text, "Â§f", "");
+			text = replaceAllIgnoreCase(text, "Â§k", "");
+			text = replaceAllIgnoreCase(text, "Â§l", "");
+			text = replaceAllIgnoreCase(text, "Â§m", "");
+			text = replaceAllIgnoreCase(text, "Â§n", "");
+			text = replaceAllIgnoreCase(text, "Â§o", "");
+			text = replaceAllIgnoreCase(text, "Â§r", "");
+			text = text.replaceAll("Â§0", "");
+			text = text.replaceAll("Â§1", "");
+			text = text.replaceAll("Â§2", "");
+			text = text.replaceAll("Â§3", "");
+			text = text.replaceAll("Â§4", "");
+			text = text.replaceAll("Â§5", "");
+			text = text.replaceAll("Â§6", "");
+			text = text.replaceAll("Â§7", "");
+			text = text.replaceAll("Â§8", "");
+			text = text.replaceAll("Â§9", "");
+		}
+		text = text.replaceAll("<3", "");
+		text = text.replaceAll(":\\)", "");
+		text = text.replaceAll("\\(:", "");
+		text = text.replaceAll(":\\(", "");
+		text = text.replaceAll("\\):", "");
+		if (text.contains("(") && text.contains(")")) {
+			text = text.replaceAll("(male)", "");
+			text = text.replaceAll("(female)", "");
+			text = text.replaceAll("(music)", "");
+			text = text.replaceAll("(check)", "");
+			text = text.replaceAll("(x)", "");
+			text = text.replaceAll("(c)", "");
+			text = text.replaceAll("(r)", "");
+			text = text.replaceAll("(wait)", "");
+			text = text.replaceAll("(star)", "");
+			text = text.replaceAll("(phone)", "");
+			text = text.replaceAll("(yingyang)", "");
+			text = text.replaceAll("(skull)", "");
+			text = text.replaceAll("(radioactive)", "");
+			text = text.replaceAll("(bio)", "");
+			text = text.replaceAll("(airplane)", "");
+			text = text.replaceAll("(mail)", "");
+			text = text.replaceAll("(arrow)", "");
+			text = text.replaceAll("(armystar)", "");
+			text = text.replaceAll("(scissors)", "");
+			text = text.replaceAll("(peace)", "");
+			text = text.replaceAll("(shade)", "");
+			text = text.replaceAll("(mediumshade)", "");
+			text = text.replaceAll("(darkshade)", "");
+			text = text.replaceAll("(box)", "");
+			text = text.replaceAll("(cbox)", "");
+			text = text.replaceAll("(xbox)", "");
+			text = text.replaceAll("(triangle)", "");
+			text = text.replaceAll("(square)", "");
+			text = text.replaceAll("(circle)", "");
+			text = text.replaceAll("-_*", "");
+			text = text.replaceAll("(sun)", "");
+			text = text.replaceAll("(sun2)", "");
+			text = text.replaceAll("(moon)", "");
+			text = text.replaceAll("(moon2)", "");
+			text = text.replaceAll("(cloud)", "");
+			text = text.replaceAll("(snowman)", "");
+			text = text.replaceAll("(umbrella)", "");
+			text = text.replaceAll("(flower)", "");
+			text = text.replaceAll("(flower2)", "");
+			text = text.replaceAll("(comet)", "");
+			text = text.replaceAll("(zap)", "");
+			text = text.replaceAll("(snow)", "");
+		}
+		return text;
+	}
+	
 	/**
 	 * Returns a formatted string
 	 * @param text The text to format
@@ -3626,28 +3889,77 @@ public class EvilBook extends JavaPlugin {
 		//
 		String text = rawText;
 		if (text.contains("&")) {
-			text = replaceAllIgnoreCase(text, "&a", "§a");
-			text = replaceAllIgnoreCase(text, "&b", "§b");
-			text = replaceAllIgnoreCase(text, "&c", "§c");
-			text = replaceAllIgnoreCase(text, "&d", "§d");
-			text = replaceAllIgnoreCase(text, "&e", "§e");
-			text = replaceAllIgnoreCase(text, "&f", "§f");
-			text = replaceAllIgnoreCase(text, "&k", "§k");
-			text = replaceAllIgnoreCase(text, "&l", "§l");
-			text = replaceAllIgnoreCase(text, "&m", "§m");
-			text = replaceAllIgnoreCase(text, "&n", "§n");
-			text = replaceAllIgnoreCase(text, "&o", "§o");
-			text = replaceAllIgnoreCase(text, "&r", "§r");
-			text = text.replaceAll("&0", "§0");
-			text = text.replaceAll("&1", "§1");
-			text = text.replaceAll("&2", "§2");
-			text = text.replaceAll("&3", "§3");
-			text = text.replaceAll("&4", "§4");
-			text = text.replaceAll("&5", "§5");
-			text = text.replaceAll("&6", "§6");
-			text = text.replaceAll("&7", "§7");
-			text = text.replaceAll("&8", "§8");
-			text = text.replaceAll("&9", "§9");
+			text = replaceAllIgnoreCase(text, "&a", "Â§a");
+			text = replaceAllIgnoreCase(text, "&b", "Â§b");
+			text = replaceAllIgnoreCase(text, "&c", "Â§c");
+			text = replaceAllIgnoreCase(text, "&d", "Â§d");
+			text = replaceAllIgnoreCase(text, "&e", "Â§e");
+			text = replaceAllIgnoreCase(text, "&f", "Â§f");
+			text = replaceAllIgnoreCase(text, "&k", "Â§k");
+			text = replaceAllIgnoreCase(text, "&l", "Â§l");
+			text = replaceAllIgnoreCase(text, "&m", "Â§m");
+			text = replaceAllIgnoreCase(text, "&n", "Â§n");
+			text = replaceAllIgnoreCase(text, "&o", "Â§o");
+			text = replaceAllIgnoreCase(text, "&r", "Â§r");
+			text = text.replaceAll("&0", "Â§0");
+			text = text.replaceAll("&1", "Â§1");
+			text = text.replaceAll("&2", "Â§2");
+			text = text.replaceAll("&3", "Â§3");
+			text = text.replaceAll("&4", "Â§4");
+			text = text.replaceAll("&5", "Â§5");
+			text = text.replaceAll("&6", "Â§6");
+			text = text.replaceAll("&7", "Â§7");
+			text = text.replaceAll("&8", "Â§8");
+			text = text.replaceAll("&9", "Â§9");
+		}
+		text = text.replaceAll("<3", "â¤");
+		text = text.replaceAll(":\\)", "â˜º");
+		text = text.replaceAll("\\(:", "â˜º");
+		text = text.replaceAll(":\\(", "â˜¹");
+		text = text.replaceAll("\\):", "â˜¹");
+		if (text.contains("(") && text.contains(")")) {
+			text = text.replaceAll("\\(male\\)", "â™‚");
+			text = text.replaceAll("\\(female\\)", "â™€");
+			text = text.replaceAll("\\(music\\)", "â™ªâ™«â™«â™ª");
+			text = text.replaceAll("\\(check\\)", "âœ”");
+			text = text.replaceAll("\\(x\\)", "âœ–");
+			text = text.replaceAll("\\(c\\)", "Â©");
+			text = text.replaceAll("\\(r\\)", "Â®");
+			text = text.replaceAll("\\(wait\\)", "âŒ›");
+			text = text.replaceAll("\\(star\\)", "â˜…");
+			text = text.replaceAll("\\(phone\\)", "â˜Ž");
+			text = text.replaceAll("\\(yingyang\\)", "â˜¯");
+			text = text.replaceAll("\\(skull\\)", "â˜ ");
+			text = text.replaceAll("\\(radioactive\\)", "â˜¢");
+			text = text.replaceAll("\\(bio\\)", "â˜£");
+			text = text.replaceAll("\\(airplane\\)", "âœˆ");
+			text = text.replaceAll("\\(mail\\)", "âœ‰");
+			text = text.replaceAll("\\(arrow\\)", "âž¸");
+			text = text.replaceAll("\\(armystar\\)", "âœª");
+			text = text.replaceAll("\\(scissors\\)", "âœ");
+			text = text.replaceAll("\\(peace\\)", "â˜®");
+			text = text.replaceAll("\\(shade\\)", "â–‘");
+			text = text.replaceAll("\\(mediumshade\\)", "â–’");
+			text = text.replaceAll("\\(darkshade\\)", "â–“");
+			text = text.replaceAll("\\(box\\)", "â˜");
+			text = text.replaceAll("\\(cbox\\)", "â˜‘");
+			text = text.replaceAll("\\(xbox\\)", "â˜’");
+			text = text.replaceAll("\\(triangle\\)", "â–²");
+			text = text.replaceAll("\\(square\\)", "â– ");
+			text = text.replaceAll("\\(circle\\)", "â—‹");
+			text = text.replaceAll("-_*", "ãƒ„");
+			text = text.replaceAll("\\(sun\\)", "â˜¼");
+			text = text.replaceAll("\\(sun2\\)", "â˜€");
+			text = text.replaceAll("\\(moon\\)", "â˜¾");
+			text = text.replaceAll("\\(moon2\\)", "â˜½");
+			text = text.replaceAll("\\(cloud\\)", "â˜");
+			text = text.replaceAll("\\(snowman\\)", "â˜ƒ");
+			text = text.replaceAll("\\(umbrella\\)", "â˜‚");
+			text = text.replaceAll("\\(flower\\)", "âœ¿");
+			text = text.replaceAll("\\(flower2\\)", "â€");
+			text = text.replaceAll("\\(comet\\)", "â˜„");
+			text = text.replaceAll("\\(zap\\)", "ÏŸ");
+			text = text.replaceAll("\\(snow\\)", "â…");
 		}
 		return text;
 	}
@@ -3662,29 +3974,6 @@ public class EvilBook extends JavaPlugin {
 		if (block.getWorld().hasStorm() && (block.getBiome() == Biome.FROZEN_OCEAN || block.getBiome() == Biome.FROZEN_RIVER || block.getBiome() == Biome.ICE_MOUNTAINS || block.getBiome() == Biome.ICE_PLAINS || block.getBiome() == Biome.TAIGA || block.getBiome() == Biome.TAIGA_HILLS)) return "Snow";
 		if (block.getWorld().hasStorm()) return "Rain";
 		return "Sunny";
-	}
-
-	/**
-	 * Save an object to a file
-	 * @param obj The object to save
-	 * @param path The path of the file to save to
-	 */
-	public static void saveObject(Object obj, String path) throws Exception {
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
-			oos.writeObject(obj);
-			oos.flush();
-		}
-	}
-
-	/**
-	 * Load an object from a file
-	 * @param path The path of the file to load from
-	 * @return The object loaded from the file
-	 */
-	public static Object loadObject(String path) throws Exception {
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path))) {
-			return ois.readObject();
-		}
 	}
 
 	/**
@@ -4052,15 +4341,37 @@ public class EvilBook extends JavaPlugin {
 		return blockList.get(material) == null ? "Air" : blockList.get(material).get(0);
 	}
 
-	// Increase the server owner's money balance
 	public static void incrementOwnerBalance(int increment) {
 		if (getPlayer("EvilPeanut") != null) {
 			getProfile("EvilPeanut").money += increment;
-			getPlayer("EvilPeanut").sendMessage("§7You have recieved §a$" + increment + " §7from taxes");
+			getPlayer("EvilPeanut").sendMessage("Â§7You have recieved Â§a$" + increment + " Â§7from taxes");
 		} else {
 			String money = SQL.getProperty(TableType.PlayerProfile, "EvilPeanut", "money");
 			money = Integer.toString(Integer.parseInt(money) + increment);
 			SQL.setProperty(TableType.PlayerProfile, "EvilPeanut", "money", money);
 		}
+	}
+	
+	public String getUnlockedTitles(Player player) {
+		String titles = "";
+		if (getProfile(player).rank.isAdmin()) {
+			titles += "Elf Mr Mrs Miss Lord Dr Prof Crafter Epic ";
+		}
+		if (getProfile(player).hasAchievement(Achievement.GLOBAL_COMMAND_DONATE)) titles += "Supporter ";
+		if (getProfile(player).hasAchievement(Achievement.GLOBAL_COMMAND_HELMET)) titles += "Stylish ";
+		if (getProfile(player).hasAchievement(Achievement.GLOBAL_EQUIP_BUTTERARMOUR)) titles += "Butter ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_BLAZE)) titles += "Blazed ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_MAGMACUBE)) titles += "Magma ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_PLAYER)) titles += "Psycho ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_DIAMOND)) titles += "Miner ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_COAL_IV)) titles += "Dirty ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_IRON_IV)) titles += "Hardnut ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_LAPIS_IV)) titles += "Ultramarine ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_GOLD_IV)) titles += "Golden ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_DIAMOND_IV)) titles += "Hardcore ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_REDSTONE_IV)) titles += "Electric ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_EMERALD_IV)) titles += "Iced ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_NETHERQUARTZ_IV)) titles += "Nether ";
+		return titles;
 	}
 }

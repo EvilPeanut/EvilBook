@@ -1,6 +1,7 @@
 package com.amentrix.evilbook.eviledit;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Location;
@@ -18,7 +19,7 @@ import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.Emitter;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
-import com.amentrix.evilbook.statistics.Statistic;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
  * EvilEdit region methods
@@ -29,6 +30,90 @@ public class Region {
 	
 	public static void init(EvilBook plugin) {
 		Region.plugin = plugin;
+	}
+	
+	public static void flipArea(Player player, String[] args) {
+		Selection selection = new Selection(player);
+		if (args.length != 1 || (!args[0].equalsIgnoreCase("x") && !args[0].equalsIgnoreCase("y") && !args[0].equalsIgnoreCase("z"))) {
+			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§d/flip x");
+			player.sendMessage("§d/flip y");
+			player.sendMessage("§d/flip z");
+		} else if (selection.isValid()) {
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			List<BlockState> blockList = new ArrayList<>();
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				{
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+					{
+						blockList.add(selection.getBlock(x, y, z).getState());
+					}
+				}
+			}
+			for (BlockState block : blockList) {
+				if (args[0].equalsIgnoreCase("x")) engine.setBlock(selection.getBottomXBlock() + (selection.getTopXBlock() - block.getX()), block.getY(), block.getZ(), block.getTypeId(), block.getRawData());
+				else if (args[0].equalsIgnoreCase("y")) engine.setBlock(block.getX(), selection.getBottomYBlock() + (selection.getTopYBlock() - block.getY()), block.getZ(), block.getTypeId(), block.getRawData());
+				else engine.setBlock(block.getX(), block.getY(), selection.getBottomZBlock() + (selection.getTopZBlock() - block.getZ()), block.getTypeId(), block.getRawData());
+			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks flipped on the " + args[0] + " axis");
+		}
+	}
+	
+	public static void moveArea(Player player, String[] args) {
+		Selection selection = new Selection(player);
+		if (args.length != 2 || !EvilBook.isInteger(args[0]) || (!args[1].equalsIgnoreCase("x") && !args[1].equalsIgnoreCase("y") && !args[1].equalsIgnoreCase("z"))) {
+			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§d/move [count] x");
+			player.sendMessage("§d/move [count] y");
+			player.sendMessage("§d/move [count] z");
+		} else if (selection.isValid()) {
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			List<BlockState> blockList = new ArrayList<>();
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				{
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+					{
+						blockList.add(selection.getBlock(x, y, z).getState());
+					}
+				}
+			}
+			int count = Integer.parseInt(args[0]);
+			List<Location> newLocationList = new ArrayList<>();
+			for (BlockState block : blockList) {
+				Boolean hasBeenChanged = false;
+				for (Location loc : newLocationList) {
+					if (loc.getBlockX() == block.getX() && loc.getBlockY() == block.getY() && loc.getBlockZ() == block.getZ()) hasBeenChanged = true;
+				}
+				if (!hasBeenChanged) engine.setBlock(block.getX(), block.getY(), block.getZ(), 0, 0);
+				if (args[1].equalsIgnoreCase("x")) {
+					engine.setBlock(block.getX() + count, block.getY(), block.getZ(), block.getTypeId(), block.getRawData());
+					newLocationList.add(new Location(selection.getWorld(), block.getX() + count, block.getY(), block.getZ()));
+				} else if (args[1].equalsIgnoreCase("y")) {
+					engine.setBlock(block.getX(), block.getY() + count, block.getZ(), block.getTypeId(), block.getRawData());
+					newLocationList.add(new Location(selection.getWorld(), block.getX(), block.getY() + count, block.getZ()));
+				} else {
+					engine.setBlock(block.getX(), block.getY(), block.getZ() + count, block.getTypeId(), block.getRawData());
+					newLocationList.add(new Location(selection.getWorld(), block.getX(), block.getY(), block.getZ() + count));
+				}
+			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			if (args[1].equalsIgnoreCase("x")) {
+				EvilBook.getProfile(player).actionLocationA.add(count, 0, 0);
+				EvilBook.getProfile(player).actionLocationB.add(count, 0, 0);
+			} else if (args[1].equalsIgnoreCase("y")) {
+				EvilBook.getProfile(player).actionLocationA.add(0, count, 0);
+				EvilBook.getProfile(player).actionLocationB.add(0, count, 0);
+			} else {
+				EvilBook.getProfile(player).actionLocationA.add(0, 0, count);
+				EvilBook.getProfile(player).actionLocationB.add(0, 0, count);
+			}
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks moved on the " + args[1] + " axis");
+		}
 	}
 	
 	public static void undoEdit(Player player) {
@@ -56,7 +141,7 @@ public class Region {
 			}
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoEmitterList = new ArrayList<>();
 			//
-			engine.notifyClients(Statistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
 			player.sendMessage("§7Undone " + engine.getBlocksChanged() + " block edit");
 		}
 	}
@@ -80,8 +165,29 @@ public class Region {
 					}
 				}
 			}
-			engine.notifyClients(Statistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BlocksBroken);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks drained");
+		}
+	}	
+	
+	public static void greenArea(Player player) {
+		Selection selection = new Selection(player);
+		if (selection.isValid()) {
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				{
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+					{
+						if (selection.getBlock(x, y, z).getType() == Material.DIRT) {
+							engine.setBlock(x, y, z, Material.GRASS.getId(), 0);
+						}
+					}
+				}
+			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks greened");
 		}
 	}	
 
@@ -142,7 +248,7 @@ public class Region {
 			}
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList = new ArrayList<>();
 			//
-			engine.notifyClients(Statistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks pasted");
 		}
 	}
@@ -220,7 +326,7 @@ public class Region {
 					}
 				}
 			}
-			engine.notifyClients(Statistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BlocksBroken);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly deleted");
 		}
 	}
@@ -257,7 +363,7 @@ public class Region {
 					}
 				}
 			}
-			engine.notifyClients(Statistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BlocksBroken);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks deleted");
 		}
 	}
@@ -296,7 +402,7 @@ public class Region {
 						}
 					}
 				}
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly replaced");
 			}
 		}
@@ -330,7 +436,7 @@ public class Region {
 						}
 					}
 				}
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly filled");
 			}
 		}
@@ -363,7 +469,7 @@ public class Region {
 						}
 					}
 				}
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks filled");
 			}
 		}
@@ -463,7 +569,7 @@ public class Region {
 					}
 				}
 			}
-			engine.notifyClients(Statistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BlocksBroken);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks hollowed");
 		}
 	}
@@ -497,7 +603,7 @@ public class Region {
 						}
 					}
 				}
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks outlined");
 			}
 		}
@@ -532,12 +638,48 @@ public class Region {
 						}
 					}
 				}
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks walled");
 			}
 		}
 	}
 
+	public static void thawSnowArea(Player player) {
+		Selection selection = new Selection(player);
+		if (selection.isValid()) {
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				{
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+					{
+						if (selection.getBlock(x, y, z).getType() == Material.SNOW) engine.setBlock(x, y, z, 0, 0);
+					}
+				}
+			}
+			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks thawed");
+		}
+	}
+	
+	public static void overlaySnowArea(Player player) {
+		Selection selection = new Selection(player);
+		if (selection.isValid()) {
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				{
+					int highestY = player.getWorld().getHighestBlockYAt(x, z);
+					if (highestY != 0) engine.setBlock(x, highestY, z, Material.SNOW.getId(), 0);
+				}
+			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks simulated snow cover");
+		}
+	}
+	
 	public static void overlayArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
@@ -560,10 +702,10 @@ public class Region {
 					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 					{
 						int highestY = player.getWorld().getHighestBlockYAt(x, z);
-						engine.setBlock(x, highestY, z, blockMaterial.getId(), blockData);
+						if (highestY != 0) engine.setBlock(x, highestY, z, blockMaterial.getId(), blockData);
 					}
 				}
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks overlayed");
 			}
 		}
@@ -600,7 +742,7 @@ public class Region {
 						}
 					}
 				}
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks replaced");
 			}
 		}

@@ -1,7 +1,35 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 6.0.0
+version: 6.1.0-Alpha-3
+depend: [ dynmap ]
 commands:
+  move:
+    description: Move a selection of blocks
+    usage: /<command> [count] [axis]
+  /move:
+    description: Move a selection of blocks
+    usage: /<command> [count] [axis]
+  thaw:
+    description: Thaw snow cover
+    usage: /<command>
+  snow:
+    description: Simulate snow cover
+    usage: /<command>
+  title:
+    description: Set the player's title
+    usage: /<command> [title]
+  flip:
+    description: Flip an area of blocks
+    usage: /<command> [axis]
+  /flip:
+    description: Flip an area of blocks
+    usage: /<command> [axis]
+  more:
+    description: Turn the item stack into your hand to a full item stack
+    usage: /<command>
+  hyperhorse:
+    description: Hyper horse
+    usage: /<command>
   mail:
     description: Handle mail commands
     usage: /<command>
@@ -26,6 +54,9 @@ commands:
   setbiome:
     description: Set the biome of the selected evil edit blocks
     usage: /<command>
+  /setbiome:
+    description: Set the biome of the selected evil edit blocks
+    usage: /<command>
   troll:
     description: Secret
     usage: /<command>
@@ -41,7 +72,13 @@ commands:
   count:
     description: Sends the player the number of certain blocks in their eviledit selection
     usage: /<command>
+  /count:
+    description: Sends the player the number of certain blocks in their eviledit selection
+    usage: /<command>
   size:
+    description: Sends the player the size of their eviledit selection
+    usage: /<command>
+  /size:
     description: Sends the player the size of their eviledit selection
     usage: /<command>
   toggleeditwand:
@@ -53,16 +90,13 @@ commands:
   stats:
     description: Views the server statistics
     usage: /<command>
-  walk:
-    description: Set the player's walk movement speed
-    usage: /<command>
-  fly:
-    description: Set the player's fly movement speed
-    usage: /<command>
   world:
     description: Teleport to a private world
     usage: /<command>
   achievements:
+    description: View the player achievements
+    usage: /<command>
+  ach:
     description: View the player achievements
     usage: /<command>
   rreplace:
@@ -83,10 +117,22 @@ commands:
   delwarp:
     description: Delete a warp
     usage: /<command> [warp]
+  remwarp:
+    description: Delete a warp
+    usage: /<command> [warp]
+  rmwarp:
+    description: Delete a warp
+    usage: /<command> [warp]
   desel:
     description: Deselect the player evil edit selection
     usage: /<command>
+  /desel:
+    description: Deselect the player evil edit selection
+    usage: /<command>
   wand:
+    description: Spawn the player an evil edit wand
+    usage: /<command>
+  /wand:
     description: Spawn the player an evil edit wand
     usage: /<command>
   thru:
@@ -116,28 +162,55 @@ commands:
   hcylinder:
     description: Generate a hollow cylinder
     usage: /<command>
+  /hcylinder:
+    description: Generate a hollow cylinder
+    usage: /<command>
   cylinder:
+    description: Generate a filled cylinder
+    usage: /<command>
+  /cylinder:
     description: Generate a filled cylinder
     usage: /<command>
   hcyl:
     description: Generate a hollow cylinder
     usage: /<command>
+  /hcyl:
+    description: Generate a hollow cylinder
+    usage: /<command>
   cyl:
+    description: Generate a filled cylinder
+    usage: /<command>
+  /cyl:
     description: Generate a filled cylinder
     usage: /<command>
   hpyramid:
     description: Generate a hollow pyramid
     usage: /<command>
+  /hpyramid:
+    description: Generate a hollow pyramid
+    usage: /<command>
   pyramid:
+    description: Generate a filled pyramid
+    usage: /<command>
+  /pyramid:
     description: Generate a filled pyramid
     usage: /<command>
   esphere:
     description: Generate an empty hollow sphere
     usage: /<command>
+  /esphere:
+    description: Generate an empty hollow sphere
+    usage: /<command>
   hsphere:
     description: Generate a hollow sphere
     usage: /<command>
+  /hsphere:
+    description: Generate a hollow sphere
+    usage: /<command>
   sphere:
+    description: Generate a filled sphere
+    usage: /<command>
+  /sphere:
     description: Generate a filled sphere
     usage: /<command>
   creative:
@@ -152,33 +225,66 @@ commands:
   drain:
     description: Drain an area of blocks
     usage: /<command>
+  /drain:
+    description: Drain an area of blocks
+    usage: /<command>
+  green:
+    description: Turn an area of blocks from dirt to grass
+    usage: /<command>
+  /green:
+    description: Turn an area of blocks from dirt to grass
+    usage: /<command>
   regen:
+    description: Regenerate an area of blocks
+    usage: /<command>
+  /regen:
     description: Regenerate an area of blocks
     usage: /<command>
   hollow:
     description: Hollow an area of blocks
     usage: /<command>
+  /hollow:
+    description: Hollow an area of blocks
+    usage: /<command>
   outline:
+    description: Outline an area of blocks
+    usage: /<command>
+  /outline:
     description: Outline an area of blocks
     usage: /<command>
   walls:
     description: Wall an area of blocks
     usage: /<command>
+  /walls:
+    description: Wall an area of blocks
+    usage: /<command>
   overlay:
+    description: Overlay an area of blocks
+    usage: /<command>
+  /overlay:
     description: Overlay an area of blocks
     usage: /<command>
   paste:
     description: Paste an area of blocks
     usage: /<command>
+  /paste:
+    description: Paste an area of blocks
+    usage: /<command>
   copy:
+    description: Copy an area of blocks
+    usage: /<command>
+  /copy:
     description: Copy an area of blocks
     usage: /<command>
   replace:
     description: Replace an area of blocks with another block
     usage: /<command> [blockID] [blockID]
-  run:
-    description: Set the player run speed
-    usage: /<command> [speed]
+  /replace:
+    description: Replace an area of blocks with another block
+    usage: /<command> [blockID] [blockID]
+  speed:
+    description: Set the player speed limits
+    usage: /<command> <walk|run|fly> <speed>
   accept:
     description: Accept a teleport request
     usage: /<command>
@@ -188,6 +294,9 @@ commands:
   name:
     description: Rename the held item
     usage: /<command> [name]
+  skull:
+    description: Set the owner of a held skull or new skull
+    usage: /<command> [owner]
   advertise:
     description: Broadcast an advertisement
     usage: /<command> [message]
@@ -195,6 +304,12 @@ commands:
     description: Broadcast an advertisement
     usage: /<command> [message]
   helmet:
+    description: Sets the players helmet to the block they're holding
+    usage: /<command>
+  hat:
+    description: Sets the players helmet to the block they're holding
+    usage: /<command>
+  head:
     description: Sets the players helmet to the block they're holding
     usage: /<command>
   butter:
@@ -206,22 +321,40 @@ commands:
   req:
     description: Request admin assistance
     usage: /<command> [message]
+  helpop:
+    description: Request admin assistance
+    usage: /<command> [message]
   stop:
     description: Stop the server
     usage: /<command> [message]
   givemoney:
-    description: Change a players gamemode
+    description: Transfer money to another player
     usage: /<command> [player] [amount]
   pay:
-    description: Change a players gamemode
+    description: Transfer money to another player
     usage: /<command> [player] [amount]
   gamemode:
+    description: Change a players gamemode
+    usage: /<command> [mode] <player>
+  gm:
     description: Change a players gamemode
     usage: /<command> [mode] <player>
   fill:
     description: Fill an area with a block
     usage: /<command> [block]
+  /fill:
+    description: Fill an area with a block
+    usage: /<command> [block]
+  set:
+    description: Fill an area with a block
+    usage: /<command> [block]
+  /set:
+    description: Fill an area with a block
+    usage: /<command> [block]
   undo:
+    description: Undo last eviledit event
+    usage: /<command>
+  /undo:
     description: Undo last eviledit event
     usage: /<command>
   rocket:
@@ -248,11 +381,20 @@ commands:
   rename:
     description: Rename the player
     usage: /<command> [name]
+  nick:
+    description: Rename the player
+    usage: /<command> [name]
+  nickname:
+    description: Rename the player
+    usage: /<command> [name]
   mute:
-    description: Mute the player
+    description: Mute a player
+    usage: /<command> [player]
+  ignore:
+    description: Ignore a player
     usage: /<command> [player]
   unmute:
-    description: Unmute the player
+    description: Unmute a player
     usage: /<command> [player]
   vanish:
     description: Hide the player
@@ -284,9 +426,6 @@ commands:
   clean:
     description: Clean the server of entities
     usage: /<command>
-  kick:
-    description: Kick an online player
-    usage: /<command> [player] [message]
   kiss:
     description: Kiss a player
     usage: /<command> [player]
@@ -309,6 +448,15 @@ commands:
     description: View the list of rules
     usage: /<command>
   butcher:
+    description: Kill all alive animals in the players world
+    usage: /<command>
+  remove:
+    description: Kill all alive animals in the players world
+    usage: /<command>
+  killall:
+    description: Kill all alive animals in the players world
+    usage: /<command>
+  mobkill:
     description: Kill all alive animals in the players world
     usage: /<command>
   me:
@@ -335,6 +483,9 @@ commands:
   afk:
     description: Set the player status to AFK
     usage: /<command>
+  away:
+    description: Set the player status to AFK
+    usage: /<command>
   sun:
     description: Change the world weather to sunny
     usage: /<command>
@@ -353,7 +504,22 @@ commands:
   back:
     description: Teleport back to your death position
     usage: /<command>
+  return:
+    description: Teleport back to your death position
+    usage: /<command>
   list:
+    description: List the online players
+    usage: /<command>
+  who:
+    description: List the online players
+    usage: /<command>
+  playerlist:
+    description: List the online players
+    usage: /<command>
+  online:
+    description: List the online players
+    usage: /<command>
+  plist:
     description: List the online players
     usage: /<command>
   help:
@@ -389,6 +555,12 @@ commands:
   spawncreature:
     description: Spawn creatures
     usage: /<command> [creature] [amount]
+  mob:
+    description: Spawn creatures
+    usage: /<command> [creature] [amount]
+  spawnmob:
+    description: Spawn creatures
+    usage: /<command> [creature] [amount]
   money:
     description: View a players account balance
     usage: /<command> <player>
@@ -410,18 +582,24 @@ commands:
   sethome:
     description: Set your home location
     usage: /<command>
+  createhome:
+    description: Set your home location
+    usage: /<command>
+  delhome:
+    description: Remove your home location
+    usage: /<command>
+  remhome:
+    description: Remove your home location
+    usage: /<command>
+  rmhome:
+    description: Remove your home location
+    usage: /<command>
+  homes:
+    description: Teleport to your home location
+    usage: /<command>
   home:
     description: Teleport to your home location
     usage: /<command>
-  shop:
-    description: View the shop catalogue
-    usage: /<command> [page]
-  catalogue:
-    description: View the shop catalogue
-    usage: /<command> [page]
-  buy:
-    description: Purchase an item from the shop catalogue
-    usage: /<command> [item]
   give:
     description: Give an item to a player
     usage: /<command> [item] <amount> <data>

@@ -66,22 +66,25 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.EvilBook;
+import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.PlayerProfileNormal;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.main.Region;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
-import com.amentrix.evilbook.statistics.Statistic;
-import com.amentrix.evilbook.statistics.Statistics;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
+import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
@@ -99,7 +102,7 @@ public class EventListenerPlayer implements Listener {
 		if (event.getResult().equals(Result.KICK_BANNED)) {
 			event.setKickMessage("§cYou are banned! E-mail §6amentrix@hotmail.co.uk §cfor support");
 		} else {
-			EvilBook.updateWebPlayerStatistics(Bukkit.getServer().getOnlinePlayers().length + 1);
+			EvilBook.updateWebPlayerStatistics(Bukkit.getServer().getOnlinePlayers().size() + 1);
 		}
 	}
 
@@ -111,6 +114,11 @@ public class EventListenerPlayer implements Listener {
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 			if (player != event.getPlayer() && EvilBook.getProfile(player).isInvisible) event.getPlayer().hidePlayer(player);
 		}
+		// Make sure player statistics entry exists
+		if (!SQL.isKeyExistant(TableType.PlayerStatistics, event.getPlayer().getName())) {
+			SQL.insert(TableType.PlayerStatistics, "'" + event.getPlayer().getName() + "',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL");
+		}
+		//
 		if (SQL.getProperty(TableType.PlayerProfile, event.getPlayer().getName(), "Rank") != null && Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, event.getPlayer().getName(), "Rank")).isAdmin()) {
 			EvilBook.playerProfiles.put(event.getPlayer().getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(event.getPlayer()));
 		} else {
@@ -118,7 +126,7 @@ public class EventListenerPlayer implements Listener {
 		}
 		event.setJoinMessage(null);
 		// Statistics
-		Statistics.incrementStatistic(Statistic.LoginTotal, 1);
+		GlobalStatistics.incrementStatistic(GlobalStatistic.LoginTotal, 1);
 		// Regions
 		for (Region region : EvilBook.regionList) {
 			if (EvilBook.isInRegion(region, event.getPlayer().getLocation())) {
@@ -178,9 +186,12 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerPortal(PlayerPortalEvent event) {
-		// 
 		if (event.getFrom().getWorld().getName().equals("SurvivalLand")) {
-			event.getPlayer().teleport(Bukkit.getServer().getWorld("SurvivalLandNether").getSpawnLocation());
+			if (event.getCause() == TeleportCause.NETHER_PORTAL) {
+				event.getPlayer().teleport(Bukkit.getServer().getWorld("SurvivalLandNether").getSpawnLocation());
+			} else if (event.getCause() == TeleportCause.END_PORTAL) {
+				event.getPlayer().teleport(Bukkit.getServer().getWorld("SurvivalLandTheEnd").getSpawnLocation());
+			}
 		} else if (event.getFrom().getWorld().getName().equals("SurvivalLandNether")) {
 			event.getPlayer().teleport(Bukkit.getServer().getWorld("SurvivalLand").getSpawnLocation());
 		}
@@ -204,7 +215,7 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		Player player = event.getPlayer();
-		if (EvilBook.getProfile(player).rank.isAdmin() == false) {
+		if (!EvilBook.getProfile(player).rank.isAdmin() && (!EvilBook.isInSurvival(player) || !EvilBook.getProfile(player).rank.isHigher(Rank.Architect))) {
 			player.sendMessage((event.getBucket() == Material.LAVA_BUCKET ? "§dLava buckets" : "§dWater buckets") + " are an §5Admin §donly feature");
 			player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
 			event.setCancelled(true);
@@ -217,7 +228,7 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		Player player = event.getEntity();
-		EvilBook.getProfile(player).deathLocation = player.getLocation();
+		EvilBook.getProfile(player).lastLocation = player.getLocation();
 		if (player.getLastDamageCause() == null) return;
 		EntityDamageEvent damageEvent = player.getLastDamageCause();
 		EntityDamageEvent.DamageCause damageCause = damageEvent.getCause();
@@ -341,10 +352,13 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		EvilBook.getProfile(event.getPlayer()).saveProfile();
-		EvilBook.playerProfiles.remove(event.getPlayer().getName().toLowerCase());
-		event.setQuitMessage(ChatColor.GRAY + event.getPlayer().getName() + " has left the game");
-		EvilBook.updateWebPlayerStatistics(Bukkit.getServer().getOnlinePlayers().length - 1);
+		PlayerProfile profile = EvilBook.getProfile(event.getPlayer());
+		if (profile != null) {
+			profile.saveProfile();
+			EvilBook.playerProfiles.remove(event.getPlayer().getName().toLowerCase());
+			event.setQuitMessage(ChatColor.GRAY + event.getPlayer().getName() + " has left the game");
+			EvilBook.updateWebPlayerStatistics(Bukkit.getServer().getOnlinePlayers().size() - 1);
+		}
 	}
 
 	/**
@@ -368,10 +382,10 @@ public class EventListenerPlayer implements Listener {
 		}
 		event.setCancelled(true);
 		EvilBook.broadcastPlayerMessage(player.getName(), EvilBook.getProfile(player).rank.getPrefix(EvilBook.getProfile(player)) + " §" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
-				+ "<" + player.getDisplayName() + "§" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
+				+ "<§f" + player.getDisplayName() + "§" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
 				+ "> §f" + EvilBook.toFormattedString(event.getMessage()));
 		// Statistics
-		Statistics.incrementStatistic(Statistic.MessagesSent, 1);
+		GlobalStatistics.incrementStatistic(GlobalStatistic.MessagesSent, 1);
 	}
 
 	/**
@@ -389,15 +403,14 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-		if (event.getRightClicked().getPassenger() == event.getPlayer()) {
-			event.getRightClicked().eject();
-		} else if (event.getRightClicked().getType() != EntityType.MINECART_CHEST && event.getRightClicked().getType() != EntityType.MINECART_FURNACE && 
+		if (event.getRightClicked().getType() != EntityType.MINECART_CHEST && event.getRightClicked().getType() != EntityType.MINECART_FURNACE && 
 				event.getRightClicked().getType() != EntityType.MINECART_HOPPER && event.getRightClicked().getType() != EntityType.MINECART_MOB_SPAWNER && 
 				event.getRightClicked().getType() != EntityType.MINECART_TNT && event.getRightClicked().getType() != EntityType.ITEM_FRAME && 
 				event.getRightClicked().getType() != EntityType.FALLING_BLOCK && event.getRightClicked().getType() != EntityType.PRIMED_TNT &&
 				event.getRightClicked().getType() != EntityType.PLAYER && event.getRightClicked().getType() != EntityType.WOLF &&
 				event.getRightClicked().getType() != EntityType.PAINTING &&
-				event.getRightClicked().getPassenger() == null && event.getRightClicked() != event.getPlayer().getPassenger()) {
+				event.getRightClicked().getPassenger() == null && event.getRightClicked() != event.getPlayer().getPassenger() &&
+				(event.getRightClicked().getType() != EntityType.SHEEP || event.getPlayer().getItemInHand().getType() != Material.INK_SACK)) {
 			event.getRightClicked().setPassenger(event.getPlayer());
 		}
 	}
@@ -409,6 +422,10 @@ public class EventListenerPlayer implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
+		if (!EvilBook.getProfile(player).isCanEditWorld(player.getWorld())) {
+			event.setCancelled(true);
+			return;
+		}
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			//
 			// Mob spawner creature selection menu
@@ -418,52 +435,71 @@ public class EventListenerPlayer implements Listener {
 				player.openInventory(EventListenerInventory.entitySpawnerMenu);
 			}
 			//
-			// Sign editing
+			// Sign features
 			//
-			if (block.getState() instanceof Sign && (!event.hasItem() || (event.getItem().getType() != Material.GOLD_SPADE && event.getItem().getType() != Material.INK_SACK))) {
-				if (!EvilBook.isInProtectedRegion(block.getLocation(), player)) {
+			if (block.getState() instanceof Sign) {
+				if ((!event.hasItem() || ((event.getItem().getType() != Material.GOLD_SPADE || !player.isOp()) && event.getItem().getType() != Material.INK_SACK && (event.getItem().getType() != Material.WOOD_PICKAXE || !player.isOp())))) {
 					Sign sign = (Sign)block.getState();
 					String[] signText = sign.getLines();
-					for (Iterator<DynamicSign> iterator = EvilBook.dynamicSignList.iterator(); iterator.hasNext();) {
-						DynamicSign dynamicSign = iterator.next();
-						if (dynamicSign.location.getBlockX() == sign.getLocation().getBlockX() && 
-								dynamicSign.location.getBlockY() == sign.getLocation().getBlockY() &&
-								dynamicSign.location.getBlockZ() == sign.getLocation().getBlockZ()) {
-							dynamicSign.delete();
-							EvilBook.dynamicSignList.remove(dynamicSign);
-							signText[0] = dynamicSign.textLines[0];
-							signText[1] = dynamicSign.textLines[1];
-							signText[2] = dynamicSign.textLines[2];
-							signText[3] = dynamicSign.textLines[3];
-							break;
+					//
+					// Sign warps
+					//
+					for (int i = 0; i < 3; i++) {
+						if (EvilBook.toStrippedString(signText[i]).equalsIgnoreCase("[warp]")) {
+							if (SQL.isKeyExistant(TableType.Warps, EvilBook.toStrippedString(signText[i + 1]).toLowerCase(Locale.UK).replaceAll("'", "''"))) {
+								player.teleport(SQL.getWarp(EvilBook.toStrippedString(signText[i + 1]).toLowerCase(Locale.UK).replaceAll("'", "''")));
+								player.sendMessage("§7You have been warped to §d" + EvilBook.toStrippedString(signText[i + 1]));
+							} else {
+								player.sendMessage("§7A warp with that name doesn't exist");
+							}
+							return;
 						}
 					}
-					signText[0] = signText[0].replaceAll("§", "&");
-					signText[1] = signText[1].replaceAll("§", "&");
-					signText[2] = signText[2].replaceAll("§", "&");
-					signText[3] = signText[3].replaceAll("§", "&");
-					PacketContainer signUpdatePacket = new PacketContainer(PacketType.Play.Server.UPDATE_SIGN);
-					signUpdatePacket.getIntegers().write(0, block.getX());
-					signUpdatePacket.getIntegers().write(1, block.getY());
-					signUpdatePacket.getIntegers().write(2, block.getZ());
-					signUpdatePacket.getStringArrays().write(0, signText);
-					try {
-						ProtocolLibrary.getProtocolManager().sendServerPacket(player, signUpdatePacket);
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
+					//
+					// Sign editing
+					//
+					if (!EvilBook.isInProtectedRegion(block.getLocation(), player)) {
+						for (Iterator<DynamicSign> iterator = EvilBook.dynamicSignList.iterator(); iterator.hasNext();) {
+							DynamicSign dynamicSign = iterator.next();
+							if (dynamicSign.location.getBlockX() == sign.getLocation().getBlockX() && 
+									dynamicSign.location.getBlockY() == sign.getLocation().getBlockY() &&
+									dynamicSign.location.getBlockZ() == sign.getLocation().getBlockZ()) {
+								dynamicSign.delete();
+								EvilBook.dynamicSignList.remove(dynamicSign);
+								signText[0] = dynamicSign.textLines[0];
+								signText[1] = dynamicSign.textLines[1];
+								signText[2] = dynamicSign.textLines[2];
+								signText[3] = dynamicSign.textLines[3];
+								break;
+							}
+						}
+						signText[0] = signText[0].replaceAll("§", "&");
+						signText[1] = signText[1].replaceAll("§", "&");
+						signText[2] = signText[2].replaceAll("§", "&");
+						signText[3] = signText[3].replaceAll("§", "&");
+						PacketContainer signUpdatePacket = new PacketContainer(PacketType.Play.Server.UPDATE_SIGN);
+						signUpdatePacket.getIntegers().write(0, block.getX());
+						signUpdatePacket.getIntegers().write(1, block.getY());
+						signUpdatePacket.getIntegers().write(2, block.getZ());
+						signUpdatePacket.getStringArrays().write(0, signText);
+						try {
+							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signUpdatePacket);
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						}
+						PacketContainer signEditPacket = new PacketContainer(PacketType.Play.Server.OPEN_SIGN_ENTITY);
+						signEditPacket.getIntegers().write(0, block.getX());
+						signEditPacket.getIntegers().write(1, block.getY());
+						signEditPacket.getIntegers().write(2, block.getZ());
+						try {
+							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signEditPacket);
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						}
+					} else {
+						player.sendMessage("§cYou don't have permission to edit this sign");
+						event.setCancelled(true);
 					}
-					PacketContainer signEditPacket = new PacketContainer(PacketType.Play.Server.OPEN_SIGN_ENTITY);
-					signEditPacket.getIntegers().write(0, block.getX());
-					signEditPacket.getIntegers().write(1, block.getY());
-					signEditPacket.getIntegers().write(2, block.getZ());
-					try {
-						ProtocolLibrary.getProtocolManager().sendServerPacket(player, signEditPacket);
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
-					}
-				} else {
-					player.sendMessage("§cYou don't have permission to edit this sign");
-					event.setCancelled(true);
 				}
 			}
 			//
@@ -618,6 +654,7 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		Player player = event.getPlayer();
+		EvilBook.getProfile(player).lastLocation = event.getFrom();
 		for (String world : EvilBook.paidWorldList) {
 			if (event.getTo().getWorld().getName().toLowerCase().endsWith(world.toLowerCase())) {
 				if (EvilBook.getProfile(player).rank != Rank.ServerHost && !EvilBook.getPrivateWorldProperty(event.getTo().getWorld().getName().split("plugins/EvilBook/Private worlds/")[1], "AllowedPlayers").contains(player.getName().toLowerCase())) {
@@ -630,17 +667,8 @@ public class EventListenerPlayer implements Listener {
 		if (event.getTo().getBlockX() > 12550820 || event.getTo().getBlockX() < -12550820 || event.getTo().getBlockZ() > 12550820 || event.getTo().getBlockZ() < -12550820) {
 			player.sendMessage("§7The Far Lands are blocked");
 			event.setCancelled(true);
-		} else if (EvilBook.isInSurvival(event.getTo().getWorld()) && !EvilBook.getProfile(player).rank.isHigher(Rank.Builder)) {
-			player.sendMessage("§7The survival world requires advanced builder rank");
-			event.setCancelled(true);
-		} else if (event.getTo().getWorld().getName().equals("FlatLand") && !EvilBook.getProfile(player).rank.isHigher(EvilBook.commandBlacklist.get("/flatland").getPreviousRank())) {
-			player.sendMessage("§7You have to be a higher rank to access the flat lands");
-			event.setCancelled(true);
-		} else if (event.getTo().getWorld().getName().equals("SpaceLand") && !EvilBook.getProfile(player).rank.isHigher(EvilBook.commandBlacklist.get("/spaceland").getPreviousRank())) {
-			player.sendMessage("§7You have to be a higher rank to access the space lands");
-			event.setCancelled(true);
 		} else {
-			if (event.getTo().getWorld() != event.getFrom().getWorld() && !event.getFrom().getWorld().getName().equals("SurvivalLandNether") && !event.getFrom().getWorld().getName().equals("Amentrix_nether") && !event.getFrom().getWorld().getName().equals("Amentrix_the_end")) EvilBook.getProfile(player.getName()).setWorldLastPosition(event.getFrom());
+			if (event.getTo().getWorld() != event.getFrom().getWorld() && !event.getFrom().getWorld().getName().equals("SurvivalLandTheEnd") && !event.getFrom().getWorld().getName().equals("SurvivalLandNether") && !event.getFrom().getWorld().getName().equals("Amentrix_nether") && !event.getFrom().getWorld().getName().equals("Amentrix_the_end")) EvilBook.getProfile(player.getName()).setWorldLastPosition(event.getFrom());
 			// Teleport particle effect
 			if (!EvilBook.getProfile(player).isInvisible) {
 				event.getFrom().getWorld().playEffect(event.getFrom(), Effect.SMOKE, 0);
@@ -671,16 +699,31 @@ public class EventListenerPlayer implements Listener {
 			EvilBook.setCreativeInventory(player);
 			EvilBook.getSurvivalInventory(player);
 			player.setGameMode(GameMode.SURVIVAL);
-			player.sendMessage("§7Welcome to the survival world");
+			if (EvilBook.getProfile(player).isInvisible && EvilBook.getProfile(player).rank != Rank.ServerHost) {
+				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
+				EvilBook.getProfile(player).isInvisible = false;
+				player.sendMessage("§7Vanish isn't allowed in survival, you are now visible");
+			}
 		} else if (!EvilBook.isInSurvival(player) && EvilBook.isInSurvival(event.getFrom())) {
 			EvilBook.setSurvivalInventory(player);
 			EvilBook.getCreativeInventory(player);
 			player.setGameMode(GameMode.CREATIVE);
-			if (player.getWorld().getName().equals("FlatLand")) {
-				player.sendMessage("§7Welcome to the flat lands");
-			} else if (player.getWorld().getName().equals("SkyLand")) {
-				player.sendMessage("§7Welcome to the sky lands");
-			}
+		}
+		if (player.getWorld().getName().equals("FlatLand")) {
+			player.sendMessage("§7Welcome to the Flat Lands");
+			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_FLATLAND);
+		} else if (player.getWorld().getName().equals("SkyLand")) {
+			player.sendMessage("§7Welcome to the Sky Lands");
+			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SKYLAND);
+		} else if (player.getWorld().getName().equals("SurvivalLand")) {
+			player.sendMessage("§7Welcome to the Survival Lands");
+			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SURVIVALLAND);
+		} else if (player.getWorld().getName().equals("SurvivalLandNether")) {
+			player.sendMessage("§7Welcome to the Survival Nether");
+			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SURVIVALLANDNETHER);
+		} else if (player.getWorld().getName().equals("SurvivalLandTheEnd")) {
+			player.sendMessage("§7Welcome to the Survival End");
+			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SURVIVALLANDTHEEND);
 		}
 	}
 

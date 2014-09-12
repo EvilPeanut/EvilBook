@@ -22,7 +22,6 @@ public class Clipboard {
 	}
 	
 	public void appendUndo(BlockState blockState) {
-		for (BlockState state : undoList) if (state.getLocation().equals(blockState.getLocation())) return;
 		this.undoList.add(blockState);
 	}
 	

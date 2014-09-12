@@ -1,12 +1,12 @@
 package com.amentrix.evilbook.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.event.Listener;
 
-import com.amentrix.evilbook.main.DynamicSign;
+import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.main.EvilBook;
+import com.amentrix.evilbook.utils.SignUtils;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -110,38 +110,21 @@ public class EventListenerPacket implements Listener {
 			{
 				PacketContainer packet = event.getPacket();
 				String[] lines = packet.getStringArrays().read(0);
-				Integer x = packet.getIntegers().read(0);
-				Integer y = packet.getIntegers().read(1);
-				Integer z = packet.getIntegers().read(2);
-				if ((x == null) || (y == null) || (z == null)) return;
-				Sign sign = (Sign)new Location(event.getPlayer().getWorld(), x.intValue(), y.intValue(), z.intValue()).getBlock().getState();
-				for (int i = 0; i < 4; i++) sign.setLine(i, EvilBook.toFormattedString(lines[i]));
-				if (sign.getLine(0).toLowerCase().contains("[time]") || sign.getLine(1).toLowerCase().contains("[time]") || sign.getLine(2).toLowerCase().contains("[time]") || sign.getLine(3).toLowerCase().contains("[time]") ||
-						sign.getLine(0).toLowerCase().contains("[weather]") || sign.getLine(1).toLowerCase().contains("[weather]") || sign.getLine(2).toLowerCase().contains("[weather]") || sign.getLine(3).toLowerCase().contains("[weather]") ||
-						sign.getLine(0).toLowerCase().contains("[online]") || sign.getLine(1).toLowerCase().contains("[online]") || sign.getLine(2).toLowerCase().contains("[online]") || sign.getLine(3).toLowerCase().contains("[online]")) {
-					String[] text = new String[4];
-					text[0] = EvilBook.replaceAllIgnoreCase(sign.getLine(0), "[Time]", "[time]");
-					text[1] = EvilBook.replaceAllIgnoreCase(sign.getLine(1), "[Time]", "[time]");
-					text[2] = EvilBook.replaceAllIgnoreCase(sign.getLine(2), "[Time]", "[time]");
-					text[3] = EvilBook.replaceAllIgnoreCase(sign.getLine(3), "[Time]", "[time]");
-					text[0] = EvilBook.replaceAllIgnoreCase(text[0], "[Weather]", "[weather]");
-					text[1] = EvilBook.replaceAllIgnoreCase(text[1], "[Weather]", "[weather]");
-					text[2] = EvilBook.replaceAllIgnoreCase(text[2], "[Weather]", "[weather]");
-					text[3] = EvilBook.replaceAllIgnoreCase(text[3], "[Weather]", "[weather]");
-					text[0] = EvilBook.replaceAllIgnoreCase(text[0], "[Online]", "[online]");
-					text[1] = EvilBook.replaceAllIgnoreCase(text[1], "[Online]", "[online]");
-					text[2] = EvilBook.replaceAllIgnoreCase(text[2], "[Online]", "[online]");
-					text[3] = EvilBook.replaceAllIgnoreCase(text[3], "[Online]", "[online]");
-					DynamicSign dynamicSign = new DynamicSign(sign.getBlock().getLocation(), text);
-					EvilBook.dynamicSignList.add(dynamicSign);
-					String time = EvilBook.getTime(sign.getBlock().getWorld());
-					String weather = EvilBook.getWeather(sign.getBlock());
-					sign.setLine(0, text[0].replace("[time]", time).replace("[weather]", weather).replace("[online]", Integer.toString(Bukkit.getServer().getOnlinePlayers().length)));
-					sign.setLine(1, text[1].replace("[time]", time).replace("[weather]", weather).replace("[online]", Integer.toString(Bukkit.getServer().getOnlinePlayers().length)));
-					sign.setLine(2, text[2].replace("[time]", time).replace("[weather]", weather).replace("[online]", Integer.toString(Bukkit.getServer().getOnlinePlayers().length)));
-					sign.setLine(3, text[3].replace("[time]", time).replace("[weather]", weather).replace("[online]", Integer.toString(Bukkit.getServer().getOnlinePlayers().length)));
+				Location signLocation = new Location(event.getPlayer().getWorld(), packet.getIntegers().read(0), packet.getIntegers().read(1), packet.getIntegers().read(2));
+				if (signLocation.getBlock().getState() instanceof Sign) {
+					Sign sign = (Sign) signLocation.getBlock().getState();
+					sign.setLine(0, lines[0]);
+					sign.setLine(1, lines[1]);
+					sign.setLine(2, lines[2]);
+					sign.setLine(3, lines[3]);
+					SignUtils.formatSignText(sign);
+					if (SignUtils.isDynamicSign(sign)) {
+						SignUtils.formatDynamicSign(sign);
+						EvilBook.getProfile(event.getPlayer()).addAchievement(Achievement.GLOBAL_DYNAMIC_SIGN);
+					}
+					sign.update();
+					EvilBook.lbConsumer.queueSignPlace(event.getPlayer().getName(), sign);
 				}
-				sign.update();
 			}
 		});
 	}

@@ -1,7 +1,7 @@
 package com.amentrix.evilbook.eviledit.utils;
 
 import org.bukkit.Location;
-import com.amentrix.evilbook.statistics.Statistic;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
  * EvilEdit engine interface
@@ -12,7 +12,7 @@ public interface EvilEditEngine {
 	public boolean setBlock(Location loc, int id, int data);
 	public boolean setBlock(int x, int y, int z, int id, int data);
 
-	public void notifyClients(Statistic statistic);
+	public void notifyClients(GlobalStatistic statistic);
 
 	public int getBlocksChanged();
 }

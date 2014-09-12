@@ -15,8 +15,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
-import com.amentrix.evilbook.statistics.Statistic;
-import com.amentrix.evilbook.statistics.Statistics;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
+import com.amentrix.evilbook.statistics.GlobalStatistics;
 
 /**
  * EvilEdit engine instance
@@ -137,9 +137,9 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 	}
 
 	@Override
-	public void notifyClients(Statistic statistic) {
+	public void notifyClients(GlobalStatistic statistic) {
 		// Statistics
-		Statistics.incrementStatistic(statistic, blocksModified);
+		GlobalStatistics.incrementStatistic(statistic, blocksModified);
 		// Do relighting
 		relightTask = Bukkit.getScheduler().runTaskTimer(plugin, this, 1L, 1L);
 	}

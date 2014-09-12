@@ -1,10 +1,10 @@
 package com.amentrix.evilbook.statistics;
 
 /**
- * Statistic enumerator
+ * Global statistic enumerator
  * @author Reece Aaron Lecrivain
  */
-public enum Statistic {
+public enum GlobalStatistic {
 	EconomyGrowth("economy_growth"),
 	EconomyTrade("economy_trade"),
 	LoginTotal("login_total"),
@@ -16,7 +16,7 @@ public enum Statistic {
 	
 	public String columnName;
 	
-	Statistic(String columnName) {
+	GlobalStatistic(String columnName) {
 		this.columnName = columnName;
 	}
 }

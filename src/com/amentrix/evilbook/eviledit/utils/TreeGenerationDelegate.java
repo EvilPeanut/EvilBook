@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
-import com.amentrix.evilbook.statistics.Statistic;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
  * EvilEdit tree generation delegate
@@ -37,7 +37,7 @@ public class TreeGenerationDelegate implements BlockChangeDelegate {
 	}
 	
 	public void notifyClients() {
-		engine.notifyClients(Statistic.BlocksPlaced);
+		engine.notifyClients(GlobalStatistic.BlocksPlaced);
 	}
 	
 	@Override

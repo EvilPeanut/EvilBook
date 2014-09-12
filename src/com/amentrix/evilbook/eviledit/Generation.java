@@ -12,7 +12,7 @@ import com.amentrix.evilbook.eviledit.utils.Selection;
 import com.amentrix.evilbook.eviledit.utils.TreeGenerationDelegate;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.Rank;
-import com.amentrix.evilbook.statistics.Statistic;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
  * EvilEdit generation methods
@@ -43,7 +43,7 @@ public class Generation {
 					}
 				}
 			}
-			engine.notifyClients(Statistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
 			player.sendMessage("§7Created a " + engine.getBlocksChanged() + " pumpkin forest");
 		}
 	}
@@ -129,7 +129,7 @@ public class Generation {
 					}
 				}
 				if (!hollow) Movement.ascendPlayer(player, false);
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block pyramid made of " + EvilBook.getFriendlyName(blockMaterial));
 			}
 		}
@@ -240,7 +240,7 @@ public class Generation {
 					}
 				}
 				if (!hollow) Movement.ascendPlayer(player, false);
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage((hollow ? empty ? "§7Created an empty hollow " : "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block sphere made of " + EvilBook.getFriendlyName(blockMaterial));
 			}
 		}
@@ -316,7 +316,7 @@ public class Generation {
 					}
 				}
 				if (!hollow) Movement.ascendPlayer(player, false);
-				engine.notifyClients(Statistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block cylinder made of " + EvilBook.getFriendlyName(blockMaterial));
 			}
 		}

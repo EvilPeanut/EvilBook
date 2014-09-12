@@ -15,6 +15,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -24,6 +25,8 @@ import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
 
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
+import com.amentrix.evilbook.statistics.PlayerStatistic;
+import com.amentrix.evilbook.statistics.PlayerStatistics;
 
 /**
  * Entity and hanging entity event listener
@@ -31,11 +34,48 @@ import com.amentrix.evilbook.main.PlayerProfile;
  */
 public class EventListenerEntity implements Listener {
 	/**
+	 * Called when an entity dies
+	 */
+	@EventHandler(priority = EventPriority.NORMAL)
+	public void onEntityDeath(EntityDeathEvent event) {
+		if (event.getEntity().getKiller() != null) {
+			Player player = event.getEntity().getKiller();
+			if (!EvilBook.isInSurvival(player)) return;
+			switch (event.getEntityType()) {
+				case PIG: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_PIGS, 1); break;
+				case VILLAGER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_VILLAGERS, 1); break;
+				case CAVE_SPIDER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_CAVESPIDERS, 1); break;
+				case ENDERMAN: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ENDERMEN, 1); break;
+				case SPIDER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SPIDERS, 1); break;
+				case WOLF: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WOLVES, 1); break;
+				case PIG_ZOMBIE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ZOMBIEPIGS, 1); break;
+				case BLAZE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_BLAZES, 1); break;
+				case CREEPER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_CREEPERS, 1); break;
+				case GHAST: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_GHASTS, 1); break;
+				case MAGMA_CUBE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_MAGMACUBES, 1); break;
+				case SILVERFISH: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SILVERFISH, 1); break;
+				case SKELETON: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SKELETONS, 1); break;
+				case SLIME: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SLIMES, 1); break;
+				case WITCH: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WITCHES, 1); break;
+				case ZOMBIE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ZOMBIES, 1); break;
+				case ENDER_DRAGON: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ENDERDRAGONS, 1); break;
+				case WITHER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WITHERS, 1); break;
+				case PLAYER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_PLAYERS, 1); break;
+				default: break;
+			}
+		}
+	}
+	
+	/**
 	 * Called when an entity is damaged by another entity
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
 		if (event.getDamager() instanceof Player == false) return;
+		if (!EvilBook.getProfile((Player)event.getDamager()).isCanEditWorld(event.getEntity().getWorld())) {
+			event.setCancelled(true);
+			return;
+		}
 		// Regions
 		if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), (Player)event.getDamager()) == true) {
 			((Player)event.getDamager()).sendMessage("§cYou don't have permission to build here");
@@ -49,6 +89,10 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onHangingPlaceEvent(HangingPlaceEvent event) {
+		if (!EvilBook.getProfile(event.getPlayer()).isCanEditWorld(event.getBlock().getWorld())) {
+			event.setCancelled(true);
+			return;
+		}
 		// Regions
 		if (EvilBook.isInProtectedRegion(event.getBlock().getLocation(), event.getPlayer()) == true) {
 			event.getPlayer().sendMessage("§cYou don't have permission to build here");
@@ -71,6 +115,10 @@ public class EventListenerEntity implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
 		if (event.getRemover() instanceof Player == false) return;
+		if (!EvilBook.getProfile((Player)event.getRemover()).isCanEditWorld(event.getEntity().getWorld())) {
+			event.setCancelled(true);
+			return;
+		}
 		// Regions
 		if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), (Player)event.getRemover())) {
 			((Player)event.getRemover()).sendMessage("§cYou don't have permission to build here");

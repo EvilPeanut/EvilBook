@@ -1,6 +1,6 @@
 package com.amentrix.evilbook.listeners;
 
-import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,7 +18,6 @@ import org.bukkit.material.SpawnEgg;
 
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.sql.SQL;
-import com.amentrix.evilbook.sql.TableType;
 
 /**
  * Inventory event listener
@@ -65,8 +64,10 @@ public class EventListenerInventory implements Listener {
 			if (event.getClickedInventory().getTitle().equals("My inbox") && event.getCurrentItem().getType() == Material.WRITTEN_BOOK) {
 				Player player = (Player)event.getWhoClicked();
 				BookMeta book = (BookMeta) event.getCurrentItem().getItemMeta();
-				try (Statement statement = SQL.connection.createStatement()) {
-					statement.execute("DELETE FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient='" + player.getName() + "' AND message_text='" + book.getPage(1) + "';");
+				try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM " + SQL.database + ".`evilbook-mail` WHERE player_recipient=? AND message_text=?")) {
+					statement.setString(1, player.getName());
+					statement.setString(2, book.getPage(1));
+					statement.executeUpdate();
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}

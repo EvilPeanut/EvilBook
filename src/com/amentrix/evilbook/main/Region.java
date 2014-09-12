@@ -1,7 +1,7 @@
 package com.amentrix.evilbook.main;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -169,8 +169,9 @@ public class Region {
 	}
 	
 	public void delete() {
-		try (Statement statement = SQL.connection.createStatement()) {
-			statement.execute("DELETE FROM " + SQL.database + "." + TableType.Region.tableName + " WHERE region_name='" + this.regionName.replaceAll("'", "''") + "';");
+		try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM " + SQL.database + ".`evilbook-regions` WHERE region_name=?")) {
+			statement.setString(1, this.regionName.replaceAll("'", "''"));
+			statement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

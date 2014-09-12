@@ -49,13 +49,11 @@ public class DynamicSign {
 	}
 	
 	public void delete() {
-		try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM ?.? WHERE world='?' AND x='?' AND y='?' AND z='?';")) {
-			statement.setString(1, SQL.database);
-			statement.setString(2, TableType.DynamicSign.tableName);
-			statement.setString(3, this.location.getWorld().getName());
-			statement.setInt(4, this.location.getBlockX());
-			statement.setInt(5, this.location.getBlockY());
-			statement.setInt(6, this.location.getBlockZ());
+		try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM " + SQL.database + ".`evilbook-dynamicsigns` WHERE world=? AND x=? AND y=? AND z=?")) {
+			statement.setString(1, this.location.getWorld().getName());
+			statement.setInt(2, this.location.getBlockX());
+			statement.setInt(3, this.location.getBlockY());
+			statement.setInt(4, this.location.getBlockZ());
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();

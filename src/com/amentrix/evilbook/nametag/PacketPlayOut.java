@@ -75,48 +75,19 @@ class PacketPlayOut
 		((Collection)f.get(this.packet)).addAll(col);
 			}
 
-	private static String getCraftPlayerClasspath() {
-		return "org.bukkit.craftbukkit." + PackageChecker.getVersion() + ".entity.CraftPlayer";
-	}
-
-	private static String getPlayerConnectionClasspath()
-	{
-		return "net.minecraft.server." + PackageChecker.getVersion() + ".PlayerConnection";
-	}
-
-	private static String getNMSPlayerClasspath()
-	{
-		return "net.minecraft.server." + PackageChecker.getVersion() + ".EntityPlayer";
-	}
-
-	private static String getPacketClasspath()
-	{
-		return "net.minecraft.server." + PackageChecker.getVersion() + ".Packet";
-	}
-
-	private static String getPacketTeamClasspath()
-	{
-		if ((Integer.valueOf(PackageChecker.getVersion().split("_")[1]).intValue() < 7) && (Integer.valueOf(PackageChecker.getVersion().toLowerCase().split("_")[0].replace("v", "")).intValue() == 1))
-		{
-			return "net.minecraft.server." + PackageChecker.getVersion() + ".Packet209SetScoreboardTeam";
-		}
-
-		return "net.minecraft.server." + PackageChecker.getVersion() + ".PacketPlayOutScoreboardTeam";
-	}
-
 	static
 	{
 		try
 		{
-			packetType = Class.forName(getPacketTeamClasspath());
+			packetType = net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardTeam.class;
 
-			Class typeCraftPlayer = Class.forName(getCraftPlayerClasspath());
-			Class typeNMSPlayer = Class.forName(getNMSPlayerClasspath());
-			Class typePlayerConnection = Class.forName(getPlayerConnectionClasspath());
+			Class typeCraftPlayer = org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer.class;
+			Class typeNMSPlayer = net.minecraft.server.v1_7_R4.EntityPlayer.class;
+			Class typePlayerConnection = net.minecraft.server.v1_7_R4.PlayerConnection.class;
 
 			getHandle = typeCraftPlayer.getMethod("getHandle", new Class[0]);
 			playerConnection = typeNMSPlayer.getField("playerConnection");
-			sendPacket = typePlayerConnection.getMethod("sendPacket", new Class[] { Class.forName(getPacketClasspath()) });
+			sendPacket = typePlayerConnection.getMethod("sendPacket", new Class[] { net.minecraft.server.v1_7_R4.Packet.class });
 		}
 		catch (Exception e) {
 			System.out.println("Failed to setup reflection for Packet209Mod!");

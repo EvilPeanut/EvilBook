@@ -2,11 +2,11 @@ package com.amentrix.evilbook.main;
 
 import java.util.Random;
 
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import com.amentrix.evilbook.statistics.Statistic;
-import com.amentrix.evilbook.statistics.Statistics;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
+import com.amentrix.evilbook.statistics.GlobalStatistics;
+import com.amentrix.evilbook.utils.SignUtils;
 
 /**
  * Schedulers and timed events
@@ -34,7 +34,7 @@ public class Scheduler {
 				int random = rand.nextInt(100);
 				for (Player p : Scheduler.this.plugin.getServer().getOnlinePlayers()) {
 					if (EvilBook.getProfile(p).isAway) continue;
-					if (System.currentTimeMillis() - EvilBook.getProfile(p).lastActionTime > 120000) {
+					if (EvilBook.getProfile(p).lastActionTime != 0 && System.currentTimeMillis() - EvilBook.getProfile(p).lastActionTime > 120000) {
 						EvilBook.getProfile(p).isAway = true;
 						EvilBook.broadcastPlayerMessage(p.getName(), "§5" + p.getDisplayName() + " §dhas gone AFK");
 						EvilBook.getProfile(p).updatePlayerListName();
@@ -59,7 +59,7 @@ public class Scheduler {
 							}
 						}
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 20;
-						Statistics.incrementStatistic(Statistic.EconomyGrowth, 20);
+						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).setProperty("Money", Integer.toString(EvilBook.playerProfiles.get(p.getName().toLowerCase()).money));
 					} else {
 						if (random >= 0 && random < 60) {
@@ -70,7 +70,7 @@ public class Scheduler {
 							p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
 						}
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 10;
-						Statistics.incrementStatistic(Statistic.EconomyGrowth, 10);
+						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).setProperty("Money", Integer.toString(EvilBook.playerProfiles.get(p.getName().toLowerCase()).money));
 					}
 					EvilBook.getProfile(p).saveProfile();
@@ -88,16 +88,7 @@ public class Scheduler {
 			public void run() {
 				// Dynamic Signs
 				for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
-					if (dynamicSign.location.getBlock().getState() instanceof Sign == false) continue;
-					Sign sign = (Sign) dynamicSign.location.getBlock().getState();
-					if (!sign.getChunk().isLoaded()) continue;
-					String time = EvilBook.getTime(dynamicSign.location.getWorld());
-					String weather = EvilBook.getWeather(sign.getBlock());
-					sign.setLine(0, dynamicSign.textLines[0].replace("[time]", time).replace("[weather]", weather).replace("[online]", Integer.toString(plugin.getServer().getOnlinePlayers().length)));
-					sign.setLine(1, dynamicSign.textLines[1].replace("[time]", time).replace("[weather]", weather).replace("[online]", Integer.toString(plugin.getServer().getOnlinePlayers().length)));
-					sign.setLine(2, dynamicSign.textLines[2].replace("[time]", time).replace("[weather]", weather).replace("[online]", Integer.toString(plugin.getServer().getOnlinePlayers().length)));
-					sign.setLine(3, dynamicSign.textLines[3].replace("[time]", time).replace("[weather]", weather).replace("[online]", Integer.toString(plugin.getServer().getOnlinePlayers().length)));
-					sign.update();
+					SignUtils.updateDynamicSign(dynamicSign);
 				}
 				// Emitters
 				for (Emitter emit : EvilBook.emitterList) {

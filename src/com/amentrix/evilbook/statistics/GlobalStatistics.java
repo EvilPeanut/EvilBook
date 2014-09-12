@@ -7,11 +7,11 @@ import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 
 /**
- * Statistics framework
+ * Global statistics framework
  * @author Reece Aaron Lecrivain
  */
-public class Statistics {
-	public static String getStatistic(Statistic statistic) {
+public class GlobalStatistics {
+	public static String getStatistic(GlobalStatistic statistic) {
 		String value = SQL.getProperty(TableType.Statistics, new SimpleDateFormat("yyyy-MM-dd").format(new Date()), statistic.columnName);
 		if (value == null) {
 			try {
@@ -24,11 +24,11 @@ public class Statistics {
 		return value;
 	}
 
-	public static void setStatistic(Statistic statistic, String value) {
+	public static void setStatistic(GlobalStatistic statistic, String value) {
 		SQL.setProperty(TableType.Statistics, new SimpleDateFormat("yyyy-MM-dd").format(new Date()), statistic.columnName, value);
 	}
 	
-	public static void incrementStatistic(Statistic statistic, int increment) {
+	public static void incrementStatistic(GlobalStatistic statistic, int increment) {
 		setStatistic(statistic, Integer.toString(Integer.parseInt(getStatistic(statistic)) + increment));
 	}
 }

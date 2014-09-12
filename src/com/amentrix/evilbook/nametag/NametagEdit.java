@@ -1,9 +1,11 @@
 package com.amentrix.evilbook.nametag;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
 import com.amentrix.evilbook.main.EvilBook;
 
 public class NametagEdit
@@ -25,7 +27,7 @@ public class NametagEdit
 			@Override
 			public void run()
 			{
-				Player[] onlinePlayers = Bukkit.getOnlinePlayers();
+				Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
 
 				for (Player p : onlinePlayers)
 				{
