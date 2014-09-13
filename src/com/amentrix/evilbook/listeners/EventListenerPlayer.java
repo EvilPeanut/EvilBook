@@ -708,7 +708,7 @@ public class EventListenerPlayer implements Listener {
 		if (EvilBook.isInSurvival(player) && !EvilBook.isInSurvival(event.getFrom())) {
 			EvilBook.setCreativeInventory(player);
 			EvilBook.getSurvivalInventory(player);
-			player.getActivePotionEffects().clear();
+			for (PotionEffect effect : player.getActivePotionEffects()) player.removePotionEffect(effect.getType());
 			player.setGameMode(GameMode.SURVIVAL);
 			if (EvilBook.getProfile(player).isInvisible && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
