@@ -67,6 +67,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.potion.PotionEffect;
@@ -532,7 +533,7 @@ public class EventListenerPlayer implements Listener {
 				if (block.getType() == Material.ENDER_CHEST) {
 					player.sendMessage("§7Ender chests are blocked in survival");
 					event.setCancelled(true);
-				} else if ((block.getType() == Material.DISPENSER || block.getType() == Material.CHEST || block.getType() == Material.FURNACE || block.getType() == Material.BURNING_FURNACE || block.getType() == Material.BREWING_STAND || block.getType() == Material.ANVIL || block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.DROPPER) && EvilBook.isContainerProtected(event.getClickedBlock().getLocation(), player)) {
+				} else if (block.getState() instanceof InventoryHolder && EvilBook.isContainerProtected(event.getClickedBlock().getLocation(), player)) {
 					player.sendMessage(ChatColor.GRAY + "You don't have permission to use this " + EvilBook.getFriendlyName(block.getType()).toLowerCase());
 					event.setCancelled(true);
 				}

@@ -20,6 +20,8 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.inventory.InventoryHolder;
+
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.Emitter;
@@ -67,9 +69,7 @@ public class EventListenerBlock implements Listener {
 			} else {
 				if (EvilBook.isInSurvival(player)) {
 					// Survival container protection
-					if ((block.getType() == Material.DISPENSER || block.getType() == Material.CHEST 
-							|| block.getType() == Material.FURNACE || block.getType() == Material.BURNING_FURNACE  || block.getType() == Material.BREWING_STAND 
-							|| block.getType() == Material.ANVIL || block.getType() == Material.TRAPPED_CHEST  || block.getType() == Material.DROPPER)) {
+					if (block.getState() instanceof InventoryHolder) {
 						if (EvilBook.isContainerProtected(block.getLocation(), player)) {
 							player.sendMessage(ChatColor.GRAY + "You don't have permission to break the " + 
 									EvilBook.getFriendlyName(block.getType()).toLowerCase(Locale.UK));
@@ -153,9 +153,7 @@ public class EventListenerBlock implements Listener {
 			// Free-player ice to packed-ice security
 			if (!profile.rank.isAdmin() && !EvilBook.isInSurvival(player) && block.getType() == Material.ICE) block.setType(Material.PACKED_ICE);
 			// Survival container protection
-			if (EvilBook.isInSurvival(player) && (block.getType() == Material.DISPENSER || block.getType() == Material.CHEST 
-					|| block.getType() == Material.FURNACE || block.getType() == Material.BREWING_STAND || block.getType() == Material.ANVIL 
-					|| block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.DROPPER)) {
+			if (EvilBook.isInSurvival(player) && block.getState() instanceof InventoryHolder) {
 				EvilBook.protectContainer(block.getLocation(), player);
 				player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protected");
 			}
