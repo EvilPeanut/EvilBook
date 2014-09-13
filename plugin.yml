@@ -1,6 +1,6 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 6.1.0-Alpha-4
+version: 6.1.0-Alpha-5
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
   move:
