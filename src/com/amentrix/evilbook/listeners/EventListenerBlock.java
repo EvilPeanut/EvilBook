@@ -130,7 +130,7 @@ public class EventListenerBlock implements Listener {
 		Player player = event.getPlayer();
 		Block block = event.getBlock();
 		PlayerProfile profile = EvilBook.getProfile(player);
-		if (!profile.isCanEditWorld(block.getWorld()) || event.getBlockAgainst() instanceof Sign) {
+		if (!profile.isCanEditWorld(block.getWorld()) || event.getBlockAgainst().getState() instanceof Sign) {
 			event.setCancelled(true);
 		} else if (!EvilBook.isInSurvival(player) && !profile.rank.isHigher(Rank.BUILDER) && (block.getType() == Material.ANVIL 
 				|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL)) {
