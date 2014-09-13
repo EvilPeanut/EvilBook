@@ -6,25 +6,25 @@ package com.amentrix.evilbook.main;
  */
 public enum Rank {
 	// Normal ranks
-	Builder("Builder", "§0[§EBuilder§0]", "E", 0),
-	AdvancedBuilder("Advanced Builder", "§0[§5Adv.Builder§0]", "5", 0),
-	Architect("Architect", "§0[§DArchitect§0]", "D", 0),
-	Moderator("Moderator", "§0[§9Moderator§0]", "9", 0),
-	Police("Police", "§0[§3Police§0]", "3", 0),
+	BUILDER"Builder", "§0[§EBuilder§0]", "E", 0),
+	ADVANCED_BUILDER("Advanced Builder", "§0[§5Adv.Builder§0]", "5", 0),
+	ARCHITECT("Architect", "§0[§DArchitect§0]", "D", 0),
+	MODERATOR("Moderator", "§0[§9Moderator§0]", "9", 0),
+	POLICE("Police", "§0[§3Police§0]", "3", 0),
 	// Staff ranks
-	CopperStaff("Copper Staff", "§0[§ECopperStaff§0]", "E", 1000),
-	SilverStaff("Silver Staff", "§0[§7SilverStaff§0]", "7", 2000),
-	GoldStaff("Gold Staff", "§0[§6GoldStaff§0]", "6", 3000),
-	LapisStaff("Lapis Staff", "§0[§1LapisStaff§0]", "1", 4000),
-	DiamondStaff("Diamond Staff", "§0[§BDiamondStaff§0]", "B", 5000),
+	STAFF_COPPER("Copper Staff", "§0[§ECopperStaff§0]", "E", 1000),
+	STAFF_SILVER("Silver Staff", "§0[§7SilverStaff§0]", "7", 2000),
+	STAFF_GOLD("Gold Staff", "§0[§6GoldStaff§0]", "6", 3000),
+	STAFF_LAPIS("Lapis Staff", "§0[§1LapisStaff§0]", "1", 4000),
+	STAFF_DIAMOND("Diamond Staff", "§0[§BDiamondStaff§0]", "B", 5000),
 	// Donator ranks
-	Admin("Admin", "§0[§4Admin§0]", "4", 10000),
-	Councillor("Councillor", "§0[§ACouncillor§0]", "A", 25000),
-	Elite("Elite", "§0[§CElite§0]", "C", 50000),
-	Investor("Investor", "§0[§6Investor§0]", "6", 75000),
-	Tycoon("Tycoon", "§0[§6§OTycoon§0]", "6", Integer.MAX_VALUE),
+	ADMIN("Admin", "§0[§4Admin§0]", "4", 10000),
+	COUNCILLOR("Councillor", "§0[§ACouncillor§0]", "A", 25000),
+	ELITE("Elite", "§0[§CElite§0]", "C", 50000),
+	INVESTOR("Investor", "§0[§6Investor§0]", "6", 75000),
+	TYCOON("Tycoon", "§0[§6§OTycoon§0]", "6", Integer.MAX_VALUE),
 	// Server Host rank
-	ServerHost("Server Host", "§0[§BServerHost§0]", "B", Integer.MAX_VALUE);
+	SERVER_HOST("Server Host", "§0[§BServerHost§0]", "B", Integer.MAX_VALUE);
 	
 	private String prefix, color, name;
 	private Integer evilEditAreaLimit;

@@ -1,5 +1,6 @@
 package com.amentrix.evilbook.listeners;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.event.Listener;
@@ -34,13 +35,22 @@ public class EventListenerPacket implements Listener {
 							return;
 						case "broadcast":
 							return;
-							//TODO: Add but disallow command block to change blocks in protected regions player doesnt own
-							//case "setblock":
-							//if (evilbook.isInProtectedRegion(new Location(event.get), event.getPlayer())) {
-
-							//} else {
-							//return;
-							//}
+						case "tellrawr":
+							if (EvilBook.isInSurvival(event.getPlayer())) {
+								event.getPlayer().sendMessage("§cThis command is blocked in survival");
+								event.setCancelled(true);
+							}
+							return;
+						case "setblock":
+							if (EvilBook.isInSurvival(event.getPlayer())) {
+								event.getPlayer().sendMessage("§cThis command is blocked in survival");
+								event.setCancelled(true);
+							} else if (!EvilBook.getProfile(event.getPlayer()).rank.isAdmin()) {
+								event.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "This command is " + ChatColor.DARK_PURPLE + "Admin " + ChatColor.LIGHT_PURPLE + "only");
+								event.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "Please type " + ChatColor.GOLD + "/admin " + ChatColor.LIGHT_PURPLE + "to learn how to become admin");
+								event.setCancelled(true);
+							}
+							return;
 						case "summon":
 							if (EvilBook.isInSurvival(event.getPlayer())) {
 								event.getPlayer().sendMessage("§cThis command is blocked in survival");

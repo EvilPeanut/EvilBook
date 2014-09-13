@@ -1,7 +1,7 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
 version: 6.1.0-Alpha-3
-depend: [ dynmap ]
+depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
   move:
     description: Move a selection of blocks
