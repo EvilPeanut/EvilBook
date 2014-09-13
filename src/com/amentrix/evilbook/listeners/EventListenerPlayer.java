@@ -186,6 +186,16 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerPortal(PlayerPortalEvent event) {
+		// Regions
+		for (Region region : EvilBook.regionList) {
+			if (EvilBook.isInRegion(region, event.getFrom())) {
+				if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
+					event.setCancelled(true);
+					return;
+				}
+			}
+		}
+		//
 		if (event.getFrom().getWorld().getName().equals("SurvivalLand")) {
 			if (event.getCause() == TeleportCause.NETHER_PORTAL) {
 				event.getPlayer().teleport(Bukkit.getServer().getWorld("SurvivalLandNether").getSpawnLocation());
