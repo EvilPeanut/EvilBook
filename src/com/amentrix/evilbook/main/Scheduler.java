@@ -60,7 +60,6 @@ public class Scheduler {
 						}
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 20;
 						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
-						EvilBook.playerProfiles.get(p.getName().toLowerCase()).setProperty("Money", Integer.toString(EvilBook.playerProfiles.get(p.getName().toLowerCase()).money));
 					} else {
 						if (random >= 0 && random < 60) {
 							p.sendMessage("§dDonate to become an admin §l/donate");
@@ -71,7 +70,6 @@ public class Scheduler {
 						}
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 10;
 						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
-						EvilBook.playerProfiles.get(p.getName().toLowerCase()).setProperty("Money", Integer.toString(EvilBook.playerProfiles.get(p.getName().toLowerCase()).money));
 					}
 					EvilBook.getProfile(p).saveProfile();
 				}

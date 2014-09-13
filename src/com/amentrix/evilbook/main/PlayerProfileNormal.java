@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.nametag.NametagAPI;
 import com.amentrix.evilbook.sql.SQL;
+import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.GlobalStatistics;
@@ -128,18 +129,20 @@ public class PlayerProfileNormal extends PlayerProfile {
 	 */
 	@Override
 	public void saveProfile() {
-		setProperty(TableType.PlayerLocation, "home_location", this.homeLocation == null ? "NULL" : this.homeLocation.getX() + ">" + this.homeLocation.getY() + ">" + this.homeLocation.getZ() + ">" + this.homeLocation.getWorld().getName());
-		setProperty("name_title", this.nameTitle == null ? "NULL" : this.nameTitle);
-		setProperty("name_alias", "NULL");
-		setProperty("muted_players", (this.mutedPlayers.size() != 0 ? StringUtils.join(this.mutedPlayers, ",") : "NULL"));
-		setProperty("rank", this.rank.toString());
-		setProperty("money", Integer.toString(this.money));
-		setProperty("warp_list", (this.warps.size() != 0 ? StringUtils.join(this.warps, ",").replaceAll("'", "''") : "NULL"));
-		setProperty("run_amplifier", Integer.toString(this.runAmplifier));
-		setProperty("walk_amplifier", Double.toString(this.walkAmplifier));
-		setProperty("fly_amplifier", Double.toString(this.flyAmplifier));
-		setProperty("jump_amplifier", Double.toString(this.jumpAmplifier));
-		setProperty("achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
+		StatementSet profileSaveAgent = new StatementSet();
+		profileSaveAgent.setProperty(TableType.PlayerLocation, this.name, "home_location", this.homeLocation == null ? "NULL" : this.homeLocation.getX() + ">" + this.homeLocation.getY() + ">" + this.homeLocation.getZ() + ">" + this.homeLocation.getWorld().getName());
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "name_title", this.nameTitle == null ? "NULL" : this.nameTitle);
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "name_alias", "NULL");
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "muted_players", (this.mutedPlayers.size() != 0 ? StringUtils.join(this.mutedPlayers, ",") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "rank", this.rank.toString());
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "money", Integer.toString(this.money));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "warp_list", (this.warps.size() != 0 ? StringUtils.join(this.warps, ",").replaceAll("'", "''") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "run_amplifier", Integer.toString(this.runAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "walk_amplifier", Double.toString(this.walkAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "fly_amplifier", Double.toString(this.flyAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "jump_amplifier", Double.toString(this.jumpAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
+		profileSaveAgent.execute();
 	}
 
 	/**
@@ -149,7 +152,6 @@ public class PlayerProfileNormal extends PlayerProfile {
 	@Override
 	public void setNameTitle(String title) {
 		Player player = Bukkit.getServer().getPlayer(this.name);
-		setProperty("name_title", title == null ? "NULL" : title);
 		this.nameTitle = title;
 		if (this.nameTitle == null) {
 			player.setDisplayName(this.name + "§f");

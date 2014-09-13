@@ -124,15 +124,6 @@ public abstract class PlayerProfile {
 	}
 	
 	/**
-	 * Set a player profile property
-	 * @param property The property to set
-	 * @param value The value of the property
-	 */
-	public void setProperty(TableType tableType, String property, String value) {
-		SQL.setProperty(tableType, this.name, property, value);
-	}
-	
-	/**
 	 * Get a player profile property
 	 * @param property The property to get
 	 * @return The value of the property

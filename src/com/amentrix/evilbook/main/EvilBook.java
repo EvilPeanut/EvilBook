@@ -2089,7 +2089,6 @@ public class EvilBook extends JavaPlugin {
 					}
 				}
 				String prefix = args[0].startsWith("&") ? args[0] : "&6" + args[0];
-				SQL.setProperty(TableType.PlayerProfile, sender.getName(), "rank_prefix", prefix);
 				((PlayerProfileAdmin)getProfile(player)).customRankColor = prefix.substring(1, 2);
 				((PlayerProfileAdmin)getProfile(player)).customRankPrefix = "§0[" + prefix.replaceAll("&", "§") + "§0]";
 				NametagAPI.updateNametagHard(player.getName(), "§" + ((PlayerProfileAdmin)getProfile(player)).rank.getColor((getProfile(player))), null);
@@ -2737,7 +2736,6 @@ public class EvilBook extends JavaPlugin {
 							} else {
 								String money = SQL.getProperty(TableType.PlayerProfile, args[0], "money");
 								money = Integer.toString(Integer.parseInt(money) + Integer.parseInt(args[1]));
-								SQL.setProperty(TableType.PlayerProfile, args[0], "money", money);
 								getProfile(sender).money -= Integer.parseInt(args[1]);
 								sender.sendMessage("§7You have paid " + getServer().getOfflinePlayer(args[0]).getName() + " §c$" + args[1]);
 								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
