@@ -106,6 +106,7 @@ public class EvilBook extends JavaPlugin {
 	public final static List<String> paidWorldList = new ArrayList<>();
 	public final static List<Region> regionList = new ArrayList<>();
 	public final static List<Emitter> emitterList = new ArrayList<>();
+	public final static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
 	public Session editSession = new Session(this);
 	public Random random = new Random();
 	// Log block API

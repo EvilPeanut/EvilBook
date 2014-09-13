@@ -532,7 +532,7 @@ public class EventListenerPlayer implements Listener {
 				if (block.getType() == Material.ENDER_CHEST) {
 					player.sendMessage("§7Ender chests are blocked in survival");
 					event.setCancelled(true);
-				} else if ((block.getType() == Material.DISPENSER || block.getType() == Material.CHEST || block.getType() == Material.WORKBENCH || block.getType() == Material.FURNACE || block.getType() == Material.BURNING_FURNACE || block.getType() == Material.BREWING_STAND || block.getType() == Material.ANVIL || block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.DROPPER) && EvilBook.isContainerProtected(event.getClickedBlock().getLocation(), player)) {
+				} else if ((block.getType() == Material.DISPENSER || block.getType() == Material.CHEST || block.getType() == Material.FURNACE || block.getType() == Material.BURNING_FURNACE || block.getType() == Material.BREWING_STAND || block.getType() == Material.ANVIL || block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.DROPPER) && EvilBook.isContainerProtected(event.getClickedBlock().getLocation(), player)) {
 					player.sendMessage(ChatColor.GRAY + "You don't have permission to use this " + EvilBook.getFriendlyName(block.getType()).toLowerCase());
 					event.setCancelled(true);
 				}

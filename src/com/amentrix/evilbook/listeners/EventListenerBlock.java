@@ -20,7 +20,6 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.block.SignChangeEvent;
-
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.Emitter;
@@ -66,18 +65,20 @@ public class EventListenerBlock implements Listener {
 				player.sendMessage(ChatColor.RED + "You don't have permission to build here");
 				event.setCancelled(true);
 			} else {
-				if (EvilBook.isInSurvival(player) && (block.getType() == Material.DISPENSER || block.getType() == Material.CHEST 
-						|| block.getType() == Material.WORKBENCH || block.getType() == Material.FURNACE || block.getType() == Material.BURNING_FURNACE 
-						|| block.getType() == Material.BREWING_STAND || block.getType() == Material.ANVIL || block.getType() == Material.TRAPPED_CHEST 
-						|| block.getType() == Material.DROPPER)) {
-					if (EvilBook.isContainerProtected(block.getLocation(), player)) {
-						player.sendMessage(ChatColor.GRAY + "You don't have permission to break the " + 
-								EvilBook.getFriendlyName(block.getType()).toLowerCase(Locale.UK));
-						event.setCancelled(true);
-						return;
+				if (EvilBook.isInSurvival(player)) {
+					// Survival container protection
+					if ((block.getType() == Material.DISPENSER || block.getType() == Material.CHEST 
+							|| block.getType() == Material.FURNACE || block.getType() == Material.BURNING_FURNACE  || block.getType() == Material.BREWING_STAND 
+							|| block.getType() == Material.ANVIL || block.getType() == Material.TRAPPED_CHEST  || block.getType() == Material.DROPPER)) {
+						if (EvilBook.isContainerProtected(block.getLocation(), player)) {
+							player.sendMessage(ChatColor.GRAY + "You don't have permission to break the " + 
+									EvilBook.getFriendlyName(block.getType()).toLowerCase(Locale.UK));
+							event.setCancelled(true);
+							return;
+						}
+						EvilBook.unprotectContainer(block.getLocation());
+						player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protection removed");
 					}
-					EvilBook.unprotectContainer(block.getLocation());
-					player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protection removed");
 				}
 				// Dynamic signs
 				if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
@@ -153,8 +154,8 @@ public class EventListenerBlock implements Listener {
 			if (!profile.rank.isAdmin() && !EvilBook.isInSurvival(player) && block.getType() == Material.ICE) block.setType(Material.PACKED_ICE);
 			// Survival container protection
 			if (EvilBook.isInSurvival(player) && (block.getType() == Material.DISPENSER || block.getType() == Material.CHEST 
-					|| block.getType() == Material.WORKBENCH || block.getType() == Material.FURNACE || block.getType() == Material.BREWING_STAND 
-					|| block.getType() == Material.ANVIL || block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.DROPPER)) {
+					|| block.getType() == Material.FURNACE || block.getType() == Material.BREWING_STAND || block.getType() == Material.ANVIL 
+					|| block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.DROPPER)) {
 				EvilBook.protectContainer(block.getLocation(), player);
 				player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protected");
 			}
