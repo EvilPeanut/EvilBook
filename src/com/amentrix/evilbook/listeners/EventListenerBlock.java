@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -129,7 +130,7 @@ public class EventListenerBlock implements Listener {
 		Player player = event.getPlayer();
 		Block block = event.getBlock();
 		PlayerProfile profile = EvilBook.getProfile(player);
-		if (!profile.isCanEditWorld(block.getWorld())) {
+		if (!profile.isCanEditWorld(block.getWorld()) || event.getBlockAgainst() instanceof Sign) {
 			event.setCancelled(true);
 		} else if (!EvilBook.isInSurvival(player) && !profile.rank.isHigher(Rank.BUILDER) && (block.getType() == Material.ANVIL 
 				|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL)) {
