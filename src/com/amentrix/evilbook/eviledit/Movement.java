@@ -15,7 +15,7 @@ import com.amentrix.evilbook.main.Rank;
  */
 public class Movement {
 	public static void passPlayerThroughOpposingWall(Player player) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.ServerHost) {
+		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else {
 			Location pos = player.getLocation();
@@ -55,7 +55,7 @@ public class Movement {
 	}
 
 	public static void ascendPlayerToCeiling(Player player) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.ServerHost) {
+		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else {
 			Location pos = player.getLocation();
@@ -81,7 +81,7 @@ public class Movement {
 	}
 
 	public static void descendPlayer(Player player) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.ServerHost) {
+		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else {
 			int y = player.getLocation().getBlockY();
@@ -102,7 +102,7 @@ public class Movement {
 	}
 
 	public static void ascendPlayer(Player player, Boolean displayMessages) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.ServerHost) {
+		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else {
 			int y = player.getLocation().getBlockY();

@@ -274,132 +274,130 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Load command blacklist
 		// 
-		commandBlacklist.put("/setblock", Rank.ServerHost);
-		commandBlacklist.put("/restart", Rank.ServerHost);
-		commandBlacklist.put("/stop", Rank.ServerHost);
-		commandBlacklist.put("/op", Rank.ServerHost);
-		commandBlacklist.put("/reload", Rank.ServerHost);
-		commandBlacklist.put("/drwatson", Rank.ServerHost);
-		commandBlacklist.put("/makeadmin", Rank.ServerHost);
-		commandBlacklist.put("/setspawn", Rank.ServerHost);
-		commandBlacklist.put("/xp", Rank.ServerHost);
-		commandBlacklist.put("/gamerule", Rank.ServerHost);
-		commandBlacklist.put("/deop", Rank.ServerHost);
-		commandBlacklist.put("/demote", Rank.ServerHost);
+		commandBlacklist.put("/setblock", Rank.SERVER_HOST);
+		commandBlacklist.put("/restart", Rank.SERVER_HOST);
+		commandBlacklist.put("/stop", Rank.SERVER_HOST);
+		commandBlacklist.put("/op", Rank.SERVER_HOST);
+		commandBlacklist.put("/reload", Rank.SERVER_HOST);
+		commandBlacklist.put("/drwatson", Rank.SERVER_HOST);
+		commandBlacklist.put("/makeadmin", Rank.SERVER_HOST);
+		commandBlacklist.put("/setspawn", Rank.SERVER_HOST);
+		commandBlacklist.put("/xp", Rank.SERVER_HOST);
+		commandBlacklist.put("/gamerule", Rank.SERVER_HOST);
+		commandBlacklist.put("/deop", Rank.SERVER_HOST);
+		commandBlacklist.put("/demote", Rank.SERVER_HOST);
 		//
-		commandBlacklist.put("/hyperhorse", Rank.Tycoon);
+		commandBlacklist.put("/hyperhorse", Rank.TYCOON);
 		//
-		commandBlacklist.put("/setrank", Rank.Investor);
+		commandBlacklist.put("/setrank", Rank.INVESTOR);
 		//
-		commandBlacklist.put("/pardon", Rank.Elite);
-		commandBlacklist.put("/promote", Rank.Elite);
+		commandBlacklist.put("/pardon", Rank.ELITE);
+		commandBlacklist.put("/promote", Rank.ELITE);
 		//
-		commandBlacklist.put("/regen", Rank.Councillor);
-		commandBlacklist.put("//regen", Rank.Councillor);
-		commandBlacklist.put("/copy", Rank.Councillor);
-		commandBlacklist.put("//copy", Rank.Councillor);
-		commandBlacklist.put("/paste", Rank.Councillor);
-		commandBlacklist.put("//paste", Rank.Councillor);
+		commandBlacklist.put("/regen", Rank.COUNCILLOR);
+		commandBlacklist.put("//regen", Rank.COUNCILLOR);
+		commandBlacklist.put("/copy", Rank.COUNCILLOR);
+		commandBlacklist.put("//copy", Rank.COUNCILLOR);
+		commandBlacklist.put("/paste", Rank.COUNCILLOR);
+		commandBlacklist.put("//paste", Rank.COUNCILLOR);
 		//
-		commandBlacklist.put("/thaw", Rank.Admin);
-		commandBlacklist.put("/move", Rank.Admin);
-		commandBlacklist.put("//move", Rank.Admin);
-		commandBlacklist.put("/snow", Rank.Admin);
-		commandBlacklist.put("/flip", Rank.Admin);
-		commandBlacklist.put("//flip", Rank.Admin);
-		commandBlacklist.put("/sphere", Rank.Admin);
-		commandBlacklist.put("//sphere", Rank.Admin);
-		commandBlacklist.put("/hsphere", Rank.Admin);
-		commandBlacklist.put("//hsphere", Rank.Admin);
-		commandBlacklist.put("/esphere", Rank.Admin);
-		commandBlacklist.put("//esphere", Rank.Admin);
-		commandBlacklist.put("/cspawn", Rank.Admin);
-		commandBlacklist.put("/spawncreature", Rank.Admin);
-		commandBlacklist.put("/forestgen", Rank.Admin);
-		commandBlacklist.put("/forest", Rank.Admin);
-		commandBlacklist.put("/pyramid", Rank.Admin);
-		commandBlacklist.put("//pyramid", Rank.Admin);
-		commandBlacklist.put("/hpyramid", Rank.Admin);
-		commandBlacklist.put("//hpyramid", Rank.Admin);
-		commandBlacklist.put("/hcylinder", Rank.Admin);
-		commandBlacklist.put("//hcylinder", Rank.Admin);
-		commandBlacklist.put("/cylinder", Rank.Admin);
-		commandBlacklist.put("//cylinder", Rank.Admin);
-		commandBlacklist.put("/hcyl", Rank.Admin);
-		commandBlacklist.put("//hcyl", Rank.Admin);
-		commandBlacklist.put("/cyl", Rank.Admin);
-		commandBlacklist.put("//cyl", Rank.Admin);
-		commandBlacklist.put("/pumpkins", Rank.Admin);
-		commandBlacklist.put("/setbiome", Rank.Admin);
-		commandBlacklist.put("//setbiome", Rank.Admin);
-		commandBlacklist.put("/count", Rank.Admin);
-		commandBlacklist.put("//count", Rank.Admin);
-		commandBlacklist.put("/size", Rank.Admin);
-		commandBlacklist.put("//size", Rank.Admin);
-		commandBlacklist.put("/desel", Rank.Admin);
-		commandBlacklist.put("//desel", Rank.Admin);
-		commandBlacklist.put("/wand", Rank.Admin);
-		commandBlacklist.put("//wand", Rank.Admin);
-		commandBlacklist.put("/drain", Rank.Admin);
-		commandBlacklist.put("//drain", Rank.Admin);
-		commandBlacklist.put("/green", Rank.Admin);
-		commandBlacklist.put("//green", Rank.Admin);
-		commandBlacklist.put("/overlay", Rank.Admin);
-		commandBlacklist.put("//overlay", Rank.Admin);
-		commandBlacklist.put("/walls", Rank.Admin);
-		commandBlacklist.put("//walls", Rank.Admin);
-		commandBlacklist.put("/outline", Rank.Admin);
-		commandBlacklist.put("//outline", Rank.Admin);
-		commandBlacklist.put("/hollow", Rank.Admin);	
-		commandBlacklist.put("//hollow", Rank.Admin);	
-		commandBlacklist.put("/undo", Rank.Admin);
-		commandBlacklist.put("//undo", Rank.Admin);
-		commandBlacklist.put("/fill", Rank.Admin);
-		commandBlacklist.put("//fill", Rank.Admin);
-		commandBlacklist.put("/set", Rank.Admin);
-		commandBlacklist.put("//set", Rank.Admin);
-		commandBlacklist.put("/replace", Rank.Admin);
-		commandBlacklist.put("//replace", Rank.Admin);
-		commandBlacklist.put("/rreplace", Rank.Admin);
-		commandBlacklist.put("/rfill", Rank.Admin);
-		commandBlacklist.put("/rdel", Rank.Admin);
-		commandBlacklist.put("/rdelete", Rank.Admin);
-		commandBlacklist.put("/del", Rank.Admin);
-		commandBlacklist.put("/delete", Rank.Admin);
-		commandBlacklist.put("/tree", Rank.Admin);
-		commandBlacklist.put("/rename", Rank.Admin);
-		commandBlacklist.put("/tool", Rank.Admin);
-		commandBlacklist.put("/toggleeditwand", Rank.Admin);
+		commandBlacklist.put("/thaw", Rank.ADMIN);
+		commandBlacklist.put("/move", Rank.ADMIN);
+		commandBlacklist.put("//move", Rank.ADMIN);
+		commandBlacklist.put("/snow", Rank.ADMIN);
+		commandBlacklist.put("/flip", Rank.ADMIN);
+		commandBlacklist.put("//flip", Rank.ADMIN);
+		commandBlacklist.put("/sphere", Rank.ADMIN);
+		commandBlacklist.put("//sphere", Rank.ADMIN);
+		commandBlacklist.put("/hsphere", Rank.ADMIN);
+		commandBlacklist.put("//hsphere", Rank.ADMIN);
+		commandBlacklist.put("/esphere", Rank.ADMIN);
+		commandBlacklist.put("//esphere", Rank.ADMIN);
+		commandBlacklist.put("/cspawn", Rank.ADMIN);
+		commandBlacklist.put("/spawncreature", Rank.ADMIN);
+		commandBlacklist.put("/forestgen", Rank.ADMIN);
+		commandBlacklist.put("/forest", Rank.ADMIN);
+		commandBlacklist.put("/pyramid", Rank.ADMIN);
+		commandBlacklist.put("//pyramid", Rank.ADMIN);
+		commandBlacklist.put("/hpyramid", Rank.ADMIN);
+		commandBlacklist.put("//hpyramid", Rank.ADMIN);
+		commandBlacklist.put("/hcylinder", Rank.ADMIN);
+		commandBlacklist.put("//hcylinder", Rank.ADMIN);
+		commandBlacklist.put("/cylinder", Rank.ADMIN);
+		commandBlacklist.put("//cylinder", Rank.ADMIN);
+		commandBlacklist.put("/hcyl", Rank.ADMIN);
+		commandBlacklist.put("//hcyl", Rank.ADMIN);
+		commandBlacklist.put("/cyl", Rank.ADMIN);
+		commandBlacklist.put("//cyl", Rank.ADMIN);
+		commandBlacklist.put("/pumpkins", Rank.ADMIN);
+		commandBlacklist.put("/setbiome", Rank.ADMIN);
+		commandBlacklist.put("//setbiome", Rank.ADMIN);
+		commandBlacklist.put("/count", Rank.ADMIN);
+		commandBlacklist.put("//count", Rank.ADMIN);
+		commandBlacklist.put("/size", Rank.ADMIN);
+		commandBlacklist.put("//size", Rank.ADMIN);
+		commandBlacklist.put("/desel", Rank.ADMIN);
+		commandBlacklist.put("//desel", Rank.ADMIN);
+		commandBlacklist.put("/wand", Rank.ADMIN);
+		commandBlacklist.put("//wand", Rank.ADMIN);
+		commandBlacklist.put("/drain", Rank.ADMIN);
+		commandBlacklist.put("//drain", Rank.ADMIN);
+		commandBlacklist.put("/green", Rank.ADMIN);
+		commandBlacklist.put("//green", Rank.ADMIN);
+		commandBlacklist.put("/overlay", Rank.ADMIN);
+		commandBlacklist.put("//overlay", Rank.ADMIN);
+		commandBlacklist.put("/walls", Rank.ADMIN);
+		commandBlacklist.put("//walls", Rank.ADMIN);
+		commandBlacklist.put("/outline", Rank.ADMIN);
+		commandBlacklist.put("//outline", Rank.ADMIN);
+		commandBlacklist.put("/hollow", Rank.ADMIN);	
+		commandBlacklist.put("//hollow", Rank.ADMIN);	
+		commandBlacklist.put("/undo", Rank.ADMIN);
+		commandBlacklist.put("//undo", Rank.ADMIN);
+		commandBlacklist.put("/fill", Rank.ADMIN);
+		commandBlacklist.put("//fill", Rank.ADMIN);
+		commandBlacklist.put("/set", Rank.ADMIN);
+		commandBlacklist.put("//set", Rank.ADMIN);
+		commandBlacklist.put("/replace", Rank.ADMIN);
+		commandBlacklist.put("//replace", Rank.ADMIN);
+		commandBlacklist.put("/rreplace", Rank.ADMIN);
+		commandBlacklist.put("/rfill", Rank.ADMIN);
+		commandBlacklist.put("/rdel", Rank.ADMIN);
+		commandBlacklist.put("/rdelete", Rank.ADMIN);
+		commandBlacklist.put("/del", Rank.ADMIN);
+		commandBlacklist.put("/delete", Rank.ADMIN);
+		commandBlacklist.put("/tree", Rank.ADMIN);
+		commandBlacklist.put("/rename", Rank.ADMIN);
+		commandBlacklist.put("/tool", Rank.ADMIN);
+		commandBlacklist.put("/toggleeditwand", Rank.ADMIN);
 		//
-		commandBlacklist.put("/region", Rank.DiamondStaff);
+		commandBlacklist.put("/region", Rank.STAFF_DIAMOND);
 		//
-		commandBlacklist.put("/vanish", Rank.LapisStaff);
-		commandBlacklist.put("/hide", Rank.LapisStaff);
-		commandBlacklist.put("/unvanish", Rank.LapisStaff);
-		commandBlacklist.put("/show", Rank.LapisStaff);
+		commandBlacklist.put("/vanish", Rank.STAFF_LAPIS);
+		commandBlacklist.put("/hide", Rank.STAFF_LAPIS);
+		commandBlacklist.put("/unvanish", Rank.STAFF_LAPIS);
+		commandBlacklist.put("/show", Rank.STAFF_LAPIS);
 		//
-		commandBlacklist.put("/tphere", Rank.GoldStaff);
-		commandBlacklist.put("/teleporthere", Rank.GoldStaff);
+		commandBlacklist.put("/tphere", Rank.STAFF_GOLD);
+		commandBlacklist.put("/teleporthere", Rank.STAFF_GOLD);
 		//
-		commandBlacklist.put("/clean", Rank.SilverStaff);
-		commandBlacklist.put("/butcher", Rank.SilverStaff);
+		commandBlacklist.put("/clean", Rank.STAFF_SILVER);
+		commandBlacklist.put("/butcher", Rank.STAFF_SILVER);
 		//
-		commandBlacklist.put("/broadcast", Rank.CopperStaff);
-		commandBlacklist.put("/say", Rank.CopperStaff);
-		commandBlacklist.put("/dawn", Rank.CopperStaff);
-		commandBlacklist.put("/day", Rank.CopperStaff);
-		commandBlacklist.put("/dusk", Rank.CopperStaff);
-		commandBlacklist.put("/night", Rank.CopperStaff);
-		commandBlacklist.put("/storm", Rank.CopperStaff);
-		commandBlacklist.put("/rain", Rank.CopperStaff);
-		commandBlacklist.put("/sun", Rank.CopperStaff);
-		commandBlacklist.put("/time", Rank.CopperStaff);
-		commandBlacklist.put("/ban", Rank.CopperStaff);
+		commandBlacklist.put("/broadcast", Rank.STAFF_COPPER);
+		commandBlacklist.put("/say", Rank.STAFF_COPPER);
+		commandBlacklist.put("/dawn", Rank.STAFF_COPPER);
+		commandBlacklist.put("/day", Rank.STAFF_COPPER);
+		commandBlacklist.put("/dusk", Rank.STAFF_COPPER);
+		commandBlacklist.put("/night", Rank.STAFF_COPPER);
+		commandBlacklist.put("/storm", Rank.STAFF_COPPER);
+		commandBlacklist.put("/rain", Rank.STAFF_COPPER);
+		commandBlacklist.put("/sun", Rank.STAFF_COPPER);
+		commandBlacklist.put("/time", Rank.STAFF_COPPER);
 		//
-		commandBlacklist.put("/kick", Rank.Moderator);
-		commandBlacklist.put("/sky", Rank.Moderator);
+		commandBlacklist.put("/sky", Rank.MODERATOR);
 		//
-		commandBlacklist.put("/chimney", Rank.Architect);
+		commandBlacklist.put("/chimney", Rank.ARCHITECT);
 		//
 		// Load Block List
 		//
@@ -1032,7 +1030,7 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (isProfileExistant(args[0])) {
 					if (getPlayer(args[0]) != null) {
-						getProfile(args[0]).rank = Rank.Admin;
+						getProfile(args[0]).rank = Rank.ADMIN;
 						getProfile(args[0]).updatePlayerListName();
 						// Player profile type conversion
 						if (getProfile(args[0]) instanceof PlayerProfileNormal) {
@@ -1086,7 +1084,7 @@ public class EvilBook extends JavaPlugin {
 				if (isProfileExistant(args[0])) {
 					if (getPlayer(args[0]) != null) {
 						getProfile(args[0]).rank = getProfile(args[0]).rank.getPreviousRank();
-						if (getProfile(args[0]).rank == Rank.Police) { 
+						if (getProfile(args[0]).rank == Rank.POLICE) { 
 							getServer().getOfflinePlayer(args[0]).setOp(false);
 							// Player profile type conversion
 							if (getProfile(args[0]) instanceof PlayerProfileAdmin) {
@@ -1102,7 +1100,7 @@ public class EvilBook extends JavaPlugin {
 						getProfile(args[0]).updatePlayerListName();
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been demoted to " + getProfile(args[0]).rank.getName() + " rank");
 					} else {
-						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getPreviousRank() == Rank.Police) getServer().getOfflinePlayer(args[0]).setOp(false);
+						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getPreviousRank() == Rank.POLICE) getServer().getOfflinePlayer(args[0]).setOp(false);
 						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getPreviousRank().toString());
 						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been demoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
 					}
@@ -1122,15 +1120,15 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (isProfileExistant(args[0])) {
 					if (getPlayer(args[0]) != null) {
-						if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.Moderator) && !getProfile(sender).rank.isHigher(Rank.Elite)) {
+						if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.MODERATOR) && !getProfile(sender).rank.isHigher(Rank.ELITE)) {
 							sender.sendMessage("§7You can't promote a player to above moderator");
-						} else if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.Police) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
+						} else if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.POLICE) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
 							sender.sendMessage("§7You can't promote a player to above police");
 						} else {
 							getProfile(args[0]).rank = getProfile(args[0]).rank.getNextRank();
-							if (getProfile(args[0]).rank.equals(Rank.CopperStaff)) {
+							if (getProfile(args[0]).rank.equals(Rank.STAFF_COPPER)) {
 								getServer().getOfflinePlayer(args[0]).setOp(true);
-							} else if (getProfile(args[0]).rank.equals(Rank.Admin)) {
+							} else if (getProfile(args[0]).rank.equals(Rank.ADMIN)) {
 								// Player profile type conversion
 								if (getProfile(args[0]) instanceof PlayerProfileNormal) {
 									getProfile(args[0]).saveProfile();
@@ -1146,11 +1144,11 @@ public class EvilBook extends JavaPlugin {
 							broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + getProfile(args[0]).rank.getName() + " rank");
 						}
 					} else {
-						if (sender instanceof Player && !getProfile(sender).rank.isHigher(Rank.Tycoon)) {
+						if (sender instanceof Player && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 							sender.sendMessage("§7You can't promote offline players");
 							return true;
 						}
-						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().equals(Rank.CopperStaff)) getServer().getOfflinePlayer(args[0]).setOp(true);
+						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().equals(Rank.STAFF_COPPER)) getServer().getOfflinePlayer(args[0]).setOp(true);
 						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().toString());
 						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
 					}
@@ -1199,11 +1197,11 @@ public class EvilBook extends JavaPlugin {
 			} else if (args[0].equals("3")) {
 				sender.sendMessage("§dRanks §5- §dPage 3 of 3 §5- §7/ranks <page>");
 				sender.sendMessage("  §0[§4Admin§0] §7Purchased from the Amentrix website");
-				sender.sendMessage("  §0[§ACounciller§0] §7Purchased from the Amentrix website");
+				sender.sendMessage("  §0[§ACouncillor§0] §7Purchased from the Amentrix website");
 				sender.sendMessage("  §0[§CElite§0] §7Purchased from the Amentrix website");
 				sender.sendMessage("  §0[§6Investor§0] §7Purchased from the Amentrix website");
 				sender.sendMessage("  §0[§6§OTycoon§0] §7Purchased from the Amentrix website");
-				sender.sendMessage("  §0[§BServerHost§0] §7EvilPeanut");
+				sender.sendMessage("  §0[§BSERVER_HOST§0] §7EvilPeanut");
 				sender.sendMessage("  §7To purchase a rank please see /admin");
 			}
 			return true;
@@ -1402,9 +1400,9 @@ public class EvilBook extends JavaPlugin {
 						return true;
 					}
 				}
-				if (!getProfile(player).rank.isHigher(Rank.Admin)) {
+				if (!getProfile(player).rank.isHigher(Rank.ADMIN)) {
 					sender.sendMessage("§5This title doesn't exist or hasn't been unlocked");
-					sender.sendMessage("§dYou can't use this title, counciller rank is required to use custom titles");
+					sender.sendMessage("§dYou can't use this title, councillor rank is required to use custom titles");
 					sender.sendMessage("§dTo view the titles you have unlocked please see /title");
 				} else {
 					String title = toFormattedString(args[0]);
@@ -1873,7 +1871,7 @@ public class EvilBook extends JavaPlugin {
 				} else {
 					for (String world : paidWorldList) {
 						if (world.equalsIgnoreCase(args[0])) {
-							if (getPrivateWorldProperty(args[0], "AllowedPlayers").contains(sender.getName().toLowerCase()) || getProfile(player).rank == Rank.ServerHost) {
+							if (getPrivateWorldProperty(args[0], "AllowedPlayers").contains(sender.getName().toLowerCase()) || getProfile(player).rank == Rank.SERVER_HOST) {
 								player.teleport(getProfile(player).getWorldLastPosition("plugins/EvilBook/Private worlds/" + args[0]));
 							} else {
 								player.sendMessage("§7You don't have access this private world");
@@ -2242,7 +2240,7 @@ public class EvilBook extends JavaPlugin {
 		// Disguise Command
 		//
 		if (command.getName().equalsIgnoreCase("disguise")) {
-			if (isInSurvival(player) && getProfile(sender).rank != Rank.ServerHost) {
+			if (isInSurvival(player) && getProfile(sender).rank != Rank.SERVER_HOST) {
 				sender.sendMessage("§7Mob disguise can't be used in survival");
 			} else {
 				if (args.length == 1) {
@@ -2254,7 +2252,7 @@ public class EvilBook extends JavaPlugin {
 					} else {
 						EntityType entityType = getEntity(args[0]);
 						if (entityType != null) {
-							if ((entityType != EntityType.ENDER_DRAGON && entityType != EntityType.WITHER && entityType != EntityType.ENDER_CRYSTAL) || getProfile(sender).rank.isHigher(Rank.Elite)) {
+							if ((entityType != EntityType.ENDER_DRAGON && entityType != EntityType.WITHER && entityType != EntityType.ENDER_CRYSTAL) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 								for (Player other : getServer().getOnlinePlayers()) other.hidePlayer(player);
 								getProfile(player).disguise = player.getWorld().spawnEntity(player.getLocation(), entityType);
 								sender.sendMessage("§7You are now disguised as a " + args[0].toLowerCase(Locale.UK));
@@ -2347,12 +2345,12 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("advert") || command.getName().equalsIgnoreCase("advertise")) {
 			if (args.length > 0) {
-				if (getProfile(sender).money >= 40 || getProfile(player).rank.isHigher(Rank.Investor)) {
+				if (getProfile(sender).money >= 40 || getProfile(player).rank.isHigher(Rank.INVESTOR)) {
 					String broadcast = "";
 					for (String msg : args) broadcast += " " + msg;
 					broadcastPlayerMessage(sender.getName(), "§d[§5Advert§d]" + broadcast);
 					alert(sender.getName() + " executed the advertise command");
-					if (!getProfile(player).rank.isHigher(Rank.Investor)) {
+					if (!getProfile(player).rank.isHigher(Rank.INVESTOR)) {
 						getProfile(sender).money -= 40;
 						incrementOwnerBalance(40);
 						sender.sendMessage("§7Created advert §c-$40");
@@ -2491,7 +2489,7 @@ public class EvilBook extends JavaPlugin {
 					if (args.length == 2) {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
+								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
 									sender.sendMessage("§7You don't have ownership of this region");
 									return true;
 								}
@@ -2528,7 +2526,7 @@ public class EvilBook extends JavaPlugin {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
+									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
 										sender.sendMessage("§7You don't have ownership of this region");
 										return true;
 									}
@@ -2552,7 +2550,7 @@ public class EvilBook extends JavaPlugin {
 							StringBuilder message = new StringBuilder();
 							for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
+								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
 									sender.sendMessage("§7You don't have ownership of this region");
 									return true;
 								}
@@ -2575,7 +2573,7 @@ public class EvilBook extends JavaPlugin {
 							StringBuilder message = new StringBuilder();
 							for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
+								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
 									sender.sendMessage("§7You don't have ownership of this region");
 									return true;
 								}
@@ -2596,7 +2594,7 @@ public class EvilBook extends JavaPlugin {
 					if (args.length == 3) {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
+								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
 									sender.sendMessage("§7You don't have ownership of this region");
 									return true;
 								}
@@ -2623,7 +2621,7 @@ public class EvilBook extends JavaPlugin {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
+									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
 										sender.sendMessage("§7You don't have ownership of this region");
 										return true;
 									}
@@ -2661,7 +2659,7 @@ public class EvilBook extends JavaPlugin {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.ServerHost)) {
+									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
 										sender.sendMessage("§7You don't have ownership of this region");
 										return true;
 									} else if (SQL.isKeyExistant(TableType.Warps, args[2].toLowerCase(Locale.UK))) {
@@ -2707,7 +2705,7 @@ public class EvilBook extends JavaPlugin {
 				for (String msg : args) message += msg + " ";
 				Boolean adminOnline = false;
 				for (Player p : getServer().getOnlinePlayers()) {
-					if (getProfile(p).rank.isHigher(Rank.Police)) {
+					if (getProfile(p).rank.isHigher(Rank.POLICE)) {
 						p.sendMessage(sender.getName() + " requires assistance: " + message.trim());
 						adminOnline = true;
 					}
@@ -2767,7 +2765,7 @@ public class EvilBook extends JavaPlugin {
 					player.setGameMode(GameMode.SURVIVAL);
 					sender.sendMessage("§7Your gamemode has been changed to survival");
 				} else if (args[0].equalsIgnoreCase("creative") || args[0].equals("1")) {
-					if (isInSurvival(player) == false || getProfile(sender).rank == Rank.ServerHost) {
+					if (isInSurvival(player) == false || getProfile(sender).rank == Rank.SERVER_HOST) {
 						player.setGameMode(GameMode.CREATIVE);
 						sender.sendMessage("§7Your gamemode has been changed to creative");
 					} else {
@@ -2779,7 +2777,7 @@ public class EvilBook extends JavaPlugin {
 				} else {
 					sender.sendMessage("§7This gamemode doesn't exist");
 				}
-			} else if (args.length == 2 && getProfile(sender).rank == Rank.ServerHost) {
+			} else if (args.length == 2 && getProfile(sender).rank == Rank.SERVER_HOST) {
 				if (getPlayer(args[1]) != null) {
 					if (args[0].equalsIgnoreCase("survival") || args[0].equals("0")) {
 						getPlayer(args[1]).setGameMode(GameMode.SURVIVAL);
@@ -2871,7 +2869,7 @@ public class EvilBook extends JavaPlugin {
 		// Vanish Command
 		//
 		if (command.getName().equalsIgnoreCase("vanish") || command.getName().equalsIgnoreCase("hide")) {
-			if (isInSurvival(player) && getProfile(sender).rank != Rank.ServerHost) {
+			if (isInSurvival(player) && getProfile(sender).rank != Rank.SERVER_HOST) {
 				sender.sendMessage("§7Vanish can't be used in survival");
 				return true;
 			}
@@ -2912,7 +2910,7 @@ public class EvilBook extends JavaPlugin {
 		// Teleport To Home Command
 		//
 		if (command.getName().equalsIgnoreCase("home") || command.getName().equalsIgnoreCase("homes")) {
-			if (args.length == 0 || getProfile(sender).rank != Rank.ServerHost) {
+			if (args.length == 0 || getProfile(sender).rank != Rank.SERVER_HOST) {
 				if (getProfile(sender).homeLocation != null) {
 					player.teleport(getProfile(sender).homeLocation);
 					sender.sendMessage("§7Welcome home");
@@ -2934,11 +2932,11 @@ public class EvilBook extends JavaPlugin {
 		// Spawn Creature Command
 		//
 		if (command.getName().equalsIgnoreCase("spawncreature") || command.getName().equalsIgnoreCase("cspawn") || command.getName().equalsIgnoreCase("mob") || command.getName().equalsIgnoreCase("spawnmob")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank == Rank.ServerHost) {
+			if (isInSurvival(player) == false || getProfile(sender).rank == Rank.SERVER_HOST) {
 				if (args.length >= 1) {
 					EntityType entityType = getEntity(args[0]);
 					if (entityType != null) {
-						if ((entityType != EntityType.ENDER_DRAGON && entityType != EntityType.WITHER && entityType != EntityType.ENDER_CRYSTAL) || getProfile(sender).rank.isHigher(Rank.Elite)) {
+						if ((entityType != EntityType.ENDER_DRAGON && entityType != EntityType.WITHER && entityType != EntityType.ENDER_CRYSTAL) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 							if (args.length == 1) {
 								if (player.getNearbyEntities(64, 64, 64).size() + 1 >= 400) {
 									sender.sendMessage("§7Nearby entity limit reached");
@@ -2996,7 +2994,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§7A warp with that name doesn't exist");
 					}
 				}
-			} else if (args.length == 2 && args[0].equalsIgnoreCase("list") && getProfile(sender).rank == Rank.ServerHost) {
+			} else if (args.length == 2 && args[0].equalsIgnoreCase("list") && getProfile(sender).rank == Rank.SERVER_HOST) {
 				String playerWarps = SQL.getProperty(TableType.PlayerProfile, args[1], "warp_list");
 				if (playerWarps != null) {
 					List<String> warps = Arrays.asList(playerWarps.split(","));
@@ -3017,7 +3015,7 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("delwarp") || command.getName().equalsIgnoreCase("deletewarp") || command.getName().equalsIgnoreCase("remwarp") || command.getName().equalsIgnoreCase("rmwarp")) {
 			if (args.length == 1) {
 				if (getProfile(sender).warps.size() != 0) {
-					if (getProfile(sender).rank.isHigher(Rank.Elite) || getProfile(sender).warps.contains(args[0].toLowerCase(Locale.UK))) {
+					if (getProfile(sender).rank.isHigher(Rank.ELITE) || getProfile(sender).warps.contains(args[0].toLowerCase(Locale.UK))) {
 						getProfile(sender).warps.remove(args[0].toLowerCase(Locale.UK));
 						SQL.deleteRow(TableType.Warps, args[0].toLowerCase(Locale.UK));
 						for (Region region : regionList) {
@@ -3090,7 +3088,7 @@ public class EvilBook extends JavaPlugin {
 		// Enchant Command
 		//
 		if (command.getName().equalsIgnoreCase("enchant")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank == Rank.ServerHost) {
+			if (isInSurvival(player) == false || getProfile(sender).rank == Rank.SERVER_HOST) {
 				if (args.length == 2) {
 					if (isInteger(args[1])) {
 						try {
@@ -3156,7 +3154,7 @@ public class EvilBook extends JavaPlugin {
 		// Storm Command
 		//
 		if (command.getName().equalsIgnoreCase("storm")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setThundering(true);
 				player.getWorld().setStorm(true);
 				sender.sendMessage("§7World weather changed to stormy");
@@ -3169,7 +3167,7 @@ public class EvilBook extends JavaPlugin {
 		// Rain Command
 		//
 		if (command.getName().equalsIgnoreCase("rain")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setStorm(true);
 				sender.sendMessage("§7World weather changed to rainy");
 			} else {
@@ -3181,7 +3179,7 @@ public class EvilBook extends JavaPlugin {
 		// Sun Command
 		//
 		if (command.getName().equalsIgnoreCase("sun")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setThundering(false);
 				player.getWorld().setStorm(false);
 				sender.sendMessage("§7World weather changed to sunny");
@@ -3207,7 +3205,7 @@ public class EvilBook extends JavaPlugin {
 		// Time Command
 		//
 		if (command.getName().equalsIgnoreCase("time")) {
-			if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				if (args.length == 1) {
 					if (isInteger(args[0])) {
 						player.getWorld().setTime(Long.parseLong(args[0]));
@@ -3256,7 +3254,7 @@ public class EvilBook extends JavaPlugin {
 		// Butcher Command
 		//
 		if (command.getName().equalsIgnoreCase("butcher") || command.getName().equalsIgnoreCase("remove") || command.getName().equalsIgnoreCase("killall") || command.getName().equalsIgnoreCase("mobkill")) {
-			if (!isInSurvival(player) || getProfile(sender).rank == Rank.ServerHost) {
+			if (!isInSurvival(player) || getProfile(sender).rank == Rank.SERVER_HOST) {
 				int entities = player.getWorld().getLivingEntities().size();
 				for (LivingEntity entity : player.getWorld().getLivingEntities()) if (entity.getType() == EntityType.PLAYER || (entity.getType() == EntityType.WOLF && ((Tameable)entity).isTamed())) entities--; else entity.remove();
 				sender.sendMessage("§5" + entities + "§d animals butchered");
@@ -3300,7 +3298,7 @@ public class EvilBook extends JavaPlugin {
 		// Dawn Time Command
 		//
 		if (command.getName().equalsIgnoreCase("dawn")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setTime(0L);
 				sender.sendMessage("§7The world time has been changed to dawn");
 			} else {
@@ -3312,7 +3310,7 @@ public class EvilBook extends JavaPlugin {
 		// Day Time Command
 		//
 		if (command.getName().equalsIgnoreCase("day")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setTime(6000L);
 				sender.sendMessage("§7The world time has been changed to day");
 			} else {
@@ -3324,7 +3322,7 @@ public class EvilBook extends JavaPlugin {
 		// Dusk Time Command
 		//
 		if (command.getName().equalsIgnoreCase("dusk")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setTime(12000L);
 				sender.sendMessage("§7The world time has been changed to dusk");
 			} else {
@@ -3336,7 +3334,7 @@ public class EvilBook extends JavaPlugin {
 		// Night Time Command
 		//
 		if (command.getName().equalsIgnoreCase("night")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.Elite)) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setTime(18000L);
 				sender.sendMessage("§7The world time has been changed to night");
 			} else {
@@ -3405,7 +3403,7 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("tphere") || command.getName().equalsIgnoreCase("teleporthere")) {
 			if (args.length == 1) {
 				if (getPlayer(args[0]) != null) {
-					if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.Elite)) {
+					if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 						getPlayer(args[0]).teleport(player);
 					} else {
 						sender.sendMessage("§7You can't teleport a player who is in survival");
@@ -3423,7 +3421,7 @@ public class EvilBook extends JavaPlugin {
 		// Give Command
 		//
 		if (command.getName().equalsIgnoreCase("item") || command.getName().equalsIgnoreCase("give")) {
-			if (isInSurvival(player) && getProfile(sender).rank != Rank.ServerHost) {
+			if (isInSurvival(player) && getProfile(sender).rank != Rank.SERVER_HOST) {
 				sender.sendMessage("§7Spawning of items is blocked in survival");
 			} else {
 				if (args.length == 1) {
@@ -3555,12 +3553,12 @@ public class EvilBook extends JavaPlugin {
 	}
 
 	/**
-	 * Sends a message alert to the server owner
+	 * Sends a message alert to moderator and above ranks
 	 * @param alert The message
 	 */
 	public static void alert(String alert) {
 		for (PlayerProfile profile : playerProfiles.values()) {
-			if (profile.rank.isHigher(Rank.Architect)) Bukkit.getServer().getPlayer(profile.name).sendMessage("§7§O" + alert);
+			if (profile.rank.isHigher(Rank.ARCHITECT)) Bukkit.getServer().getPlayer(profile.name).sendMessage("§7§O" + alert);
 		}
 	}
 

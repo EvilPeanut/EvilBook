@@ -30,7 +30,7 @@ public abstract class PlayerProfile {
 	public List<Achievement> achievements = new ArrayList<>();
 	public long lastMessageTime = 0, lastActionTime = 0;
 	public double jumpAmplifier = 0, flyAmplifier = 0.1, walkAmplifier = 0.2;
-	public Rank rank = Rank.Builder;
+	public Rank rank = Rank.BUILDER;
 	public Entity disguise;
 	public Location lastLocation, homeLocation, lastBlockInteraction;
 	public int runAmplifier = 4, money = 0;
@@ -38,13 +38,13 @@ public abstract class PlayerProfile {
 	public Location actionLocationA, actionLocationB;
 	
 	public Boolean isCanEditWorld(World world) {
-		if (EvilBook.isInSurvival(world) && !rank.isHigher(Rank.Builder)) {
+		if (EvilBook.isInSurvival(world) && !rank.isHigher(Rank.BUILDER)) {
 			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Survival lands require Advanced Builder rank to edit");
 			return false;
-		} else if (world.getName().equals("FlatLand") && !rank.isHigher(Rank.Builder)) {
+		} else if (world.getName().equals("FlatLand") && !rank.isHigher(Rank.BUILDER)) {
 			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Flatlands require Advanced Builder rank to edit");
 			return false;
-		} else if (world.getName().equals("SkyLand") && !rank.isHigher(Rank.AdvancedBuilder)) {
+		} else if (world.getName().equals("SkyLand") && !rank.isHigher(Rank.ARCHITECT)) {
 			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Skylands require Architect rank to edit");
 			return false;
 		}

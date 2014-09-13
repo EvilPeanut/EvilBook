@@ -215,7 +215,7 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		Player player = event.getPlayer();
-		if (!EvilBook.getProfile(player).rank.isAdmin() && (!EvilBook.isInSurvival(player) || !EvilBook.getProfile(player).rank.isHigher(Rank.Architect))) {
+		if (!EvilBook.getProfile(player).rank.isAdmin() && (!EvilBook.isInSurvival(player) || !EvilBook.getProfile(player).rank.isHigher(Rank.ARCHITECT))) {
 			player.sendMessage((event.getBucket() == Material.LAVA_BUCKET ? "§dLava buckets" : "§dWater buckets") + " are an §5Admin §donly feature");
 			player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
 			event.setCancelled(true);
@@ -505,7 +505,7 @@ public class EventListenerPlayer implements Listener {
 			//
 			// Bonemeal
 			//
-			if (!EvilBook.getProfile(player.getName()).rank.isHigher(Rank.Builder) && player.getItemInHand().getType() == Material.INK_SACK && ((Dye)player.getItemInHand().getData()).getColor() == DyeColor.WHITE && (block.getType() == Material.RED_MUSHROOM || block.getType() == Material.BROWN_MUSHROOM || block.getType() == Material.SAPLING || block.getType() == Material.GRASS)) {
+			if (!EvilBook.getProfile(player.getName()).rank.isHigher(Rank.BUILDER) && player.getItemInHand().getType() == Material.INK_SACK && ((Dye)player.getItemInHand().getData()).getColor() == DyeColor.WHITE && (block.getType() == Material.RED_MUSHROOM || block.getType() == Material.BROWN_MUSHROOM || block.getType() == Material.SAPLING || block.getType() == Material.GRASS)) {
 				player.sendMessage("§dBone meal requires §5Advanced Builder §drank or higher");
 				event.setCancelled(true);
 				//
@@ -518,7 +518,7 @@ public class EventListenerPlayer implements Listener {
 				//
 				// Survival container protection and ender chest blocking
 				//
-			} else if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player.getName()).rank != Rank.ServerHost) {
+			} else if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player.getName()).rank != Rank.SERVER_HOST) {
 				if (block.getType() == Material.ENDER_CHEST) {
 					player.sendMessage("§7Ender chests are blocked in survival");
 					event.setCancelled(true);
@@ -527,7 +527,7 @@ public class EventListenerPlayer implements Listener {
 					event.setCancelled(true);
 				}
 			} else if (event.hasItem()) {
-				if (EvilBook.getProfile(player).rank.isHigher(Rank.LapisStaff) && event.getItem().getType() == Material.GOLD_SPADE && (EvilBook.isInSurvival(player) == false || EvilBook.getProfile(player).rank == Rank.ServerHost) && ((PlayerProfileAdmin)EvilBook.getProfile(player)).wandMode != EditWandMode.None) {
+				if (EvilBook.getProfile(player).rank.isHigher(Rank.STAFF_LAPIS) && event.getItem().getType() == Material.GOLD_SPADE && (EvilBook.isInSurvival(player) == false || EvilBook.getProfile(player).rank == Rank.SERVER_HOST) && ((PlayerProfileAdmin)EvilBook.getProfile(player)).wandMode != EditWandMode.None) {
 					if (EvilBook.getProfile(player).wandMode == EditWandMode.Selection) {
 						EvilBook.getProfile(player).actionLocationB = block.getLocation();
 						player.sendMessage("§7Second point selected (" + block.getX() + ", " + block.getY() + ", " + block.getZ() + ")");
@@ -619,7 +619,7 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		Player player = event.getPlayer();
-		if (EvilBook.getProfile(player).rank == Rank.ServerHost) return;
+		if (EvilBook.getProfile(player).rank == Rank.SERVER_HOST) return;
 		if (event.getMessage().toLowerCase().startsWith("/evilbook:") || event.getMessage().toLowerCase().startsWith("/bukkit:") || event.getMessage().toLowerCase().startsWith("/minecraft:")) {
 			event.setCancelled(true); 
 		} else if (System.currentTimeMillis() - EvilBook.getProfile(player).lastMessageTime <= 250 && event.getMessage().equals(EvilBook.getProfile(player).lastMessage)) {
@@ -630,10 +630,10 @@ public class EventListenerPlayer implements Listener {
 			EvilBook.getProfile(player).lastMessageTime = System.currentTimeMillis();
 			if (EvilBook.commandBlacklist.containsKey(event.getMessage().toLowerCase().split(" ")[0]) == false) return;
 			if (!EvilBook.getProfile(player).rank.isHigher(EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getPreviousRank())) {
-				if (EvilBook.getProfile(player).rank.isAdmin() == false && EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.Admin)) {
+				if (EvilBook.getProfile(player).rank.isAdmin() == false && EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.ADMIN)) {
 					player.sendMessage("§dThis is an §5Admin §donly command");
 					player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
-				} else if (EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.ServerHost)) {
+				} else if (EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.SERVER_HOST)) {
 					player.sendMessage("§7This command is blocked for security reasons");
 				} else {
 					player.sendMessage("§dThis is an §" + EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank and higher only command");
@@ -657,7 +657,7 @@ public class EventListenerPlayer implements Listener {
 		EvilBook.getProfile(player).lastLocation = event.getFrom();
 		for (String world : EvilBook.paidWorldList) {
 			if (event.getTo().getWorld().getName().toLowerCase().endsWith(world.toLowerCase())) {
-				if (EvilBook.getProfile(player).rank != Rank.ServerHost && !EvilBook.getPrivateWorldProperty(event.getTo().getWorld().getName().split("plugins/EvilBook/Private worlds/")[1], "AllowedPlayers").contains(player.getName().toLowerCase())) {
+				if (EvilBook.getProfile(player).rank != Rank.SERVER_HOST && !EvilBook.getPrivateWorldProperty(event.getTo().getWorld().getName().split("plugins/EvilBook/Private worlds/")[1], "AllowedPlayers").contains(player.getName().toLowerCase())) {
 					player.sendMessage("§7You don't have access to this private world");
 					event.setCancelled(true);
 					return;
@@ -699,7 +699,7 @@ public class EventListenerPlayer implements Listener {
 			EvilBook.setCreativeInventory(player);
 			EvilBook.getSurvivalInventory(player);
 			player.setGameMode(GameMode.SURVIVAL);
-			if (EvilBook.getProfile(player).isInvisible && EvilBook.getProfile(player).rank != Rank.ServerHost) {
+			if (EvilBook.getProfile(player).isInvisible && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
 				EvilBook.getProfile(player).isInvisible = false;
 				player.sendMessage("§7Vanish isn't allowed in survival, you are now visible");
@@ -732,7 +732,7 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
-		if (EvilBook.getProfile(event.getPlayer()).rank == Rank.ServerHost) return;
+		if (EvilBook.getProfile(event.getPlayer()).rank == Rank.SERVER_HOST) return;
 		if (event.getNewGameMode() != GameMode.SURVIVAL && EvilBook.isInSurvival(event.getPlayer())) event.setCancelled(true);
 	}
 }

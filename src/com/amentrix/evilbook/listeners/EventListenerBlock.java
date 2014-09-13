@@ -49,8 +49,8 @@ public class EventListenerBlock implements Listener {
 		PlayerProfile profile = EvilBook.getProfile(player);
 		if (!profile.isCanEditWorld(block.getWorld())) {
 			event.setCancelled(true);
-		} else if (profile.rank.isHigher(Rank.LapisStaff) && player.getItemInHand().getType() == Material.GOLD_SPADE 
-				&& (EvilBook.isInSurvival(player) == false || profile.rank == Rank.ServerHost) 
+		} else if (profile.rank.isHigher(Rank.STAFF_LAPIS) && player.getItemInHand().getType() == Material.GOLD_SPADE 
+				&& (EvilBook.isInSurvival(player) == false || profile.rank == Rank.SERVER_HOST) 
 				&& ((PlayerProfileAdmin)profile).wandMode != EditWandMode.None) {
 			if (profile.wandMode == EditWandMode.Selection) {
 				profile.actionLocationA = block.getLocation();
@@ -131,7 +131,7 @@ public class EventListenerBlock implements Listener {
 		PlayerProfile profile = EvilBook.getProfile(player);
 		if (!profile.isCanEditWorld(block.getWorld())) {
 			event.setCancelled(true);
-		} else if (!EvilBook.isInSurvival(player) && !profile.rank.isHigher(Rank.Builder) && (block.getType() == Material.ANVIL 
+		} else if (!EvilBook.isInSurvival(player) && !profile.rank.isHigher(Rank.BUILDER) && (block.getType() == Material.ANVIL 
 				|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL)) {
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "This block requires " + ChatColor.DARK_PURPLE + "Advanced Builder " + ChatColor.LIGHT_PURPLE + "rank or higher");
 			event.setCancelled(true);
@@ -140,7 +140,7 @@ public class EventListenerBlock implements Listener {
 				block.getType() == Material.STATIONARY_LAVA || block.getType() == Material.TNT ||
 				block.getType() == Material.FIRE || block.getType() == Material.MOB_SPAWNER || 
 				block.getType() == Material.PORTAL || block.getType() == Material.DRAGON_EGG) &&
-				(!EvilBook.isInSurvival(player) || !profile.rank.isHigher(Rank.Architect))) {
+				(!EvilBook.isInSurvival(player) || !profile.rank.isHigher(Rank.ARCHITECT))) {
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "This block is " + ChatColor.DARK_PURPLE + "Admin " + ChatColor.LIGHT_PURPLE + "only");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "Please type " + ChatColor.GOLD + "/admin " + ChatColor.LIGHT_PURPLE + "to learn how to become admin");
 			event.setCancelled(true);
@@ -167,7 +167,7 @@ public class EventListenerBlock implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onBlockDispense(BlockDispenseEvent event) {
-		if (!event.getEntity().getWorld().getName().contains("Private worlds") && 
+		if (!event.getBlock().getWorld().getName().contains("Private worlds") && 
 				(event.getItem().getType() == Material.WATER_BUCKET || event.getItem().getType() == Material.LAVA_BUCKET)) event.setCancelled(true);
 	}
 

@@ -56,7 +56,7 @@ public class Selection {
 			return false;
 		} else if (getVolume() > EvilBook.getProfile(this.player).rank.getEvilEditAreaLimit()) {
 			this.player.sendMessage("§7You can only set a selections biome of up to an area of " + EvilBook.getProfile(this.player).rank.getEvilEditAreaLimit() + " blocks");
-			if (!EvilBook.getProfile(this.player).rank.isHigher(Rank.Elite)) this.player.sendMessage("§7Rank-up to lift this limit");
+			if (!EvilBook.getProfile(this.player).rank.isHigher(Rank.INVESTOR)) this.player.sendMessage("§7Rank-up to lift this limit");
 			return false;
 		}
 		return true;

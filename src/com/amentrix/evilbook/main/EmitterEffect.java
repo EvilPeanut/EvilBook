@@ -5,18 +5,18 @@ package com.amentrix.evilbook.main;
  * @author Reece Aaron Lecrivain
  */
 public enum EmitterEffect {
-	Smoke(null, Rank.Architect),
-	Flames(null, Rank.Architect),
-	Hearts("heart", Rank.Architect),
-	RedstoneFumes("reddust", Rank.Architect),
-	Slime("slime", Rank.Architect),
-	MagicCriticalHit("magicCrit", Rank.Architect),
-	EnchantmentTable("enchantmenttable", Rank.Architect),
-	Cloud("cloud", Rank.Admin),
-	Potion(null, Rank.Tycoon),
-	HugeExplosion("hugeexplosion", Rank.Tycoon),
-	LargeExplosion("largeexplode", Rank.Tycoon),
-	FireworksSpark("fireworksSpark", Rank.Tycoon);
+	Smoke(null, Rank.ARCHITECT),
+	Flames(null, Rank.ARCHITECT),
+	Hearts("heart", Rank.ARCHITECT),
+	RedstoneFumes("reddust", Rank.ARCHITECT),
+	Slime("slime", Rank.ARCHITECT),
+	MagicCriticalHit("magicCrit", Rank.ARCHITECT),
+	EnchantmentTable("enchantmenttable", Rank.ARCHITECT),
+	Cloud("cloud", Rank.ADMIN),
+	Potion(null, Rank.TYCOON),
+	HugeExplosion("hugeexplosion", Rank.TYCOON),
+	LargeExplosion("largeexplode", Rank.TYCOON),
+	FireworksSpark("fireworksSpark", Rank.TYCOON);
 	
 	public String particleName;
 	public Rank minimumRank;

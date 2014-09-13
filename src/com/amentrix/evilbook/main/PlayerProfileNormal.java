@@ -63,7 +63,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 			} else {
 				try {
 					// Create new player profile
-					this.rank = Rank.Builder;
+					this.rank = Rank.BUILDER;
 					this.money = 0;
 					SQL.insert(TableType.PlayerProfile, 
 							"'" + this.name + "','" + this.rank.toString() + "',NULL,'" + this.money + "'," +

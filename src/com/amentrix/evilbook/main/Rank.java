@@ -6,37 +6,37 @@ package com.amentrix.evilbook.main;
  */
 public enum Rank {
 	// Normal ranks
-	BUILDER"Builder", "§0[§EBuilder§0]", "E", 0),
-	ADVANCED_BUILDER("Advanced Builder", "§0[§5Adv.Builder§0]", "5", 0),
-	ARCHITECT("Architect", "§0[§DArchitect§0]", "D", 0),
-	MODERATOR("Moderator", "§0[§9Moderator§0]", "9", 0),
-	POLICE("Police", "§0[§3Police§0]", "3", 0),
+	BUILDER("BUILDER", "§0[§EBUILDER§0]", "E", 0),
+	ADVANCED_BUILDER("Advanced BUILDER", "§0[§5Adv.BUILDER§0]", "5", 0),
+	ARCHITECT("ARCHITECT", "§0[§DARCHITECT§0]", "D", 0),
+	MODERATOR("MODERATOR", "§0[§9MODERATOR§0]", "9", 0),
+	POLICE("POLICE", "§0[§3POLICE§0]", "3", 0),
 	// Staff ranks
-	STAFF_COPPER("Copper Staff", "§0[§ECopperStaff§0]", "E", 1000),
-	STAFF_SILVER("Silver Staff", "§0[§7SilverStaff§0]", "7", 2000),
-	STAFF_GOLD("Gold Staff", "§0[§6GoldStaff§0]", "6", 3000),
-	STAFF_LAPIS("Lapis Staff", "§0[§1LapisStaff§0]", "1", 4000),
-	STAFF_DIAMOND("Diamond Staff", "§0[§BDiamondStaff§0]", "B", 5000),
+	STAFF_COPPER("Copper Staff", "§0[§ESTAFF_COPPER§0]", "E", 1000),
+	STAFF_SILVER("Silver Staff", "§0[§7STAFF_SILVER§0]", "7", 2000),
+	STAFF_GOLD("Gold Staff", "§0[§6STAFF_GOLD§0]", "6", 3000),
+	STAFF_LAPIS("Lapis Staff", "§0[§1STAFF_LAPIS§0]", "1", 4000),
+	STAFF_DIAMOND("Diamond Staff", "§0[§BSTAFF_DIAMOND§0]", "B", 5000),
 	// Donator ranks
-	ADMIN("Admin", "§0[§4Admin§0]", "4", 10000),
-	COUNCILLOR("Councillor", "§0[§ACouncillor§0]", "A", 25000),
-	ELITE("Elite", "§0[§CElite§0]", "C", 50000),
-	INVESTOR("Investor", "§0[§6Investor§0]", "6", 75000),
-	TYCOON("Tycoon", "§0[§6§OTycoon§0]", "6", Integer.MAX_VALUE),
+	ADMIN("ADMIN", "§0[§4ADMIN§0]", "4", 10000),
+	COUNCILLOR("COUNCILLOR", "§0[§ACOUNCILLOR§0]", "A", 25000),
+	ELITE("ELITE", "§0[§CELITE§0]", "C", 50000),
+	INVESTOR("INVESTOR", "§0[§6INVESTOR§0]", "6", 75000),
+	TYCOON("TYCOON", "§0[§6§OTYCOON§0]", "6", Integer.MAX_VALUE),
 	// Server Host rank
-	SERVER_HOST("Server Host", "§0[§BServerHost§0]", "B", Integer.MAX_VALUE);
+	SERVER_HOST("Server Host", "§0[§BSERVER_HOST§0]", "B", Integer.MAX_VALUE);
 	
 	private String prefix, color, name;
 	private Integer evilEditAreaLimit;
 	
 	public Boolean isHigher(Rank compareRank) { return this.compareTo(compareRank) > 0 ? true : false; }
 	
-	public Boolean isCustomRank() { return isHigher(Rank.Elite); }
+	public Boolean isCustomRank() { return isHigher(Rank.ELITE); }
 	
 	/**
-	 * @return If the player is an admin
+	 * @return If the player is an ADMIN
 	 */
-	public Boolean isAdmin() { return this.compareTo(Rank.Admin) >= 0 ? true : false; }
+	public Boolean isAdmin() { return this.compareTo(Rank.ADMIN) >= 0 ? true : false; }
 	
 	/**
 	 * @return The name of the rank
@@ -91,38 +91,38 @@ public enum Rank {
 	 */
 	public Rank getNextRank() {
 		switch (this) {
-		case Builder:
-			return Rank.AdvancedBuilder;
-		case AdvancedBuilder:
-			return Rank.Architect;
-		case Architect:
-			return Rank.Moderator;
-		case Moderator:
-			return Rank.Police;
-		case Police:
-			return Rank.CopperStaff;
-		case CopperStaff:
-			return Rank.SilverStaff;
-		case SilverStaff:
-			return Rank.GoldStaff;
-		case GoldStaff:
-			return Rank.LapisStaff;
-		case LapisStaff:
-			return Rank.DiamondStaff;
-		case DiamondStaff:
-			return Rank.Admin;
-		case Admin:
-			return Rank.Councillor;
-		case Councillor:
-			return Rank.Elite;
-		case Elite:
-			return Rank.Investor;
-		case Investor:
-			return Rank.Tycoon;
-		case Tycoon:
-			return Rank.ServerHost;
-		case ServerHost:
-			return Rank.ServerHost;
+		case BUILDER:
+			return Rank.ADVANCED_BUILDER;
+		case ADVANCED_BUILDER:
+			return Rank.ARCHITECT;
+		case ARCHITECT:
+			return Rank.MODERATOR;
+		case MODERATOR:
+			return Rank.POLICE;
+		case POLICE:
+			return Rank.STAFF_COPPER;
+		case STAFF_COPPER:
+			return Rank.STAFF_SILVER;
+		case STAFF_SILVER:
+			return Rank.STAFF_GOLD;
+		case STAFF_GOLD:
+			return Rank.STAFF_LAPIS;
+		case STAFF_LAPIS:
+			return Rank.STAFF_DIAMOND;
+		case STAFF_DIAMOND:
+			return Rank.ADMIN;
+		case ADMIN:
+			return Rank.COUNCILLOR;
+		case COUNCILLOR:
+			return Rank.ELITE;
+		case ELITE:
+			return Rank.INVESTOR;
+		case INVESTOR:
+			return Rank.TYCOON;
+		case TYCOON:
+			return Rank.SERVER_HOST;
+		case SERVER_HOST:
+			return Rank.SERVER_HOST;
 		default:
 			break;
 		}
@@ -135,38 +135,38 @@ public enum Rank {
 	 */
 	public Rank getPreviousRank() {
 		switch (this) {
-		case Builder:
-			return Rank.Builder;
-		case AdvancedBuilder:
-			return Rank.Builder;
-		case Architect:
-			return Rank.AdvancedBuilder;
-		case Moderator:
-			return Rank.Architect;
-		case Police:
-			return Rank.Moderator;
-		case CopperStaff:
-			return Rank.Police;
-		case SilverStaff:
-			return Rank.CopperStaff;
-		case GoldStaff:
-			return Rank.SilverStaff;
-		case LapisStaff:
-			return Rank.GoldStaff;
-		case DiamondStaff:
-			return Rank.LapisStaff;
-		case Admin:
-			return Rank.DiamondStaff;
-		case Councillor:
-			return Rank.Admin;
-		case Elite:
-			return Rank.Councillor;
-		case Investor:
-			return Rank.Elite;
-		case Tycoon:
-			return Rank.Investor;
-		case ServerHost:
-			return Rank.Tycoon;
+		case BUILDER:
+			return Rank.BUILDER;
+		case ADVANCED_BUILDER:
+			return Rank.BUILDER;
+		case ARCHITECT:
+			return Rank.ADVANCED_BUILDER;
+		case MODERATOR:
+			return Rank.ARCHITECT;
+		case POLICE:
+			return Rank.MODERATOR;
+		case STAFF_COPPER:
+			return Rank.POLICE;
+		case STAFF_SILVER:
+			return Rank.STAFF_COPPER;
+		case STAFF_GOLD:
+			return Rank.STAFF_SILVER;
+		case STAFF_LAPIS:
+			return Rank.STAFF_GOLD;
+		case STAFF_DIAMOND:
+			return Rank.STAFF_LAPIS;
+		case ADMIN:
+			return Rank.STAFF_DIAMOND;
+		case COUNCILLOR:
+			return Rank.ADMIN;
+		case ELITE:
+			return Rank.COUNCILLOR;
+		case INVESTOR:
+			return Rank.ELITE;
+		case TYCOON:
+			return Rank.INVESTOR;
+		case SERVER_HOST:
+			return Rank.TYCOON;
 		default:
 			break;
 		}

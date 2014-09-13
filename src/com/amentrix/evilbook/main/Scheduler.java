@@ -41,7 +41,7 @@ public class Scheduler {
 						continue;
 					}
 					if (EvilBook.getProfile(p).rank.isAdmin()) {
-						if (EvilBook.getProfile(p).rank.isHigher(Rank.Investor)) {
+						if (EvilBook.getProfile(p).rank.isHigher(Rank.INVESTOR)) {
 							if (random >= 0 && random < 60) {
 								p.sendMessage("§dYou can always §l/donate §dto support the server");
 							} else if (random >= 60 && random < 80) {

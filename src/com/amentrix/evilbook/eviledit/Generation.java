@@ -323,7 +323,7 @@ public class Generation {
 	}
     
 	public static void createTree(Player player, String[] args) {
-		if (!EvilBook.isInSurvival(player) || EvilBook.getProfile(player).rank == Rank.ServerHost) {
+		if (!EvilBook.isInSurvival(player) || EvilBook.getProfile(player).rank == Rank.SERVER_HOST) {
 			if (args.length == 0) {
 				TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player, plugin);
 				player.getWorld().generateTree(player.getLocation(), TreeType.TREE, delegate);
