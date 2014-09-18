@@ -1044,7 +1044,7 @@ public class EvilBook extends JavaPlugin {
 						//
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to Admin rank");
 					} else {
-						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", "Admin");
+						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", "ADMIN");
 						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to Admin rank");
 					}
 					getServer().getOfflinePlayer(args[0]).setOp(true);
