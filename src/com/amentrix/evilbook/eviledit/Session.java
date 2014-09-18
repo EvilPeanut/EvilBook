@@ -38,187 +38,94 @@ public class Session implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
 		if (sender instanceof Player == false) return true;
 		Player player = (Player)sender;
-		//
-		// Region Commands
-		//
-		//TODO: Come on Reece... optimize this
 		if (command.getName().equalsIgnoreCase("move") || command.getName().equalsIgnoreCase("/move")) {	
 			Region.moveArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("thaw")) {	
+		} else if (command.getName().equalsIgnoreCase("thaw")) {	
 			Region.thawSnowArea(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("snow")) {	
+		} else if (command.getName().equalsIgnoreCase("snow")) {	
 			Region.overlaySnowArea(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("flip") || command.getName().equalsIgnoreCase("/flip")) {	
+		} else if (command.getName().equalsIgnoreCase("flip") || command.getName().equalsIgnoreCase("/flip")) {	
 			Region.flipArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("undo") || command.getName().equalsIgnoreCase("/undo")) {	
+		} else if (command.getName().equalsIgnoreCase("undo") || command.getName().equalsIgnoreCase("/undo")) {	
 			Region.undoEdit(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("fill") || command.getName().equalsIgnoreCase("/fill") || command.getName().equalsIgnoreCase("set") || command.getName().equalsIgnoreCase("/set")) {	
+		} else if (command.getName().equalsIgnoreCase("fill") || command.getName().equalsIgnoreCase("/fill") || command.getName().equalsIgnoreCase("set") || command.getName().equalsIgnoreCase("/set")) {	
 			Region.fillArea(plugin, player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("rfill")) {	
+		} else if (command.getName().equalsIgnoreCase("rfill")) {	
 			Region.randomFillArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("rreplace")) {	
+		} else if (command.getName().equalsIgnoreCase("rreplace")) {	
 			Region.randomReplaceArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("del")) {	
+		} else if (command.getName().equalsIgnoreCase("del")) {	
 			Region.deleteArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("delete")) {	
+		} else if (command.getName().equalsIgnoreCase("delete")) {	
 			Region.deleteArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("rdel")) {	
+		} else if (command.getName().equalsIgnoreCase("rdel")) {	
 			Region.randomDeleteArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("copy") || command.getName().equalsIgnoreCase("/copy")) {	
+		} else if (command.getName().equalsIgnoreCase("copy") || command.getName().equalsIgnoreCase("/copy")) {	
 			Region.copy(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("cut") || command.getName().equalsIgnoreCase("/cut")) {	
+		} else if (command.getName().equalsIgnoreCase("cut") || command.getName().equalsIgnoreCase("/cut")) {	
 			Region.cut(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("paste") || command.getName().equalsIgnoreCase("/paste")) {	
+		} else if (command.getName().equalsIgnoreCase("paste") || command.getName().equalsIgnoreCase("/paste")) {	
 			Region.paste(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("drain") || command.getName().equalsIgnoreCase("/drain")) {	
+		} else if (command.getName().equalsIgnoreCase("drain") || command.getName().equalsIgnoreCase("/drain")) {	
 			Region.drainArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("green") || command.getName().equalsIgnoreCase("/green")) {	
+		} else if (command.getName().equalsIgnoreCase("green") || command.getName().equalsIgnoreCase("/green")) {	
 			Region.greenArea(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("setbiome") || command.getName().equalsIgnoreCase("/setbiome")) {	
+		} else if (command.getName().equalsIgnoreCase("setbiome") || command.getName().equalsIgnoreCase("/setbiome")) {	
 			Region.setBiome(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("regen") || command.getName().equalsIgnoreCase("/regen")) {	
+		} else if (command.getName().equalsIgnoreCase("regen") || command.getName().equalsIgnoreCase("/regen")) {	
 			Region.regenerateChunk(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("hollow") || command.getName().equalsIgnoreCase("/hollow")) {	
+		} else if (command.getName().equalsIgnoreCase("hollow") || command.getName().equalsIgnoreCase("/hollow")) {	
 			Region.hollowArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("outline") || command.getName().equalsIgnoreCase("/outline")) {	
+		} else if (command.getName().equalsIgnoreCase("outline") || command.getName().equalsIgnoreCase("/outline")) {	
 			Region.outlineArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("walls") || command.getName().equalsIgnoreCase("/walls")) {	
+		} else if (command.getName().equalsIgnoreCase("walls") || command.getName().equalsIgnoreCase("/walls")) {	
 			Region.wallArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("overlay") || command.getName().equalsIgnoreCase("/overlay")) {	
+		} else if (command.getName().equalsIgnoreCase("overlay") || command.getName().equalsIgnoreCase("/overlay")) {	
 			Region.overlayArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("replace") || command.getName().equalsIgnoreCase("/replace")) {	
+		} else if (command.getName().equalsIgnoreCase("replace") || command.getName().equalsIgnoreCase("/replace")) {	
 			Region.replaceArea(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("count") || command.getName().equalsIgnoreCase("/count")) {	
+		} else if (command.getName().equalsIgnoreCase("count") || command.getName().equalsIgnoreCase("/count")) {	
 			Region.count(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("size") || command.getName().equalsIgnoreCase("/size")) {	
+		} else if (command.getName().equalsIgnoreCase("size") || command.getName().equalsIgnoreCase("/size")) {	
 			Region.size(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("desel") || command.getName().equalsIgnoreCase("/desel")) {	
+		} else if (command.getName().equalsIgnoreCase("desel") || command.getName().equalsIgnoreCase("/desel")) {	
 			Region.deselectEditLocations(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("wand") || command.getName().equalsIgnoreCase("/wand")) {	
+		} else if (command.getName().equalsIgnoreCase("wand") || command.getName().equalsIgnoreCase("/wand")) {	
 			Region.spawnEditWand(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("toggleeditwand")) {	
+		} else if (command.getName().equalsIgnoreCase("toggleeditwand")) {	
 			Region.toggleEditWand(player);
-			return true;
-		}
-		//
-		// Movement Commands
-		//
-		if (command.getName().equalsIgnoreCase("ceil")) {
+		} else if (command.getName().equalsIgnoreCase("ceil")) {
 			Movement.ascendPlayerToCeiling(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("descend")) {	
+		} else if (command.getName().equalsIgnoreCase("descend")) {	
 			Movement.descendPlayer(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("ascend")) {	
+		} else if (command.getName().equalsIgnoreCase("ascend")) {	
 			Movement.ascendPlayer(player, true);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("thru")) {	
+		} else if (command.getName().equalsIgnoreCase("thru")) {	
 			Movement.passPlayerThroughOpposingWall(player);
-			return true;
-		}
-		//
-		// Generation Commands
-		//
-		if (command.getName().equalsIgnoreCase("pumpkins")) {	
+		} else if (command.getName().equalsIgnoreCase("pumpkins")) {	
 			Generation.createPumpkinForest(player);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("forest") || command.getName().equalsIgnoreCase("forestgen")) {	
+		} else if (command.getName().equalsIgnoreCase("forest") || command.getName().equalsIgnoreCase("forestgen")) {	
 			Generation.createForest(player, args);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("pyramid") || command.getName().equalsIgnoreCase("/pyramid")) {	
+		} else if (command.getName().equalsIgnoreCase("pyramid") || command.getName().equalsIgnoreCase("/pyramid")) {	
 			Generation.createPyramid(player, args, false);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("hpyramid") || command.getName().equalsIgnoreCase("/hpyramid")) {	
+		} else if (command.getName().equalsIgnoreCase("hpyramid") || command.getName().equalsIgnoreCase("/hpyramid")) {	
 			Generation.createPyramid(player, args, true);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("cylinder") || command.getName().equalsIgnoreCase("cyl") ||
+		} else if (command.getName().equalsIgnoreCase("cylinder") || command.getName().equalsIgnoreCase("cyl") ||
 				command.getName().equalsIgnoreCase("/cylinder") || command.getName().equalsIgnoreCase("/cyl")) {	
 			Generation.createCylinder(player, args, false);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("hcylinder") || command.getName().equalsIgnoreCase("hcyl") ||
+		} else if (command.getName().equalsIgnoreCase("hcylinder") || command.getName().equalsIgnoreCase("hcyl") ||
 				command.getName().equalsIgnoreCase("/hcylinder") || command.getName().equalsIgnoreCase("/hcyl")) {	
 			Generation.createCylinder(player, args, true);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("esphere") || command.getName().equalsIgnoreCase("/esphere")) {	
+		} else if (command.getName().equalsIgnoreCase("esphere") || command.getName().equalsIgnoreCase("/esphere")) {	
 			Generation.createSphere(player, args, true, true);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("sphere") || command.getName().equalsIgnoreCase("/sphere")) {	
+		} else if (command.getName().equalsIgnoreCase("sphere") || command.getName().equalsIgnoreCase("/sphere")) {	
 			Generation.createSphere(player, args, false, false);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("hsphere") || command.getName().equalsIgnoreCase("/hsphere")) {	
+		} else if (command.getName().equalsIgnoreCase("hsphere") || command.getName().equalsIgnoreCase("/hsphere")) {	
 			Generation.createSphere(player, args, true, false);
-			return true;
-		}
-		if (command.getName().equalsIgnoreCase("tree")) {
+		} else if (command.getName().equalsIgnoreCase("tree")) {
 			Generation.createTree(player, args);
-			return true;
 		}
-		return false;
+		return true;
 	}
 
 	/**
