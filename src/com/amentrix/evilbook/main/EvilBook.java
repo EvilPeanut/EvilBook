@@ -299,6 +299,8 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("//regen", Rank.COUNCILLOR);
 		commandBlacklist.put("/copy", Rank.COUNCILLOR);
 		commandBlacklist.put("//copy", Rank.COUNCILLOR);
+		commandBlacklist.put("/cut", Rank.COUNCILLOR);
+		commandBlacklist.put("//cut", Rank.COUNCILLOR);
 		commandBlacklist.put("/paste", Rank.COUNCILLOR);
 		commandBlacklist.put("//paste", Rank.COUNCILLOR);
 		//
@@ -669,6 +671,7 @@ public class EvilBook extends JavaPlugin {
 		getCommand("delete").setExecutor(this.editSession);
 		getCommand("rdel").setExecutor(this.editSession);
 		getCommand("copy").setExecutor(this.editSession);
+		getCommand("cut").setExecutor(this.editSession);
 		getCommand("paste").setExecutor(this.editSession);
 		getCommand("drain").setExecutor(this.editSession);
 		getCommand("green").setExecutor(this.editSession);
@@ -680,6 +683,7 @@ public class EvilBook extends JavaPlugin {
 		getCommand("hollow").setExecutor(this.editSession);
 		getCommand("replace").setExecutor(this.editSession);
 		getCommand("/copy").setExecutor(this.editSession);
+		getCommand("/cut").setExecutor(this.editSession);
 		getCommand("/paste").setExecutor(this.editSession);
 		getCommand("/drain").setExecutor(this.editSession);
 		getCommand("/green").setExecutor(this.editSession);

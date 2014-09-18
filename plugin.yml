@@ -1,8 +1,14 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 6.1.0-Alpha-5
+version: 6.1.0-Alpha-6
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  cut:
+    description: Cut a selection of blocks into the clipboard
+    usage: /<command> [count] [axis]
+  /cut:
+    description: Cut a selection of blocks into the clipboard
+    usage: /<command> [count] [axis]
   move:
     description: Move a selection of blocks
     usage: /<command> [count] [axis]

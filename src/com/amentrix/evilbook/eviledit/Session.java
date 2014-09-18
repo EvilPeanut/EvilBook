@@ -41,6 +41,7 @@ public class Session implements CommandExecutor {
 		//
 		// Region Commands
 		//
+		//TODO: Come on Reece... optimize this
 		if (command.getName().equalsIgnoreCase("move") || command.getName().equalsIgnoreCase("/move")) {	
 			Region.moveArea(player, args);
 			return true;
@@ -87,6 +88,10 @@ public class Session implements CommandExecutor {
 		}
 		if (command.getName().equalsIgnoreCase("copy") || command.getName().equalsIgnoreCase("/copy")) {	
 			Region.copy(player, args);
+			return true;
+		}
+		if (command.getName().equalsIgnoreCase("cut") || command.getName().equalsIgnoreCase("/cut")) {	
+			Region.cut(player, args);
 			return true;
 		}
 		if (command.getName().equalsIgnoreCase("paste") || command.getName().equalsIgnoreCase("/paste")) {	

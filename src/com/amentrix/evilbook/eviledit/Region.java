@@ -292,6 +292,50 @@ public class Region {
 			player.sendMessage("§7Selection of " + selection.getVolume() + " blocks copied");
 		}
 	}
+	
+	public static void cut(Player player, String[] args) {
+		Selection selection = new Selection(player);
+		if (args.length != 0) {
+			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§d/cut");
+		} else if (selection.isValid()) {
+			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearCopy();
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				{
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+					{
+						// Append the block to the copy list
+						((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendCopy(selection.getBlock(x, y, z).getState());
+						// Dynamic signs
+						for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
+							if (dynamicSign.location.getWorld().getName().equals(selection.getWorld().getName()) && 
+									dynamicSign.location.getBlockX() == x &&
+									dynamicSign.location.getBlockY() == y &&
+									dynamicSign.location.getBlockZ() == z) {
+								((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList.add(dynamicSign);
+							}
+						}
+						// Emitters
+						for (Emitter emitter : EvilBook.emitterList) {
+							if (emitter.location.getWorld().getName().equals(selection.getWorld().getName()) && 
+									emitter.location.getBlockX() == x &&
+									emitter.location.getBlockY() == y &&
+									emitter.location.getBlockZ() == z) {
+								((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList.add(emitter);
+							}
+						}
+						// Delete the old block
+						engine.setBlock(x, y, z, Material.AIR.getId(), (byte) 0);
+					}
+				}
+			}
+			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			player.sendMessage("§7Selection of " + selection.getVolume() + " blocks cut");
+		}
+	}
 
 	public static void randomDeleteArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
