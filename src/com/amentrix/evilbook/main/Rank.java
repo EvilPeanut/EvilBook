@@ -172,4 +172,13 @@ public enum Rank {
 		}
 		return this;
 	}
+	
+	public static boolean contains(String test) {
+	    for (Rank rank : Rank.values()) {
+	        if (rank.name().equals(test)) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 }

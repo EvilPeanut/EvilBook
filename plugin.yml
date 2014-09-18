@@ -503,7 +503,7 @@ commands:
     usage: /<command>
   promote:
     description: Promote a player
-    usage: /<command> [player]
+    usage: /<command> [player] <rank>
   demote:
     description: Demote a player
     usage: /<command> [player]

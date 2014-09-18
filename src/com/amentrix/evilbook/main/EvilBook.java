@@ -1160,9 +1160,54 @@ public class EvilBook extends JavaPlugin {
 				} else {
 					sender.sendMessage("§7You can't promote a player who doesn't exist");
 				}
+			} else if (args.length == 2) {
+				if (isProfileExistant(args[0])) {
+					if (Rank.contains(args[1].toUpperCase())) {
+						Rank rank = Rank.valueOf(args[1].toUpperCase());
+						if (getPlayer(args[0]) != null) {
+							if (sender instanceof Player && rank.isHigher(Rank.MODERATOR) && !getProfile(sender).rank.isHigher(Rank.ELITE)) {
+								sender.sendMessage("§7You can't promote a player to above moderator");
+							} else if (sender instanceof Player && rank.isHigher(Rank.POLICE) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+								sender.sendMessage("§7You can't promote a player to above police");
+							} else {
+								getProfile(args[0]).rank = rank;
+								if (rank.isHigher(Rank.POLICE) && !getServer().getOfflinePlayer(args[0]).isOp()) {
+									getServer().getOfflinePlayer(args[0]).setOp(true);
+								} else if (rank.isHigher(Rank.STAFF_DIAMOND) && getProfile(args[0]) instanceof PlayerProfileNormal) {
+									// Player profile type conversion
+									getProfile(args[0]).saveProfile();
+									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
+									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
+									//
+								}
+								// Set nametag color
+								NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+								//
+								getProfile(args[0]).updatePlayerListName();
+								broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + rank.getName() + " rank");
+							}
+						} else {
+							if (sender instanceof Player && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You can't promote offline players");
+								return true;
+							}
+							if (rank.isHigher(Rank.POLICE) && !getServer().getOfflinePlayer(args[0]).isOp()) getServer().getOfflinePlayer(args[0]).setOp(true);
+							SQL.setProperty(TableType.PlayerProfile, args[0], "rank", rank.name());
+							broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
+						}
+					} else {
+						sender.sendMessage("§5This rank doesn't exist");
+						String rankNames = "";
+						for (Rank rank : Rank.values()) rankNames += rank.name().toLowerCase() + " ";
+						sender.sendMessage("§dRanks: ");
+						sender.sendMessage(ChatColor.LIGHT_PURPLE + rankNames);
+					}
+				} else {
+					sender.sendMessage("§7You can't promote a player who doesn't exist");
+				}
 			} else {
 				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/promote [player]");
+				sender.sendMessage("§d/promote [player] <rank>");
 			}
 			return true;
 		}
