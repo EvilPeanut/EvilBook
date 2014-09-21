@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -1119,99 +1120,6 @@ public class EvilBook extends JavaPlugin {
 			return true;
 		}
 		//
-		// Promote Command
-		//
-		if (command.getName().equalsIgnoreCase("promote")) {
-			if (args.length == 1) {
-				if (isProfileExistant(args[0])) {
-					if (getPlayer(args[0]) != null) {
-						if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.MODERATOR) && !getProfile(sender).rank.isHigher(Rank.ELITE)) {
-							sender.sendMessage("§7You can't promote a player to above moderator");
-						} else if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.POLICE) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
-							sender.sendMessage("§7You can't promote a player to above police");
-						} else {
-							getProfile(args[0]).rank = getProfile(args[0]).rank.getNextRank();
-							if (getProfile(args[0]).rank.equals(Rank.STAFF_COPPER)) {
-								getServer().getOfflinePlayer(args[0]).setOp(true);
-							} else if (getProfile(args[0]).rank.equals(Rank.ADMIN)) {
-								// Player profile type conversion
-								if (getProfile(args[0]) instanceof PlayerProfileNormal) {
-									getProfile(args[0]).saveProfile();
-									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
-								}
-								//
-							}
-							// Set nametag color
-							NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
-							//
-							getProfile(args[0]).updatePlayerListName();
-							broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + getProfile(args[0]).rank.getName() + " rank");
-						}
-					} else {
-						if (sender instanceof Player && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-							sender.sendMessage("§7You can't promote offline players");
-							return true;
-						}
-						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().equals(Rank.STAFF_COPPER)) getServer().getOfflinePlayer(args[0]).setOp(true);
-						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().toString());
-						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
-					}
-				} else {
-					sender.sendMessage("§7You can't promote a player who doesn't exist");
-				}
-			} else if (args.length == 2) {
-				if (isProfileExistant(args[0])) {
-					if (Rank.contains(args[1].toUpperCase())) {
-						Rank rank = Rank.valueOf(args[1].toUpperCase());
-						if (getPlayer(args[0]) != null) {
-							if (sender instanceof Player && rank.isHigher(Rank.MODERATOR) && !getProfile(sender).rank.isHigher(Rank.ELITE)) {
-								sender.sendMessage("§7You can't promote a player to above moderator");
-							} else if (sender instanceof Player && rank.isHigher(Rank.POLICE) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
-								sender.sendMessage("§7You can't promote a player to above police");
-							} else {
-								getProfile(args[0]).rank = rank;
-								if (rank.isHigher(Rank.POLICE) && !getServer().getOfflinePlayer(args[0]).isOp()) {
-									getServer().getOfflinePlayer(args[0]).setOp(true);
-								} else if (rank.isHigher(Rank.STAFF_DIAMOND) && getProfile(args[0]) instanceof PlayerProfileNormal) {
-									// Player profile type conversion
-									getProfile(args[0]).saveProfile();
-									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
-									//
-								}
-								// Set nametag color
-								NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
-								//
-								getProfile(args[0]).updatePlayerListName();
-								broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + rank.getName() + " rank");
-							}
-						} else {
-							if (sender instanceof Player && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-								sender.sendMessage("§7You can't promote offline players");
-								return true;
-							}
-							if (rank.isHigher(Rank.POLICE) && !getServer().getOfflinePlayer(args[0]).isOp()) getServer().getOfflinePlayer(args[0]).setOp(true);
-							SQL.setProperty(TableType.PlayerProfile, args[0], "rank", rank.name());
-							broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
-						}
-					} else {
-						sender.sendMessage("§5This rank doesn't exist");
-						String rankNames = "";
-						for (Rank rank : Rank.values()) rankNames += rank.name().toLowerCase() + " ";
-						sender.sendMessage("§dRanks: ");
-						sender.sendMessage(ChatColor.LIGHT_PURPLE + rankNames);
-					}
-				} else {
-					sender.sendMessage("§7You can't promote a player who doesn't exist");
-				}
-			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/promote [player] <rank>");
-			}
-			return true;
-		}
-		//
 		// Rules Command
 		//
 		if (command.getName().equalsIgnoreCase("rules")) {
@@ -1303,6 +1211,100 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("  §d&d Light Purple");
 				sender.sendMessage("  §e&e Yellow");
 				sender.sendMessage("  §f&f White");
+			}
+			return true;
+		}
+		//
+		// Promote Command
+		//
+		if (command.getName().equalsIgnoreCase("promote")) {
+			if (args.length == 1) {
+				if (isProfileExistant(args[0])) {
+					if (getPlayer(args[0]) != null) {
+						if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.MODERATOR) && !getProfile(sender).rank.isHigher(Rank.ELITE)) {
+							sender.sendMessage("§7You can't promote a player to above moderator");
+						} else if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.POLICE) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+							sender.sendMessage("§7You can't promote a player to above police");
+						} else {
+							//getServer().getPlayer(args[0]).getInventory().addItem(Rank.getUnlocksBook(getProfile(args[0]).rank, getProfile(args[0]).rank.getNextRank()));
+							getProfile(args[0]).rank = getProfile(args[0]).rank.getNextRank();
+							if (getProfile(args[0]).rank.equals(Rank.STAFF_COPPER)) {
+								getServer().getOfflinePlayer(args[0]).setOp(true);
+							} else if (getProfile(args[0]).rank.equals(Rank.ADMIN)) {
+								// Player profile type conversion
+								if (getProfile(args[0]) instanceof PlayerProfileNormal) {
+									getProfile(args[0]).saveProfile();
+									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
+									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
+								}
+								//
+							}
+							// Set nametag color
+							NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+							//
+							getProfile(args[0]).updatePlayerListName();
+							broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + getProfile(args[0]).rank.getName() + " rank");
+						}
+					} else {
+						if (sender instanceof Player && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+							sender.sendMessage("§7You can't promote offline players");
+							return true;
+						}
+						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().equals(Rank.STAFF_COPPER)) getServer().getOfflinePlayer(args[0]).setOp(true);
+						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().toString());
+						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
+					}
+				} else {
+					sender.sendMessage("§7You can't promote a player who doesn't exist");
+				}
+			} else if (args.length == 2) {
+				if (isProfileExistant(args[0])) {
+					if (Rank.contains(args[1].toUpperCase())) {
+						Rank rank = Rank.valueOf(args[1].toUpperCase());
+						if (getPlayer(args[0]) != null) {
+							if (sender instanceof Player && rank.isHigher(Rank.MODERATOR) && !getProfile(sender).rank.isHigher(Rank.ELITE)) {
+								sender.sendMessage("§7You can't promote a player to above moderator");
+							} else if (sender instanceof Player && rank.isHigher(Rank.POLICE) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+								sender.sendMessage("§7You can't promote a player to above police");
+							} else {
+								getProfile(args[0]).rank = rank;
+								if (rank.isHigher(Rank.POLICE) && !getServer().getOfflinePlayer(args[0]).isOp()) {
+									getServer().getOfflinePlayer(args[0]).setOp(true);
+								} else if (rank.isHigher(Rank.STAFF_DIAMOND) && getProfile(args[0]) instanceof PlayerProfileNormal) {
+									// Player profile type conversion
+									getProfile(args[0]).saveProfile();
+									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
+									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
+									//
+								}
+								// Set nametag color
+								NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+								//
+								getProfile(args[0]).updatePlayerListName();
+								broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + rank.getName() + " rank");
+							}
+						} else {
+							if (sender instanceof Player && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You can't promote offline players");
+								return true;
+							}
+							if (rank.isHigher(Rank.POLICE) && !getServer().getOfflinePlayer(args[0]).isOp()) getServer().getOfflinePlayer(args[0]).setOp(true);
+							SQL.setProperty(TableType.PlayerProfile, args[0], "rank", rank.name());
+							broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
+						}
+					} else {
+						sender.sendMessage("§5This rank doesn't exist");
+						String rankNames = "";
+						for (Rank rank : Rank.values()) rankNames += rank.name().toLowerCase() + " ";
+						sender.sendMessage("§dRanks: ");
+						sender.sendMessage(ChatColor.LIGHT_PURPLE + rankNames);
+					}
+				} else {
+					sender.sendMessage("§7You can't promote a player who doesn't exist");
+				}
+			} else {
+				sender.sendMessage("§5Incorrect command usage");
+				sender.sendMessage("§d/promote [player] <rank>");
 			}
 			return true;
 		}
@@ -2499,13 +2501,18 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("region")) {
 			if (args.length >= 1) {
 				if (args[0].equalsIgnoreCase("scan")) {
+					List<String> regionsFoundList = new ArrayList<>();
 					for (Region region : regionList) {
 						if (isInRegionXRange(region, player.getLocation()) && isInRegionYRange(region, player.getLocation()) && isInRegionZRange(region, player.getLocation())) {
-							sender.sendMessage("§7You are in the " + region.getRegionName() + " region owned by " + region.getOwner());
-							return true;
+							regionsFoundList.add(ChatColor.LIGHT_PURPLE + region.getRegionName() + " region owned by " + region.getOwner());
 						}
 					}
-					sender.sendMessage("§7Your not in any regions");
+					if (regionsFoundList.size() != 0) {
+						sender.sendMessage("§5You are in " + regionsFoundList.size() + (regionsFoundList.size() == 1 ? " region" : " regions"));
+						for (String name : regionsFoundList) sender.sendMessage(name);
+					} else {
+						sender.sendMessage("§7Your not in any regions");
+					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("create")) {
 					if (args.length == 2) {
@@ -3005,6 +3012,31 @@ public class EvilBook extends JavaPlugin {
 									}
 								} else {
 									sender.sendMessage("§7Please enter a valid number of creatures to spawn");
+								}
+							} else if (args.length == 3) {
+								if (args[2].equalsIgnoreCase("boom")) {
+									if (isInteger(args[1])) {
+										if (player.getNearbyEntities(64, 64, 64).size() + Integer.parseInt(args[1]) >= 400) {
+											sender.sendMessage("§7Nearby entity limit reached");
+										} else {
+											int amount = Integer.parseInt(args[1]);
+											final List<Entity> explosiveEntityList = new ArrayList<>();
+											for (int i = 0; i < amount; i++) explosiveEntityList.add(player.getWorld().spawnEntity(player.getLocation(), entityType));
+											sender.sendMessage("§7Spawned " + args[1] + " " + args[0].toLowerCase(Locale.UK) + "'s");
+											alert(sender.getName() + " spawned " + args[1] + " " + args[0].toLowerCase(Locale.UK) + "'s");
+											for (final Entity entity : explosiveEntityList) {
+												this.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+													@Override
+													public void run() {
+														entity.getLocation().getWorld().playEffect(entity.getLocation(), Effect.EXPLOSION_HUGE, 0);
+														entity.remove();
+													}
+												}, 80 + ((long)(new Random().nextDouble()*120)));
+											}
+										}
+									} else {
+										sender.sendMessage("§7Please enter a valid number of creatures to spawn");
+									}
 								}
 							}
 						} else {
