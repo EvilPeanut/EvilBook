@@ -36,6 +36,7 @@ import org.bukkit.entity.Slime;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Wither;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
@@ -418,8 +419,8 @@ public class EventListenerPlayer implements Listener {
 				event.getRightClicked().getType() != EntityType.MINECART_HOPPER && event.getRightClicked().getType() != EntityType.MINECART_MOB_SPAWNER && 
 				event.getRightClicked().getType() != EntityType.MINECART_TNT && event.getRightClicked().getType() != EntityType.ITEM_FRAME && 
 				event.getRightClicked().getType() != EntityType.FALLING_BLOCK && event.getRightClicked().getType() != EntityType.PRIMED_TNT &&
-				event.getRightClicked().getType() != EntityType.PLAYER && event.getRightClicked().getType() != EntityType.WOLF &&
-				event.getRightClicked().getType() != EntityType.PAINTING &&
+				event.getRightClicked().getType() != EntityType.PLAYER && event.getRightClicked().getType() != EntityType.PAINTING && 
+				event.getRightClicked().getType() != EntityType.VILLAGER && event.getRightClicked() instanceof Tameable == false &&
 				event.getRightClicked().getPassenger() == null && event.getRightClicked() != event.getPlayer().getPassenger() &&
 				(event.getRightClicked().getType() != EntityType.SHEEP || event.getPlayer().getItemInHand().getType() != Material.INK_SACK)) {
 			event.getRightClicked().setPassenger(event.getPlayer());
