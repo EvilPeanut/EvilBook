@@ -1,8 +1,11 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 6.1.0-Alpha-6
+version: 6.1.0-Alpha-7
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  drug:
+    description: Spawns a drug
+    usage: /<command> [drug]
   cut:
     description: Cut a selection of blocks into the clipboard
     usage: /<command> [count] [axis]

@@ -1,9 +1,11 @@
 package com.amentrix.evilbook.listeners;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
 import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -22,6 +24,8 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
@@ -38,6 +42,40 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityDeath(EntityDeathEvent event) {
+		//
+		// Rare mob drops
+		//
+		if (EvilBook.isInSurvival(event.getEntity())) {
+			Random rand = new Random();
+		    int randomNum = rand.nextInt(1000);
+			if (randomNum >= 0 && randomNum <= 5) {
+				event.getDrops().add(new ItemStack(Material.DIAMOND_SWORD));
+			} else if (randomNum >= 6 && randomNum <= 15) {
+				ItemStack cocain = new ItemStack(Material.SUGAR);
+				ItemMeta meta = cocain.getItemMeta();
+				meta.setDisplayName("Cocain");
+				meta.setLore(Arrays.asList("Ruff stuff"));
+				cocain.setItemMeta(meta);
+				event.getDrops().add(cocain);
+			} else if (randomNum >= 16 && randomNum <= 20) {
+				ItemStack shrooms = new ItemStack(Material.RED_MUSHROOM);
+				ItemMeta meta = shrooms.getItemMeta();
+				meta.setDisplayName("Hallucinogenic Mushroom");
+				meta.setLore(Arrays.asList("Shroooms!"));
+				shrooms.setItemMeta(meta);
+				event.getDrops().add(shrooms);
+			} else if (randomNum >= 21 && randomNum <= 50) {
+				ItemStack alcohol = new ItemStack(Material.POTION);
+				ItemMeta meta = alcohol.getItemMeta();
+				meta.setDisplayName("Alcohol");
+				meta.setLore(Arrays.asList("Hick!"));
+				alcohol.setItemMeta(meta);
+				event.getDrops().add(alcohol);
+			}
+		}
+		//
+		// Statistics
+		//
 		if (event.getEntity().getKiller() != null) {
 			Player player = event.getEntity().getKiller();
 			if (!EvilBook.isInSurvival(player)) return;

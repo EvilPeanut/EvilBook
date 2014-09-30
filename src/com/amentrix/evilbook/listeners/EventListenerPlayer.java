@@ -3,12 +3,15 @@ package com.amentrix.evilbook.listeners;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Random;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Effect;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.block.Block;
@@ -73,6 +76,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
@@ -156,6 +160,12 @@ public class EventListenerPlayer implements Listener {
 			event.getPlayer().teleport(event.getTo().add(event.getTo().getBlockX() > 12550820 ? -2 : event.getTo().getBlockX() < -12550820 ? 2 : 0, 0, event.getTo().getBlockZ() > 12550820 ? -2 : event.getTo().getBlockZ() < -12550820 ? 2 : 0));
 			event.setCancelled(true);
 		} else {
+			// Drugcraft
+			if (EvilBook.getProfile(event.getPlayer()).isDrunk) {
+				Vector velocity = event.getPlayer().getVelocity();
+				event.getPlayer().setVelocity(new Vector(velocity.getX() + (1 - new Random().nextInt(2)), velocity.getY(), velocity.getZ() + (1 - new Random().nextInt(2))));
+			}
+			//
 			if (!EvilBook.isInSurvival(event.getPlayer())) {
 				if (EvilBook.getProfile(event.getPlayer()).jumpAmplifier != 0 && !event.getPlayer().isFlying() && event.getFrom().getY() < event.getTo().getY() && event.getPlayer().getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) event.getPlayer().setVelocity(event.getPlayer().getVelocity().setY(EvilBook.getProfile(event.getPlayer()).jumpAmplifier));
 				if (EvilBook.getProfile(event.getPlayer()).runAmplifier != 0 && event.getPlayer().isSprinting()) event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, EvilBook.getProfile(event.getPlayer()).runAmplifier), true);
@@ -393,9 +403,24 @@ public class EventListenerPlayer implements Listener {
 			EvilBook.getProfile(event.getPlayer()).updatePlayerListName();
 		}
 		event.setCancelled(true);
+		String message = event.getMessage();
+		if (EvilBook.getProfile(player).isDrunk) {
+			if (new Random().nextBoolean()) message += " hick!";
+			String[] drunkMessage = message.split(" ");
+			for (int i = 0; i != drunkMessage.length; i++) {
+				if (new Random().nextInt(4) == 1) {
+					int word = new Random().nextInt(4);
+					if (word == 0) drunkMessage[i] = "bitch";
+					else if (word == 1) drunkMessage[i] = "crap";
+					else if (word == 2) drunkMessage[i] = "ughhh";
+					else drunkMessage[i] = "*PUKES*";
+				}
+			}
+			message = StringUtils.join(drunkMessage, " ");
+		}
 		EvilBook.broadcastPlayerMessage(player.getName(), EvilBook.getProfile(player).rank.getPrefix(EvilBook.getProfile(player)) + " §" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
 				+ "<§f" + player.getDisplayName() + "§" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
-				+ "> §f" + EvilBook.toFormattedString(event.getMessage()));
+				+ "> §f" + EvilBook.toFormattedString(message));
 		// Statistics
 		GlobalStatistics.incrementStatistic(GlobalStatistic.MessagesSent, 1);
 	}
@@ -432,8 +457,46 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		Player player = event.getPlayer();
+		final Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
+		//
+		// Drugcraft
+		//
+		if (event.hasItem()) {
+			if (player.getItemInHand().getItemMeta().getLore() != null && player.getItemInHand().getItemMeta().getLore().size() == 1) {
+				if (player.getItemInHand().getItemMeta().getLore().get(0).equals("Ruff stuff")) { //Cocain
+					player.setItemInHand(null);
+					EvilBook.broadcastPlayerMessage(player.getName(), player.getDisplayName() + ChatColor.GRAY + " sniffed cocain");
+					for (int blocks = 0; blocks != 1200; blocks++) {
+						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("EvilBook"), new Runnable() {
+							@Override
+							public void run() {
+								int x = player.getLocation().getBlockX() + (10 - new Random().nextInt(20));
+								int z = player.getLocation().getBlockZ() + (10 - new Random().nextInt(20));
+								player.sendBlockChange(new Location(player.getWorld(), x, player.getWorld().getHighestBlockYAt(x, z) - 1, z), Material.WOOL, (byte)new Random().nextInt(15));
+							}
+						}, blocks);
+					}
+				} else if (player.getItemInHand().getItemMeta().getLore().get(0).equals("Shroooms!")) { //Shrooms
+					player.setItemInHand(null);
+					EvilBook.broadcastPlayerMessage(player.getName(), player.getDisplayName() + ChatColor.GRAY + " is tripping on shrooms");
+					player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 1200, 1));
+				} else if (player.getItemInHand().getItemMeta().getLore().get(0).equals("Hick!")) { //Alcohol
+					player.setItemInHand(null);
+					EvilBook.broadcastPlayerMessage(player.getName(), player.getDisplayName() + ChatColor.GRAY + " is drunk");
+					EvilBook.getProfile(player).isDrunk = true;
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("EvilBook"), new Runnable() {
+						@Override
+						public void run() {
+							EvilBook.getProfile(player).isDrunk = false;
+						}
+					}, 1200L);
+				}
+			}
+		}
+		//
+		//
+		//
 		if (!EvilBook.getProfile(player).isCanEditWorld(player.getWorld())) {
 			event.setCancelled(true);
 			return;

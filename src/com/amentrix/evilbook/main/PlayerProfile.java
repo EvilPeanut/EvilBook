@@ -26,7 +26,7 @@ import com.amentrix.evilbook.sql.TableType;
 public abstract class PlayerProfile {
 	public String name, nameTitle, lastMessage, teleportantName, lastMsgPlayer;
 	public List<String> warps = new ArrayList<>(), mutedPlayers = new ArrayList<>();
-	public Boolean isAway = false, isInvisible = false;
+	public Boolean isAway = false, isInvisible = false, isDrunk = false;
 	public List<Achievement> achievements = new ArrayList<>();
 	public long lastMessageTime = 0, lastActionTime = 0;
 	public double jumpAmplifier = 0, flyAmplifier = 0.1, walkAmplifier = 0.2;

@@ -288,6 +288,7 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/gamerule", Rank.SERVER_HOST);
 		commandBlacklist.put("/deop", Rank.SERVER_HOST);
 		commandBlacklist.put("/demote", Rank.SERVER_HOST);
+		commandBlacklist.put("/drug", Rank.SERVER_HOST);
 		//
 		commandBlacklist.put("/hyperhorse", Rank.TYCOON);
 		//
@@ -1320,6 +1321,43 @@ public class EvilBook extends JavaPlugin {
 		}
 		Player player = (Player)sender;
 		//
+		// Drug Command
+		//
+		if (command.getName().equalsIgnoreCase("drug")) {
+			if (args.length == 1) {
+				if (args[0].equalsIgnoreCase("cocain")) {
+					ItemStack cocain = new ItemStack(Material.SUGAR);
+					ItemMeta meta = cocain.getItemMeta();
+					meta.setDisplayName("Cocain");
+					meta.setLore(Arrays.asList("Ruff stuff"));
+					cocain.setItemMeta(meta);
+					player.getInventory().addItem(cocain);
+				} else if (args[0].equalsIgnoreCase("shrooms")) {
+					ItemStack shrooms = new ItemStack(Material.RED_MUSHROOM);
+					ItemMeta meta = shrooms.getItemMeta();
+					meta.setDisplayName("Hallucinogenic Mushroom");
+					meta.setLore(Arrays.asList("Shroooms!"));
+					shrooms.setItemMeta(meta);
+					player.getInventory().addItem(shrooms);
+				} else if (args[0].equalsIgnoreCase("alcohol")) {
+					ItemStack alcohol = new ItemStack(Material.POTION);
+					ItemMeta meta = alcohol.getItemMeta();
+					meta.setDisplayName("Alcohol");
+					meta.setLore(Arrays.asList("Hick!"));
+					alcohol.setItemMeta(meta);
+					player.getInventory().addItem(alcohol);
+				} else {
+					sender.sendMessage("§7This drug doesn't exist");
+				}
+			} else {
+				sender.sendMessage("§5Incorrect command usage");
+				sender.sendMessage("§d/drug cocain");
+				sender.sendMessage("§d/drug shrooms");
+				sender.sendMessage("§d/drug alcohol");
+			}
+			return true;
+		}
+		//
 		// Statistics Command
 		//
 		if (command.getName().equalsIgnoreCase("statistics") || command.getName().equalsIgnoreCase("stats")) {
@@ -1594,7 +1632,7 @@ public class EvilBook extends JavaPlugin {
 				for (Player p : getServer().getOnlinePlayers()) {
 					if (getProfile(p) != getProfile(args[0])) {
 						p.sendMessage(getProfile(args[0]).rank.getPrefix(getProfile(args[0])) + " §" + getProfile(args[0]).rank.getColor(getProfile(args[0])) 
-								+ "<" + getPlayer(args[0]).getDisplayName() + "§" + getProfile(args[0]).rank.getColor(getProfile(args[0])) 
+								+ "<§f" + getPlayer(args[0]).getDisplayName() + "§" + getProfile(args[0]).rank.getColor(getProfile(args[0])) 
 								+ ">§f" + toFormattedString(broadcast.toString()));
 					}
 				}
