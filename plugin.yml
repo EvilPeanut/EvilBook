@@ -1,6 +1,6 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 6.1.0-Alpha-7
+version: 6.1.0-Alpha-8
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
   drug:
