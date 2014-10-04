@@ -113,27 +113,7 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 	
 	@Override
 	public boolean setBlock(Location loc, int block, int data) {
-		// Position validation
-		if (loc.getBlockY() < 0 || loc.getBlockY() >= world.getMaxHeight()) return false;
-		//
-		BlockState oldBlockState = loc.getBlock().getState();
-		// Clipboard
-		if (!silent) ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendUndo(oldBlockState);
-		// Set the block to its new state
-		minX = Math.min(minX, loc.getBlockX());
-		minZ = Math.min(minZ, loc.getBlockZ());
-		maxX = Math.max(maxX, loc.getBlockX());
-		maxZ = Math.max(maxZ, loc.getBlockZ());
-		blocksModified++;
-		int oldBlockId = oldBlockState.getTypeId();
-		boolean res = nms.setBlockFast(world, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), block, (byte)data);
-		if (nms.getBlockLightBlocking(oldBlockId) != nms.getBlockLightBlocking(block) || nms.getBlockLightEmission(oldBlockId) != nms.getBlockLightEmission(block)) {
-			deferredBlocks.add(new DeferredBlock(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
-		}
-		// Logging
-		EvilBook.lbConsumer.queueBlockReplace(player.getName(), oldBlockState, new Location(world, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()).getBlock().getState());
-		// Return if it was set
-		return res;
+		return setBlock(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), block, data);
 	}
 
 	@Override
