@@ -117,6 +117,12 @@ public class EventListenerBlock implements Listener {
 					default: break;
 					}
 				}
+				// Command block logging
+				if (SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
+						"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") != null) {
+					SQL.deleteRowFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
+						"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
+				}
 				// Statistics
 				GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksBroken, 1);
 			}

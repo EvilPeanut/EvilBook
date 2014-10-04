@@ -488,6 +488,21 @@ public class EventListenerPlayer implements Listener {
 		}
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			//
+			// Command block ownership logging and protection
+			//
+			if (block.getType() == Material.COMMAND) {
+				if (SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
+						"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") == null) {
+					SQL.insert(TableType.CommandBlock, "'" + player.getName() + "'," + block.getX() + "," + block.getY() + "," + block.getZ());
+				} else if (SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
+						"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner").equals(player.getName()) &&
+						EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+					player.sendMessage(ChatColor.GRAY + "You don't have permission to edit this command block");
+					event.setCancelled(true);
+					return;
+				}
+			}
+			//
 			// Mob spawner creature selection menu
 			//
 			if (block.getType() == Material.MOB_SPAWNER && (!event.hasItem() || event.getItem().getType() != Material.GOLD_SPADE)) {
@@ -571,7 +586,7 @@ public class EventListenerPlayer implements Listener {
 				//
 				// Command blocks
 				//
-			} else if (block.getType() == Material.COMMAND && !EvilBook.getProfile(player.getName()).rank.isAdmin()) {
+			} else if ((block.getType() == Material.COMMAND || block.getType() == Material.COMMAND_MINECART) && !EvilBook.getProfile(player.getName()).rank.isAdmin()) {
 				player.sendMessage("§dCommand Blocks are an §5Admin §donly feature");
 				player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
 				event.setCancelled(true);
