@@ -11,6 +11,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.amentrix.evilbook.eviledit.utils.BlockType;
 import com.amentrix.evilbook.eviledit.utils.CraftEvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.eviledit.utils.EvilEditEngine;
@@ -344,19 +345,14 @@ public class Region {
 			player.sendMessage("§d/rdel");
 			player.sendMessage("§d/rdel [blockID / blockName]");
 			player.sendMessage("§d/rdel [blockID / blockName] [blockData]");
-		} else if (args.length == 2 && !EvilBook.isByte(args[1])) {
-			player.sendMessage("§7Please enter a valid block data value");
 		} else if (selection.isValid()) {
-			Material deleteBlockMaterial = null;
+			BlockType actionBlock = null;
 			if (args.length >= 1) {
-				deleteBlockMaterial = EvilBook.getBlockMaterial(args[0]);
-				if (deleteBlockMaterial == null) {
-					player.sendMessage("§7Please enter a valid block name or ID");
-					return;
-				}
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 2) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
 			}
 			Random randomizer = new Random();
-			Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
@@ -364,7 +360,7 @@ public class Region {
 				{
 					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 					{
-						if (randomizer.nextBoolean() && (args.length == 0 || (args.length == 1 && selection.getBlock(x, y, z).getType() == deleteBlockMaterial) || (args.length == 2 && selection.getBlock(x, y, z).getType() == deleteBlockMaterial && selection.getBlock(x, y, z).getData() == blockData))) {
+						if (randomizer.nextBoolean() && (args.length == 0 || (args.length == 1 && selection.getBlock(x, y, z).getType() == actionBlock.getMaterial()) || (args.length == 2 && selection.getBlock(x, y, z).getType() == actionBlock.getMaterial() && selection.getBlock(x, y, z).getData() == actionBlock.getData()))) {
 							engine.setBlock(x, y, z, Material.AIR.getId(), (byte) 0);
 						}
 					}
@@ -382,18 +378,13 @@ public class Region {
 			player.sendMessage("§d/del");
 			player.sendMessage("§d/del [blockID / blockName]");
 			player.sendMessage("§d/del [blockID / blockName] [blockData]");
-		} else if (args.length == 2 && !EvilBook.isByte(args[1])) {
-			player.sendMessage("§7Please enter a valid block data value");
 		} else if (selection.isValid()) {
-			Material deleteBlockMaterial = null;
+			BlockType actionBlock = null;
 			if (args.length >= 1) {
-				deleteBlockMaterial = EvilBook.getBlockMaterial(args[0]);
-				if (deleteBlockMaterial == null) {
-					player.sendMessage("§7Please enter a valid block name or ID");
-					return;
-				}
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 2) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
 			}
-			Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
@@ -401,7 +392,7 @@ public class Region {
 				{
 					for (int y = selection.getTopYBlock(); y >= selection.getBottomYBlock(); y--)
 					{
-						if (args.length == 0 || (args.length == 1 && selection.getBlock(x, y, z).getType() == deleteBlockMaterial) || (args.length == 2 && selection.getBlock(x, y, z).getType() == deleteBlockMaterial && selection.getBlock(x, y, z).getData() == blockData)) {
+						if (args.length == 0 || (args.length == 1 && selection.getBlock(x, y, z).getType() == actionBlock.getMaterial()) || (args.length == 2 && selection.getBlock(x, y, z).getType() == actionBlock.getMaterial() && selection.getBlock(x, y, z).getData() == actionBlock.getData())) {
 							engine.setBlock(x, y, z, Material.AIR.getId(), (byte) 0);
 						}
 					}
@@ -418,37 +409,31 @@ public class Region {
 			player.sendMessage("§5Incorrect command usage");
 			player.sendMessage("§d/rreplace [blockID / blockName] [blockID / blockName]");
 			player.sendMessage("§d/rreplace [blockID / blockName] [blockData] [blockID / blockName] [blockData]");
-		} else if (args.length == 4 && (!EvilBook.isByte(args[1]) || !EvilBook.isByte(args[3]))) {
-			player.sendMessage("§7Please enter valid block data values");
 		} else if (selection.isValid()) {
-			Material oldBlockMaterial = EvilBook.getBlockMaterial(args[0]);
-			Byte oldBlockData = args.length == 4 ? Byte.parseByte(args[1]) : 0;
-			Material newBlockMaterial = EvilBook.getBlockMaterial(args.length == 2 ? args[1] : args[2]);
-			Byte newBlockData = args.length == 4 ? Byte.parseByte(args[3]) : 0;
-			if (oldBlockMaterial == null || newBlockMaterial == null) {
-				player.sendMessage("§7Please enter valid block names or IDs");
-			} else if (Session.isBlocked(newBlockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
-				Random randomizer = new Random();
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
-				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			BlockType oldBlock = new BlockType(args[0]);
+			if (args.length == 4) oldBlock.setData(args[1]);
+			if (!oldBlock.isValid(player)) return;	
+			BlockType newBlock = new BlockType(args.length == 2 ? args[1] : args[2]);
+			if (args.length == 4) newBlock.setData(args[3]);
+			if (!newBlock.isValid(player)) return;	
+			Random randomizer = new Random();
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 				{
-					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 					{
-						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
-						{
-							if (randomizer.nextBoolean()) {
-								if (selection.getBlock(x, y, z).getType() == oldBlockMaterial && (args.length == 2 || selection.getBlock(x, y, z).getData() == oldBlockData)) {
-									engine.setBlock(x, y, z, newBlockMaterial.getId(), newBlockData);
-								}
+						if (randomizer.nextBoolean()) {
+							if (selection.getBlock(x, y, z).getType() == oldBlock.getMaterial() && (args.length == 2 || selection.getBlock(x, y, z).getData() == oldBlock.getData())) {
+								engine.setBlock(x, y, z, oldBlock.getMaterial().getId(), oldBlock.getData());
 							}
 						}
 					}
 				}
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly replaced");
 			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly replaced");
 		}
 	}
 
@@ -458,31 +443,28 @@ public class Region {
 			player.sendMessage("§5Incorrect command usage");
 			player.sendMessage("§d/rfill [blockID / blockName]");
 			player.sendMessage("§d/rfill [blockID / blockName] [blockData]");
-		} else if (args.length == 2 && !EvilBook.isByte(args[1])) {
-			player.sendMessage("§7Please enter a valid block data value");
 		} else if (selection.isValid()) {
-			Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-			if (blockMaterial == null) {
-				player.sendMessage("§7Please enter a valid block name or ID");
-			} else if (Session.isBlocked(blockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
-				Random randomizer = new Random();
-				Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
-				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			BlockType actionBlock = null;
+			if (args.length >= 1) {
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 2) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
+			}
+			Random randomizer = new Random();
+			Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 				{
-					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 					{
-						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
-						{
-							if (randomizer.nextBoolean()) engine.setBlock(x, y, z, blockMaterial.getId(), blockData);
-						}
+						if (randomizer.nextBoolean()) engine.setBlock(x, y, z, actionBlock.getMaterial().getId(), blockData);
 					}
 				}
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly filled");
 			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly filled");
 		}
 	}
 	
@@ -492,33 +474,29 @@ public class Region {
 			player.sendMessage("§5Incorrect command usage");
 			player.sendMessage("§d/fill [blockID / blockName]");
 			player.sendMessage("§d/fill [blockID / blockName] [blockData]");
-		} else if (args.length == 2 && !EvilBook.isByte(args[1])) {
-			player.sendMessage("§7Please enter a valid block data value");
 		} else if (selection.isValid()) {
-			Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-			if (blockMaterial == null) {
-				player.sendMessage("§7Please enter a valid block name or ID");
-			} else if (Session.isBlocked(blockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
-				Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
-				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			BlockType actionBlock = null;
+			if (args.length >= 1) {
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 2) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
+			}
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 				{
-					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 					{
-						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
-						{
-							engine.setBlock(x, y, z, blockMaterial.getId(), blockData);
-						}
+						engine.setBlock(x, y, z, actionBlock.getMaterial().getId(), actionBlock.getData());
 					}
 				}
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks filled");
 			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks filled");
 		}
 	}
-	
+
 	public static void setBiome(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1) {
@@ -624,32 +602,28 @@ public class Region {
 			player.sendMessage("§5Incorrect command usage");
 			player.sendMessage("§d/outline [blockID / blockName]");
 			player.sendMessage("§d/outline [blockID / blockName] [blockData]");
-		} else if (args.length == 2 && !EvilBook.isByte(args[1])) {
-			player.sendMessage("§7Please enter a valid block data value");
 		} else if (selection.isValid()) {
-			Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-			if (blockMaterial == null) {
-				player.sendMessage("§7Please enter a valid block name or ID");
-			} else if (Session.isBlocked(blockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
-				Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
-				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			BlockType actionBlock = null;
+			if (args.length >= 1) {
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 2) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
+			}
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 				{
-					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 					{
-						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
-						{
-							if (x == selection.getBottomXBlock() || x == selection.getTopXBlock() || z == selection.getBottomZBlock() || z == selection.getTopZBlock() || y == selection.getBottomYBlock() || y == selection.getTopYBlock()) {
-								engine.setBlock(x, y, z, blockMaterial.getId(), blockData);
-							}
+						if (x == selection.getBottomXBlock() || x == selection.getTopXBlock() || z == selection.getBottomZBlock() || z == selection.getTopZBlock() || y == selection.getBottomYBlock() || y == selection.getTopYBlock()) {
+							engine.setBlock(x, y, z, actionBlock.getMaterial().getId(), actionBlock.getData());
 						}
 					}
 				}
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks outlined");
 			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks outlined");
 		}
 	}
 
@@ -659,32 +633,28 @@ public class Region {
 			player.sendMessage("§5Incorrect command usage");
 			player.sendMessage("§d/walls [blockID / blockName]");
 			player.sendMessage("§d/walls [blockID / blockName] [blockData]");
-		} else if (args.length == 2 && !EvilBook.isByte(args[1])) {
-			player.sendMessage("§7Please enter a valid block data value");
 		} else if (selection.isValid()) {
-			Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-			if (blockMaterial == null) {
-				player.sendMessage("§7Please enter a valid block name");
-			} else if (Session.isBlocked(blockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
-				Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
-				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			BlockType actionBlock = null;
+			if (args.length >= 1) {
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 2) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
+			}
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 				{
-					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 					{
-						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
-						{
-							if (x == selection.getBottomXBlock() || x == selection.getTopXBlock() || z == selection.getBottomZBlock() || z == selection.getTopZBlock()) {
-								engine.setBlock(x, y, z, blockMaterial.getId(), blockData);
-							}
+						if (x == selection.getBottomXBlock() || x == selection.getTopXBlock() || z == selection.getBottomZBlock() || z == selection.getTopZBlock()) {
+							engine.setBlock(x, y, z, actionBlock.getMaterial().getId(), actionBlock.getData());
 						}
 					}
 				}
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks walled");
 			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks walled");
 		}
 	}
 
@@ -730,28 +700,24 @@ public class Region {
 			player.sendMessage("§5Incorrect command usage");
 			player.sendMessage("§d/overlay [blockID / blockName]");
 			player.sendMessage("§d/overlay [blockID / blockName] [blockData]");
-		} else if (args.length == 2 && !EvilBook.isByte(args[1])) {
-			player.sendMessage("§7Please enter a valid block data value");
 		} else if (selection.isValid()) {
-			Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-			if (blockMaterial == null) {
-				player.sendMessage("§7Please enter a valid block name");
-			} else if (Session.isBlocked(blockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
-				Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
-				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
-				{
-					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
-					{
-						int highestY = player.getWorld().getHighestBlockYAt(x, z);
-						if (highestY != 0) engine.setBlock(x, highestY, z, blockMaterial.getId(), blockData);
-					}
-				}
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks overlayed");
+			BlockType actionBlock = null;
+			if (args.length >= 1) {
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 2) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
 			}
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				{
+					int highestY = player.getWorld().getHighestBlockYAt(x, z);
+					if (highestY != 0) engine.setBlock(x, highestY, z, actionBlock.getMaterial().getId(), actionBlock.getData());
+				}
+			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks overlayed");
 		}
 	}
 	
@@ -761,57 +727,41 @@ public class Region {
 			player.sendMessage("§5Incorrect command usage");
 			player.sendMessage("§d/replace [blockID / blockName] [blockID / blockName]");
 			player.sendMessage("§d/replace [blockID / blockName] [blockData] [blockID / blockName] [blockData]");
-		} else if (args.length == 4 && (!EvilBook.isByte(args[1]) || !EvilBook.isByte(args[3]))) {
-			player.sendMessage("§7Please enter valid block data values");
 		} else if (selection.isValid()) {
-			Material oldBlockMaterial = EvilBook.getBlockMaterial(args[0]);
-			Byte oldBlockData = args.length == 4 ? Byte.parseByte(args[1]) : 0;
-			Material newBlockMaterial = EvilBook.getBlockMaterial(args.length == 2 ? args[1] : args[2]);
-			Byte newBlockData = args.length == 4 ? Byte.parseByte(args[3]) : 0;
-			if (oldBlockMaterial == null || newBlockMaterial == null) {
-				player.sendMessage("§7Please enter valid block names or IDs");
-			} else if (Session.isBlocked(newBlockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
-				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			BlockType oldBlock = new BlockType(args[0]);
+			if (args.length == 4) oldBlock.setData(args[1]);
+			if (!oldBlock.isValid(player)) return;	
+			BlockType newBlock = new BlockType(args.length == 2 ? args[1] : args[2]);
+			if (args.length == 4) newBlock.setData(args[3]);
+			if (!newBlock.isValid(player)) return;
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 				{
-					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 					{
-						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
-						{
-							if (selection.getBlock(x, y, z).getType() == oldBlockMaterial && (args.length == 2 || selection.getBlock(x, y, z).getData() == oldBlockData)) {
-								engine.setBlock(x, y, z, newBlockMaterial.getId(), newBlockData);
-							}
+						if (selection.getBlock(x, y, z).getType() == oldBlock.getMaterial() && (args.length == 2 || selection.getBlock(x, y, z).getData() == oldBlock.getData())) {
+							engine.setBlock(x, y, z, oldBlock.getMaterial().getId(), oldBlock.getData());
 						}
 					}
 				}
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks replaced");
 			}
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks replaced");
 		}
 	}
-	
+
 	public static void count(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
 			if (args.length == 0 || args.length == 1 || args.length == 2) {
 				int blockCount = 0;
-				Material blockMaterial = null;
-				if (args.length != 0) {
-					blockMaterial = EvilBook.getBlockMaterial(args[0]);
-					if (blockMaterial == null) {
-						player.sendMessage("§7Please enter a valid block name or ID");
-						return;
-					}
-				}
-				Byte blockData = 0;
-				if (args.length == 2) {
-					if (!EvilBook.isByte(args[1])) {
-						player.sendMessage("§7Please enter a valid block data value");
-						return;
-					}
-					blockData = Byte.valueOf(args[1]);
+				BlockType actionBlock = null;
+				if (args.length >= 1) {
+					actionBlock = new BlockType(args[0]);
+					if (args.length == 2) actionBlock.setData(args[1]);
+					if (!actionBlock.isValid(player)) return;
 				}
 				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 				{
@@ -819,14 +769,14 @@ public class Region {
 					{
 						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 						{
-							if ((args.length == 0 && selection.getBlock(x, y, z).getType() != Material.AIR) || (args.length == 1 && selection.getBlock(x, y, z).getType() == blockMaterial) || (args.length == 2 && selection.getBlock(x, y, z).getType() == blockMaterial && selection.getBlock(x, y, z).getData() == blockData)) blockCount++;
+							if ((args.length == 0 && selection.getBlock(x, y, z).getType() != Material.AIR) || (args.length == 1 && selection.getBlock(x, y, z).getType() == actionBlock.getMaterial()) || (args.length == 2 && selection.getBlock(x, y, z).getType() == actionBlock.getMaterial() && selection.getBlock(x, y, z).getData() == actionBlock.getData())) blockCount++;
 						}
 					}
 				}
 				if (args.length == 0) {
 					player.sendMessage("§7Selection contains " + blockCount + " blocks");
 				} else {
-					player.sendMessage("§7Selection contains " + blockCount + " " + EvilBook.getFriendlyName(blockMaterial) + " blocks");
+					player.sendMessage("§7Selection contains " + blockCount + " " + EvilBook.getFriendlyName(actionBlock.getMaterial()) + " blocks");
 				}
 			} else {
 				player.sendMessage("§5Incorrect command usage");
