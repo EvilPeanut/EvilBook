@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Random;
 
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
@@ -163,7 +162,7 @@ public class EventListenerPlayer implements Listener {
 			// Drugcraft
 			if (EvilBook.getProfile(event.getPlayer()).isDrunk) {
 				Vector velocity = event.getPlayer().getVelocity();
-				event.getPlayer().setVelocity(new Vector(velocity.getX() + (1 - new Random().nextInt(2)), velocity.getY(), velocity.getZ() + (1 - new Random().nextInt(2))));
+				event.getPlayer().setVelocity(new Vector((velocity.getX() + (1 - new Random().nextInt(3))) / 3, velocity.getY(), (velocity.getZ() + (1 - new Random().nextInt(3))) / 3));
 			}
 			//
 			if (!EvilBook.isInSurvival(event.getPlayer())) {
@@ -404,21 +403,6 @@ public class EventListenerPlayer implements Listener {
 		}
 		event.setCancelled(true);
 		String message = event.getMessage();
-		if (EvilBook.getProfile(player).isDrunk) {
-			Random randomizer = new Random();
-			if (randomizer.nextBoolean()) message += " hick!";
-			String[] drunkMessage = message.split(" ");
-			for (int i = 0; i != drunkMessage.length; i++) {
-				if (randomizer.nextInt(4) == 1) {
-					int word = randomizer.nextInt(4);
-					if (word == 0) drunkMessage[i] = "bitch";
-					else if (word == 1) drunkMessage[i] = "crap";
-					else if (word == 2) drunkMessage[i] = "ughhh";
-					else drunkMessage[i] = "*PUKES*";
-				}
-			}
-			message = StringUtils.join(drunkMessage, " ");
-		}
 		EvilBook.broadcastPlayerMessage(player.getName(), EvilBook.getProfile(player).rank.getPrefix(EvilBook.getProfile(player)) + " §" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
 				+ "<§f" + player.getDisplayName() + "§" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
 				+ "> §f" + EvilBook.toFormattedString(message));
