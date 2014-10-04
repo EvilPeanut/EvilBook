@@ -405,11 +405,12 @@ public class EventListenerPlayer implements Listener {
 		event.setCancelled(true);
 		String message = event.getMessage();
 		if (EvilBook.getProfile(player).isDrunk) {
-			if (new Random().nextBoolean()) message += " hick!";
+			Random randomizer = new Random();
+			if (randomizer.nextBoolean()) message += " hick!";
 			String[] drunkMessage = message.split(" ");
 			for (int i = 0; i != drunkMessage.length; i++) {
-				if (new Random().nextInt(4) == 1) {
-					int word = new Random().nextInt(4);
+				if (randomizer.nextInt(4) == 1) {
+					int word = randomizer.nextInt(4);
 					if (word == 0) drunkMessage[i] = "bitch";
 					else if (word == 1) drunkMessage[i] = "crap";
 					else if (word == 2) drunkMessage[i] = "ughhh";
