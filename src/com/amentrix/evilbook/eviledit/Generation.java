@@ -100,9 +100,8 @@ public class Generation {
 		} else if (!EvilBook.isInteger(args.length == 2 ? args[1] : args[2])) {
 			player.sendMessage("§7Please enter a valid size");
 		} else {
-			BlockType actionBlock = null;
+			BlockType actionBlock = new BlockType(args[0]);
 			if (args.length >= 1) {
-				actionBlock = new BlockType(args[0]);
 				if (args.length == 3) actionBlock.setData(args[1]);
 				if (!actionBlock.isValid(player)) return;
 			}
@@ -173,9 +172,8 @@ public class Generation {
 				player.sendMessage("§7The maximum radius limit is 50");
 				return;
 			}		 
-			BlockType actionBlock = null;
+			BlockType actionBlock = new BlockType(args[0]);
 			if (args.length >= 1) {
-				actionBlock = new BlockType(args[0]);
 				if (args.length == 3) actionBlock.setData(args[1]);
 				if (!actionBlock.isValid(player)) return;
 			}
@@ -273,9 +271,8 @@ public class Generation {
 				final int ceilRadiusX = (int) Math.ceil(radiusX);
 				final int ceilRadiusZ = (int) Math.ceil(radiusZ);
 				double nextXn = 0;
-				BlockType actionBlock = null;
+				BlockType actionBlock = new BlockType(args[0]);
 				if (args.length >= 1) {
-					actionBlock = new BlockType(args[0]);
 					if (args.length == 3) actionBlock.setData(args[1]);
 					if (!actionBlock.isValid(player)) return;
 				}
