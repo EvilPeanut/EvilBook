@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.entity.Player;
 
+import com.amentrix.evilbook.eviledit.utils.BlockType;
 import com.amentrix.evilbook.eviledit.utils.CraftEvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.EvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.Selection;
@@ -96,42 +97,38 @@ public class Generation {
 				player.sendMessage("§d/pyramid [blockID / blockName] [size]");
 				player.sendMessage("§d/pyramid [blockID / blockName] [blockData] [size]");
 			}
-		} else if (args.length == 2 && !EvilBook.isInteger(args[1])) {
+		} else if (!EvilBook.isInteger(args.length == 2 ? args[1] : args[2])) {
 			player.sendMessage("§7Please enter a valid size");
-		} else if (args.length == 3 && (!EvilBook.isByte(args[1]) || !EvilBook.isInteger(args[2]))) {
-			player.sendMessage("§7Please enter a valid size and block data value");
 		} else {
-			Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-			if (blockMaterial == null) {
-				player.sendMessage("§7Please enter a valid block name or ID");
-			} else if (Session.isBlocked(blockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
-				int size = args.length == 2 ? Integer.parseInt(args[1]) : Integer.parseInt(args[2]);
-				if (size > 50) {
-					player.sendMessage("§7The maximum size limit is 50");
-					return;
-				}
-				Byte blockData = args.length == 2 ? 0 : Byte.valueOf(args[1]);
-				int height = size, blockId = blockMaterial.getId();
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
-				for (int y = 0; y <= height; ++y) {
-					size--;
-					for (int x = 0; x <= size; ++x) {
-						for (int z = 0; z <= size; ++z) {
-							if ((!hollow && z <= size && x <= size) || z == size || x == size) {
-								engine.setBlock(player.getLocation().add(x, y, z), blockId, blockData);
-								engine.setBlock(player.getLocation().add(-x, y, z), blockId, blockData);
-								engine.setBlock(player.getLocation().add(x, y, -z), blockId, blockData);
-								engine.setBlock(player.getLocation().add(-x, y, -z), blockId, blockData);
-							}
+			BlockType actionBlock = null;
+			if (args.length >= 1) {
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 3) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
+			}
+			int size = args.length == 2 ? Integer.parseInt(args[1]) : Integer.parseInt(args[2]);
+			if (size > 50) {
+				player.sendMessage("§7The maximum size limit is 50");
+				return;
+			}
+			int height = size, blockId = actionBlock.getMaterial().getId();
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+			for (int y = 0; y <= height; ++y) {
+				size--;
+				for (int x = 0; x <= size; ++x) {
+					for (int z = 0; z <= size; ++z) {
+						if ((!hollow && z <= size && x <= size) || z == size || x == size) {
+							engine.setBlock(player.getLocation().add(x, y, z), blockId, actionBlock.getData());
+							engine.setBlock(player.getLocation().add(-x, y, z), blockId, actionBlock.getData());
+							engine.setBlock(player.getLocation().add(x, y, -z), blockId, actionBlock.getData());
+							engine.setBlock(player.getLocation().add(-x, y, -z), blockId, actionBlock.getData());
 						}
 					}
 				}
-				if (!hollow) Movement.ascendPlayer(player, false);
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block pyramid made of " + EvilBook.getFriendlyName(blockMaterial));
 			}
+			if (!hollow) Movement.ascendPlayer(player, false);
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block pyramid made of " + EvilBook.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}
 
@@ -151,98 +148,95 @@ public class Generation {
 			}
 		} else if (args.length == 2 && !EvilBook.isInteger(args[1])) {
 			player.sendMessage("§7Please enter a valid radius");
-		} else if (args.length == 3 && (!EvilBook.isByte(args[1]) || !EvilBook.isInteger(args[2]))) {
-			player.sendMessage("§7Please enter a valid radius and block data value");
-		} else if (args.length == 5 && (!EvilBook.isByte(args[1]) || !EvilBook.isInteger(args[2]) || !EvilBook.isInteger(args[3]) || !EvilBook.isInteger(args[4]))) {
-			player.sendMessage("§7Please enter a valid radius and block data value");
+		} else if (args.length == 3 && !EvilBook.isInteger(args[2])) {
+			player.sendMessage("§7Please enter a valid radius");
+		} else if (args.length == 5 && (!EvilBook.isInteger(args[2]) || !EvilBook.isInteger(args[3]) || !EvilBook.isInteger(args[4]))) {
+			player.sendMessage("§7Please enter a valid radius");
 		} else {
-			Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-			if (blockMaterial == null) {
-				player.sendMessage("§7Please enter a valid block name or ID");
-			} else if (Session.isBlocked(blockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
+			double radiusX;
+			double radiusY;
+			double radiusZ;
+			if (args.length == 2) {
+				radiusX = Integer.parseInt(args[1]) + 0.5;
+				radiusY = Integer.parseInt(args[1]) + 0.5;
+				radiusZ = Integer.parseInt(args[1]) + 0.5;
+			} else if (args.length == 3) {
+				radiusX = Integer.parseInt(args[2]) + 0.5;
+				radiusY = Integer.parseInt(args[2]) + 0.5;
+				radiusZ = Integer.parseInt(args[2]) + 0.5;
 			} else {
-				double radiusX;
-				double radiusY;
-				double radiusZ;
-				if (args.length == 2) {
-					radiusX = Integer.parseInt(args[1]) + 0.5;
-					radiusY = Integer.parseInt(args[1]) + 0.5;
-					radiusZ = Integer.parseInt(args[1]) + 0.5;
-				} else if (args.length == 3) {
-					radiusX = Integer.parseInt(args[2]) + 0.5;
-					radiusY = Integer.parseInt(args[2]) + 0.5;
-					radiusZ = Integer.parseInt(args[2]) + 0.5;
-				} else {
-					radiusX = Integer.parseInt(args[2]) + 0.5;
-					radiusY = Integer.parseInt(args[3]) + 0.5;
-					radiusZ = Integer.parseInt(args[4]) + 0.5;
-				}
-				if (radiusX > 50.5 || radiusY > 50.5 || radiusZ > 50.5) {
-					player.sendMessage("§7The maximum radius limit is 50");
-					return;
-				}		 
-				Byte blockData = args.length == 2 ? 0 : Byte.valueOf(args[1]);
-				final double invRadiusX = 1 / radiusX;
-				final double invRadiusY = 1 / radiusY;
-				final double invRadiusZ = 1 / radiusZ;
-				final int ceilRadiusX = (int) Math.ceil(radiusX);
-				final int ceilRadiusY = (int) Math.ceil(radiusY);
-				final int ceilRadiusZ = (int) Math.ceil(radiusZ);
-				int blockId = blockMaterial.getId();
-				double nextXn = 0;
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
-				forX: for (int x = 0; x <= ceilRadiusX; ++x) {
-					final double xn = nextXn;
-					nextXn = (x + 1) * invRadiusX;
-					double nextYn = 0;
-					forY: for (int y = 0; y <= ceilRadiusY; ++y) {
-						final double yn = nextYn;
-						nextYn = (y + 1) * invRadiusY;
-						double nextZn = 0;
-						forZ: for (int z = 0; z <= ceilRadiusZ; ++z) {
-							final double zn = nextZn;
-							nextZn = (z + 1) * invRadiusZ;
-							double distanceSq = Session.lengthSq(xn, yn, zn);
-							if (distanceSq > 1) {
-								if (z == 0) {
-									if (y == 0) {
-										break forX;
-									}
-									break forY;
+				radiusX = Integer.parseInt(args[2]) + 0.5;
+				radiusY = Integer.parseInt(args[3]) + 0.5;
+				radiusZ = Integer.parseInt(args[4]) + 0.5;
+			}
+			if (radiusX > 50.5 || radiusY > 50.5 || radiusZ > 50.5) {
+				player.sendMessage("§7The maximum radius limit is 50");
+				return;
+			}		 
+			BlockType actionBlock = null;
+			if (args.length >= 1) {
+				actionBlock = new BlockType(args[0]);
+				if (args.length == 3) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
+			}
+			final double invRadiusX = 1 / radiusX;
+			final double invRadiusY = 1 / radiusY;
+			final double invRadiusZ = 1 / radiusZ;
+			final int ceilRadiusX = (int) Math.ceil(radiusX);
+			final int ceilRadiusY = (int) Math.ceil(radiusY);
+			final int ceilRadiusZ = (int) Math.ceil(radiusZ);
+			double nextXn = 0;
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+			forX: for (int x = 0; x <= ceilRadiusX; ++x) {
+				final double xn = nextXn;
+				nextXn = (x + 1) * invRadiusX;
+				double nextYn = 0;
+				forY: for (int y = 0; y <= ceilRadiusY; ++y) {
+					final double yn = nextYn;
+					nextYn = (y + 1) * invRadiusY;
+					double nextZn = 0;
+					forZ: for (int z = 0; z <= ceilRadiusZ; ++z) {
+						final double zn = nextZn;
+						nextZn = (z + 1) * invRadiusZ;
+						double distanceSq = Session.lengthSq(xn, yn, zn);
+						if (distanceSq > 1) {
+							if (z == 0) {
+								if (y == 0) {
+									break forX;
 								}
-								break forZ;
+								break forY;
 							}
-							if (hollow) {
-								if (Session.lengthSq(nextXn, yn, zn) <= 1 && Session.lengthSq(xn, nextYn, zn) <= 1 && Session.lengthSq(xn, yn, nextZn) <= 1)  {
-									if (empty) {
-										engine.setBlock(player.getLocation().add(x, y, z), Material.AIR.getId(), 0);
-										engine.setBlock(player.getLocation().add(-x, y, z), Material.AIR.getId(), (byte) 0);
-										engine.setBlock(player.getLocation().add(x, -y, z), Material.AIR.getId(), (byte) 0);
-										engine.setBlock(player.getLocation().add(x, y, -z), Material.AIR.getId(), (byte) 0);
-										engine.setBlock(player.getLocation().add(-x, -y, z), Material.AIR.getId(), (byte) 0);
-										engine.setBlock(player.getLocation().add(x, -y, -z), Material.AIR.getId(), (byte) 0);
-										engine.setBlock(player.getLocation().add(-x, y, -z), Material.AIR.getId(), (byte) 0);
-										engine.setBlock(player.getLocation().add(-x, -y, -z), Material.AIR.getId(), (byte) 0);
-									}
-									continue;
-								}
-							}
-							engine.setBlock(player.getLocation().add(x, y, z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(-x, y, z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(x, -y, z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(x, y, -z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(-x, -y, z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(x, -y, -z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(-x, y, -z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(-x, -y, -z), blockId, blockData);
+							break forZ;
 						}
+						if (hollow) {
+							if (Session.lengthSq(nextXn, yn, zn) <= 1 && Session.lengthSq(xn, nextYn, zn) <= 1 && Session.lengthSq(xn, yn, nextZn) <= 1)  {
+								if (empty) {
+									engine.setBlock(player.getLocation().add(x, y, z), Material.AIR.getId(), 0);
+									engine.setBlock(player.getLocation().add(-x, y, z), Material.AIR.getId(), (byte) 0);
+									engine.setBlock(player.getLocation().add(x, -y, z), Material.AIR.getId(), (byte) 0);
+									engine.setBlock(player.getLocation().add(x, y, -z), Material.AIR.getId(), (byte) 0);
+									engine.setBlock(player.getLocation().add(-x, -y, z), Material.AIR.getId(), (byte) 0);
+									engine.setBlock(player.getLocation().add(x, -y, -z), Material.AIR.getId(), (byte) 0);
+									engine.setBlock(player.getLocation().add(-x, y, -z), Material.AIR.getId(), (byte) 0);
+									engine.setBlock(player.getLocation().add(-x, -y, -z), Material.AIR.getId(), (byte) 0);
+								}
+								continue;
+							}
+						}
+						engine.setBlock(player.getLocation().add(x, y, z), actionBlock.getMaterial().getId(), actionBlock.getData());
+						engine.setBlock(player.getLocation().add(-x, y, z), actionBlock.getMaterial().getId(), actionBlock.getData());
+						engine.setBlock(player.getLocation().add(x, -y, z), actionBlock.getMaterial().getId(), actionBlock.getData());
+						engine.setBlock(player.getLocation().add(x, y, -z), actionBlock.getMaterial().getId(), actionBlock.getData());
+						engine.setBlock(player.getLocation().add(-x, -y, z), actionBlock.getMaterial().getId(), actionBlock.getData());
+						engine.setBlock(player.getLocation().add(x, -y, -z), actionBlock.getMaterial().getId(), actionBlock.getData());
+						engine.setBlock(player.getLocation().add(-x, y, -z), actionBlock.getMaterial().getId(), actionBlock.getData());
+						engine.setBlock(player.getLocation().add(-x, -y, -z), actionBlock.getMaterial().getId(), actionBlock.getData());
 					}
 				}
-				if (!hollow) Movement.ascendPlayer(player, false);
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage((hollow ? empty ? "§7Created an empty hollow " : "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block sphere made of " + EvilBook.getFriendlyName(blockMaterial));
 			}
+			if (!hollow) Movement.ascendPlayer(player, false);
+			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			player.sendMessage((hollow ? empty ? "§7Created an empty hollow " : "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block sphere made of " + EvilBook.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}
 
@@ -262,17 +256,11 @@ public class Generation {
 			}
 		} else if (args.length == 3 && (!EvilBook.isInteger(args[1]) || !EvilBook.isInteger(args[2]))) {
 			player.sendMessage("§7Please enter a valid radius and height");
-		} else if (args.length == 4 && (!EvilBook.isByte(args[1]) || !EvilBook.isInteger(args[2]) || !EvilBook.isInteger(args[3]))) {
-			player.sendMessage("§7Please enter a valid radius, height and block data value");
-		} else if (args.length == 5 && (!EvilBook.isByte(args[1]) || !EvilBook.isInteger(args[2]) || !EvilBook.isInteger(args[3]) || !EvilBook.isInteger(args[4]))) {
-			player.sendMessage("§7Please enter valid radius, height and block data value");
+		} else if (args.length == 4 && (!EvilBook.isInteger(args[2]) || !EvilBook.isInteger(args[3]))) {
+			player.sendMessage("§7Please enter a valid radius, height");
+		} else if (args.length == 5 && (!EvilBook.isInteger(args[2]) || !EvilBook.isInteger(args[3]) || !EvilBook.isInteger(args[4]))) {
+			player.sendMessage("§7Please enter valid radius, height");
 		} else {
-			Material blockMaterial = EvilBook.getBlockMaterial(args[0]);
-			if (blockMaterial == null) {
-				player.sendMessage("§7Please enter a valid block name or ID");
-			} else if (Session.isBlocked(blockMaterial)) {
-				player.sendMessage("§cThis block is banned in EvilEdit");
-			} else {
 				double radiusX = args.length == 3 ? Integer.parseInt(args[1]) + 0.5 : Integer.parseInt(args[2]) + 0.5;
 				double radiusZ = args.length == 3 ? Integer.parseInt(args[1]) + 0.5 : args.length == 4 ? Integer.parseInt(args[2]) + 0.5 : Integer.parseInt(args[3]) + 0.5;
 				double height = args.length == 3 ? Integer.parseInt(args[2]) + 0.5 : args.length == 4 ? Integer.parseInt(args[3]) + 0.5 : Integer.parseInt(args[4]) + 0.5;
@@ -280,13 +268,17 @@ public class Generation {
 					player.sendMessage("§7The maximum radius limit is 25");
 					return;
 				}		 
-				Byte blockData = args.length > 3 ? 0 : Byte.valueOf(args[1]);
 				final double invRadiusX = 1 / radiusX;
 				final double invRadiusZ = 1 / radiusZ;
 				final int ceilRadiusX = (int) Math.ceil(radiusX);
 				final int ceilRadiusZ = (int) Math.ceil(radiusZ);
 				double nextXn = 0;
-				int blockId = blockMaterial.getId();
+				BlockType actionBlock = null;
+				if (args.length >= 1) {
+					actionBlock = new BlockType(args[0]);
+					if (args.length == 3) actionBlock.setData(args[1]);
+					if (!actionBlock.isValid(player)) return;
+				}
 				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
 				forX: for (int x = 0; x <= ceilRadiusX; ++x) {
 					final double xn = nextXn;
@@ -308,17 +300,16 @@ public class Generation {
 							}
 						}
 						for (int y = 0; y < height; ++y) {
-							engine.setBlock(player.getLocation().add(x, y, z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(-x, y, z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(x, y, -z), blockId, blockData);
-							engine.setBlock(player.getLocation().add(-x, y, -z), blockId, blockData);
+							engine.setBlock(player.getLocation().add(x, y, z), actionBlock.getMaterial().getId(), actionBlock.getData());
+							engine.setBlock(player.getLocation().add(-x, y, z), actionBlock.getMaterial().getId(), actionBlock.getData());
+							engine.setBlock(player.getLocation().add(x, y, -z), actionBlock.getMaterial().getId(), actionBlock.getData());
+							engine.setBlock(player.getLocation().add(-x, y, -z), actionBlock.getMaterial().getId(), actionBlock.getData());
 						}
 					}
 				}
 				if (!hollow) Movement.ascendPlayer(player, false);
 				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block cylinder made of " + EvilBook.getFriendlyName(blockMaterial));
-			}
+				player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block cylinder made of " + EvilBook.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}
     
