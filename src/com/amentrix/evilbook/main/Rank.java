@@ -1,10 +1,5 @@
 package com.amentrix.evilbook.main;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.inventory.ItemStack;
-
 /**
  * Rank enumerator
  * @author Reece Aaron Lecrivain
