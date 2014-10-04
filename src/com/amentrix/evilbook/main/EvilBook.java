@@ -3062,6 +3062,7 @@ public class EvilBook extends JavaPlugin {
 											for (int i = 0; i < amount; i++) explosiveEntityList.add(player.getWorld().spawnEntity(player.getLocation(), entityType));
 											sender.sendMessage("§7Spawned " + args[1] + " " + args[0].toLowerCase(Locale.UK) + "'s");
 											alert(sender.getName() + " spawned " + args[1] + " " + args[0].toLowerCase(Locale.UK) + "'s");
+											Random explosionRandomizer = new Random();
 											for (final Entity entity : explosiveEntityList) {
 												this.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 													@Override
@@ -3069,7 +3070,7 @@ public class EvilBook extends JavaPlugin {
 														entity.getLocation().getWorld().playEffect(entity.getLocation(), Effect.EXPLOSION_HUGE, 0);
 														entity.remove();
 													}
-												}, 80 + ((long)(new Random().nextDouble()*120)));
+												}, 80 + ((long)(explosionRandomizer.nextDouble() * 120)));
 											}
 										}
 									} else {
