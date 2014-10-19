@@ -758,6 +758,13 @@ public class EvilBook extends JavaPlugin {
 		// TODO: Add ability to use EvilEdit in survival if the player has the needed blocks
 		// TODO: Add rotate command to rotate an area of blocks / copied blocks for evil edit
 		//
+		// Command block command handling
+		//
+		if (sender instanceof BlockCommandSender) {
+	        //BlockCommandSender cmdSender = (BlockCommandSender)sender;
+	        //TODO: Add special command block commands 
+	    }
+		//
 		// Statistics
 		//
 		GlobalStatistics.incrementStatistic(GlobalStatistic.CommandsExecuted, 1);

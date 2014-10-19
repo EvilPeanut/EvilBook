@@ -20,6 +20,7 @@ import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.Emitter;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
+import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
@@ -193,7 +194,7 @@ public class Region {
 	}	
 
 	public static void paste(Player player, String[] args) {
-		if (EvilBook.isInSurvival(player)) {
+		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 0) {
 			player.sendMessage("§5Incorrect command usage");
@@ -532,7 +533,7 @@ public class Region {
 	}
 	
 	public static void regenerateChunk(Player player) {
-		if (EvilBook.isInSurvival(player)) {
+		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else {
 			BlockState[] logBlockStates = new BlockState[74273];
@@ -804,7 +805,7 @@ public class Region {
 	}
 
 	public static void spawnEditWand(Player player) {
-		if (EvilBook.isInSurvival(player)) {
+		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 			player.sendMessage("§7You can't spawn an EvilEdit wand in survival");
 		} else {
 			player.getInventory().addItem(new ItemStack(Material.GOLD_SPADE));
