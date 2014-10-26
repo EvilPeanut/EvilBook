@@ -52,7 +52,7 @@ public class EventListenerBlock implements Listener {
 		if (!profile.isCanEditWorld(block.getWorld())) {
 			event.setCancelled(true);
 		} else if (profile.rank.isHigher(Rank.STAFF_LAPIS) && player.getItemInHand().getType() == Material.GOLD_SPADE 
-				&& (EvilBook.isInSurvival(player) == false || profile.rank == Rank.SERVER_HOST) 
+				&& (EvilBook.isInSurvival(player) == false || EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) 
 				&& ((PlayerProfileAdmin)profile).wandMode != EditWandMode.None) {
 			if (profile.wandMode == EditWandMode.Selection) {
 				profile.actionLocationA = block.getLocation();

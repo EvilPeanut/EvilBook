@@ -86,7 +86,7 @@ public class Generation {
 	}
 	
 	public static void createPyramid(Player player, String[] args, boolean hollow) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 2 && args.length != 3 && args.length != 5) {
 			player.sendMessage("§5Incorrect command usage");
@@ -132,7 +132,7 @@ public class Generation {
 	}
 
 	public static void createSphere(Player player, String[] args, boolean hollow, boolean empty) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 2 && args.length != 3 && args.length != 5) {
 			player.sendMessage("§5Incorrect command usage");
@@ -239,7 +239,7 @@ public class Generation {
 	}
 
 	public static void createCylinder(Player player, String[] args, boolean hollow) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 3 && args.length != 4 && args.length != 5) {
 			player.sendMessage("§5Incorrect command usage");
@@ -311,7 +311,9 @@ public class Generation {
 	}
     
 	public static void createTree(Player player, String[] args) {
-		if (!EvilBook.isInSurvival(player) || EvilBook.getProfile(player).rank == Rank.SERVER_HOST) {
+		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in survival");
+		} else {
 			if (args.length == 0) {
 				TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player, plugin);
 				player.getWorld().generateTree(player.getLocation(), TreeType.TREE, delegate);
@@ -336,8 +338,6 @@ public class Generation {
 				player.sendMessage("§d/tree");
 				player.sendMessage("§d/tree [treeType]");
 			}
-		} else {
-			player.sendMessage("§7EvilEdit can't be used in survival");
 		}
 	}
 }

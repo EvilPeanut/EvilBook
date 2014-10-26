@@ -281,7 +281,6 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/stop", Rank.SERVER_HOST);
 		commandBlacklist.put("/op", Rank.SERVER_HOST);
 		commandBlacklist.put("/reload", Rank.SERVER_HOST);
-		commandBlacklist.put("/drwatson", Rank.SERVER_HOST);
 		commandBlacklist.put("/makeadmin", Rank.SERVER_HOST);
 		commandBlacklist.put("/setspawn", Rank.SERVER_HOST);
 		commandBlacklist.put("/xp", Rank.SERVER_HOST);
@@ -289,6 +288,8 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/deop", Rank.SERVER_HOST);
 		commandBlacklist.put("/demote", Rank.SERVER_HOST);
 		commandBlacklist.put("/drug", Rank.SERVER_HOST);
+		//
+		commandBlacklist.put("/drwatson", Rank.ADMIN_STAFF);
 		//
 		commandBlacklist.put("/hyperhorse", Rank.TYCOON);
 		//
@@ -1167,7 +1168,8 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("  §0[§CElite§0] §7Purchased from the Amentrix website");
 				sender.sendMessage("  §0[§6Investor§0] §7Purchased from the Amentrix website");
 				sender.sendMessage("  §0[§6§OTycoon§0] §7Purchased from the Amentrix website");
-				sender.sendMessage("  §0[§BSERVER_HOST§0] §7EvilPeanut");
+				sender.sendMessage("  §0[§B§OAdmin Staff§0] §7Elected admin staff team");
+				sender.sendMessage("  §0[§BServer Host§0] §7EvilPeanut");
 				sender.sendMessage("  §7To purchase a rank please see /admin");
 			}
 			return true;
@@ -1231,7 +1233,7 @@ public class EvilBook extends JavaPlugin {
 					if (getPlayer(args[0]) != null) {
 						if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.MODERATOR) && !getProfile(sender).rank.isHigher(Rank.ELITE)) {
 							sender.sendMessage("§7You can't promote a player to above moderator");
-						} else if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.POLICE) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+						} else if (sender instanceof Player && getProfile(args[0]).rank.getNextRank().isHigher(Rank.POLICE) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 							sender.sendMessage("§7You can't promote a player to above police");
 						} else {
 							//getServer().getPlayer(args[0]).getInventory().addItem(Rank.getUnlocksBook(getProfile(args[0]).rank, getProfile(args[0]).rank.getNextRank()));
@@ -1272,7 +1274,7 @@ public class EvilBook extends JavaPlugin {
 						if (getPlayer(args[0]) != null) {
 							if (sender instanceof Player && rank.isHigher(Rank.MODERATOR) && !getProfile(sender).rank.isHigher(Rank.ELITE)) {
 								sender.sendMessage("§7You can't promote a player to above moderator");
-							} else if (sender instanceof Player && rank.isHigher(Rank.POLICE) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+							} else if (sender instanceof Player && rank.isHigher(Rank.POLICE) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 								sender.sendMessage("§7You can't promote a player to above police");
 							} else {
 								getProfile(args[0]).rank = rank;
@@ -1968,7 +1970,7 @@ public class EvilBook extends JavaPlugin {
 				} else {
 					for (String world : paidWorldList) {
 						if (world.equalsIgnoreCase(args[0])) {
-							if (getPrivateWorldProperty(args[0], "AllowedPlayers").contains(sender.getName().toLowerCase()) || getProfile(player).rank == Rank.SERVER_HOST) {
+							if (getPrivateWorldProperty(args[0], "AllowedPlayers").contains(sender.getName().toLowerCase()) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 								player.teleport(getProfile(player).getWorldLastPosition("plugins/EvilBook/Private worlds/" + args[0]));
 							} else {
 								player.sendMessage("§7You don't have access this private world");
@@ -2336,7 +2338,7 @@ public class EvilBook extends JavaPlugin {
 		// Disguise Command
 		//
 		if (command.getName().equalsIgnoreCase("disguise")) {
-			if (isInSurvival(player) && getProfile(sender).rank != Rank.SERVER_HOST) {
+			if (isInSurvival(player) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				sender.sendMessage("§7Mob disguise can't be used in survival");
 			} else {
 				if (args.length == 1) {
@@ -2590,7 +2592,7 @@ public class EvilBook extends JavaPlugin {
 					if (args.length == 2) {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 									sender.sendMessage("§7You don't have ownership of this region");
 									return true;
 								}
@@ -2627,7 +2629,7 @@ public class EvilBook extends JavaPlugin {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 										sender.sendMessage("§7You don't have ownership of this region");
 										return true;
 									}
@@ -2651,7 +2653,7 @@ public class EvilBook extends JavaPlugin {
 							StringBuilder message = new StringBuilder();
 							for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 									sender.sendMessage("§7You don't have ownership of this region");
 									return true;
 								}
@@ -2674,7 +2676,7 @@ public class EvilBook extends JavaPlugin {
 							StringBuilder message = new StringBuilder();
 							for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 									sender.sendMessage("§7You don't have ownership of this region");
 									return true;
 								}
@@ -2695,7 +2697,7 @@ public class EvilBook extends JavaPlugin {
 					if (args.length == 3) {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 									sender.sendMessage("§7You don't have ownership of this region");
 									return true;
 								}
@@ -2722,7 +2724,7 @@ public class EvilBook extends JavaPlugin {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 										sender.sendMessage("§7You don't have ownership of this region");
 										return true;
 									}
@@ -2760,7 +2762,7 @@ public class EvilBook extends JavaPlugin {
 						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
 							for (Region region : regionList) {
 								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.equals(Rank.SERVER_HOST)) {
+									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 										sender.sendMessage("§7You don't have ownership of this region");
 										return true;
 									} else if (SQL.isKeyExistant(TableType.Warps, args[2].toLowerCase(Locale.UK))) {
@@ -2865,7 +2867,7 @@ public class EvilBook extends JavaPlugin {
 					player.setGameMode(GameMode.SURVIVAL);
 					sender.sendMessage("§7Your gamemode has been changed to survival");
 				} else if (args[0].equalsIgnoreCase("creative") || args[0].equals("1")) {
-					if (isInSurvival(player) == false || getProfile(sender).rank == Rank.SERVER_HOST) {
+					if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 						player.setGameMode(GameMode.CREATIVE);
 						sender.sendMessage("§7Your gamemode has been changed to creative");
 					} else {
@@ -2877,7 +2879,7 @@ public class EvilBook extends JavaPlugin {
 				} else {
 					sender.sendMessage("§7This gamemode doesn't exist");
 				}
-			} else if (args.length == 2 && getProfile(sender).rank == Rank.SERVER_HOST) {
+			} else if (args.length == 2 && getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				if (getPlayer(args[1]) != null) {
 					if (args[0].equalsIgnoreCase("survival") || args[0].equals("0")) {
 						getPlayer(args[1]).setGameMode(GameMode.SURVIVAL);
@@ -2969,7 +2971,7 @@ public class EvilBook extends JavaPlugin {
 		// Vanish Command
 		//
 		if (command.getName().equalsIgnoreCase("vanish") || command.getName().equalsIgnoreCase("hide")) {
-			if (isInSurvival(player) && getProfile(sender).rank != Rank.SERVER_HOST) {
+			if (isInSurvival(player) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				sender.sendMessage("§7Vanish can't be used in survival");
 				return true;
 			}
@@ -3010,7 +3012,7 @@ public class EvilBook extends JavaPlugin {
 		// Teleport To Home Command
 		//
 		if (command.getName().equalsIgnoreCase("home") || command.getName().equalsIgnoreCase("homes")) {
-			if (args.length == 0 || getProfile(sender).rank != Rank.SERVER_HOST) {
+			if (args.length == 0 || !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				if (getProfile(sender).homeLocation != null) {
 					player.teleport(getProfile(sender).homeLocation);
 					sender.sendMessage("§7Welcome home");
@@ -3032,7 +3034,7 @@ public class EvilBook extends JavaPlugin {
 		// Spawn Creature Command
 		//
 		if (command.getName().equalsIgnoreCase("spawncreature") || command.getName().equalsIgnoreCase("cspawn") || command.getName().equalsIgnoreCase("mob") || command.getName().equalsIgnoreCase("spawnmob")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank == Rank.SERVER_HOST) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				if (args.length >= 1) {
 					EntityType entityType = getEntity(args[0]);
 					if (entityType != null) {
@@ -3120,7 +3122,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§7A warp with that name doesn't exist");
 					}
 				}
-			} else if (args.length == 2 && args[0].equalsIgnoreCase("list") && getProfile(sender).rank == Rank.SERVER_HOST) {
+			} else if (args.length == 2 && args[0].equalsIgnoreCase("list") && getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				String playerWarps = SQL.getProperty(TableType.PlayerProfile, args[1], "warp_list");
 				if (playerWarps != null) {
 					List<String> warps = Arrays.asList(playerWarps.split(","));
@@ -3214,7 +3216,7 @@ public class EvilBook extends JavaPlugin {
 		// Enchant Command
 		//
 		if (command.getName().equalsIgnoreCase("enchant")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank == Rank.SERVER_HOST) {
+			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				if (args.length == 2) {
 					if (isInteger(args[1])) {
 						try {
@@ -3380,7 +3382,7 @@ public class EvilBook extends JavaPlugin {
 		// Butcher Command
 		//
 		if (command.getName().equalsIgnoreCase("butcher") || command.getName().equalsIgnoreCase("remove") || command.getName().equalsIgnoreCase("killall") || command.getName().equalsIgnoreCase("mobkill")) {
-			if (!isInSurvival(player) || getProfile(sender).rank == Rank.SERVER_HOST) {
+			if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				int entities = player.getWorld().getLivingEntities().size();
 				for (LivingEntity entity : player.getWorld().getLivingEntities()) if (entity.getType() == EntityType.PLAYER || (entity.getType() == EntityType.WOLF && ((Tameable)entity).isTamed())) entities--; else entity.remove();
 				sender.sendMessage("§5" + entities + "§d animals butchered");
@@ -3547,7 +3549,7 @@ public class EvilBook extends JavaPlugin {
 		// Give Command
 		//
 		if (command.getName().equalsIgnoreCase("item") || command.getName().equalsIgnoreCase("give")) {
-			if (isInSurvival(player) && getProfile(sender).rank != Rank.SERVER_HOST) {
+			if (isInSurvival(player) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				sender.sendMessage("§7Spawning of items is blocked in survival");
 			} else {
 				if (args.length == 1) {

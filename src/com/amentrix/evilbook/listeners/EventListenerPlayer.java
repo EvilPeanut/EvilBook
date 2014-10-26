@@ -496,7 +496,7 @@ public class EventListenerPlayer implements Listener {
 					SQL.insert(TableType.CommandBlock, "'" + player.getName() + "'," + block.getX() + "," + block.getY() + "," + block.getZ());
 				} else if (SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
 						"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner").equals(player.getName()) &&
-						EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+						!EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 					player.sendMessage(ChatColor.GRAY + "You don't have permission to edit this command block");
 					event.setCancelled(true);
 					return;
@@ -593,7 +593,7 @@ public class EventListenerPlayer implements Listener {
 				//
 				// Survival container protection and ender chest blocking
 				//
-			} else if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player.getName()).rank != Rank.SERVER_HOST) {
+			} else if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 				if (block.getType() == Material.ENDER_CHEST) {
 					player.sendMessage("§7Ender chests are blocked in survival");
 					event.setCancelled(true);
@@ -602,7 +602,7 @@ public class EventListenerPlayer implements Listener {
 					event.setCancelled(true);
 				}
 			} else if (event.hasItem()) {
-				if (EvilBook.getProfile(player).rank.isHigher(Rank.STAFF_LAPIS) && event.getItem().getType() == Material.GOLD_SPADE && (EvilBook.isInSurvival(player) == false || EvilBook.getProfile(player).rank == Rank.SERVER_HOST) && ((PlayerProfileAdmin)EvilBook.getProfile(player)).wandMode != EditWandMode.None) {
+				if (EvilBook.getProfile(player).rank.isHigher(Rank.STAFF_LAPIS) && event.getItem().getType() == Material.GOLD_SPADE && (EvilBook.isInSurvival(player) == false || EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) && ((PlayerProfileAdmin)EvilBook.getProfile(player)).wandMode != EditWandMode.None) {
 					if (EvilBook.getProfile(player).wandMode == EditWandMode.Selection) {
 						EvilBook.getProfile(player).actionLocationB = block.getLocation();
 						player.sendMessage("§7Second point selected (" + block.getX() + ", " + block.getY() + ", " + block.getZ() + ")");
@@ -732,7 +732,7 @@ public class EventListenerPlayer implements Listener {
 		EvilBook.getProfile(player).lastLocation = event.getFrom();
 		for (String world : EvilBook.paidWorldList) {
 			if (event.getTo().getWorld().getName().toLowerCase().endsWith(world.toLowerCase())) {
-				if (EvilBook.getProfile(player).rank != Rank.SERVER_HOST && !EvilBook.getPrivateWorldProperty(event.getTo().getWorld().getName().split("plugins/EvilBook/Private worlds/")[1], "AllowedPlayers").contains(player.getName().toLowerCase())) {
+				if (!EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON) && !EvilBook.getPrivateWorldProperty(event.getTo().getWorld().getName().split("plugins/EvilBook/Private worlds/")[1], "AllowedPlayers").contains(player.getName().toLowerCase())) {
 					player.sendMessage("§7You don't have access to this private world");
 					event.setCancelled(true);
 					return;
@@ -775,7 +775,7 @@ public class EventListenerPlayer implements Listener {
 			EvilBook.getSurvivalInventory(player);
 			for (PotionEffect effect : player.getActivePotionEffects()) player.removePotionEffect(effect.getType());
 			player.setGameMode(GameMode.SURVIVAL);
-			if (EvilBook.getProfile(player).isInvisible && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+			if (EvilBook.getProfile(player).isInvisible && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
 				EvilBook.getProfile(player).isInvisible = false;
 				player.sendMessage("§7Vanish isn't allowed in survival, you are now visible");
@@ -808,7 +808,7 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
-		if (EvilBook.getProfile(event.getPlayer()).rank == Rank.SERVER_HOST) return;
+		if (EvilBook.getProfile(event.getPlayer()).rank.isHigher(Rank.TYCOON)) return;
 		if (event.getNewGameMode() != GameMode.SURVIVAL && EvilBook.isInSurvival(event.getPlayer())) event.setCancelled(true);
 	}
 }

@@ -23,6 +23,8 @@ public enum Rank {
 	ELITE("Elite", "§0[§CElite§0]", "C", 50000, null),
 	INVESTOR("Investor", "§0[§6Investor§0]", "6", 75000, null),
 	TYCOON("Tycoon", "§0[§6§OTycoon§0]", "6", Integer.MAX_VALUE, null),
+	// Admin Staff rank
+	ADMIN_STAFF("Admin Staff", "§0[§B§OAdmin Staff§0]", "B", Integer.MAX_VALUE, null),
 	// Server Host rank
 	SERVER_HOST("Server Host", "§0[§BServer Host§0]", "B", Integer.MAX_VALUE, null);
 	
@@ -121,6 +123,8 @@ public enum Rank {
 		case INVESTOR:
 			return Rank.TYCOON;
 		case TYCOON:
+			return Rank.ADMIN_STAFF;
+		case ADMIN_STAFF:
 			return Rank.SERVER_HOST;
 		case SERVER_HOST:
 			return Rank.SERVER_HOST;
@@ -166,8 +170,10 @@ public enum Rank {
 			return Rank.ELITE;
 		case TYCOON:
 			return Rank.INVESTOR;
-		case SERVER_HOST:
+		case ADMIN_STAFF:
 			return Rank.TYCOON;
+		case SERVER_HOST:
+			return Rank.ADMIN_STAFF;
 		default:
 			break;
 		}

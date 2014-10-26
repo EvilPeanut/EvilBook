@@ -194,7 +194,7 @@ public class Region {
 	}	
 
 	public static void paste(final Player player, String[] args) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 0) {
 			player.sendMessage("§5Incorrect command usage");
@@ -611,7 +611,7 @@ public class Region {
 	}
 	
 	public static void regenerateChunk(Player player) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else {
 			BlockState[] logBlockStates = new BlockState[74273];
@@ -883,7 +883,7 @@ public class Region {
 	}
 
 	public static void spawnEditWand(Player player) {
-		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
+		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7You can't spawn an EvilEdit wand in survival");
 		} else {
 			player.getInventory().addItem(new ItemStack(Material.GOLD_SPADE));
