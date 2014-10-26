@@ -505,7 +505,7 @@ public class Region {
 					{
 						if (randomizer.nextBoolean()) {
 							if (selection.getBlock(x, y, z).getType() == oldBlock.getMaterial() && (args.length == 2 || selection.getBlock(x, y, z).getData() == oldBlock.getData())) {
-								engine.setBlock(x, y, z, oldBlock.getMaterial().getId(), oldBlock.getData());
+								engine.setBlock(x, y, z, newBlock.getMaterial().getId(), newBlock.getData());
 							}
 						}
 					}
@@ -821,7 +821,7 @@ public class Region {
 					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
 					{
 						if (selection.getBlock(x, y, z).getType() == oldBlock.getMaterial() && (args.length == 2 || selection.getBlock(x, y, z).getData() == oldBlock.getData())) {
-							engine.setBlock(x, y, z, oldBlock.getMaterial().getId(), oldBlock.getData());
+							engine.setBlock(x, y, z, newBlock.getMaterial().getId(), newBlock.getData());
 						}
 					}
 				}
