@@ -22,7 +22,7 @@ public class Movement {
 			double yaw = (double)pos.getYaw() / 90;
 			yaw = Math.round(yaw);
 			int offset = 1;
-			while (offset <= 32) {
+			while (offset <= 64) {
 				if (yaw == -4 || yaw == 0 || yaw == 4) { // +z
 					if (!pos.add(0, 0, (double)offset / 2).getBlock().getType().isSolid()) {
 						player.teleport(pos.add(0, 0, offset + 0.5));
