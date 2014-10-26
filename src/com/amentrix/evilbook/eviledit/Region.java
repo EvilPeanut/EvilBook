@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.amentrix.evilbook.eviledit.utils.BlockType;
 import com.amentrix.evilbook.eviledit.utils.CraftEvilEditEngine;
@@ -193,7 +195,7 @@ public class Region {
 		}
 	}	
 
-	public static void paste(Player player, String[] args) {
+	public static void paste(final Player player, String[] args) {
 		if (EvilBook.isInSurvival(player) && EvilBook.getProfile(player).rank != Rank.SERVER_HOST) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 0) {
@@ -202,94 +204,172 @@ public class Region {
 		} else if (((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().size() == 0) {
 			player.sendMessage("§7Please copy an area of blocks before attempting paste");
 		} else {
-			int topBlockX = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockX();
-			int bottomBlockX = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockX();
-			int topBlockY = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockY();
-			int bottomBlockY = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockY();
-			int topBlockZ = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockZ();
-			int bottomBlockZ = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockZ();
-			for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy()) {
-				if (block.getLocation().getBlockX() > topBlockX) topBlockX = block.getLocation().getBlockX();
-				if (block.getLocation().getBlockX() < bottomBlockX) bottomBlockX = block.getLocation().getBlockX();
-				if (block.getLocation().getBlockY() > topBlockY) topBlockY = block.getLocation().getBlockY();
-				if (block.getLocation().getBlockY() < bottomBlockY) bottomBlockY = block.getLocation().getBlockY();
-				if (block.getLocation().getBlockZ() > topBlockZ) topBlockZ = block.getLocation().getBlockZ();
-				if (block.getLocation().getBlockZ() < bottomBlockZ) bottomBlockZ = block.getLocation().getBlockZ();
+			if (((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize() <= 200000) {
+				int topBlockX = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockX();
+				int bottomBlockX = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockX();
+				int topBlockY = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockY();
+				int bottomBlockY = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockY();
+				int topBlockZ = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockZ();
+				int bottomBlockZ = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockZ();
+				for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy()) {
+					if (block.getLocation().getBlockX() > topBlockX) topBlockX = block.getLocation().getBlockX();
+					if (block.getLocation().getBlockX() < bottomBlockX) bottomBlockX = block.getLocation().getBlockX();
+					if (block.getLocation().getBlockY() > topBlockY) topBlockY = block.getLocation().getBlockY();
+					if (block.getLocation().getBlockY() < bottomBlockY) bottomBlockY = block.getLocation().getBlockY();
+					if (block.getLocation().getBlockZ() > topBlockZ) topBlockZ = block.getLocation().getBlockZ();
+					if (block.getLocation().getBlockZ() < bottomBlockZ) bottomBlockZ = block.getLocation().getBlockZ();
+				}
+				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+				for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy()) {
+					Location loc = new Location(player.getWorld(), 
+							player.getLocation().getBlockX() + (block.getLocation().getBlockX() - bottomBlockX), 
+							player.getLocation().getBlockY() + (block.getLocation().getBlockY() - bottomBlockY), 
+							player.getLocation().getBlockZ() + (block.getLocation().getBlockZ() - bottomBlockZ));
+					// Set the block material and data which includes direction
+					engine.setBlock(loc, block.getType().getId(), block.getData().getData());
+					// Handle blocks with special states
+					Session.setState(block, loc.getBlock().getState());
+				}
+				// Paste dynamic signs
+				for (DynamicSign dynamicSign : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList) {
+					DynamicSign newDynamicSign = dynamicSign;
+					newDynamicSign.location = new Location(player.getWorld(), 
+							player.getLocation().getBlockX() + (newDynamicSign.location.getBlockX() - bottomBlockX), 
+							player.getLocation().getBlockY() + (newDynamicSign.location.getBlockY() - bottomBlockY), 
+							player.getLocation().getBlockZ() + (newDynamicSign.location.getBlockZ() - bottomBlockZ));
+					newDynamicSign.create();
+					EvilBook.dynamicSignList.add(newDynamicSign);
+				}
+				((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList = new ArrayList<>();
+				// Paste emitters
+				for (Emitter emitter : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList) {
+					Emitter newEmitter = emitter;
+					newEmitter.location = new Location(player.getWorld(), 
+							player.getLocation().getBlockX() + (newEmitter.location.getBlockX() - bottomBlockX), 
+							player.getLocation().getBlockY() + (newEmitter.location.getBlockY() - bottomBlockY), 
+							player.getLocation().getBlockZ() + (newEmitter.location.getBlockZ() - bottomBlockZ));
+					newEmitter.save();
+					EvilBook.emitterList.add(newEmitter);
+				}
+				((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList = new ArrayList<>();
+				//
+				engine.notifyClients(GlobalStatistic.BlocksPlaced);
+				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks pasted");
+			} else {
+				player.sendMessage("§7Using EvilEdit angel, your edit should take " + (int)Math.floor(((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize() / 219520) + " seconds");
+				
+				int bottomBlockX = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockX();
+				int bottomBlockY = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockY();
+				int bottomBlockZ = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockZ();
+				for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy()) {
+					if (block.getLocation().getBlockX() < bottomBlockX) bottomBlockX = block.getLocation().getBlockX();
+					if (block.getLocation().getBlockY() < bottomBlockY) bottomBlockY = block.getLocation().getBlockY();
+					if (block.getLocation().getBlockZ() < bottomBlockZ) bottomBlockZ = block.getLocation().getBlockZ();
+				}
+				final int bottomBlockX2 = bottomBlockX;
+				final int bottomBlockZ2 = bottomBlockZ;
+				final int bottomBlockY2 = bottomBlockY;
+				final EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+
+				int count = 0;
+				for (int index = 0; index <= ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize(); index += 21952)
+				{
+					final int i = index;
+					count++;
+					Bukkit.getServer().getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugin("EvilBook"), new Runnable() {
+						@Override
+						public void run() {
+							int indexMax = Math.min(i + 21952, ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize());
+							for (int subIndex = i; subIndex < indexMax; subIndex++) {
+								BlockState block = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(subIndex);
+								Location loc = new Location(player.getWorld(), 
+										player.getLocation().getBlockX() + (block.getLocation().getBlockX() - bottomBlockX2), 
+										player.getLocation().getBlockY() + (block.getLocation().getBlockY() - bottomBlockY2), 
+										player.getLocation().getBlockZ() + (block.getLocation().getBlockZ() - bottomBlockZ2));
+								// Set the block material and data which includes direction
+								engine.setBlock(loc, block.getType().getId(), block.getData().getData());
+								// Handle blocks with special states
+								Session.setState(block, loc.getBlock().getState());
+							}
+						}
+					}, count * 1L);
+				}
+				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks pasted");
 			}
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
-			for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy()) {
-				Location loc = new Location(player.getWorld(), 
-						player.getLocation().getBlockX() + (block.getLocation().getBlockX() - bottomBlockX), 
-						player.getLocation().getBlockY() + (block.getLocation().getBlockY() - bottomBlockY), 
-						player.getLocation().getBlockZ() + (block.getLocation().getBlockZ() - bottomBlockZ));
-				// Set the block material and data which includes direction
-				engine.setBlock(loc, block.getType().getId(), block.getData().getData());
-				// Handle blocks with special states
-				Session.setState(block, loc.getBlock().getState());
-			}
-			// Paste dynamic signs
-			for (DynamicSign dynamicSign : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList) {
-				DynamicSign newDynamicSign = dynamicSign;
-				newDynamicSign.location = new Location(player.getWorld(), 
-						player.getLocation().getBlockX() + (newDynamicSign.location.getBlockX() - bottomBlockX), 
-						player.getLocation().getBlockY() + (newDynamicSign.location.getBlockY() - bottomBlockY), 
-						player.getLocation().getBlockZ() + (newDynamicSign.location.getBlockZ() - bottomBlockZ));
-				newDynamicSign.create();
-				EvilBook.dynamicSignList.add(newDynamicSign);
-			}
-			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList = new ArrayList<>();
-			// Paste emitters
-			for (Emitter emitter : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList) {
-				Emitter newEmitter = emitter;
-				newEmitter.location = new Location(player.getWorld(), 
-						player.getLocation().getBlockX() + (newEmitter.location.getBlockX() - bottomBlockX), 
-						player.getLocation().getBlockY() + (newEmitter.location.getBlockY() - bottomBlockY), 
-						player.getLocation().getBlockZ() + (newEmitter.location.getBlockZ() - bottomBlockZ));
-				newEmitter.save();
-				EvilBook.emitterList.add(newEmitter);
-			}
-			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList = new ArrayList<>();
-			//
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
-			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks pasted");
 		}
 	}
 
-	public static void copy(Player player, String[] args) {
-		Selection selection = new Selection(player);
+	public static void copy(final Player player, String[] args) {
+		final Selection selection = new Selection(player);
 		if (args.length != 0) {
 			player.sendMessage("§5Incorrect command usage");
 			player.sendMessage("§d/copy");
 		} else if (selection.isValid()) {
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearCopy();
-			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
-			{
-				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+			if (selection.getVolume() <= 200000) {
+				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 				{
-					for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
 					{
-						// Append the block to the copy list
-						((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendCopy(selection.getBlock(x, y, z).getState());
-						// Dynamic signs
-						for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
-							if (dynamicSign.location.getWorld().getName().equals(selection.getWorld().getName()) && 
-									dynamicSign.location.getBlockX() == x &&
-									dynamicSign.location.getBlockY() == y &&
-									dynamicSign.location.getBlockZ() == z) {
-								((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList.add(dynamicSign);
+						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y++)
+						{
+							// Append the block to the copy list
+							((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendCopy(selection.getBlock(x, y, z).getState());
+							// Dynamic signs
+							for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
+								if (dynamicSign.location.getWorld().getName().equals(selection.getWorld().getName()) && 
+										dynamicSign.location.getBlockX() == x &&
+										dynamicSign.location.getBlockY() == y &&
+										dynamicSign.location.getBlockZ() == z) {
+									((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList.add(dynamicSign);
+								}
 							}
-						}
-						// Emitters
-						for (Emitter emitter : EvilBook.emitterList) {
-							if (emitter.location.getWorld().getName().equals(selection.getWorld().getName()) && 
-									emitter.location.getBlockX() == x &&
-									emitter.location.getBlockY() == y &&
-									emitter.location.getBlockZ() == z) {
-								((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList.add(emitter);
+							// Emitters
+							for (Emitter emitter : EvilBook.emitterList) {
+								if (emitter.location.getWorld().getName().equals(selection.getWorld().getName()) && 
+										emitter.location.getBlockX() == x &&
+										emitter.location.getBlockY() == y &&
+										emitter.location.getBlockZ() == z) {
+									((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList.add(emitter);
+								}
 							}
 						}
 					}
 				}
+			} else if (selection.getVolume() <= 2500000) {
+				player.sendMessage("§7Using EvilEdit angel, your edit should take " + (int)Math.floor(selection.getVolume() / 219520) + " seconds");
+				int count = 0;
+				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x += 28)
+				{
+					final int xf = x;
+					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z += 28)
+					{
+						final int zf = z;
+						for (int y = selection.getBottomYBlock(); y <= selection.getTopYBlock(); y += 28)
+						{
+							final int yf = y;
+							count++;
+							Bukkit.getServer().getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugin("EvilBook"), new Runnable() {
+								@Override
+								public void run() {
+									int xmax = Math.min(xf + 28, selection.getTopXBlock());
+									int zmax = Math.min(zf + 28, selection.getTopZBlock());
+									int ymax = Math.min(yf + 28, selection.getTopYBlock());
+									for (int x2 = xf; x2 <= xmax; x2++) {
+										for (int z2 = zf; z2 <= zmax; z2++) {
+											for (int y2 = yf; y2 <= ymax; y2++) {
+												// Append the block to the copy list
+												((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendCopy(selection.getBlock(x2, y2, z2).getState());
+											}
+										}
+									}
+								}
+							}, count * 1L);
+						}
+					}
+				}
+			} else {
+				player.sendMessage("§7Selection is too large to be copied");
 			}
 			player.sendMessage("§7Selection of " + selection.getVolume() + " blocks copied");
 		}

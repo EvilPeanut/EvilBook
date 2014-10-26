@@ -40,4 +40,8 @@ public class Clipboard {
 	public void clearCopy() {
 		this.copyList = new ArrayList<>();
 	}
+	
+	public int getCopySize() {
+		return this.copyList.size();
+	}
 }
