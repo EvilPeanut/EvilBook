@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.Rank;
@@ -18,38 +19,27 @@ public class Movement {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else {
-			Location pos = player.getLocation();
-			double yaw = (double)pos.getYaw() / 90;
-			yaw = Math.round(yaw);
-			int offset = 1;
-			while (offset <= 64) {
-				if (yaw == -4 || yaw == 0 || yaw == 4) { // +z
-					if (!pos.add(0, 0, (double)offset / 2).getBlock().getType().isSolid()) {
-						player.teleport(pos.add(0, 0, offset + 0.5));
-						player.sendMessage(ChatColor.GRAY + "Passed through " + offset + " blocks");
-						return;
-					}
-				} else if (yaw == -1 || yaw == 3) { // +x
-					if (!pos.add((double)offset / 2, 0, 0).getBlock().getType().isSolid()) {
-						player.teleport(pos.add(offset + 0.5, 0, 0));
-						player.sendMessage(ChatColor.GRAY + "Passed through " + offset + " blocks");
-						return;
-					}
-				} else if (yaw == -2 || yaw == 2) { // -z
-					if (!pos.subtract(0, 0, (double)offset / 2).getBlock().getType().isSolid()) {
-						player.teleport(pos.subtract(0, 0, offset + 0.5));
-						player.sendMessage(ChatColor.GRAY + "Passed through " + offset + " blocks");
-						return;
-					}
-				} else { // -x
-					if (!pos.subtract((double)offset / 2, 0, 0).getBlock().getType().isSolid()) {
-						player.teleport(pos.subtract(offset + 0.5, 0, 0));
-						player.sendMessage(ChatColor.GRAY + "Passed through " + offset + " blocks");
-						return;
-					}
+			Location pos = player.getLocation(), oldLocation = player.getLocation();	
+			
+			Vector vector = new Vector();
+			double rotX = player.getLocation().getYaw();
+			double rotY = player.getLocation().getPitch();
+			double xz = Math.cos(Math.toRadians(rotY));
+			vector.setX(-xz * Math.sin(Math.toRadians(rotX)));
+			vector.setZ(xz * Math.cos(Math.toRadians(rotX)));
+			
+			boolean hasHitSolid = player.getLocation().getBlock().getType().isSolid();
+			
+			for (int offset = 0; offset < 256; offset++) {
+				if (!pos.add(vector).getBlock().getType().isSolid() && hasHitSolid) {
+					player.teleport(pos);
+					player.sendMessage(ChatColor.GRAY + "Passed through " + (int)Math.ceil(oldLocation.distance(pos)) + " blocks");
+					return;
+				} else if (pos.add(vector).getBlock().getType().isSolid()) {
+					hasHitSolid = true;
 				}
-				offset++;
 			}
+			
 			player.sendMessage(ChatColor.GRAY + "There are no valid obstacles to pass trough");
 		}
 	}
