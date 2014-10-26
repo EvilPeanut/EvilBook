@@ -4498,6 +4498,15 @@ public class EvilBook extends JavaPlugin {
 		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_REDSTONE_IV)) titles += "Electric ";
 		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_EMERALD_IV)) titles += "Iced ";
 		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_MINE_NETHERQUARTZ_IV)) titles += "Nether ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_PIG_II)) titles += "Bacon ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_ENDERMAN_II)) titles += "Ender ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_ZOMBIEPIG_II)) titles += "Zomble ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_CREEPER_II)) titles += "Creep ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_GHAST_II)) titles += "Ghastly ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_SILVERFISH_II)) titles += "Silver ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_SLIME_II)) titles += "Slimey ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_WITCH_II)) titles += "Witch ";
+		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_ZOMBIE_II)) titles += "Zombie ";
 		return titles;
 	}
 }
