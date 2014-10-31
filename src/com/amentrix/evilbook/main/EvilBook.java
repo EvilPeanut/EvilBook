@@ -69,6 +69,7 @@ import com.amentrix.evilbook.dynmap.PlayerHomeMarkers;
 import com.amentrix.evilbook.dynmap.WarpMarkers;
 import com.amentrix.evilbook.eviledit.Session;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
+import com.amentrix.evilbook.invent.HatchTweak;
 import com.amentrix.evilbook.listeners.EventListenerBlock;
 import com.amentrix.evilbook.listeners.EventListenerEntity;
 import com.amentrix.evilbook.listeners.EventListenerInventory;
@@ -130,6 +131,10 @@ public class EvilBook extends JavaPlugin {
 		pluginManager.registerEvents(new EventListenerInventory(), this);
 		pluginManager.registerEvents(new EventListenerPlayer(), this);
 		pluginManager.registerEvents(new EventListenerVehicle(), this);
+		//
+		// Register EvilBook Invent listeners
+		//
+		pluginManager.registerEvents(new HatchTweak(), this);
 		//
 		// Check mandatory files and folders exist
 		//
