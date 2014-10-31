@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -41,6 +42,16 @@ import com.amentrix.evilbook.statistics.PlayerStatistics;
  * @author Reece Aaron Lecrivain
  */
 public class EventListenerBlock implements Listener {
+	/**
+	 * Called when the server is deciding if the block can be placed
+	 */
+	@EventHandler(priority = EventPriority.NORMAL)
+	public void onBlockCanBuild(BlockCanBuildEvent event){
+		if (!event.isBuildable() && !EvilBook.isInSurvival(event.getBlock().getWorld()) && (event.getBlock().isEmpty() || event.getBlock().isLiquid())){
+			event.setBuildable(true);
+		}
+	}
+
 	/**
 	 * Called when a block is broken
 	 */
