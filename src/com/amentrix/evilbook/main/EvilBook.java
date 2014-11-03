@@ -98,17 +98,17 @@ import de.diddiz.LogBlock.LogBlock;
  */
 public class EvilBook extends JavaPlugin {
 	// Reference lists
-	public final static Map<Material, List<String>> blockList = new LinkedHashMap<>();
-	public final static Map<Biome, List<String>> biomeList = new LinkedHashMap<>();
-	public final static Map<TreeType, List<String>> treeTypeList = new LinkedHashMap<>();
+	public static Map<Material, List<String>> blockList = new LinkedHashMap<>();
+	public static Map<Biome, List<String>> biomeList = new LinkedHashMap<>();
+	public static Map<TreeType, List<String>> treeTypeList = new LinkedHashMap<>();
 	//
-	public final static Map<String, PlayerProfile> playerProfiles = new HashMap<>();
-	public final static Map<String, Rank> commandBlacklist = new HashMap<>();
-	public final static List<DynamicSign> dynamicSignList = new ArrayList<>();
-	public final static List<String> paidWorldList = new ArrayList<>();
-	public final static List<Region> regionList = new ArrayList<>();
-	public final static List<Emitter> emitterList = new ArrayList<>();
-	public final static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
+	public static Map<String, PlayerProfile> playerProfiles = new HashMap<>();
+	public static Map<String, Rank> commandBlacklist = new HashMap<>();
+	public static List<DynamicSign> dynamicSignList = new ArrayList<>();
+	public static List<String> paidWorldList = new ArrayList<>();
+	public static List<Region> regionList = new ArrayList<>();
+	public static List<Emitter> emitterList = new ArrayList<>();
+	public static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
 	public Session editSession = new Session(this);
 	public Random random = new Random();
 	// Log block API
