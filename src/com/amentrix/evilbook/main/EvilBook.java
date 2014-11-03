@@ -326,6 +326,8 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("//esphere", Rank.ADMIN);
 		commandBlacklist.put("/cspawn", Rank.ADMIN);
 		commandBlacklist.put("/spawncreature", Rank.ADMIN);
+		commandBlacklist.put("/mob", Rank.ADMIN);
+		commandBlacklist.put("/spawnmob", Rank.ADMIN);
 		commandBlacklist.put("/forestgen", Rank.ADMIN);
 		commandBlacklist.put("/forest", Rank.ADMIN);
 		commandBlacklist.put("/pyramid", Rank.ADMIN);
