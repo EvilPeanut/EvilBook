@@ -1614,7 +1614,7 @@ public class EvilBook extends JavaPlugin {
 						StringBuilder message = new StringBuilder();
 						for (int i = 1; i < args.length; i++) message.append(" " + args[i]);
 						sender.sendMessage("§7To " + getPlayer(args[0]).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
-						getPlayer(args[0]).sendMessage("§7From " + ((Player) sender).getDisplayName() + ":§f" + EvilBook.toFormattedString(message.toString()));
+						getPlayer(args[0]).sendMessage("§7From " + ((Player) sender).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
 						getProfile(player).lastMsgPlayer = getPlayer(args[0]).getName();
 						getProfile(args[0]).lastMsgPlayer = sender.getName();
 					} else {
