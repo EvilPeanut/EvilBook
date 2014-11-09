@@ -1029,7 +1029,7 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("me")) {
 			String me = "";
 			for (String msg : args) me += " " + msg;
-			broadcastPlayerMessage(sender.getName(), "* " + (sender instanceof Player ? ((Player)sender).getDisplayName() : sender.getName()) + me);
+			broadcastPlayerMessage(sender.getName(), "* " + (sender instanceof Player ? ((Player)sender).getDisplayName() : sender.getName()) + EvilBook.toFormattedString(me.toString()));
 			return true;
 		}
 		//
