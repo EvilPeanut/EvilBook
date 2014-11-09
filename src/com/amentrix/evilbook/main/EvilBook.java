@@ -76,6 +76,7 @@ import com.amentrix.evilbook.listeners.EventListenerInventory;
 import com.amentrix.evilbook.listeners.EventListenerPacket;
 import com.amentrix.evilbook.listeners.EventListenerPlayer;
 import com.amentrix.evilbook.listeners.EventListenerVehicle;
+import com.amentrix.evilbook.map.Maps;
 import com.amentrix.evilbook.nametag.NametagAPI;
 import com.amentrix.evilbook.nametag.NametagEdit;
 import com.amentrix.evilbook.sql.SQL;
@@ -116,6 +117,8 @@ public class EvilBook extends JavaPlugin {
 	// Dynmap API
 	public static DynmapAPI dynmapAPI;
 	public static MarkerAPI markerAPI;
+	// Maps Module
+	public Maps maps;
 
 	/**
 	 * Called when the plugin is enabled
@@ -135,6 +138,11 @@ public class EvilBook extends JavaPlugin {
 		// Register EvilBook Invent listeners
 		//
 		pluginManager.registerEvents(new HatchTweak(), this);
+		//
+		// Maps Module
+		//
+		maps = new Maps(this);
+		getCommand("map").setExecutor(this.maps);
 		//
 		// Check mandatory files and folders exist
 		//
@@ -756,6 +764,14 @@ public class EvilBook extends JavaPlugin {
 		scheduler.updateServices();
 	}
 
+	/**
+	 * Called when the plugin is disabled
+	 */
+	@Override
+	public void onDisable() {
+		maps.saveMapIdList();
+	}
+	
 	/**
 	 * Called when a command is executed
 	 */
