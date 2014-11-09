@@ -192,7 +192,6 @@ public class EvilBook extends JavaPlugin {
 			getServer().shutdown();
 			return;
 		}
-		logInfo("Loaded MySQL module");
 		//
 		// Preform SQL checks
 		//
@@ -727,7 +726,6 @@ public class EvilBook extends JavaPlugin {
 		final Plugin plugin = pluginManager.getPlugin("EvilBook-Logging");
 		if (plugin != null) {
 			lbConsumer = ((LogBlock) plugin).getConsumer();
-			logInfo("Loaded EvilBook-Logging module");
 		} else {
 			logSevere("Failed to load EvilBook-Logging module");
 			getServer().shutdown();
@@ -740,7 +738,6 @@ public class EvilBook extends JavaPlugin {
 		if (dynmapPlugin != null) {
 			dynmapAPI = ((DynmapAPI) dynmapPlugin);
 			markerAPI = dynmapAPI.getMarkerAPI();
-			logInfo("Loaded Dynmap module");
 		} else {
 			logSevere("Failed to load Dynmap module");
 			getServer().shutdown();
