@@ -1613,8 +1613,8 @@ public class EvilBook extends JavaPlugin {
 					if (!getProfile(getPlayer(args[0])).isMuted(player.getName())) {
 						StringBuilder message = new StringBuilder();
 						for (int i = 1; i < args.length; i++) message.append(" " + args[i]);
-						sender.sendMessage("§7To " + getPlayer(args[0]).getDisplayName() + "§7:§f" + message);
-						getPlayer(args[0]).sendMessage("§7From " + ((Player) sender).getDisplayName() + ":§f" + message);
+						sender.sendMessage("§7To " + getPlayer(args[0]).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
+						getPlayer(args[0]).sendMessage("§7From " + ((Player) sender).getDisplayName() + ":§f" + EvilBook.toFormattedString(message.toString()));
 						getProfile(player).lastMsgPlayer = getPlayer(args[0]).getName();
 						getProfile(args[0]).lastMsgPlayer = sender.getName();
 					} else {
@@ -2206,9 +2206,9 @@ public class EvilBook extends JavaPlugin {
 						return true;
 					}
 				}
-				String prefix = args[0].startsWith("&") ? args[0] : "&6" + args[0];
+				String prefix = args[0].startsWith("&") ? EvilBook.toFormattedString(args[0]) : "&6" + EvilBook.toFormattedString(args[0]);
 				((PlayerProfileAdmin)getProfile(player)).customRankColor = prefix.substring(1, 2);
-				((PlayerProfileAdmin)getProfile(player)).customRankPrefix = "§0[" + prefix.replaceAll("&", "§") + "§0]";
+				((PlayerProfileAdmin)getProfile(player)).customRankPrefix = "§0[" + prefix + "§0]";
 				NametagAPI.updateNametagHard(player.getName(), "§" + ((PlayerProfileAdmin)getProfile(player)).rank.getColor((getProfile(player))), null);
 			} else {
 				sender.sendMessage("§5Incorrect command usage");
