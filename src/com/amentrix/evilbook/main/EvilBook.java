@@ -1638,8 +1638,8 @@ public class EvilBook extends JavaPlugin {
 					if (!getProfile(getPlayer(getProfile(player).lastMsgPlayer)).isMuted(player.getName())) {
 						StringBuilder message = new StringBuilder();
 						for (String msg : args) message.append(" " + msg);
-						sender.sendMessage("§7To " + getServer().getPlayer(getProfile(player).lastMsgPlayer).getDisplayName() + "§7:§f" + message);
-						getServer().getPlayer(getProfile(player).lastMsgPlayer).sendMessage("§7From " + ((Player) sender).getDisplayName() + ":§f" + message);
+						sender.sendMessage("§7To " + getServer().getPlayer(getProfile(player).lastMsgPlayer).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
+						getServer().getPlayer(getProfile(player).lastMsgPlayer).sendMessage("§7From " + ((Player) sender).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
 					} else {
 						sender.sendMessage("§7You can't message a player who has muted you");
 					}
