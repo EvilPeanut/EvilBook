@@ -2828,7 +2828,7 @@ public class EvilBook extends JavaPlugin {
 				for (String msg : args) message += msg + " ";
 				Boolean adminOnline = false;
 				for (Player p : getServer().getOnlinePlayers()) {
-					if (getProfile(p).rank.isHigher(Rank.POLICE)) {
+					if (getProfile(p).rank.isHigher(Rank.POLICE) && !getProfile(p).isMuted(sender.getName())) {
 						p.sendMessage(sender.getName() + " requires assistance: " + message.trim());
 						adminOnline = true;
 					}
