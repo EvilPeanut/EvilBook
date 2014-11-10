@@ -29,12 +29,12 @@ public class MapListener implements Listener {
 		for (MapView mapView : mapViews) {
 			event.getPlayer().sendMap(mapView);
 		}
-		mapModule.plugin.getServer().getScheduler().runTaskAsynchronously(mapModule.plugin, new Runnable() {
+		mapModule.plugin.getServer().getScheduler().runTaskLaterAsynchronously(mapModule.plugin, new Runnable() {
 			@Override
 			public void run() {
 				mapModule.downloadSkin(pName);
 			}
-		});
+		}, 10);
 	}
 
 	@EventHandler
