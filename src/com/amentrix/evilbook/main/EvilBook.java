@@ -402,10 +402,6 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/teleporthere", Rank.STAFF_GOLD);
 		//
 		commandBlacklist.put("/clean", Rank.STAFF_SILVER);
-		commandBlacklist.put("/butcher", Rank.STAFF_SILVER);
-		commandBlacklist.put("/killall", Rank.STAFF_SILVER);
-		commandBlacklist.put("/mobkill", Rank.STAFF_SILVER);
-		commandBlacklist.put("/remove", Rank.STAFF_SILVER);
 		//
 		commandBlacklist.put("/broadcast", Rank.STAFF_COPPER);
 		commandBlacklist.put("/say", Rank.STAFF_COPPER);
@@ -423,6 +419,11 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/alt", Rank.MODERATOR);
 		//
 		commandBlacklist.put("/chimney", Rank.ARCHITECT);
+		//
+		commandBlacklist.put("/butcher", Rank.ADVANCED_BUILDER);
+		commandBlacklist.put("/killall", Rank.ADVANCED_BUILDER);
+		commandBlacklist.put("/mobkill", Rank.ADVANCED_BUILDER);
+		commandBlacklist.put("/remove", Rank.ADVANCED_BUILDER);
 		//
 		// Load Block List
 		//
