@@ -150,7 +150,6 @@ public class Maps implements CommandExecutor {
 	}
 	
 	public boolean downloadURL(String url) {
-		//TODO: This is called to redownload image even if it exists, prevent this
 		EvilBook.logInfo("Downloading " + url + " to " + getFileName(url.split("/")[url.split("/").length - 1]));
 		try {
 			URL website = new URL(url);
@@ -260,7 +259,8 @@ public class Maps implements CommandExecutor {
 	public ItemStack getMap(Player player, String name, String type) {
 		ItemStack m = new ItemStack(Material.EMPTY_MAP);
 		if (type.equals("url")){
-			downloadURL(name);
+			File f = new File(getFileName(name.split("/")[name.split("/").length - 1].split(".png")[0]));
+			if (!f.exists()) downloadURL(name);
 			m = new ItemStack(Material.MAP);
 			MapView mv = plugin.getServer().createMap(plugin.getServer().getWorlds().get(0));
 			mv.setCenterX(MAGIC_NUMBER);
