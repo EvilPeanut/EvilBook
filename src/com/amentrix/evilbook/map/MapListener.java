@@ -26,15 +26,19 @@ public class MapListener implements Listener {
 	@EventHandler
 	public void onPlayerJoinEvent(PlayerJoinEvent event) {
 		final String pName = event.getPlayer().getName();
-		for (MapView mapView : mapViews) {
-			event.getPlayer().sendMap(mapView);
+		try {
+			for (MapView mapView : mapViews) {
+				event.getPlayer().sendMap(mapView);
+			}
+		} catch (Exception e) {
+			//TODO: Fix concurrent modification
 		}
-		mapModule.plugin.getServer().getScheduler().runTaskLaterAsynchronously(mapModule.plugin, new Runnable() {
+		mapModule.plugin.getServer().getScheduler().runTaskAsynchronously(mapModule.plugin, new Runnable() {
 			@Override
 			public void run() {
 				mapModule.downloadSkin(pName);
 			}
-		}, 10);
+		});
 	}
 
 	@EventHandler

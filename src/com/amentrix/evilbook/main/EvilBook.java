@@ -828,7 +828,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s IP isn't logged");
 				} else {
 					sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s §llast known IP §7is " + ip);
-					sender.sendMessage("§7Please note IPs change and a ban should not be based of an IP");
+					sender.sendMessage("§7Please note IPs change and bans should not be based of an IP");
 				}
 			} else {
 				sender.sendMessage("§5Incorrect command usage");
