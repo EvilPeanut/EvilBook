@@ -34,7 +34,6 @@ public class Render extends MapRenderer {
             mc.drawImage(0, 0, this.img); 
             this.rendered.add(p.getName());
             MapListener.mapViews.add(mv);
-            //p.sendMap(mv);
         } else {
             mv.getRenderers().clear();
         }
