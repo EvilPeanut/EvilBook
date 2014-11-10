@@ -86,7 +86,7 @@ public class Maps implements CommandExecutor {
 							}
 						}
 					}
-				} else {
+				} else if (args[0].equalsIgnoreCase("body")) {
 					String name = args[1];
 					ArrayList<String> list = new ArrayList<>();
 					list.add(name);
@@ -102,12 +102,33 @@ public class Maps implements CommandExecutor {
 							}
 						}
 					}
+				} else if (args[0].equalsIgnoreCase("url")) {
+					String name = args[1];
+					ArrayList<String> list = new ArrayList<>();
+					list.add(name);
+					for (String s : list) {
+						ItemStack result = getMap(player, s, "url");
+						if (!result.getType().equals(Material.EMPTY_MAP)) {
+							if (player.getInventory().firstEmpty() > -1) {
+								player.getInventory().addItem(result);
+							} else {
+								Location loc = player.getLocation().clone();
+								World world = loc.getWorld();
+								world.dropItemNaturally(loc, result);
+							}
+						}
+					}
+				} else {
+					sender.sendMessage("§5Incorrect command usage");
+					sender.sendMessage("§d/map head [player]");
+					sender.sendMessage("§d/map body [player]");
+					sender.sendMessage("§d/map url [url]");
 				}
 			} else {
 				sender.sendMessage("§5Incorrect command usage");
 				sender.sendMessage("§d/map head [player]");
 				sender.sendMessage("§d/map body [player]");
-				//TODO: Add more map types
+				sender.sendMessage("§d/map url [url]");
 			}
 			return true;
 		}
@@ -119,6 +140,21 @@ public class Maps implements CommandExecutor {
 			URL website = new URL("http://skins.minecraft.net/MinecraftSkins/" + pName + ".png");
 			try (ReadableByteChannel rbc = Channels.newChannel(website.openStream())) {
 				try (FileOutputStream fos = new FileOutputStream(getFileName(pName))) {
+					fos.getChannel().transferFrom(rbc, 0, 1 << 24);
+				}
+			}
+			return true;
+		} catch (Exception exception) {
+			return false;
+		}
+	}
+	
+	public boolean downloadURL(String url) {
+		EvilBook.logInfo("Downloading " + url + " to " + getFileName(url.split("/")[url.split("/").length - 1]));
+		try {
+			URL website = new URL(url);
+			try (ReadableByteChannel rbc = Channels.newChannel(website.openStream())) {
+				try (FileOutputStream fos = new FileOutputStream(getFileName(url.split("/")[url.split("/").length - 1].split(".png")[0]))) {
 					fos.getChannel().transferFrom(rbc, 0, 1 << 24);
 				}
 			}
@@ -222,12 +258,8 @@ public class Maps implements CommandExecutor {
 
 	public ItemStack getMap(Player player, String name, String type) {
 		ItemStack m = new ItemStack(Material.EMPTY_MAP);
-		String fileName;
-		fileName = getFileName(name);
-		File f = new File(fileName);
-		if (!f.exists()) {
-			player.sendMessage(ChatColor.GRAY + "Please enter a player's name who exists");
-		} else {
+		if (type.equals("url")){
+			downloadURL(name);
 			m = new ItemStack(Material.MAP);
 			MapView mv = plugin.getServer().createMap(plugin.getServer().getWorlds().get(0));
 			mv.setCenterX(MAGIC_NUMBER);
@@ -235,14 +267,37 @@ public class Maps implements CommandExecutor {
 			for (MapRenderer mr : mv.getRenderers()) {
 				mv.removeRenderer(mr);
 			}
-			mv.addRenderer(new Render(fileName, type));
+			mv.addRenderer(new Render(getFileName(name.split("/")[name.split("/").length - 1].split(".png")[0]), type));
 			ItemMeta im = m.getItemMeta();
-			im.setDisplayName(ChatColor.GREEN + name);
+			im.setDisplayName(ChatColor.GREEN + name.split("/")[name.split("/").length - 1].split(".png")[0]);
 			m.setItemMeta(im);
 			m.setDurability(mv.getId());
-			mapIdList.put(mv.getId(), name);
+			mapIdList.put(mv.getId(), name.split("/")[name.split("/").length - 1].split(".png")[0]);
 			mapTypeList.put(mv.getId(), type);
 			player.sendMap(mv);
+		} else {
+			String fileName;
+			fileName = getFileName(name);
+			File f = new File(fileName);
+			if (!f.exists()) {
+				player.sendMessage(ChatColor.GRAY + "Please enter a player's name who exists");
+			} else {
+				m = new ItemStack(Material.MAP);
+				MapView mv = plugin.getServer().createMap(plugin.getServer().getWorlds().get(0));
+				mv.setCenterX(MAGIC_NUMBER);
+				mv.setCenterZ(0);
+				for (MapRenderer mr : mv.getRenderers()) {
+					mv.removeRenderer(mr);
+				}
+				mv.addRenderer(new Render(fileName, type));
+				ItemMeta im = m.getItemMeta();
+				im.setDisplayName(ChatColor.GREEN + name);
+				m.setItemMeta(im);
+				m.setDurability(mv.getId());
+				mapIdList.put(mv.getId(), name);
+				mapTypeList.put(mv.getId(), type);
+				player.sendMap(mv);
+			}
 		}
 		return m;
 	}

@@ -72,7 +72,7 @@ public class Render extends MapRenderer {
                     g.drawImage(leftLeg, 4 + adj, 20, null);
                     g.drawImage(rightLeg, 8 + adj, 20, null);  
                     this.img = combined.getScaledInstance(128, 128, 0);
-                } else if (this.type.equals("image")) {
+                } else if (this.type.equals("url")) {
                     this.img = bi.getScaledInstance(128, 128, 0);
                 } else {             
                     BufferedImage combined = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);  
