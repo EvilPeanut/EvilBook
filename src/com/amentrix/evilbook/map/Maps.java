@@ -150,6 +150,7 @@ public class Maps implements CommandExecutor {
 	}
 	
 	public boolean downloadURL(String url) {
+		//TODO: This is called to redownload image even if it exists, prevent this
 		EvilBook.logInfo("Downloading " + url + " to " + getFileName(url.split("/")[url.split("/").length - 1]));
 		try {
 			URL website = new URL(url);

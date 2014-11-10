@@ -130,6 +130,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "fly_amplifier", Double.toString(this.flyAmplifier));
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "jump_amplifier", Double.toString(this.jumpAmplifier));
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "ip", Bukkit.getServer().getPlayer(this.name).getAddress().getHostName());
 		profileSaveAgent.execute();
 	}
 

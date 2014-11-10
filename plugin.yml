@@ -1,8 +1,14 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 6.1.3
+version: 6.1.4
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  alt:
+    description: Get a list of possible alts with the same ip as a player
+    usage: /<command> [playerName]
+  ip:
+    description: Get the last known ip of a player
+    usage: /<command> [playerName]
   map:
     description: Create a map
     usage: /<command>

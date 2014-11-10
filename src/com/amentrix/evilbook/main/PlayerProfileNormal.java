@@ -68,7 +68,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 					this.money = 0;
 					SQL.insert(TableType.PlayerProfile, 
 							"'" + this.name + "','" + this.rank.toString() + "',NULL,'" + this.money + "'," +
-									"NULL,NULL,NULL,NULL,'4','0.2','0.1','0',NULL,'" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "','1',NULL,NULL");
+									"NULL,NULL,NULL,NULL,'4','0.2','0.1','0',NULL,'" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "','1',NULL,NULL,'" + newPlayer.getAddress().getHostName() + "'");
 					// Create new player locations profile
 					String fields = "player_name, home_location", data = "'" + this.name + "',NULL";
 					for (World world : Bukkit.getServer().getWorlds()) {
@@ -142,6 +142,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "fly_amplifier", Double.toString(this.flyAmplifier));
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "jump_amplifier", Double.toString(this.jumpAmplifier));
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "ip", Bukkit.getServer().getPlayer(this.name).getAddress().getHostName());
 		profileSaveAgent.execute();
 	}
 

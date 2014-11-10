@@ -403,6 +403,9 @@ public class EvilBook extends JavaPlugin {
 		//
 		commandBlacklist.put("/clean", Rank.STAFF_SILVER);
 		commandBlacklist.put("/butcher", Rank.STAFF_SILVER);
+		commandBlacklist.put("/killall", Rank.STAFF_SILVER);
+		commandBlacklist.put("/mobkill", Rank.STAFF_SILVER);
+		commandBlacklist.put("/remove", Rank.STAFF_SILVER);
 		//
 		commandBlacklist.put("/broadcast", Rank.STAFF_COPPER);
 		commandBlacklist.put("/say", Rank.STAFF_COPPER);
@@ -416,6 +419,8 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/time", Rank.STAFF_COPPER);
 		//
 		commandBlacklist.put("/sky", Rank.MODERATOR);
+		commandBlacklist.put("/ip", Rank.MODERATOR);
+		commandBlacklist.put("/alt", Rank.MODERATOR);
 		//
 		commandBlacklist.put("/chimney", Rank.ARCHITECT);
 		//
@@ -789,6 +794,46 @@ public class EvilBook extends JavaPlugin {
 		// Statistics
 		//
 		GlobalStatistics.incrementStatistic(GlobalStatistic.CommandsExecuted, 1);
+		//
+		// Alt Command
+		//
+		if (command.getName().equalsIgnoreCase("alt")) {
+			if (args.length == 1) {
+				try (Statement statement = SQL.connection.createStatement()) {
+					try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.tableName + " WHERE ip='" + getPlayerIP(args[0]) + "' AND not(player_name='" + args[0] + "');")) {
+						if (!rs.isBeforeFirst()) {
+						    sender.sendMessage("§7No accounts are associated with this player's ip");
+						} else {
+							sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s alternative accounts:");
+							while (rs.next()) if (!args[0].equalsIgnoreCase(rs.getString("player_name"))) sender.sendMessage("§7" + getServer().getOfflinePlayer(rs.getString("player_name")).getName());
+						}
+					}
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+			} else {
+				sender.sendMessage("§5Incorrect command usage");
+				sender.sendMessage("§d/alt [playerName]");
+			}
+			return true;
+		}
+		//
+		// IP Command
+		//
+		if (command.getName().equalsIgnoreCase("ip")) {
+			if (args.length == 1) {
+				String ip = getPlayerIP(args[0]);
+				if (ip == null) {
+					sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s IP isn't logged");
+				} else {
+					sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s last known IP is " + ip);
+				}
+			} else {
+				sender.sendMessage("§5Incorrect command usage");
+				sender.sendMessage("§d/ip [playerName]");
+			}
+			return true;
+		}
 		//
 		// Dr. Watson Command
 		//
@@ -4528,5 +4573,21 @@ public class EvilBook extends JavaPlugin {
 		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_WITCH_II)) titles += "Witch ";
 		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_ZOMBIE_II)) titles += "Zombie ";
 		return titles;
+	}
+	
+	public String getPlayerIP(String playerName) {
+		try (Statement statement = SQL.connection.createStatement()) {
+			try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.tableName + " WHERE player_name='" + playerName + "';")) {
+				if (!rs.isBeforeFirst()) return null;
+				while (rs.next()) {
+					if (rs.getString("ip") != null) {
+						return rs.getString("ip");
+					}
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+		return null;
 	}
 }
