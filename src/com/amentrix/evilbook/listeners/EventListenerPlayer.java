@@ -468,14 +468,16 @@ public class EventListenerPlayer implements Listener {
 					player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 1200, 1));
 				} else if (player.getItemInHand().getItemMeta().getLore().get(0).equals("Hick!")) { //Alcohol
 					player.setItemInHand(null);
-					EvilBook.broadcastPlayerMessage(player.getName(), player.getDisplayName() + ChatColor.GRAY + " is drunk");
-					EvilBook.getProfile(player).isDrunk = true;
-					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("EvilBook"), new Runnable() {
-						@Override
-						public void run() {
-							EvilBook.getProfile(player).isDrunk = false;
-						}
-					}, 1200L);
+					if (!EvilBook.getProfile(player).isDrunk) {
+						EvilBook.broadcastPlayerMessage(player.getName(), player.getDisplayName() + ChatColor.GRAY + " is drunk");
+						EvilBook.getProfile(player).isDrunk = true;
+						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("EvilBook"), new Runnable() {
+							@Override
+							public void run() {
+								EvilBook.getProfile(player).isDrunk = false;
+							}
+						}, 1200L);
+					}
 				}
 			}
 		}
