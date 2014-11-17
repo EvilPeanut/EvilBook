@@ -26,7 +26,7 @@ public class WarpMarkers {
 		set.setMinZoom(4);
 		icon = EvilBook.markerAPI.getMarkerIcon("pin");	
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + ".`evilbook-warps`;")) {
+			try (ResultSet rs = statement.executeQuery("SELECT warp_name, location FROM " + SQL.database + ".`evilbook-warps`;")) {
 				while (rs.next()) {
 					set.createMarker("evilbook.warps." + rs.getString("warp_name").toLowerCase(Locale.UK), rs.getString("warp_name"), 
 							rs.getString("location").split(">")[0], Double.parseDouble(rs.getString("location").split(">")[1]),
