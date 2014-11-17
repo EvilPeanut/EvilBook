@@ -241,7 +241,7 @@ public class EvilBook extends JavaPlugin {
 		// Load regions
 		//
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT region_name, world FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
 				while (rs.next()) {
 					if (getServer().getWorld(rs.getString("world")) != null) {
 						regionList.add(new Region(rs));
@@ -257,7 +257,7 @@ public class EvilBook extends JavaPlugin {
 		// Load dynamic signs
 		//
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
 				while (rs.next()) {
 					if (getServer().getWorld(rs.getString("world")) != null) {
 						dynamicSignList.add(new DynamicSign(rs));
@@ -273,7 +273,7 @@ public class EvilBook extends JavaPlugin {
 		// Load emitters
 		//
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
 				while (rs.next()) {
 					if (getServer().getWorld(rs.getString("world")) != null) {
 						emitterList.add(new Emitter(this, rs));
@@ -852,7 +852,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-dynamicsigns`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
 								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded");
@@ -869,7 +869,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-emitters`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
 								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
@@ -890,7 +890,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-protectedcontainers`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.ContainerProtection.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.ContainerProtection.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
 								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
@@ -907,7 +907,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-regions`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
 								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
@@ -922,7 +922,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-warps`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Warps.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT location FROM " + SQL.database + "." + TableType.Warps.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("location").split(">")[0]) == null) {
 								sender.sendMessage("§7--> World '" + rs.getString("location").split(">")[0] + "' is not loaded"); 
@@ -938,7 +938,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-dynamicsigns`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + ".`evilbook-dynamicsigns`;")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + ".`evilbook-dynamicsigns`;")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
 								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
@@ -957,7 +957,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-emitters`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
 								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
@@ -982,7 +982,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-protectedcontainers`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.ContainerProtection.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.ContainerProtection.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
 								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
@@ -1001,7 +1001,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-regions`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
 								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
@@ -1017,7 +1017,7 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-warps`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Warps.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT location FROM " + SQL.database + "." + TableType.Warps.tableName + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("location").split(">")[0]) == null) {
 								sender.sendMessage("§7--> FIXED: World '" + rs.getString("location").split(">")[0] + "' is not loaded"); 
@@ -1618,7 +1618,7 @@ public class EvilBook extends JavaPlugin {
 			} else if (args[0].equalsIgnoreCase("inbox")) {
 				Inventory inboxMenu = Bukkit.createInventory(null, 27, "My inbox");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient='" + sender.getName() + "';")) {
+					try (ResultSet rs = statement.executeQuery("SELECT date_sent, player_sender, message_text FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient='" + sender.getName() + "';")) {
 						while (rs.next()) {
 							inboxMenu.addItem(getBook(rs.getString("date_sent"), rs.getString("player_sender"), Arrays.asList(rs.getString("message_text"))));
 						}
