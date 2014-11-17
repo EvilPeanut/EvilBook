@@ -27,10 +27,10 @@ public class PlayerHomeMarkers {
 		try (Statement statement = SQL.connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery("SELECT home_location, player_name FROM " + SQL.database + ".`evilbook-playerlocations`  WHERE home_location IS NOT null;")) {
 				while (rs.next()) {
-					//TODO: Should we split into an array?
+					String[] location = rs.getString("home_location").split(">");
 					set.createMarker("evilbook.player_homes." + rs.getString("player_name"), rs.getString("player_name"), 
-							rs.getString("home_location").split(">")[3], Double.parseDouble(rs.getString("home_location").split(">")[0]),
-							Double.parseDouble(rs.getString("home_location").split(">")[1]), Double.parseDouble(rs.getString("home_location").split(">")[2]), icon, false);
+							location[3], Double.parseDouble(location[0]),
+							Double.parseDouble(location[1]), Double.parseDouble(location[2]), icon, false);
 				}
 			}
 		} catch (Exception exception) {
