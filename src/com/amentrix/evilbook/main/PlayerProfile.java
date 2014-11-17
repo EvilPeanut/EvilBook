@@ -167,4 +167,27 @@ public abstract class PlayerProfile {
 	public abstract void updatePlayerListName();
 
 	public abstract void setNameTitle(String title);
+	
+	/**
+	 * Teleport the player and ensure the world is loaded
+	 */
+	public void teleport(Location location) {
+		/*
+		WorldCreator privateWorld = new WorldCreator("plugins/EvilBook/Private worlds/" + world);
+		switch (getPrivateWorldProperty(world, "WorldType")) {
+		case "FLAT": privateWorld.type(WorldType.FLAT); break;
+		case "NETHER": privateWorld.environment(Environment.NETHER); break;
+		case "LARGE_BIOMES": privateWorld.type(WorldType.LARGE_BIOMES); break;
+		case "SKY": privateWorld.generator(new SkylandGenerator()); break;
+		default: break;
+		}
+		paidWorldList.add(world);
+		//getServer().createWorld(privateWorld);
+		*/
+		if (Bukkit.getServer().getWorlds().contains(location.getWorld())) {
+			Bukkit.getServer().getPlayer(this.name).teleport(location);
+		} else {
+			Bukkit.getServer().getPlayer(this.name).sendMessage("§7The world " + location + " isn't loaded");
+		}
+	}
 }

@@ -169,6 +169,7 @@ public class EvilBook extends JavaPlugin {
 		getServer().createWorld(new WorldCreator("OldAmentrix"));
 		// Paid world generator
 		for (String world : new File("plugins/EvilBook/Private worlds/").list()) {
+			/*
 			WorldCreator privateWorld = new WorldCreator("plugins/EvilBook/Private worlds/" + world);
 			switch (getPrivateWorldProperty(world, "WorldType")) {
 			case "FLAT": privateWorld.type(WorldType.FLAT); break;
@@ -177,8 +178,9 @@ public class EvilBook extends JavaPlugin {
 			case "SKY": privateWorld.generator(new SkylandGenerator()); break;
 			default: break;
 			}
+			*/
 			paidWorldList.add(world);
-			getServer().createWorld(privateWorld);
+			//getServer().createWorld(privateWorld);
 		}
 		//
 		// Load EvilBook-NametagEdit module
@@ -846,7 +848,26 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§d/drwatson sqlclean");
 				sender.sendMessage("§d/drwatson respring");
 				sender.sendMessage("§d/drwatson memstat");
+				sender.sendMessage("§d/drwatson worldinfo [worldName]");
 			} else if (args[0].equalsIgnoreCase("sql")) {
+				if (args.length == 2) {
+					World world = getServer().getWorld(args[1]);
+					if (world == null) {
+						sender.sendMessage("§7The world " + args[1] + " isn't loaded");
+					} else {
+						sender.sendMessage("§5" + args[1] + " World Information");
+						sender.sendMessage("§dAutosave = " + world.isAutoSave());
+						sender.sendMessage("§dWeather duration = " + world.getWeatherDuration());
+						sender.sendMessage("§dSeed = " + world.getSeed());
+						sender.sendMessage("§dAutosave = " + world.getDifficulty().name());
+						sender.sendMessage("§dSpawn kept in memory = " + world.getKeepSpawnInMemory());
+						sender.sendMessage("§dPlayers in world = " + world.getPlayers().size());
+					}
+				} else {
+					sender.sendMessage("§5Incorrect command usage");
+					sender.sendMessage("§d/drwatson worldinfo [worldName]");
+				}
+			} else if (args[0].equalsIgnoreCase("worldinfo")) {
 				//
 				// Check `evilbook-dynamicsigns` table
 				//
@@ -2038,7 +2059,7 @@ public class EvilBook extends JavaPlugin {
 					for (String world : paidWorldList) {
 						if (world.equalsIgnoreCase(args[0])) {
 							if (getPrivateWorldProperty(args[0], "AllowedPlayers").contains(sender.getName().toLowerCase()) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-								player.teleport(getProfile(player).getWorldLastPosition("plugins/EvilBook/Private worlds/" + args[0]));
+								EvilBook.getProfile(player).teleport(getProfile(player).getWorldLastPosition("plugins/EvilBook/Private worlds/" + args[0]));
 							} else {
 								player.sendMessage("§7You don't have access this private world");
 							}
@@ -2267,7 +2288,7 @@ public class EvilBook extends JavaPlugin {
 		// Teleport To FlatLand Command
 		//
 		if (command.getName().equalsIgnoreCase("flatland")) {
-			player.teleport(getProfile(sender).getWorldLastPosition("FlatLand"));
+			EvilBook.getProfile(player).teleport(getProfile(sender).getWorldLastPosition("FlatLand"));
 			return true;
 		}
 		//
