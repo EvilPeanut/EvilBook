@@ -241,7 +241,7 @@ public class EvilBook extends JavaPlugin {
 		// Load regions
 		//
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT region_name, world FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
 				while (rs.next()) {
 					if (getServer().getWorld(rs.getString("world")) != null) {
 						regionList.add(new Region(rs));
@@ -257,7 +257,7 @@ public class EvilBook extends JavaPlugin {
 		// Load dynamic signs
 		//
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
 				while (rs.next()) {
 					if (getServer().getWorld(rs.getString("world")) != null) {
 						dynamicSignList.add(new DynamicSign(rs));
@@ -273,7 +273,7 @@ public class EvilBook extends JavaPlugin {
 		// Load emitters
 		//
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
 				while (rs.next()) {
 					if (getServer().getWorld(rs.getString("world")) != null) {
 						emitterList.add(new Emitter(this, rs));
