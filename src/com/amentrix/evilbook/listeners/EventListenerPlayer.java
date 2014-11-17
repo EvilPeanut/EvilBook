@@ -105,7 +105,7 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerLogin(PlayerLoginEvent event) {
 		if (event.getResult().equals(Result.KICK_BANNED)) {
-			event.setKickMessage("§cYou are banned! E-mail §6amentrix@hotmail.co.uk §cfor support");
+			event.setKickMessage("§cYou are banned! E-mail §6support@amentrix.com §cfor support");
 		} else {
 			EvilBook.updateWebPlayerStatistics(Bukkit.getServer().getOnlinePlayers().size() + 1);
 		}
