@@ -6,7 +6,6 @@ package com.amentrix.evilbook.main;
  */
 public enum EmitterEffect {
 	Smoke(Rank.ARCHITECT),
-	Extinguish(Rank.ARCHITECT),
 	LavaPop(Rank.ARCHITECT),
 	LavaDrip(Rank.ARCHITECT),
 	Note(Rank.ARCHITECT),

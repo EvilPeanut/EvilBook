@@ -38,7 +38,6 @@ public class Emitter {
 	public void update() {
 		if (!this.location.getBlock().getChunk().isLoaded()) return;
 		if (this.frequencyTick == this.frequency) {
-			//TODO: Confirm theese are all correct
 			switch (this.effect) {
 			case Cloud:
 				this.location.getWorld().playEffect(this.location, Effect.CLOUD, this.data);
@@ -75,9 +74,6 @@ public class Emitter {
 				break;
 			case Smoke:
 				this.location.getWorld().playEffect(this.location, Effect.SMOKE, this.data);
-				break;
-			case Extinguish:
-				this.location.getWorld().playEffect(this.location, Effect.EXTINGUISH, this.data);
 				break;
 			case LavaDrip:
 				this.location.getWorld().playEffect(this.location, Effect.LAVADRIP, this.data);
