@@ -831,7 +831,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§dAutosave = " + world.isAutoSave());
 						sender.sendMessage("§dWeather duration = " + world.getWeatherDuration());
 						sender.sendMessage("§dSeed = " + world.getSeed());
-						sender.sendMessage("§dAutosave = " + world.getDifficulty().name());
+						sender.sendMessage("§dDifficulty = " + world.getDifficulty().name());
 						sender.sendMessage("§dSpawn kept in memory = " + world.getKeepSpawnInMemory());
 						sender.sendMessage("§dPlayers in world = " + world.getPlayers().size());
 					}
