@@ -5,6 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import net.minecraft.server.v1_7_R4.EntityPlayer;
+import net.minecraft.server.v1_7_R4.PlayerConnection;
+
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 class PacketPlayOut
@@ -15,7 +20,7 @@ class PacketPlayOut
 	private static Field playerConnection;
 	private static Class<?> packetType;
 
-	PacketPlayOut(String name, String prefix, String suffix, Collection players, int paramInt)
+	PacketPlayOut(String name, String prefix, String suffix, Collection<?> players, int paramInt)
 			throws IllegalAccessException, InstantiationException, NoSuchFieldException
 			{
 		this.packet = packetType.newInstance();
@@ -32,7 +37,7 @@ class PacketPlayOut
 			addAll(players);
 			}
 
-	PacketPlayOut(String name, Collection players, int paramInt)
+	PacketPlayOut(String name, Collection<?> players, int paramInt)
 			throws IllegalAccessException, InstantiationException, NoSuchFieldException
 			{
 		this.packet = packetType.newInstance();
@@ -42,7 +47,7 @@ class PacketPlayOut
 		}
 
 		if ((players == null) || (players.isEmpty())) {
-			players = new ArrayList();
+			players = new ArrayList<>();
 		}
 
 		setField("a", name);
@@ -81,9 +86,9 @@ class PacketPlayOut
 		{
 			packetType = net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardTeam.class;
 
-			Class typeCraftPlayer = org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer.class;
-			Class typeNMSPlayer = net.minecraft.server.v1_7_R4.EntityPlayer.class;
-			Class typePlayerConnection = net.minecraft.server.v1_7_R4.PlayerConnection.class;
+			Class<CraftPlayer> typeCraftPlayer = org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer.class;
+			Class<EntityPlayer> typeNMSPlayer = net.minecraft.server.v1_7_R4.EntityPlayer.class;
+			Class<PlayerConnection> typePlayerConnection = net.minecraft.server.v1_7_R4.PlayerConnection.class;
 
 			getHandle = typeCraftPlayer.getMethod("getHandle", new Class[0]);
 			playerConnection = typeNMSPlayer.getField("playerConnection");

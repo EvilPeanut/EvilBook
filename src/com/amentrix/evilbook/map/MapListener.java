@@ -16,8 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
 
 public class MapListener implements Listener {
-	private Maps mapModule;
-	public static List<MapView> mapViews = new ArrayList<>();
+	Maps mapModule;
+	public static final List<MapView> mapViews = new ArrayList<>();
 	
 	public MapListener(Maps mapModule) {
 		this.mapModule = mapModule;
@@ -33,17 +33,17 @@ public class MapListener implements Listener {
 		} catch (Exception e) {
 			//TODO: Fix concurrent modification
 		}
-		mapModule.plugin.getServer().getScheduler().runTaskAsynchronously(mapModule.plugin, new Runnable() {
+		this.mapModule.plugin.getServer().getScheduler().runTaskAsynchronously(this.mapModule.plugin, new Runnable() {
 			@Override
 			public void run() {
-				mapModule.downloadSkin(pName);
+				MapListener.this.mapModule.downloadSkin(pName);
 			}
 		});
 	}
 
 	@EventHandler
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {
-		mapModule.cleanup(event.getPlayer().getName());
+		this.mapModule.cleanup(event.getPlayer().getName());
 	}
 	
 	@EventHandler

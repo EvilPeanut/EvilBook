@@ -108,7 +108,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 	}
 
 	public String getStrippedNameAlias() {
-		return ChatColor.stripColor(nameAlias);
+		return ChatColor.stripColor(this.nameAlias);
 	}
 	
 	/**

@@ -31,7 +31,7 @@ public class Scheduler {
 		this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, new Runnable() {
 			@Override
 			public void run() {
-				int random = rand.nextInt(100);
+				int random = Scheduler.this.rand.nextInt(100);
 				for (Player p : Scheduler.this.plugin.getServer().getOnlinePlayers()) {
 					if (EvilBook.getProfile(p).isAway) continue;
 					if (EvilBook.getProfile(p).lastActionTime != 0 && System.currentTimeMillis() - EvilBook.getProfile(p).lastActionTime > 120000) {

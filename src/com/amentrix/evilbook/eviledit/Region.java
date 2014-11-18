@@ -254,7 +254,7 @@ public class Region {
 				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks pasted");
 			} else {
-				player.sendMessage("§7Using EvilEdit angel, your edit should take " + (int)Math.floor(((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize() / 219520) + " seconds");
+				player.sendMessage("§7Using EvilEdit angel, your edit should take " + (int)Math.floor((double)((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize() / 219520) + " seconds");
 				
 				int bottomBlockX = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockX();
 				int bottomBlockY = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockY();
@@ -335,7 +335,7 @@ public class Region {
 					}
 				}
 			} else if (selection.getVolume() <= 2500000) {
-				player.sendMessage("§7Using EvilEdit angel, your edit should take " + (int)Math.floor(selection.getVolume() / 219520) + " seconds");
+				player.sendMessage("§7Using EvilEdit angel, your edit should take " + (int)Math.floor((double)selection.getVolume() / 219520) + " seconds");
 				int count = 0;
 				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x += 28)
 				{

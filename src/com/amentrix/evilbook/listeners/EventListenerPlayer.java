@@ -137,7 +137,7 @@ public class EventListenerPlayer implements Listener {
 			if (EvilBook.isInRegion(region, event.getPlayer().getLocation())) {
 				if (region.getWelcomeMessage() != null) event.getPlayer().sendMessage(region.getWelcomeMessage());
 				if (region.getWarp() != null) {
-					EvilBook.getProfile(event.getPlayer()).teleport(SQL.getWarp(region.getWarp()));
+					event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
 					break;
 				}
 			}
@@ -176,7 +176,7 @@ public class EventListenerPlayer implements Listener {
 				} else if (EvilBook.isInRegion(region, event.getTo())) {
 					if (region.getWelcomeMessage() != null && EvilBook.isInRegion(region, event.getFrom()) == false) event.getPlayer().sendMessage(region.getWelcomeMessage());
 					if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
-						EvilBook.getProfile(event.getPlayer()).teleport(SQL.getWarp(region.getWarp()));
+						event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
 						break;
 					}
 				}
@@ -361,7 +361,7 @@ public class EventListenerPlayer implements Listener {
 			if (EvilBook.isInRegion(region, event.getRespawnLocation())) {
 				if (region.getWelcomeMessage() != null) event.getPlayer().sendMessage(region.getWelcomeMessage());
 				if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
-					EvilBook.getProfile(event.getPlayer()).teleport(SQL.getWarp(region.getWarp()));
+					event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
 					break;
 				}
 			}
@@ -524,7 +524,7 @@ public class EventListenerPlayer implements Listener {
 					for (int i = 0; i < 3; i++) {
 						if (EvilBook.toStrippedString(signText[i]).equalsIgnoreCase("[warp]")) {
 							if (SQL.isKeyExistant(TableType.Warps, EvilBook.toStrippedString(signText[i + 1]).toLowerCase(Locale.UK).replaceAll("'", "''"))) {
-								EvilBook.getProfile(player).teleport(SQL.getWarp(EvilBook.toStrippedString(signText[i + 1]).toLowerCase(Locale.UK).replaceAll("'", "''")));
+								player.teleport(SQL.getWarp(EvilBook.toStrippedString(signText[i + 1]).toLowerCase(Locale.UK).replaceAll("'", "''")));
 								player.sendMessage("§7You have been warped to §d" + EvilBook.toStrippedString(signText[i + 1]));
 							} else {
 								player.sendMessage("§7A warp with that name doesn't exist");
@@ -758,7 +758,7 @@ public class EventListenerPlayer implements Listener {
 				} else if (EvilBook.isInRegion(region, event.getTo())) {
 					if (region.getWelcomeMessage() != null && EvilBook.isInRegion(region, event.getFrom()) == false) event.getPlayer().sendMessage(region.getWelcomeMessage());
 					if (SQL.getWarp(region.getWarp()) != null) {
-						EvilBook.getProfile(event.getPlayer()).teleport(SQL.getWarp(region.getWarp()));
+						event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
 						break;
 					}
 				}

@@ -38,13 +38,13 @@ public abstract class PlayerProfile {
 	public Location actionLocationA, actionLocationB;
 	
 	public Boolean isCanEditWorld(World world) {
-		if (EvilBook.isInSurvival(world) && !rank.isHigher(Rank.BUILDER)) {
+		if (EvilBook.isInSurvival(world) && !this.rank.isHigher(Rank.BUILDER)) {
 			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Survival lands require Advanced Builder rank to edit");
 			return false;
-		} else if (world.getName().equals("FlatLand") && !rank.isHigher(Rank.BUILDER)) {
+		} else if (world.getName().equals("FlatLand") && !this.rank.isHigher(Rank.BUILDER)) {
 			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Flatlands require Advanced Builder rank to edit");
 			return false;
-		} else if (world.getName().equals("SkyLand") && !rank.isHigher(Rank.ARCHITECT)) {
+		} else if (world.getName().equals("SkyLand") && !this.rank.isHigher(Rank.ARCHITECT)) {
 			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Skylands require Architect rank to edit");
 			return false;
 		}
@@ -53,7 +53,7 @@ public abstract class PlayerProfile {
 	
 	public int getMailCount() {
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient='" + name + "';")) {
+			try (ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient='" + this.name + "';")) {
 				while (rs.next()) {
 					return rs.getInt(1);
 				}
@@ -66,7 +66,7 @@ public abstract class PlayerProfile {
 	
 	public int getAchievementScore() {
 		int score = 0;
-		for (Achievement ach : achievements) score += ach.getValue();
+		for (Achievement ach : this.achievements) score += ach.getValue();
 		return score;
 	}
 	
@@ -76,7 +76,7 @@ public abstract class PlayerProfile {
 	 * @return If the player has the achievement
 	 */
 	public Boolean hasAchievement(Achievement achievement) {
-		return achievements.contains(achievement);
+		return this.achievements.contains(achievement);
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public abstract class PlayerProfile {
 	 */
 	public void addAchievement(Achievement achievement) {
 		if (!hasAchievement(achievement)) {
-			achievements.add(achievement);
+			this.achievements.add(achievement);
 			Bukkit.getServer().getPlayer(this.name).sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
 			if (achievement.getReward() != null) Bukkit.getServer().getPlayer(this.name).sendMessage(ChatColor.GRAY + "You have unlocked the " + achievement.getReward());
 			for (Player player : Bukkit.getServer().getOnlinePlayers()) {
@@ -167,27 +167,4 @@ public abstract class PlayerProfile {
 	public abstract void updatePlayerListName();
 
 	public abstract void setNameTitle(String title);
-	
-	/**
-	 * Teleport the player and ensure the world is loaded
-	 */
-	public void teleport(Location location) {
-		/*
-		WorldCreator privateWorld = new WorldCreator("plugins/EvilBook/Private worlds/" + world);
-		switch (getPrivateWorldProperty(world, "WorldType")) {
-		case "FLAT": privateWorld.type(WorldType.FLAT); break;
-		case "NETHER": privateWorld.environment(Environment.NETHER); break;
-		case "LARGE_BIOMES": privateWorld.type(WorldType.LARGE_BIOMES); break;
-		case "SKY": privateWorld.generator(new SkylandGenerator()); break;
-		default: break;
-		}
-		paidWorldList.add(world);
-		//getServer().createWorld(privateWorld);
-		*/
-		if (Bukkit.getServer().getWorlds().contains(location.getWorld())) {
-			Bukkit.getServer().getPlayer(this.name).teleport(location);
-		} else {
-			Bukkit.getServer().getPlayer(this.name).sendMessage("§7The world " + location + " isn't loaded");
-		}
-	}
 }

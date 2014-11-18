@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 class NametagManager
 {
-	private static List<Integer> list = new ArrayList();
+	private static List<Integer> list = new ArrayList<>();
 
-	private static HashMap<TeamInfo, List<String>> teams = new HashMap();
+	private static HashMap<TeamInfo, List> teams = new HashMap<>();
 
 	private static void addToTeam(TeamInfo team, String player) {
 		removeFromTeam(player);
-		List list = teams.get(team);
+		List<String> list = teams.get(team);
 		if (list != null) {
 			list.add(player);
 			Player p = Bukkit.getPlayerExact(player);
@@ -30,15 +31,15 @@ class NametagManager
 	}
 
 	private static void register(TeamInfo team) {
-		teams.put(team, new ArrayList());
+		teams.put(team, new ArrayList<>());
 		sendPacketsAddTeam(team);
 	}
 
 	private static void removeTeam(TeamInfo team)
 	{
-		List list = teams.get(team);
+		List<?> list = teams.get(team);
 		if (list != null) {
-			for (String p : (String[])list.toArray(new String[list.size()])) {
+			for (String p : list.toArray(new String[list.size()])) {
 				Player player = Bukkit.getPlayerExact(p);
 				if (player != null) {
 					sendPacketsRemoveFromTeam(team, player);
@@ -55,8 +56,8 @@ class NametagManager
 	private static TeamInfo removeFromTeam(String player)
 	{
 		for (TeamInfo team : teams.keySet().toArray(new TeamInfo[teams.size()])) {
-			List list = teams.get(team);
-			for (String p : (String[])list.toArray(new String[list.size()])) {
+			List<?> list = teams.get(team);
+			for (String p : list.toArray(new String[list.size()])) {
 				if (p.equals(player)) {
 					Player pl = Bukkit.getPlayerExact(player);
 					if (pl != null) {
@@ -95,10 +96,10 @@ class NametagManager
 	}
 
 	private static String[] getTeamPlayers(TeamInfo team) {
-		List list = teams.get(team);
+		List<?> list = teams.get(team);
 		if (list != null)
 		{
-			return (String[])list.toArray(new String[list.size()]);
+			return list.toArray(new String[list.size()]);
 		}
 		return new String[0];
 	}
@@ -259,7 +260,7 @@ class NametagManager
 		try
 		{
 			for (TeamInfo team : getTeams()) {
-				PacketPlayOut mod = new PacketPlayOut(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList(), 0);
+				PacketPlayOut mod = new PacketPlayOut(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList<>(), 0);
 
 				mod.sendToPlayer(p);
 				mod = new PacketPlayOut(team.getName(), Arrays.asList(getTeamPlayers(team)), 3);
@@ -278,7 +279,7 @@ class NametagManager
 		try
 		{
 			for (Player p : Bukkit.getOnlinePlayers()) {
-				PacketPlayOut mod = new PacketPlayOut(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList(), 0);
+				PacketPlayOut mod = new PacketPlayOut(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList<>(), 0);
 
 				mod.sendToPlayer(p);
 			}
@@ -304,7 +305,7 @@ class NametagManager
 		try
 		{
 			for (Player p : Bukkit.getOnlinePlayers()) {
-				PacketPlayOut mod = new PacketPlayOut(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList(), 1);
+				PacketPlayOut mod = new PacketPlayOut(team.getName(), team.getPrefix(), team.getSuffix(), new ArrayList<>(), 1);
 
 				mod.sendToPlayer(p);
 			}

@@ -48,14 +48,14 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 		this.player = player;
 		this.silent = silent;
 		this.nms = NMSHelper.getNMS();
-		if (nms == null) {
+		if (this.nms == null) {
 			throw new IllegalStateException("NMS abstraction API is not available");
 		}
 	}
 
 	@Override
 	public int getBlocksChanged() {
-		return blocksModified;
+		return this.blocksModified;
 	}
 	
 	//TODO: Re-add support
@@ -89,24 +89,24 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 	@Override
 	public boolean setBlock(int x, int y, int z, int block, int data) {
 		// Position validation
-		if (y < 0 || y >= world.getMaxHeight()) return false;
+		if (y < 0 || y >= this.world.getMaxHeight()) return false;
 		//
-		BlockState oldBlockState = new Location(world, x, y, z).getBlock().getState();
+		BlockState oldBlockState = new Location(this.world, x, y, z).getBlock().getState();
 		// Clipboard
-		if (!silent) ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendUndo(oldBlockState);
+		if (!this.silent) ((PlayerProfileAdmin)EvilBook.getProfile(this.player)).clipboard.appendUndo(oldBlockState);
 		// Set the block to its new state
-		minX = Math.min(minX, x);
-		minZ = Math.min(minZ, z);
-		maxX = Math.max(maxX, x);
-		maxZ = Math.max(maxZ, z);
-		blocksModified++;
-		int oldBlockId = world.getBlockTypeIdAt(x, y, z);
-		boolean res = nms.setBlockFast(world, x, y, z, block, (byte)data);
-		if (nms.getBlockLightBlocking(oldBlockId) != nms.getBlockLightBlocking(block) || nms.getBlockLightEmission(oldBlockId) != nms.getBlockLightEmission(block)) {
-			deferredBlocks.add(new DeferredBlock(x, y, z));
+		this.minX = Math.min(this.minX, x);
+		this.minZ = Math.min(this.minZ, z);
+		this.maxX = Math.max(this.maxX, x);
+		this.maxZ = Math.max(this.maxZ, z);
+		this.blocksModified++;
+		int oldBlockId = this.world.getBlockTypeIdAt(x, y, z);
+		boolean res = this.nms.setBlockFast(this.world, x, y, z, block, (byte)data);
+		if (this.nms.getBlockLightBlocking(oldBlockId) != this.nms.getBlockLightBlocking(block) || this.nms.getBlockLightEmission(oldBlockId) != this.nms.getBlockLightEmission(block)) {
+			this.deferredBlocks.add(new DeferredBlock(x, y, z));
 		}
 		// Logging
-		EvilBook.lbConsumer.queueBlockReplace(player.getName(), oldBlockState, new Location(world, x, y, z).getBlock().getState());
+		EvilBook.lbConsumer.queueBlockReplace(this.player.getName(), oldBlockState, new Location(this.world, x, y, z).getBlock().getState());
 		// Return if it was set
 		return res;
 	}
@@ -119,18 +119,18 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 	@Override
 	public void notifyClients(GlobalStatistic statistic) {
 		// Statistics
-		GlobalStatistics.incrementStatistic(statistic, blocksModified);
+		GlobalStatistics.incrementStatistic(statistic, this.blocksModified);
 		// Do relighting
-		relightTask = Bukkit.getScheduler().runTaskTimer(plugin, this, 1L, 1L);
+		this.relightTask = Bukkit.getScheduler().runTaskTimer(this.plugin, this, 1L, 1L);
 	}
 
 	@Override
 	public void run() {
 		long now = System.nanoTime();
 		int n = 1;
-		while (deferredBlocks.peek() != null) {
-			DeferredBlock db = deferredBlocks.poll();
-			nms.recalculateBlockLighting(world, db.x, db.y, db.z);
+		while (this.deferredBlocks.peek() != null) {
+			DeferredBlock db = this.deferredBlocks.poll();
+			this.nms.recalculateBlockLighting(this.world, db.x, db.y, db.z);
 			if (n++ % 1000 == 0) {
 				// 2000000ns (2ms) is the max relight time per tick
 				if (System.nanoTime() - now > 2000000) {
@@ -138,29 +138,29 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 				}
 			}
 		}
-		if (deferredBlocks.isEmpty()) {
-			relightTask.cancel();
-			relightTask = null;
+		if (this.deferredBlocks.isEmpty()) {
+			this.relightTask.cancel();
+			this.relightTask = null;
 			for (ChunkCoords cc : calculateChunks()) {
-				world.refreshChunk(cc.x, cc.z);
+				this.world.refreshChunk(cc.x, cc.z);
 			}
 		}
 	}
 
 	public void setDeferredBufferSize(int size) {
-		if (!deferredBlocks.isEmpty()) {
+		if (!this.deferredBlocks.isEmpty()) {
 			throw new IllegalStateException("setDeferredBufferSize() called after block updates made");
 		}
-		deferredBlocks = new ArrayDeque<>(size);
+		this.deferredBlocks = new ArrayDeque<>(size);
 	}
 
 	private List<ChunkCoords> calculateChunks() {
 		List<ChunkCoords> res = new ArrayList<>();
-		if (blocksModified == 0) {
+		if (this.blocksModified == 0) {
 			return res;
 		}
-		int x1 = minX >> 4; int x2 = maxX >> 4;
-		int z1 = minZ >> 4; int z2 = maxZ >> 4;
+		int x1 = this.minX >> 4; int x2 = this.maxX >> 4;
+		int z1 = this.minZ >> 4; int z2 = this.maxZ >> 4;
 		for (int x = x1; x <= x2; x++) {
 			for (int z = z1; z <= z2; z++) {
 				res.add(new ChunkCoords(x, z));

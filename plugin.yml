@@ -1,6 +1,6 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 6.1.4.1
+version: 6.1.5
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
   alt:
@@ -83,7 +83,7 @@ commands:
     usage: /<command>
   effect:
     description: Adds an effect emitter to the world
-    usage: /<command>
+    usage: /<command> [effect] <frequency> <amount>
   chimney:
     description: Creates a chimney
     usage: /<command>

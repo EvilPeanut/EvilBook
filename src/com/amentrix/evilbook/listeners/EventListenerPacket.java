@@ -27,80 +27,75 @@ public class EventListenerPacket implements Listener {
 			{
 				PacketContainer packet = event.getPacket();
 				if (packet.getStrings().size() >= 1 && packet.getStrings().read(0).equals("MC|AdvCdm")) {
-					try {
-						String cmd = EvilBook.getCommandBlockCommand(packet);
-						switch (cmd) {
-						case "say":
-							return;
-						case "broadcast":
-							return;
-						case "tellrawr":
-							if (EvilBook.isInSurvival(event.getPlayer())) {
-								event.getPlayer().sendMessage("§cThis command is blocked in survival");
-								event.setCancelled(true);
-							}
-							return;
-						case "setblock":
-							if (EvilBook.isInSurvival(event.getPlayer())) {
-								event.getPlayer().sendMessage("§cThis command is blocked in survival");
-								event.setCancelled(true);
-							}
-							return;
-						case "summon":
-							if (EvilBook.isInSurvival(event.getPlayer())) {
-								event.getPlayer().sendMessage("§cThis command is blocked in survival");
-								event.setCancelled(true);
-							}
-							return;
-						case "testfor":
-							return;
-						case "testforblock":
-							return;
-						case "scoreboard":
-							return;
-						case "effect":
-							if (EvilBook.isInSurvival(event.getPlayer())) {
-								event.getPlayer().sendMessage("§cThis command is blocked in survival");
-								event.setCancelled(true);
-							}
-							return;
-						case "me":
-							return;
-						case "clear":
-							if (EvilBook.isInSurvival(event.getPlayer())) {
-								event.getPlayer().sendMessage("§cThis command is blocked in survival");
-								event.setCancelled(true);
-							}
-							return;
-						case "tell":
-							return;
-						case "toggledownfall":
-							if (EvilBook.isInSurvival(event.getPlayer())) {
-								event.getPlayer().sendMessage("§cThis command is blocked in survival");
-								event.setCancelled(true);
-							}
-							return;
-						case "weather":
-							if (EvilBook.isInSurvival(event.getPlayer())) {
-								event.getPlayer().sendMessage("§cThis command is blocked in survival");
-								event.setCancelled(true);
-							}
-							return;
-						case "time":
-							if (EvilBook.isInSurvival(event.getPlayer())) {
-								event.getPlayer().sendMessage("§cThis command is blocked in survival");
-								event.setCancelled(true);
-							}
-							return;
-						default:
-							break;
+					String cmd = EvilBook.getCommandBlockCommand(packet);
+					switch (cmd) {
+					case "say":
+						return;
+					case "broadcast":
+						return;
+					case "tellrawr":
+						if (EvilBook.isInSurvival(event.getPlayer())) {
+							event.getPlayer().sendMessage("§cThis command is blocked in survival");
+							event.setCancelled(true);
 						}
-						event.getPlayer().sendMessage("§cThis command block command is blocked");
-						event.setCancelled(true);
-					} catch (Exception e) {
-						event.getPlayer().sendMessage("§cPlease enter a valid command block command");
-						event.setCancelled(true);
+						return;
+					case "setblock":
+						if (EvilBook.isInSurvival(event.getPlayer())) {
+							event.getPlayer().sendMessage("§cThis command is blocked in survival");
+							event.setCancelled(true);
+						}
+						return;
+					case "summon":
+						if (EvilBook.isInSurvival(event.getPlayer())) {
+							event.getPlayer().sendMessage("§cThis command is blocked in survival");
+							event.setCancelled(true);
+						}
+						return;
+					case "testfor":
+						return;
+					case "testforblock":
+						return;
+					case "scoreboard":
+						return;
+					case "effect":
+						if (EvilBook.isInSurvival(event.getPlayer())) {
+							event.getPlayer().sendMessage("§cThis command is blocked in survival");
+							event.setCancelled(true);
+						}
+						return;
+					case "me":
+						return;
+					case "clear":
+						if (EvilBook.isInSurvival(event.getPlayer())) {
+							event.getPlayer().sendMessage("§cThis command is blocked in survival");
+							event.setCancelled(true);
+						}
+						return;
+					case "tell":
+						return;
+					case "toggledownfall":
+						if (EvilBook.isInSurvival(event.getPlayer())) {
+							event.getPlayer().sendMessage("§cThis command is blocked in survival");
+							event.setCancelled(true);
+						}
+						return;
+					case "weather":
+						if (EvilBook.isInSurvival(event.getPlayer())) {
+							event.getPlayer().sendMessage("§cThis command is blocked in survival");
+							event.setCancelled(true);
+						}
+						return;
+					case "time":
+						if (EvilBook.isInSurvival(event.getPlayer())) {
+							event.getPlayer().sendMessage("§cThis command is blocked in survival");
+							event.setCancelled(true);
+						}
+						return;
+					default:
+						break;
 					}
+					event.getPlayer().sendMessage("§cThis command block command is blocked");
+					event.setCancelled(true);
 				}
 			}
 		});

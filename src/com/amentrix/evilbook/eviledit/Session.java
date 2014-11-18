@@ -49,7 +49,7 @@ public class Session implements CommandExecutor {
 		} else if (command.getName().equalsIgnoreCase("undo") || command.getName().equalsIgnoreCase("/undo")) {	
 			Region.undoEdit(player);
 		} else if (command.getName().equalsIgnoreCase("fill") || command.getName().equalsIgnoreCase("/fill") || command.getName().equalsIgnoreCase("set") || command.getName().equalsIgnoreCase("/set")) {	
-			Region.fillArea(plugin, player, args);
+			Region.fillArea(this.plugin, player, args);
 		} else if (command.getName().equalsIgnoreCase("rfill")) {	
 			Region.randomFillArea(player, args);
 		} else if (command.getName().equalsIgnoreCase("rreplace")) {	

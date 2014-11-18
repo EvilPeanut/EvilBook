@@ -4,12 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -144,13 +146,12 @@ public class Maps implements CommandExecutor {
 				}
 			}
 			return true;
-		} catch (Exception exception) {
+		} catch (IOException exception) {
 			return false;
 		}
 	}
 	
 	public boolean downloadURL(String url) {
-		EvilBook.logInfo("Downloading " + url + " to " + getFileName(url.split("/")[url.split("/").length - 1]));
 		try {
 			URL website = new URL(url);
 			try (ReadableByteChannel rbc = Channels.newChannel(website.openStream())) {
@@ -159,7 +160,7 @@ public class Maps implements CommandExecutor {
 				}
 			}
 			return true;
-		} catch (Exception exception) {
+		} catch (IOException exception) {
 			return false;
 		}
 	}
@@ -182,7 +183,7 @@ public class Maps implements CommandExecutor {
 				}
 			}
 			if (new File(fileName).exists()) {
-				MapView mv = plugin.getServer().getMap(mapId);
+				MapView mv = this.plugin.getServer().getMap(mapId);
 				Render pr = new Render(fileName, type);
 				if (mv != null) {
 					for (MapRenderer mr : mv.getRenderers()) {
@@ -216,7 +217,7 @@ public class Maps implements CommandExecutor {
 
 	public void cleanup(String pName) {
 		for (short mapId : mapIdList.keySet()) {
-			MapView mv = plugin.getServer().getMap(mapId);
+			MapView mv = this.plugin.getServer().getMap(mapId);
 			if (mv != null) {
 				for (MapRenderer mr : mv.getRenderers()) {
 					if (mr instanceof Render) {
@@ -240,7 +241,7 @@ public class Maps implements CommandExecutor {
 						mapTypeList.put(Short.parseShort(items[0]), "face");
 					}
 				}
-			} catch (Exception exception) {
+			} catch (IOException exception) {
 				//File isnt found? I think....?
 			}
 		}
@@ -251,7 +252,7 @@ public class Maps implements CommandExecutor {
 			for (short mapId : mapIdList.keySet()) {
 				out.println(mapId + ":" + mapIdList.get(mapId) + ":" + mapTypeList.get(mapId));
 			}
-		} catch (Exception exception) {
+		} catch (IOException exception) {
 			//File isn't found, oh well
 		}
 	}
@@ -262,7 +263,7 @@ public class Maps implements CommandExecutor {
 			File f = new File(getFileName(name.split("/")[name.split("/").length - 1].split(".png")[0]));
 			if (!f.exists()) downloadURL(name);
 			m = new ItemStack(Material.MAP);
-			MapView mv = plugin.getServer().createMap(plugin.getServer().getWorlds().get(0));
+			MapView mv = this.plugin.getServer().createMap(this.plugin.getServer().getWorlds().get(0));
 			mv.setCenterX(MAGIC_NUMBER);
 			mv.setCenterZ(0);
 			for (MapRenderer mr : mv.getRenderers()) {
@@ -284,7 +285,7 @@ public class Maps implements CommandExecutor {
 				player.sendMessage(ChatColor.GRAY + "Please enter a player's name who exists");
 			} else {
 				m = new ItemStack(Material.MAP);
-				MapView mv = plugin.getServer().createMap(plugin.getServer().getWorlds().get(0));
+				MapView mv = this.plugin.getServer().createMap(this.plugin.getServer().getWorlds().get(0));
 				mv.setCenterX(MAGIC_NUMBER);
 				mv.setCenterZ(0);
 				for (MapRenderer mr : mv.getRenderers()) {

@@ -6,9 +6,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.imageio.ImageIO;
+
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
@@ -83,7 +86,7 @@ public class Render extends MapRenderer {
                     this.img = combined.getScaledInstance(128, 128, 0);
                 }
             } 
-        } catch (Exception exception) {  
+        } catch (IOException exception) {  
         	//Problem reading file
         }        
     }

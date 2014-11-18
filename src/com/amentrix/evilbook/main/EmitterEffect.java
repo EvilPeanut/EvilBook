@@ -5,24 +5,30 @@ package com.amentrix.evilbook.main;
  * @author Reece Aaron Lecrivain
  */
 public enum EmitterEffect {
-	Smoke(null, Rank.ARCHITECT),
-	Flames(null, Rank.ARCHITECT),
-	Hearts("heart", Rank.ARCHITECT),
-	RedstoneFumes("reddust", Rank.ARCHITECT),
-	Slime("slime", Rank.ARCHITECT),
-	MagicCriticalHit("magicCrit", Rank.ARCHITECT),
-	EnchantmentTable("enchantmenttable", Rank.ARCHITECT),
-	Cloud("cloud", Rank.ADMIN),
-	Potion(null, Rank.TYCOON),
-	HugeExplosion("hugeexplosion", Rank.TYCOON),
-	LargeExplosion("largeexplode", Rank.TYCOON),
-	FireworksSpark("fireworksSpark", Rank.TYCOON);
+	Smoke(Rank.ARCHITECT),
+	Extinguish(Rank.ARCHITECT),
+	LavaPop(Rank.ARCHITECT),
+	LavaDrip(Rank.ARCHITECT),
+	Note(Rank.ARCHITECT),
+	Portal(Rank.ARCHITECT),
+	Thundercloud(Rank.ARCHITECT),
+	VoidFog(Rank.ARCHITECT),
+	WaterDrip(Rank.ARCHITECT),
+	Flames(Rank.ARCHITECT),
+	Hearts(Rank.ARCHITECT),
+	RedstoneFumes(Rank.ARCHITECT),
+	Slime(Rank.ARCHITECT),
+	MagicCriticalHit(Rank.ARCHITECT),
+	EnchantmentTable(Rank.ARCHITECT),
+	Cloud(Rank.ADMIN),
+	Potion(Rank.TYCOON),
+	HugeExplosion(Rank.TYCOON),
+	LargeExplosion(Rank.TYCOON),
+	FireworksSpark(Rank.TYCOON);
 	
-	public String particleName;
 	public Rank minimumRank;
 	
-	EmitterEffect(String name, Rank rank) {
-		this.particleName = name;
+	EmitterEffect(Rank rank) {
 		this.minimumRank = rank;
 	}
 	
@@ -38,9 +44,5 @@ public enum EmitterEffect {
 	        if (e.name().equalsIgnoreCase(test)) return e;
 	    }
 	    return null;
-	}
-	
-	public Boolean isParticleEffect() {
-		return this.particleName == null ? false : true;
 	}
 }
