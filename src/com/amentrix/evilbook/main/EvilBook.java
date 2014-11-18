@@ -1390,6 +1390,18 @@ public class EvilBook extends JavaPlugin {
 		}
 		Player player = (Player)sender;
 		//
+		// Workbench Command
+		//
+		if (command.getName().equalsIgnoreCase("workbench")) {
+			if (!isInSurvival(player) || getProfile(player).rank.isAdmin()) {
+				player.openWorkbench(null, true);
+			} else {
+				sender.sendMessage("§dAdmin rank is required to use this command in survival");
+				player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
+			}
+			return true;
+		}
+		//
 		// Drug Command
 		//
 		if (command.getName().equalsIgnoreCase("drug")) {

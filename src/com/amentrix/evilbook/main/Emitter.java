@@ -27,7 +27,7 @@ public class Emitter {
 	public Emitter(EvilBook plugin, ResultSet properties) {
 		try {
 			this.location = new Location(plugin.getServer().getWorld(properties.getString("world")), properties.getInt("x"), properties.getInt("y"), properties.getInt("z"));
-			this.effect = EmitterEffect.valueOf(properties.getString("effect"));
+			this.effect = EmitterEffect.parse(properties.getString("effect"));
 			this.data = properties.getInt("data");
 			this.frequency = properties.getInt("frequency");
 		} catch (Exception exception) {

@@ -3,6 +3,9 @@ main: com.amentrix.evilbook.main.EvilBook
 version: 6.1.5
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  workbench:
+    description: Open a virtual workbench
+    usage: /<command>
   alt:
     description: Get a list of possible alts with the same ip as a player
     usage: /<command> [playerName]
