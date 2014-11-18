@@ -1784,7 +1784,7 @@ public class EvilBook extends JavaPlugin {
 						}
 					} else {
 						sender.sendMessage("§5You have to be a higher rank");
-						sender.sendMessage("§d" + effect.name() + " rank is required to create this effect");
+						sender.sendMessage("§d" + effect.minimumRank.getName() + " rank is required to create this effect");
 					}
 				} else {
 					sender.sendMessage("§5Incorrect command usage");
