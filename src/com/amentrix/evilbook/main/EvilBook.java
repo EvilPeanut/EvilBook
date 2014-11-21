@@ -782,6 +782,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s §lpossible §7alternative accounts:");
 							while (rs.next()) if (!args[0].equalsIgnoreCase(rs.getString("player_name"))) sender.sendMessage("§7" + getServer().getOfflinePlayer(rs.getString("player_name")).getName());
 						}
+						sender.sendMessage("§7Please note IPs change and bans should not be based on IP");
 					}
 				} catch (Exception exception) {
 					exception.printStackTrace();
@@ -802,8 +803,8 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s IP isn't logged");
 				} else {
 					sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s §llast known IP §7is " + ip);
-					sender.sendMessage("§7Please note IPs change and bans should not be based on IP");
 				}
+				sender.sendMessage("§7Please note IPs change and bans should not be based on IP");
 			} else {
 				sender.sendMessage("§5Incorrect command usage");
 				sender.sendMessage("§d/ip [playerName]");
