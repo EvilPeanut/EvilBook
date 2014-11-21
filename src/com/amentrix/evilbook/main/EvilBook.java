@@ -1403,6 +1403,18 @@ public class EvilBook extends JavaPlugin {
 			return true;
 		}
 		//
+		// Repair Command
+		//
+		if (command.getName().equalsIgnoreCase("repair")) {
+			if (!isInSurvival(player) || getProfile(player).rank == Rank.SERVER_HOST) {
+				player.getItemInHand().setDurability(player.getItemInHand().getType().getMaxDurability());
+				sender.sendMessage("§7Your item has been fully repaired");
+			} else {
+				player.sendMessage("§7This command can't be used in survival");
+			}
+			return true;
+		}
+		//
 		// Feed Command
 		//
 		if (command.getName().equalsIgnoreCase("feed")) {
@@ -1410,8 +1422,7 @@ public class EvilBook extends JavaPlugin {
 				player.setFoodLevel(20);
 				sender.sendMessage("§7You have been fully fed");
 			} else {
-				sender.sendMessage("§dAdmin rank is required to use this command in survival");
-				player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
+				player.sendMessage("§7This command can't be used in survival");
 			}
 			return true;
 		}
@@ -1423,8 +1434,7 @@ public class EvilBook extends JavaPlugin {
 				player.setHealth(player.getMaxHealth());
 				sender.sendMessage("§7You have been fully healed");
 			} else {
-				sender.sendMessage("§dAdmin rank is required to use this command in survival");
-				player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
+				player.sendMessage("§7This command can't be used in survival");
 			}
 			return true;
 		}
