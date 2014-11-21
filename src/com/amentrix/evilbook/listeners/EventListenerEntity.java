@@ -2,11 +2,13 @@ package com.amentrix.evilbook.listeners;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
@@ -14,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -116,7 +119,7 @@ public class EventListenerEntity implements Listener {
 				return;
 			} else if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), player) == true) {
 				// Regions
-				player.sendMessage("�cYou don't have permission to build here");
+				player.sendMessage("§cYou don't have permission to build here");
 				event.setCancelled(true);
 			}
 		}
@@ -131,7 +134,7 @@ public class EventListenerEntity implements Listener {
 			event.setCancelled(true);
 		} else if (EvilBook.isInProtectedRegion(event.getBlock().getLocation(), event.getPlayer()) == true) {
 			// Regions
-			event.getPlayer().sendMessage("�cYou don't have permission to build here");
+			event.getPlayer().sendMessage("§cYou don't have permission to build here");
 			event.setCancelled(true);
 		}
 	}
@@ -155,7 +158,7 @@ public class EventListenerEntity implements Listener {
 				event.setCancelled(true);
 			} else if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), (Player)event.getRemover())) {
 				// Regions
-				((Player)event.getRemover()).sendMessage("�cYou don't have permission to build here");
+				((Player)event.getRemover()).sendMessage("§cYou don't have permission to build here");
 				event.setCancelled(true);
 			}
 		}
@@ -216,6 +219,24 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.LOW)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-		if (!EvilBook.isInSurvival(event.getEntity()) && event.getEntityType() == EntityType.SHEEP) ((Sheep)event.getEntity()).setColor(DyeColor.values()[new Random().nextInt(DyeColor.values().length)]);
+		Entity spawnedEntity = event.getEntity();
+		if (!EvilBook.isInSurvival(spawnedEntity)) {
+			if (event.getEntityType() == EntityType.SHEEP) ((Sheep)spawnedEntity).setColor(DyeColor.values()[new Random().nextInt(DyeColor.values().length)]);
+		} else if (event.getSpawnReason() != SpawnReason.SPAWNER) {
+			Random rand = new Random();
+			if (rand.nextInt(50) == 0) {
+				List<Entity> entityList = spawnedEntity.getNearbyEntities(32, 32, 32);
+				for (Entity entity : entityList) {
+					if (entity instanceof Player) {
+						Player player = (Player) entity;
+						player.sendMessage("§a☠ A rare creature has spawned near you! ☠");
+					}
+				}
+				event.getEntity().setMaxHealth(event.getEntity().getMaxHealth() * 4);
+				String[] names = {"Hercules", "Achilles", "Theseus", "Odysseus", "Perseus", "Bellerophon", "Orpheus", "Cadmus"};
+				event.getEntity().setCustomName(names[rand.nextInt(names.length)]);
+				event.getEntity().setCustomNameVisible(true);
+			}
+		}
 	}
 }
