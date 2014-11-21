@@ -3,6 +3,9 @@ main: com.amentrix.evilbook.main.EvilBook
 version: 6.1.5
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  heal:
+    description: Heal the player to full health
+    usage: /<command>
   workbench:
     description: Open a virtual workbench
     usage: /<command>

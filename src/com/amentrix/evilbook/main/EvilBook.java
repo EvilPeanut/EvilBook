@@ -1403,6 +1403,18 @@ public class EvilBook extends JavaPlugin {
 			return true;
 		}
 		//
+		// Heal Command
+		//
+		if (command.getName().equalsIgnoreCase("heal")) {
+			if (!isInSurvival(player) || getProfile(player).rank == Rank.SERVER_HOST) {
+				player.setHealth(player.getMaxHealth());
+			} else {
+				sender.sendMessage("§dAdmin rank is required to use this command in survival");
+				player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
+			}
+			return true;
+		}
+		//
 		// Drug Command
 		//
 		if (command.getName().equalsIgnoreCase("drug")) {
