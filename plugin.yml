@@ -3,6 +3,9 @@ main: com.amentrix.evilbook.main.EvilBook
 version: 6.1.5
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  feed:
+    description: Feed the player to remove any hunger
+    usage: /<command>
   heal:
     description: Heal the player to full health
     usage: /<command>
