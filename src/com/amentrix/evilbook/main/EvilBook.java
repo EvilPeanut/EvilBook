@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,6 +107,9 @@ public class EvilBook extends JavaPlugin {
 	public static final List<String> paidWorldList = new ArrayList<>();
 	public static final List<Region> regionList = new ArrayList<>();
 	public static final List<Emitter> emitterList = new ArrayList<>();
+	//
+	public static final List<UUID> rareSpawnList = new ArrayList<>();
+	//
 	public static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
 	public Session editSession = new Session(this);
 	public Random random = new Random();

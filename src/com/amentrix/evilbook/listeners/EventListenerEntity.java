@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
@@ -46,42 +47,64 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityDeath(EntityDeathEvent event) {
+		LivingEntity entity = event.getEntity();
 		//
 		// Rare mob drops
 		//
-		if (EvilBook.isInSurvival(event.getEntity())) {
+		if (EvilBook.isInSurvival(entity) && EvilBook.rareSpawnList.contains(entity.getUniqueId())) {
 			Random rand = new Random();
 		    int randomNum = rand.nextInt(1000);
-			if (randomNum >= 0 && randomNum <= 5) {
+			if (randomNum >= 0 && randomNum <= 100) {
 				event.getDrops().add(new ItemStack(Material.DIAMOND_SWORD));
-			} else if (randomNum >= 6 && randomNum <= 15) {
+			} else if (randomNum >= 101 && randomNum <= 150) {
 				ItemStack cocain = new ItemStack(Material.SUGAR);
 				ItemMeta meta = cocain.getItemMeta();
 				meta.setDisplayName("Cocain");
 				meta.setLore(Arrays.asList("Ruff stuff"));
 				cocain.setItemMeta(meta);
 				event.getDrops().add(cocain);
-			} else if (randomNum >= 16 && randomNum <= 20) {
+			} else if (randomNum >= 151 && randomNum <= 200) {
 				ItemStack shrooms = new ItemStack(Material.RED_MUSHROOM);
 				ItemMeta meta = shrooms.getItemMeta();
 				meta.setDisplayName("Hallucinogenic Mushroom");
 				meta.setLore(Arrays.asList("Shroooms!"));
 				shrooms.setItemMeta(meta);
 				event.getDrops().add(shrooms);
-			} else if (randomNum >= 21 && randomNum <= 50) {
+			} else if (randomNum >= 201 && randomNum <= 250) {
 				ItemStack alcohol = new ItemStack(Material.POTION);
 				ItemMeta meta = alcohol.getItemMeta();
 				meta.setDisplayName("Alcohol");
 				meta.setLore(Arrays.asList("Hick!"));
 				alcohol.setItemMeta(meta);
 				event.getDrops().add(alcohol);
+			} else if (randomNum >= 251 && randomNum <= 300) {
+				event.getDrops().add(new ItemStack(Material.ANVIL));
+			} else if (randomNum >= 301 && randomNum <= 400) {
+				event.getDrops().add(new ItemStack(Material.IRON_BLOCK));
+			} else if (randomNum >= 401 && randomNum <= 450) {
+				event.getDrops().add(new ItemStack(Material.GOLD_BLOCK));
+			} else if (randomNum >= 451 && randomNum <= 500) {
+				event.getDrops().add(new ItemStack(Material.DIAMOND_BLOCK));
+			} else if (randomNum >= 501 && randomNum <= 525) {
+				event.getDrops().add(new ItemStack(Material.EMERALD_BLOCK));
+			} else if (randomNum >= 526 && randomNum <= 600) {
+				event.getDrops().add(new ItemStack(Material.GOLD_HELMET));
+			} else if (randomNum >= 601 && randomNum <= 700) {
+				event.getDrops().add(new ItemStack(Material.DIAMOND_HELMET));
+			} else if (randomNum >= 701 && randomNum <= 800) {
+				event.getDrops().add(new ItemStack(Material.DIAMOND_CHESTPLATE));
+			} else if (randomNum >= 801 && randomNum <= 900) {
+				event.getDrops().add(new ItemStack(Material.DIAMOND_LEGGINGS));
+			} else {
+				event.getDrops().add(new ItemStack(Material.DIAMOND_BOOTS));
 			}
+			event.setDroppedExp(event.getDroppedExp() * 4);
 		}
 		//
 		// Statistics
 		//
-		if (event.getEntity().getKiller() != null) {
-			Player player = event.getEntity().getKiller();
+		if (entity.getKiller() != null) {
+			Player player = entity.getKiller();
 			if (!EvilBook.isInSurvival(player)) return;
 			switch (event.getEntityType()) {
 			case PIG: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_PIGS, 1); break;
@@ -220,10 +243,10 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.LOW)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-		Entity spawnedEntity = event.getEntity();
+		LivingEntity spawnedEntity = event.getEntity();
 		if (!EvilBook.isInSurvival(spawnedEntity)) {
 			if (event.getEntityType() == EntityType.SHEEP) ((Sheep)spawnedEntity).setColor(DyeColor.values()[new Random().nextInt(DyeColor.values().length)]);
-		} else if (event.getSpawnReason() != SpawnReason.SPAWNER && event.getEntity() instanceof Monster) {
+		} else if (event.getSpawnReason() != SpawnReason.SPAWNER && spawnedEntity instanceof Monster) {
 			Random rand = new Random();
 			if (rand.nextInt(50) == 0) {
 				List<Entity> entityList = spawnedEntity.getNearbyEntities(32, 32, 32);
@@ -233,10 +256,11 @@ public class EventListenerEntity implements Listener {
 						player.sendMessage("§a☠ A rare creature has spawned near you! ☠");
 					}
 				}
-				event.getEntity().setMaxHealth(event.getEntity().getMaxHealth() * 4);
+				EvilBook.rareSpawnList.add(spawnedEntity.getUniqueId());
+				spawnedEntity.setMaxHealth(spawnedEntity.getMaxHealth() * 4);
 				String[] names = {"Hercules", "Achilles", "Theseus", "Odysseus", "Perseus", "Bellerophon", "Orpheus", "Cadmus"};
-				event.getEntity().setCustomName(names[rand.nextInt(names.length)]);
-				event.getEntity().setCustomNameVisible(true);
+				spawnedEntity.setCustomName(names[rand.nextInt(names.length)]);
+				spawnedEntity.setCustomNameVisible(true);
 			}
 		}
 	}
