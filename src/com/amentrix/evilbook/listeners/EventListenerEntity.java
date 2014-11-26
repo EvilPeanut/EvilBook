@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.event.EventHandler;
@@ -222,7 +223,7 @@ public class EventListenerEntity implements Listener {
 		Entity spawnedEntity = event.getEntity();
 		if (!EvilBook.isInSurvival(spawnedEntity)) {
 			if (event.getEntityType() == EntityType.SHEEP) ((Sheep)spawnedEntity).setColor(DyeColor.values()[new Random().nextInt(DyeColor.values().length)]);
-		} else if (event.getSpawnReason() != SpawnReason.SPAWNER) {
+		} else if (event.getSpawnReason() != SpawnReason.SPAWNER && event.getEntity() instanceof Monster) {
 			Random rand = new Random();
 			if (rand.nextInt(50) == 0) {
 				List<Entity> entityList = spawnedEntity.getNearbyEntities(32, 32, 32);
