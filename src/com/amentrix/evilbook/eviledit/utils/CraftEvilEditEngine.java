@@ -106,7 +106,7 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 			this.deferredBlocks.add(new DeferredBlock(x, y, z));
 		}
 		// Logging
-		//EvilBook.lbConsumer.queueBlockReplace(this.player.getName(), oldBlockState, new Location(this.world, x, y, z).getBlock().getState());
+		EvilBook.lbConsumer.queueBlockReplace(this.player.getName(), oldBlockState, new Location(this.world, x, y, z).getBlock().getState());
 		// Return if it was set
 		return res;
 	}
