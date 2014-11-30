@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
+import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 
@@ -36,6 +37,22 @@ public abstract class PlayerProfile {
 	public int runAmplifier = 4, money = 0;
 	public EditWandMode wandMode = EditWandMode.Selection;
 	public Location actionLocationA, actionLocationB;
+	public EvilBook plugin;
+	
+	public PlayerProfile(EvilBook plugin) {
+		this.plugin = plugin;
+	}
+	
+	public void updateNametag(final String prefix, final String suffix)
+	{
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
+		{
+			@Override
+			public void run() {
+				NametagManager.overlap(name, prefix, suffix);
+			}
+		});
+	}
 	
 	public Boolean isCanEditWorld(World world) {
 		if (EvilBook.isInSurvival(world) && !this.rank.isHigher(Rank.BUILDER)) {

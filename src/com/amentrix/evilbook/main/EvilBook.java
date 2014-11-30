@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -77,8 +78,7 @@ import com.amentrix.evilbook.listeners.EventListenerPacket;
 import com.amentrix.evilbook.listeners.EventListenerPlayer;
 import com.amentrix.evilbook.listeners.EventListenerVehicle;
 import com.amentrix.evilbook.map.Maps;
-import com.amentrix.evilbook.nametag.NametagAPI;
-import com.amentrix.evilbook.nametag.NametagEdit;
+import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -133,7 +133,7 @@ public class EvilBook extends JavaPlugin {
 		pluginManager.registerEvents(new EventListenerBlock(), this);
 		pluginManager.registerEvents(new EventListenerEntity(), this);
 		pluginManager.registerEvents(new EventListenerInventory(), this);
-		pluginManager.registerEvents(new EventListenerPlayer(), this);
+		pluginManager.registerEvents(new EventListenerPlayer(this), this);
 		pluginManager.registerEvents(new EventListenerVehicle(), this);
 		//
 		// Register EvilBook Invent listeners
@@ -184,7 +184,20 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Load EvilBook-NametagEdit module
 		//
-		NametagEdit.load(this);
+		NametagManager.load();
+		getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+
+				for (Player p : onlinePlayers)
+				{
+					NametagManager.clear(p.getName());
+				}
+			}
+		});
 		//
 		// Connect EvilBook to MySQL
 		//
@@ -1147,10 +1160,10 @@ public class EvilBook extends JavaPlugin {
 						if (getProfile(args[0]) instanceof PlayerProfileNormal) {
 							getProfile(args[0]).saveProfile();
 							playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-							playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
+							playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0])));
 						}
 						// Set nametag color
-						NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+						getProfile(args[0]).updateNametag("§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 						//
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to Admin rank");
 					} else {
@@ -1201,12 +1214,12 @@ public class EvilBook extends JavaPlugin {
 							if (getProfile(args[0]) instanceof PlayerProfileAdmin) {
 								getProfile(args[0]).saveProfile();
 								playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-								playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileNormal(getPlayer(args[0])));
+								playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileNormal(this, getPlayer(args[0])));
 							}
 							//
 						}
 						// Set nametag color
-						NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+						getProfile(args[0]).updateNametag("§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 						//
 						getProfile(args[0]).updatePlayerListName();
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been demoted to " + getProfile(args[0]).rank.getName() + " rank");
@@ -1341,12 +1354,12 @@ public class EvilBook extends JavaPlugin {
 								if (getProfile(args[0]) instanceof PlayerProfileNormal) {
 									getProfile(args[0]).saveProfile();
 									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
+									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0])));
 								}
 								//
 							}
 							// Set nametag color
-							NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+							getProfile(args[0]).updateNametag("§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 							//
 							getProfile(args[0]).updatePlayerListName();
 							broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + getProfile(args[0]).rank.getName() + " rank");
@@ -1380,11 +1393,11 @@ public class EvilBook extends JavaPlugin {
 									// Player profile type conversion
 									getProfile(args[0]).saveProfile();
 									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(getPlayer(args[0])));
+									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0])));
 									//
 								}
 								// Set nametag color
-								NametagAPI.updateNametagHard(getPlayer(args[0]).getName(), "§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
+								getProfile(args[0]).updateNametag("§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
 								//
 								getProfile(args[0]).updatePlayerListName();
 								broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to " + rank.getName() + " rank");
@@ -2251,7 +2264,7 @@ public class EvilBook extends JavaPlugin {
 				String prefix = args[0].startsWith("&") ? EvilBook.toFormattedString(args[0]) : "&6" + EvilBook.toFormattedString(args[0]);
 				((PlayerProfileAdmin)getProfile(player)).customRankColor = prefix.substring(1, 2);
 				((PlayerProfileAdmin)getProfile(player)).customRankPrefix = "§0[" + prefix + "§0]";
-				NametagAPI.updateNametagHard(player.getName(), "§" + ((PlayerProfileAdmin)getProfile(player)).rank.getColor((getProfile(player))), null);
+				getProfile(player).updateNametag("§" + ((PlayerProfileAdmin)getProfile(player)).rank.getColor((getProfile(player))), null);
 			} else {
 				sender.sendMessage("§5Incorrect command usage");
 				sender.sendMessage("§d/setrank [rank]");

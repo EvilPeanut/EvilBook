@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.Clipboard;
-import com.amentrix.evilbook.nametag.NametagAPI;
 import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 
@@ -32,7 +31,8 @@ public class PlayerProfileAdmin extends PlayerProfile {
 	 * Construct a new admin PlayerProfile instance
 	 * @param playerName The name of the player
 	 */
-	public PlayerProfileAdmin(final Player newPlayer) {
+	public PlayerProfileAdmin(EvilBook plugin, Player newPlayer) {
+		super(plugin);
 		try {
 			this.name = newPlayer.getName();
 			this.rank = Rank.valueOf(getProperty("rank"));
@@ -90,7 +90,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 			newPlayer.sendMessage("§3Type §a/donate §3for instructions on how to donate");
 			newPlayer.sendMessage("§3Type §a/help §3for help");
 			// NametagEdit
-			NametagAPI.updateNametagHard(this.name, "§" + this.rank.getColor(this), null);
+			updateNametag("§" + this.rank.getColor(this), null);
 			// Player profile statistics
 			Date date = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

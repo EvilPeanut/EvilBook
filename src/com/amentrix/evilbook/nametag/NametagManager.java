@@ -9,12 +9,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-class NametagManager
+public class NametagManager
 {
 	private static List<Integer> list = new ArrayList<>();
 
 	private static HashMap<TeamInfo, List> teams = new HashMap<>();
-
+	
 	private static void addToTeam(TeamInfo team, String player) {
 		removeFromTeam(player);
 		List<String> list = teams.get(team);
@@ -104,7 +104,7 @@ class NametagManager
 		return new String[0];
 	}
 
-	static void load()
+	public static void load()
 	{
 		for (TeamInfo t : getTeams()) {
 			int entry = -1;
@@ -134,7 +134,7 @@ class NametagManager
 		addToTeam(t, player);
 	}
 
-	static void overlap(String player, String prefix, String suffix)
+	public static void overlap(String player, String prefix, String suffix)
 	{
 		if (prefix == null) {
 			prefix = "";
@@ -148,7 +148,7 @@ class NametagManager
 		addToTeam(t, player);
 	}
 
-	static void clear(String player)
+	public static void clear(String player)
 	{
 		removeFromTeam(player);
 	}
@@ -255,7 +255,7 @@ class NametagManager
 		}
 	}
 
-	static void sendTeamsToPlayer(Player p)
+	public static void sendTeamsToPlayer(Player p)
 	{
 		try
 		{

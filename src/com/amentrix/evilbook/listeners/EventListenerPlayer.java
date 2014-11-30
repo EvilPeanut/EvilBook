@@ -86,6 +86,7 @@ import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.PlayerProfileNormal;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.main.Region;
+import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -99,6 +100,12 @@ import com.comphenix.protocol.events.PacketContainer;
  * @author Reece Aaron Lecrivain
  */
 public class EventListenerPlayer implements Listener {
+	private EvilBook plugin;
+	
+	public EventListenerPlayer(EvilBook plugin) {
+		this.plugin = plugin;
+	}
+	
 	/**
 	 * Called when a player attempts to login
 	 */
@@ -125,11 +132,14 @@ public class EventListenerPlayer implements Listener {
 		}
 		//
 		if (SQL.getProperty(TableType.PlayerProfile, event.getPlayer().getName(), "Rank") != null && Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, event.getPlayer().getName(), "Rank")).isAdmin()) {
-			EvilBook.playerProfiles.put(event.getPlayer().getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(event.getPlayer()));
+			EvilBook.playerProfiles.put(event.getPlayer().getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(plugin, event.getPlayer()));
 		} else {
-			EvilBook.playerProfiles.put(event.getPlayer().getName().toLowerCase(Locale.UK), new PlayerProfileNormal(event.getPlayer()));
+			EvilBook.playerProfiles.put(event.getPlayer().getName().toLowerCase(Locale.UK), new PlayerProfileNormal(plugin, event.getPlayer()));
 		}
 		event.setJoinMessage(null);
+		// Name Tag
+		NametagManager.sendTeamsToPlayer(event.getPlayer());
+		NametagManager.clear(event.getPlayer().getName());
 		// Statistics
 		GlobalStatistics.incrementStatistic(GlobalStatistic.LoginTotal, 1);
 		// Regions
