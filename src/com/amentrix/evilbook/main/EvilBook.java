@@ -764,18 +764,19 @@ public class EvilBook extends JavaPlugin {
 		//
 		final Plugin dynmapPlugin = pluginManager.getPlugin("dynmap");
 		if (dynmapPlugin != null) {
-			dynmapAPI = ((DynmapAPI) dynmapPlugin);
-			markerAPI = dynmapAPI.getMarkerAPI();
+			try {
+				dynmapAPI = ((DynmapAPI) dynmapPlugin);
+				markerAPI = dynmapAPI.getMarkerAPI();
+				PlayerHomeMarkers.loadPlayerHomes();
+				WarpMarkers.loadWarps();
+			} catch (Exception exception) {
+				logSevere("Failed to load Dynmap module, is Dynmap out of date?");
+			}
 		} else {
 			logSevere("Failed to load Dynmap module");
 			getServer().shutdown();
 			return;
 		}
-		//
-		// Load Dynmap Markers
-		//
-		PlayerHomeMarkers.loadPlayerHomes();
-		WarpMarkers.loadWarps();
 		//
 		// Register protocolLib listeners
 		//
