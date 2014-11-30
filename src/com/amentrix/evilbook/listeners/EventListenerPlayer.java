@@ -634,7 +634,7 @@ public class EventListenerPlayer implements Listener {
 							player.sendMessage("§cYou don't have permission to use this here");
 						}
 						event.setCancelled(true);
-					} else {
+					} else if (event.getItem().getType() == Material.INK_SACK) {
 						// Dying
 						if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
 							ChatColor dyeTextColor;
