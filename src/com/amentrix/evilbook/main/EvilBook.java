@@ -3864,7 +3864,6 @@ public class EvilBook extends JavaPlugin {
 	 * @param name The name of the entity type
 	 * @return The entity type
 	 */
-	//TODO: Update for 1.8
 	public static EntityType getEntity(String name) {
 		if (EntityType.fromName(name) != null) return EntityType.fromName(name);
 		try {if (EntityType.fromId(Integer.parseInt(name)) != null) return EntityType.fromId(Integer.parseInt(name));} catch (Exception exception) { /*This is fine it just means its not a number*/ }
