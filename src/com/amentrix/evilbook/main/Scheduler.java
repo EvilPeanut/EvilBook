@@ -69,7 +69,7 @@ public class Scheduler {
 							p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
 						} else {
 							p.sendMessage("§dEnter our competition to win Tycoon rank for free!");
-							p.sendMessage("§dhttp://www.amentrix.com/Minecraft/Competition.htm");
+							p.sendMessage("§bhttp://www.amentrix.com/Minecraft/Competition.htm");
 						}
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 10;
 						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
