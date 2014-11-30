@@ -3888,7 +3888,6 @@ public class EvilBook extends JavaPlugin {
 	 * @param name The name of the enchantment
 	 * @return The enchantment
 	 */
-	//TODO: Update for 1.8
 	public static Enchantment getEnchantment(String name) {
 		if (Enchantment.getByName(name) != null) return Enchantment.getByName(name);
 		try {if (Enchantment.getById(Integer.parseInt(name)) != null) return Enchantment.getById(Integer.parseInt(name));} catch (Exception exception) { /*This is fine it just means its not a number*/ }
