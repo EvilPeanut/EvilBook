@@ -1,6 +1,5 @@
 package com.amentrix.evilbook.listeners;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Random;
@@ -549,42 +548,42 @@ public class EventListenerPlayer implements Listener {
 					// Sign editing
 					//
 					if (!EvilBook.isInProtectedRegion(block.getLocation(), player)) {
-						for (Iterator<DynamicSign> iterator = EvilBook.dynamicSignList.iterator(); iterator.hasNext();) {
-							DynamicSign dynamicSign = iterator.next();
-							if (dynamicSign.location.getBlockX() == sign.getLocation().getBlockX() && 
-									dynamicSign.location.getBlockY() == sign.getLocation().getBlockY() &&
-									dynamicSign.location.getBlockZ() == sign.getLocation().getBlockZ()) {
-								dynamicSign.delete();
-								EvilBook.dynamicSignList.remove(dynamicSign);
-								signText[0] = dynamicSign.textLines[0];
-								signText[1] = dynamicSign.textLines[1];
-								signText[2] = dynamicSign.textLines[2];
-								signText[3] = dynamicSign.textLines[3];
-								break;
+						try {
+							for (Iterator<DynamicSign> iterator = EvilBook.dynamicSignList.iterator(); iterator.hasNext();) {
+								DynamicSign dynamicSign = iterator.next();
+								if (dynamicSign.location.getBlockX() == sign.getLocation().getBlockX() && 
+										dynamicSign.location.getBlockY() == sign.getLocation().getBlockY() &&
+										dynamicSign.location.getBlockZ() == sign.getLocation().getBlockZ()) {
+									dynamicSign.delete();
+									EvilBook.dynamicSignList.remove(dynamicSign);
+									signText[0] = dynamicSign.textLines[0];
+									signText[1] = dynamicSign.textLines[1];
+									signText[2] = dynamicSign.textLines[2];
+									signText[3] = dynamicSign.textLines[3];
+									break;
+								}
 							}
-						}
-						signText[0] = signText[0].replaceAll("§", "&");
-						signText[1] = signText[1].replaceAll("§", "&");
-						signText[2] = signText[2].replaceAll("§", "&");
-						signText[3] = signText[3].replaceAll("§", "&");
-						PacketContainer signUpdatePacket = new PacketContainer(PacketType.Play.Server.UPDATE_SIGN);
-						signUpdatePacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
-						signUpdatePacket.getChatComponents().write(0, WrappedChatComponent.fromText(signText[0]));
-						signUpdatePacket.getChatComponents().write(1, WrappedChatComponent.fromText(signText[1]));
-						signUpdatePacket.getChatComponents().write(2, WrappedChatComponent.fromText(signText[2]));
-						signUpdatePacket.getChatComponents().write(3, WrappedChatComponent.fromText(signText[3]));
-						//signUpdatePacket.getStringArrays().write(0, signText);
-						try {
+							signText[0] = signText[0].replaceAll("§", "&");
+							signText[1] = signText[1].replaceAll("§", "&");
+							signText[2] = signText[2].replaceAll("§", "&");
+							signText[3] = signText[3].replaceAll("§", "&");
+							PacketContainer signUpdatePacket = new PacketContainer(PacketType.Play.Server.UPDATE_SIGN);
+							signUpdatePacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
+							WrappedChatComponent[] signTextArray = {WrappedChatComponent.fromText(signText[0]), WrappedChatComponent.fromText(signText[1]),
+									WrappedChatComponent.fromText(signText[2]), WrappedChatComponent.fromText(signText[3])};
+							//TODO: Fix this
+							signUpdatePacket.getChatComponentArrays().write(0, signTextArray);
+							//signUpdatePacket.getChatComponents().write(0, WrappedChatComponent.fromText(signText[0]));
+							//signUpdatePacket.getChatComponents().write(1, WrappedChatComponent.fromText(signText[1]));
+							//signUpdatePacket.getChatComponents().write(2, WrappedChatComponent.fromText(signText[2]));
+							//signUpdatePacket.getChatComponents().write(3, WrappedChatComponent.fromText(signText[3]));
+							//signUpdatePacket.getStringArrays().write(0, signText);
 							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signUpdatePacket);
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
-						}
-						PacketContainer signEditPacket = new PacketContainer(PacketType.Play.Server.OPEN_SIGN_ENTITY);
-						signEditPacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
-						try {
+							PacketContainer signEditPacket = new PacketContainer(PacketType.Play.Server.OPEN_SIGN_ENTITY);
+							signEditPacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
 							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signEditPacket);
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
+						} catch (Exception exception) {
+							EvilBook.logSevere("Failed to run sign editing module");
 						}
 					} else {
 						player.sendMessage("§cYou don't have permission to edit this sign");

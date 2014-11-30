@@ -39,17 +39,21 @@ public class PlayerHomeMarkers {
 	}
 	
 	public static void setPlayerHome(String playerName, Location homeLocation) {
-		Marker homeMarker = set.findMarker("evilbook.player_homes." + playerName);
-		if (homeLocation == null) {
-			if (homeMarker != null) homeMarker.deleteMarker();
-		} else {
-			if (homeMarker != null) {
-				homeMarker.setLocation(homeLocation.getWorld().getName(), homeLocation.getX(), homeLocation.getY(), homeLocation.getZ());
+		try {
+			Marker homeMarker = set.findMarker("evilbook.player_homes." + playerName);
+			if (homeLocation == null) {
+				if (homeMarker != null) homeMarker.deleteMarker();
 			} else {
-				set.createMarker("evilbook.player_homes." + playerName, playerName, 
-						homeLocation.getWorld().getName(), homeLocation.getX(),
-						homeLocation.getY(), homeLocation.getZ(), icon, false);
+				if (homeMarker != null) {
+					homeMarker.setLocation(homeLocation.getWorld().getName(), homeLocation.getX(), homeLocation.getY(), homeLocation.getZ());
+				} else {
+					set.createMarker("evilbook.player_homes." + playerName, playerName, 
+							homeLocation.getWorld().getName(), homeLocation.getX(),
+							homeLocation.getY(), homeLocation.getZ(), icon, false);
+				}
 			}
+		} catch (Exception exception) {
+			EvilBook.logSevere("Failed to set player home marker");
 		}
 	}
 }

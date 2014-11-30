@@ -37,15 +37,19 @@ public class WarpMarkers {
 			exception.printStackTrace();
 		}
 	}
-	
+
 	public static void setWarp(String warpName, Location warpLocation) {
-		Marker warpMarker = set.findMarker("evilbook.warps." + warpName.toLowerCase(Locale.UK));
-		if (warpMarker != null) {
-			warpMarker.setLocation(warpLocation.getWorld().getName(), warpLocation.getX(), warpLocation.getY(), warpLocation.getZ());
-		} else {
-			set.createMarker("evilbook.warps." + warpName.toLowerCase(Locale.UK), warpName, 
-					warpLocation.getWorld().getName(), warpLocation.getX(),
-					warpLocation.getY(), warpLocation.getZ(), icon, false);
+		try {
+			Marker warpMarker = set.findMarker("evilbook.warps." + warpName.toLowerCase(Locale.UK));
+			if (warpMarker != null) {
+				warpMarker.setLocation(warpLocation.getWorld().getName(), warpLocation.getX(), warpLocation.getY(), warpLocation.getZ());
+			} else {
+				set.createMarker("evilbook.warps." + warpName.toLowerCase(Locale.UK), warpName, 
+						warpLocation.getWorld().getName(), warpLocation.getX(),
+						warpLocation.getY(), warpLocation.getZ(), icon, false);
+			}
+		} catch (Exception exception) {
+			EvilBook.logSevere("Failed to set player home marker");
 		}
 	}
 	
