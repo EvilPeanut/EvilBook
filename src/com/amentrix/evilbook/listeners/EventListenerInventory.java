@@ -24,7 +24,7 @@ import com.amentrix.evilbook.sql.SQL;
  * @author Reece Aaron Lecrivain
  */
 public class EventListenerInventory implements Listener {
-	public final static Inventory entitySpawnerMenu = Bukkit.createInventory(null, 27, "Assign creature to spawner");
+	public final static Inventory entitySpawnerMenu = Bukkit.createInventory(null, 36, "Assign creature to spawner");
 	static {
 		entitySpawnerMenu.setItem(0, new ItemStack(Material.MONSTER_EGG, 1, (short) 50));
 		entitySpawnerMenu.setItem(1, new ItemStack(Material.MONSTER_EGG, 1, (short) 51));
