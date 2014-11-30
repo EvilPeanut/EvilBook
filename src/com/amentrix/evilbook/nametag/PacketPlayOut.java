@@ -52,7 +52,6 @@ public class PacketPlayOut
 		sendPacket.invoke(connection, new Object[] { this.packet });
 	}
 
-	@Deprecated
 	private void setField(String field, Object value) throws NoSuchFieldException, IllegalAccessException
 	{
 		Field f = this.packet.getClass().getDeclaredField(field);
@@ -66,17 +65,12 @@ public class PacketPlayOut
 		((Collection)f.get(this.packet)).addAll(col);
 	}
 
-	private static String getPacketTeamClasspath()
-	{
-		return "net.minecraft.server." + version + ".PacketPlayOutScoreboardTeam";
-	}
-
 	static
 	{
 		try
 		{
 			version = org.bukkit.Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-			packetType = Class.forName(getPacketTeamClasspath());
+			packetType = Class.forName("net.minecraft.server." + version + ".PacketPlayOutScoreboardTeam");
 
 			Class typeCraftPlayer = Class.forName("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer");
 			Class typeNMSPlayer = Class.forName("net.minecraft.server." + version + ".EntityPlayer");
