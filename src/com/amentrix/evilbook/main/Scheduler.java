@@ -46,7 +46,7 @@ public class Scheduler {
 								p.sendMessage("§dYou can always §l/donate §dto support the server");
 							} else if (random >= 60 && random < 80) {
 								p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
-							} else if (random >= 80 && random < 100) {
+							} else {
 								p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
 							}
 						} else {
@@ -54,7 +54,7 @@ public class Scheduler {
 								p.sendMessage("§dYou can always §l/donate §dagain for a higher rank");
 							} else if (random >= 60 && random < 80) {
 								p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
-							} else if (random >= 80 && random < 100) {
+							} else {
 								p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
 							}
 						}
@@ -63,10 +63,13 @@ public class Scheduler {
 					} else {
 						if (random >= 0 && random < 60) {
 							p.sendMessage("§dDonate to become an admin §l/donate");
-						} else if (random >= 60 && random < 80) {
+						} else if (random >= 60 && random < 70) {
 							p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
-						} else if (random >= 80 && random < 100) {
+						} else if (random >= 70 && random < 80) {
 							p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
+						} else {
+							p.sendMessage("§dEnter our competition to win Tycoon rank for free!");
+							p.sendMessage("§dhttp://www.amentrix.com/Minecraft/Competition.htm");
 						}
 						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 10;
 						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
