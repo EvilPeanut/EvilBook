@@ -430,6 +430,7 @@ public class EventListenerPlayer implements Listener {
 				event.getRightClicked().getType() != EntityType.MINECART_TNT && event.getRightClicked().getType() != EntityType.ITEM_FRAME && 
 				event.getRightClicked().getType() != EntityType.FALLING_BLOCK && event.getRightClicked().getType() != EntityType.PRIMED_TNT &&
 				event.getRightClicked().getType() != EntityType.PLAYER && event.getRightClicked().getType() != EntityType.PAINTING && 
+				event.getRightClicked().getType() != EntityType.ARMOR_STAND && event.getRightClicked().getType() != EntityType.MINECART_COMMAND &&
 				event.getRightClicked().getType() != EntityType.VILLAGER && event.getRightClicked() instanceof Tameable == false &&
 				event.getRightClicked().getPassenger() == null && event.getRightClicked() != event.getPlayer().getPassenger() &&
 				(event.getRightClicked().getType() != EntityType.SHEEP || event.getPlayer().getItemInHand().getType() != Material.INK_SACK)) {

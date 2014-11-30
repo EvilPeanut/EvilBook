@@ -266,6 +266,12 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Load command blacklist
 		// 
+		commandBlacklist.put("/worldborder", Rank.SERVER_HOST);
+		commandBlacklist.put("/replaceitem", Rank.SERVER_HOST);
+		commandBlacklist.put("/execute", Rank.SERVER_HOST);
+		commandBlacklist.put("/entitydata", Rank.SERVER_HOST);
+		commandBlacklist.put("/blockdata", Rank.SERVER_HOST);
+		commandBlacklist.put("/clone", Rank.SERVER_HOST);
 		commandBlacklist.put("/setblock", Rank.SERVER_HOST);
 		commandBlacklist.put("/restart", Rank.SERVER_HOST);
 		commandBlacklist.put("/stop", Rank.SERVER_HOST);
@@ -297,6 +303,9 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/paste", Rank.COUNCILLOR);
 		commandBlacklist.put("//paste", Rank.COUNCILLOR);
 		//
+		commandBlacklist.put("/testforblocks", Rank.ADMIN);
+		commandBlacklist.put("/stats", Rank.ADMIN);
+		commandBlacklist.put("/particle", Rank.ADMIN);
 		commandBlacklist.put("/thaw", Rank.ADMIN);
 		commandBlacklist.put("/move", Rank.ADMIN);
 		commandBlacklist.put("//move", Rank.ADMIN);
@@ -570,19 +579,41 @@ public class EvilBook extends JavaPlugin {
 		blockList.put(Material.LOG_2, Arrays.asList("Acacia Wood", "AcaciaWood"));
 		blockList.put(Material.ACACIA_STAIRS, Arrays.asList("Acacia Stairs", "AcaciaStairs"));
 		blockList.put(Material.DARK_OAK_STAIRS, Arrays.asList("Dark Oak Stairs", "DarkOakStairs"));
-		// UNUSED BLOCKS
-		blockList.put(null, null);
-		blockList.put(null, null);
-		blockList.put(null, null);
-		blockList.put(null, null);
-		blockList.put(null, null);
-		//
+		blockList.put(Material.SLIME_BLOCK, Arrays.asList("Slime", "SlimeBlock"));
+		blockList.put(Material.BARRIER, Arrays.asList("Barrier"));
+		blockList.put(Material.IRON_TRAPDOOR, Arrays.asList("Iron Trapdoor", "IronTrapdoor", "IronHatch"));
+		blockList.put(Material.PRISMARINE, Arrays.asList("Prismarine"));
+		blockList.put(Material.SEA_LANTERN, Arrays.asList("Sea Lantern", "SeaLantern", "Lantern"));
 		blockList.put(Material.HAY_BLOCK, Arrays.asList("Hay Block", "Hay", "HayBlock"));
 		blockList.put(Material.CARPET, Arrays.asList("Carpet"));
 		blockList.put(Material.HARD_CLAY, Arrays.asList("Hardened Clay", "HardClay", "HardenedClay"));
 		blockList.put(Material.COAL_BLOCK, Arrays.asList("Block of Coal", "CoalBlock", "BlockofCoal"));
 		blockList.put(Material.PACKED_ICE, Arrays.asList("Packed Ice", "PackedIce"));
 		blockList.put(Material.DOUBLE_PLANT, Arrays.asList("Sunflower"));
+		// UNUSED BLOCKS
+		blockList.put(null, null);
+		blockList.put(null, null);
+		blockList.put(null, null);
+		//
+		blockList.put(Material.RED_SANDSTONE, Arrays.asList("Red Sandstone", "RedSandstone"));
+		blockList.put(Material.RED_SANDSTONE_STAIRS, Arrays.asList("Red Sandstone Stairs", "RedSandstoneStairs"));
+		blockList.put(Material.DOUBLE_STONE_SLAB2, Arrays.asList("Double Red Sandstone Slab", "DoubleRedSandstoneSlab", "RedSandstoneDoubleSlab"));
+		blockList.put(Material.STONE_SLAB2, Arrays.asList("Red Sandstone Slab", "RedSandstoneSlab"));
+		blockList.put(Material.SPRUCE_FENCE_GATE, Arrays.asList("Spruce Fence Gate", "SpruceFenceGate", "SpruceGate"));
+		blockList.put(Material.BIRCH_FENCE_GATE, Arrays.asList("Birch Fence Gate", "BirchFenceGate", "BirchGate"));
+		blockList.put(Material.JUNGLE_FENCE_GATE, Arrays.asList("Jungle Fence Gate", "JungleFenceGate", "JungleGate"));
+		blockList.put(Material.DARK_OAK_FENCE_GATE, Arrays.asList("Dark Oak Fence Gate", "DarkOakFenceGate", "DarkOakGate"));
+		blockList.put(Material.ACACIA_FENCE_GATE, Arrays.asList("Acacia Fence Gate", "AcaciaFenceGate", "AcaciaGate"));
+		blockList.put(Material.SPRUCE_FENCE, Arrays.asList("Spruce Fence", "SpruceFence"));
+		blockList.put(Material.BIRCH_FENCE, Arrays.asList("Birch Fence", "BirchFence"));
+		blockList.put(Material.JUNGLE_FENCE, Arrays.asList("Jungle Fence", "JungleFence"));
+		blockList.put(Material.DARK_OAK_FENCE, Arrays.asList("Dark Oak Fence", "DarkOakFence"));
+		blockList.put(Material.ACACIA_FENCE, Arrays.asList("Acacia Fence", "AcaciaFence"));
+		blockList.put(Material.SPRUCE_DOOR, Arrays.asList("Spruce Door", "SpruceDoor"));
+		blockList.put(Material.BIRCH_DOOR, Arrays.asList("Birch Door", "BirchDoor"));
+		blockList.put(Material.JUNGLE_DOOR, Arrays.asList("Jungle Door", "JungleDoor"));
+		blockList.put(Material.ACACIA_DOOR, Arrays.asList("Acacia Door", "AcaciaDoor"));
+		blockList.put(Material.DARK_OAK_DOOR, Arrays.asList("Dark Oak Door", "DarkOakDoor"));
 		//
 		// Load Biome List
 		//
@@ -3819,6 +3850,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param name The name of the entity type
 	 * @return The entity type
 	 */
+	//TODO: Update for 1.8
 	public static EntityType getEntity(String name) {
 		if (EntityType.fromName(name) != null) return EntityType.fromName(name);
 		try {if (EntityType.fromId(Integer.parseInt(name)) != null) return EntityType.fromId(Integer.parseInt(name));} catch (Exception exception) { /*This is fine it just means its not a number*/ }
@@ -3843,6 +3875,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param name The name of the enchantment
 	 * @return The enchantment
 	 */
+	//TODO: Update for 1.8
 	public static Enchantment getEnchantment(String name) {
 		if (Enchantment.getByName(name) != null) return Enchantment.getByName(name);
 		try {if (Enchantment.getById(Integer.parseInt(name)) != null) return Enchantment.getById(Integer.parseInt(name));} catch (Exception exception) { /*This is fine it just means its not a number*/ }
@@ -4357,10 +4390,12 @@ public class EvilBook extends JavaPlugin {
 	public static Material getBlockMaterial(String block) {
 		int blockID = 0;
 		for (Entry<Material, List<String>> entry : blockList.entrySet()) {
+			/*
 			if (entry.getKey() == null) {
-				blockID += 5;
+				blockID += 3;
 				continue;
 			}
+			*/
 			if (isInteger(block)) {
 				if (Integer.parseInt(block) == blockID) return entry.getKey();
 			} else {

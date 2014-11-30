@@ -6,10 +6,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.minecraft.server.v1_7_R4.EntityPlayer;
-import net.minecraft.server.v1_7_R4.PlayerConnection;
+import net.minecraft.server.v1_8_R1.EntityPlayer;
+import net.minecraft.server.v1_8_R1.PlayerConnection;
 
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 class PacketPlayOut
@@ -84,15 +84,15 @@ class PacketPlayOut
 	{
 		try
 		{
-			packetType = net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardTeam.class;
+			packetType = net.minecraft.server.v1_8_R1.PacketPlayOutScoreboardTeam.class;
 
-			Class<CraftPlayer> typeCraftPlayer = org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer.class;
-			Class<EntityPlayer> typeNMSPlayer = net.minecraft.server.v1_7_R4.EntityPlayer.class;
-			Class<PlayerConnection> typePlayerConnection = net.minecraft.server.v1_7_R4.PlayerConnection.class;
+			Class<CraftPlayer> typeCraftPlayer = org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer.class;
+			Class<EntityPlayer> typeNMSPlayer = net.minecraft.server.v1_8_R1.EntityPlayer.class;
+			Class<PlayerConnection> typePlayerConnection = net.minecraft.server.v1_8_R1.PlayerConnection.class;
 
 			getHandle = typeCraftPlayer.getMethod("getHandle", new Class[0]);
 			playerConnection = typeNMSPlayer.getField("playerConnection");
-			sendPacket = typePlayerConnection.getMethod("sendPacket", new Class[] { net.minecraft.server.v1_7_R4.Packet.class });
+			sendPacket = typePlayerConnection.getMethod("sendPacket", new Class[] { net.minecraft.server.v1_8_R1.Packet.class });
 		}
 		catch (Exception e) {
 			System.out.println("Failed to setup reflection for Packet209Mod!");
