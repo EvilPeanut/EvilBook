@@ -94,6 +94,8 @@ import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.BlockPosition;
+import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
 /**
  * Player event listener
@@ -101,11 +103,11 @@ import com.comphenix.protocol.events.PacketContainer;
  */
 public class EventListenerPlayer implements Listener {
 	private EvilBook plugin;
-	
+
 	public EventListenerPlayer(EvilBook plugin) {
 		this.plugin = plugin;
 	}
-	
+
 	/**
 	 * Called when a player attempts to login
 	 */
@@ -566,19 +568,19 @@ public class EventListenerPlayer implements Listener {
 						signText[2] = signText[2].replaceAll("§", "&");
 						signText[3] = signText[3].replaceAll("§", "&");
 						PacketContainer signUpdatePacket = new PacketContainer(PacketType.Play.Server.UPDATE_SIGN);
-						signUpdatePacket.getIntegers().write(0, block.getX());
-						signUpdatePacket.getIntegers().write(1, block.getY());
-						signUpdatePacket.getIntegers().write(2, block.getZ());
-						signUpdatePacket.getStringArrays().write(0, signText);
+						signUpdatePacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
+						signUpdatePacket.getChatComponents().write(0, WrappedChatComponent.fromText(signText[0]));
+						signUpdatePacket.getChatComponents().write(1, WrappedChatComponent.fromText(signText[1]));
+						signUpdatePacket.getChatComponents().write(2, WrappedChatComponent.fromText(signText[2]));
+						signUpdatePacket.getChatComponents().write(3, WrappedChatComponent.fromText(signText[3]));
+						//signUpdatePacket.getStringArrays().write(0, signText);
 						try {
 							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signUpdatePacket);
 						} catch (InvocationTargetException e) {
 							e.printStackTrace();
 						}
 						PacketContainer signEditPacket = new PacketContainer(PacketType.Play.Server.OPEN_SIGN_ENTITY);
-						signEditPacket.getIntegers().write(0, block.getX());
-						signEditPacket.getIntegers().write(1, block.getY());
-						signEditPacket.getIntegers().write(2, block.getZ());
+						signEditPacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
 						try {
 							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signEditPacket);
 						} catch (InvocationTargetException e) {
@@ -626,74 +628,76 @@ public class EventListenerPlayer implements Listener {
 				} else {
 					// Regions
 					if (EvilBook.isInProtectedRegion(block.getLocation(), player) == true) {
-						player.sendMessage("§cYou don't have permission to dye blocks here");
+						if (event.getItem().getType() == Material.INK_SACK) {
+							player.sendMessage("§cYou don't have permission to dye blocks here");
+						} else {
+							player.sendMessage("§cYou don't have permission to use this here");
+						}
 						event.setCancelled(true);
 					} else {
 						// Dying
-						if (event.getItem().getType() == Material.INK_SACK) {
-							if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
-								ChatColor dyeTextColor;
-								switch (((Dye)player.getItemInHand().getData()).getColor()) {
-								case RED: dyeTextColor = ChatColor.RED; break;
-								case GREEN: dyeTextColor = ChatColor.DARK_GREEN; break;
-								case BLUE: dyeTextColor = ChatColor.BLUE; break;
-								case PURPLE: dyeTextColor = ChatColor.DARK_PURPLE; break;
-								case CYAN: dyeTextColor = ChatColor.DARK_AQUA; break;
-								case SILVER: dyeTextColor = ChatColor.GRAY; break;
-								case GRAY: dyeTextColor = ChatColor.DARK_GRAY; break;
-								case MAGENTA: dyeTextColor = ChatColor.LIGHT_PURPLE; break;
-								case LIME: dyeTextColor = ChatColor.GREEN; break;
-								case YELLOW: dyeTextColor = ChatColor.YELLOW; break;
-								case LIGHT_BLUE: dyeTextColor = ChatColor.AQUA; break;
-								case PINK: dyeTextColor = ChatColor.LIGHT_PURPLE; break;
-								case ORANGE: dyeTextColor = ChatColor.GOLD; break;
-								case WHITE: dyeTextColor = ChatColor.WHITE; break;
-								default: dyeTextColor = ChatColor.BLACK;
-								}
-								for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
-									if (dynamicSign.location.equals(block.getLocation())) {
-										if (dynamicSign.textLines[0].length() != 0) dynamicSign.textLines[0] = dyeTextColor + (dynamicSign.textLines[0].startsWith("§") && !dynamicSign.textLines[0].startsWith("§l") && !dynamicSign.textLines[0].startsWith("§k") && !dynamicSign.textLines[0].startsWith("§n") && !dynamicSign.textLines[0].startsWith("§m") && !dynamicSign.textLines[0].startsWith("§o") && !dynamicSign.textLines[0].startsWith("§r") ? dynamicSign.textLines[0].substring(2, dynamicSign.textLines[0].length()) : dynamicSign.textLines[0]);
-										if (dynamicSign.textLines[1].length() != 0) dynamicSign.textLines[1] = dyeTextColor + (dynamicSign.textLines[1].startsWith("§") && !dynamicSign.textLines[1].startsWith("§l") && !dynamicSign.textLines[1].startsWith("§k") && !dynamicSign.textLines[1].startsWith("§n") && !dynamicSign.textLines[1].startsWith("§m") && !dynamicSign.textLines[1].startsWith("§o") && !dynamicSign.textLines[1].startsWith("§r") ? dynamicSign.textLines[1].substring(2, dynamicSign.textLines[1].length()) : dynamicSign.textLines[1]);
-										if (dynamicSign.textLines[2].length() != 0) dynamicSign.textLines[2] = dyeTextColor + (dynamicSign.textLines[2].startsWith("§") && !dynamicSign.textLines[2].startsWith("§l") && !dynamicSign.textLines[2].startsWith("§k") && !dynamicSign.textLines[2].startsWith("§n") && !dynamicSign.textLines[2].startsWith("§m") && !dynamicSign.textLines[2].startsWith("§o") && !dynamicSign.textLines[2].startsWith("§r") ? dynamicSign.textLines[2].substring(2, dynamicSign.textLines[2].length()) : dynamicSign.textLines[2]);
-										if (dynamicSign.textLines[3].length() != 0) dynamicSign.textLines[3] = dyeTextColor + (dynamicSign.textLines[3].startsWith("§") && !dynamicSign.textLines[3].startsWith("§l") && !dynamicSign.textLines[3].startsWith("§k") && !dynamicSign.textLines[3].startsWith("§n") && !dynamicSign.textLines[3].startsWith("§m") && !dynamicSign.textLines[3].startsWith("§o") && !dynamicSign.textLines[3].startsWith("§r") ? dynamicSign.textLines[3].substring(2, dynamicSign.textLines[3].length()) : dynamicSign.textLines[3]);
-										//dynamicSign.save();
-										return;
-									}
-								}
-								Sign s = (Sign) event.getClickedBlock().getState();
-								if (s.getLine(0).length() != 0) s.setLine(0, dyeTextColor + (s.getLine(0).startsWith("§") && !s.getLine(0).startsWith("§l") && !s.getLine(0).startsWith("§k") && !s.getLine(0).startsWith("§n") && !s.getLine(0).startsWith("§m") && !s.getLine(0).startsWith("§o") && !s.getLine(0).startsWith("§r") ? s.getLine(0).substring(2, s.getLine(0).length()) : s.getLine(0)));
-								if (s.getLine(1).length() != 0) s.setLine(1, dyeTextColor + (s.getLine(1).startsWith("§") && !s.getLine(1).startsWith("§l") && !s.getLine(1).startsWith("§k") && !s.getLine(1).startsWith("§n") && !s.getLine(1).startsWith("§m") && !s.getLine(1).startsWith("§o") && !s.getLine(1).startsWith("§r") ? s.getLine(1).substring(2, s.getLine(1).length()) : s.getLine(1)));
-								if (s.getLine(2).length() != 0) s.setLine(2, dyeTextColor + (s.getLine(2).startsWith("§") && !s.getLine(2).startsWith("§l") && !s.getLine(2).startsWith("§k") && !s.getLine(2).startsWith("§n") && !s.getLine(2).startsWith("§m") && !s.getLine(2).startsWith("§o") && !s.getLine(2).startsWith("§r") ? s.getLine(2).substring(2, s.getLine(2).length()) : s.getLine(2)));
-								if (s.getLine(3).length() != 0) s.setLine(3, dyeTextColor + (s.getLine(3).startsWith("§") && !s.getLine(3).startsWith("§l") && !s.getLine(3).startsWith("§k") && !s.getLine(3).startsWith("§n") && !s.getLine(3).startsWith("§m") && !s.getLine(3).startsWith("§o") && !s.getLine(3).startsWith("§r") ? s.getLine(3).substring(2, s.getLine(3).length()) : s.getLine(3)));
-								s.update();
-							} else if (block.getType() == Material.WOOL || block.getType() == Material.STAINED_CLAY || block.getType() == Material.STAINED_GLASS || block.getType() == Material.STAINED_GLASS_PANE ||
-									block.getType() == Material.HARD_CLAY || block.getType() == Material.GLASS || block.getType() == Material.THIN_GLASS || block.getType() == Material.CARPET) {
-								if (block.getType() == Material.HARD_CLAY) block.setType(Material.STAINED_CLAY);
-								else if (block.getType() == Material.GLASS) block.setType(Material.STAINED_GLASS);
-								else if (block.getType() == Material.THIN_GLASS) block.setType(Material.STAINED_GLASS_PANE);
-								Byte dyeColor = 15;
-								switch (player.getItemInHand().getData().getData()) {
-								case 0: dyeColor = 15; break;
-								case 1: dyeColor = 14; break;
-								case 2: dyeColor = 13; break;
-								case 3: dyeColor = 12; break;
-								case 4: dyeColor = 11; break;
-								case 5: dyeColor = 10; break;
-								case 6: dyeColor = 9; break;
-								case 7: dyeColor = 8; break;
-								case 8: dyeColor = 7; break;
-								case 9: dyeColor = 6; break;
-								case 10: dyeColor = 5; break;
-								case 11: dyeColor = 4; break;
-								case 12: dyeColor = 3; break;
-								case 13: dyeColor = 2; break;
-								case 14: dyeColor = 1; break;
-								case 15: dyeColor = 0; break;
-								default:
-									break;
-								}
-								block.setData(dyeColor);
+						if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
+							ChatColor dyeTextColor;
+							switch (((Dye)player.getItemInHand().getData()).getColor()) {
+							case RED: dyeTextColor = ChatColor.RED; break;
+							case GREEN: dyeTextColor = ChatColor.DARK_GREEN; break;
+							case BLUE: dyeTextColor = ChatColor.BLUE; break;
+							case PURPLE: dyeTextColor = ChatColor.DARK_PURPLE; break;
+							case CYAN: dyeTextColor = ChatColor.DARK_AQUA; break;
+							case SILVER: dyeTextColor = ChatColor.GRAY; break;
+							case GRAY: dyeTextColor = ChatColor.DARK_GRAY; break;
+							case MAGENTA: dyeTextColor = ChatColor.LIGHT_PURPLE; break;
+							case LIME: dyeTextColor = ChatColor.GREEN; break;
+							case YELLOW: dyeTextColor = ChatColor.YELLOW; break;
+							case LIGHT_BLUE: dyeTextColor = ChatColor.AQUA; break;
+							case PINK: dyeTextColor = ChatColor.LIGHT_PURPLE; break;
+							case ORANGE: dyeTextColor = ChatColor.GOLD; break;
+							case WHITE: dyeTextColor = ChatColor.WHITE; break;
+							default: dyeTextColor = ChatColor.BLACK;
 							}
+							for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
+								if (dynamicSign.location.equals(block.getLocation())) {
+									if (dynamicSign.textLines[0].length() != 0) dynamicSign.textLines[0] = dyeTextColor + (dynamicSign.textLines[0].startsWith("§") && !dynamicSign.textLines[0].startsWith("§l") && !dynamicSign.textLines[0].startsWith("§k") && !dynamicSign.textLines[0].startsWith("§n") && !dynamicSign.textLines[0].startsWith("§m") && !dynamicSign.textLines[0].startsWith("§o") && !dynamicSign.textLines[0].startsWith("§r") ? dynamicSign.textLines[0].substring(2, dynamicSign.textLines[0].length()) : dynamicSign.textLines[0]);
+									if (dynamicSign.textLines[1].length() != 0) dynamicSign.textLines[1] = dyeTextColor + (dynamicSign.textLines[1].startsWith("§") && !dynamicSign.textLines[1].startsWith("§l") && !dynamicSign.textLines[1].startsWith("§k") && !dynamicSign.textLines[1].startsWith("§n") && !dynamicSign.textLines[1].startsWith("§m") && !dynamicSign.textLines[1].startsWith("§o") && !dynamicSign.textLines[1].startsWith("§r") ? dynamicSign.textLines[1].substring(2, dynamicSign.textLines[1].length()) : dynamicSign.textLines[1]);
+									if (dynamicSign.textLines[2].length() != 0) dynamicSign.textLines[2] = dyeTextColor + (dynamicSign.textLines[2].startsWith("§") && !dynamicSign.textLines[2].startsWith("§l") && !dynamicSign.textLines[2].startsWith("§k") && !dynamicSign.textLines[2].startsWith("§n") && !dynamicSign.textLines[2].startsWith("§m") && !dynamicSign.textLines[2].startsWith("§o") && !dynamicSign.textLines[2].startsWith("§r") ? dynamicSign.textLines[2].substring(2, dynamicSign.textLines[2].length()) : dynamicSign.textLines[2]);
+									if (dynamicSign.textLines[3].length() != 0) dynamicSign.textLines[3] = dyeTextColor + (dynamicSign.textLines[3].startsWith("§") && !dynamicSign.textLines[3].startsWith("§l") && !dynamicSign.textLines[3].startsWith("§k") && !dynamicSign.textLines[3].startsWith("§n") && !dynamicSign.textLines[3].startsWith("§m") && !dynamicSign.textLines[3].startsWith("§o") && !dynamicSign.textLines[3].startsWith("§r") ? dynamicSign.textLines[3].substring(2, dynamicSign.textLines[3].length()) : dynamicSign.textLines[3]);
+									//dynamicSign.save();
+									return;
+								}
+							}
+							Sign s = (Sign) event.getClickedBlock().getState();
+							if (s.getLine(0).length() != 0) s.setLine(0, dyeTextColor + (s.getLine(0).startsWith("§") && !s.getLine(0).startsWith("§l") && !s.getLine(0).startsWith("§k") && !s.getLine(0).startsWith("§n") && !s.getLine(0).startsWith("§m") && !s.getLine(0).startsWith("§o") && !s.getLine(0).startsWith("§r") ? s.getLine(0).substring(2, s.getLine(0).length()) : s.getLine(0)));
+							if (s.getLine(1).length() != 0) s.setLine(1, dyeTextColor + (s.getLine(1).startsWith("§") && !s.getLine(1).startsWith("§l") && !s.getLine(1).startsWith("§k") && !s.getLine(1).startsWith("§n") && !s.getLine(1).startsWith("§m") && !s.getLine(1).startsWith("§o") && !s.getLine(1).startsWith("§r") ? s.getLine(1).substring(2, s.getLine(1).length()) : s.getLine(1)));
+							if (s.getLine(2).length() != 0) s.setLine(2, dyeTextColor + (s.getLine(2).startsWith("§") && !s.getLine(2).startsWith("§l") && !s.getLine(2).startsWith("§k") && !s.getLine(2).startsWith("§n") && !s.getLine(2).startsWith("§m") && !s.getLine(2).startsWith("§o") && !s.getLine(2).startsWith("§r") ? s.getLine(2).substring(2, s.getLine(2).length()) : s.getLine(2)));
+							if (s.getLine(3).length() != 0) s.setLine(3, dyeTextColor + (s.getLine(3).startsWith("§") && !s.getLine(3).startsWith("§l") && !s.getLine(3).startsWith("§k") && !s.getLine(3).startsWith("§n") && !s.getLine(3).startsWith("§m") && !s.getLine(3).startsWith("§o") && !s.getLine(3).startsWith("§r") ? s.getLine(3).substring(2, s.getLine(3).length()) : s.getLine(3)));
+							s.update();
+						} else if (block.getType() == Material.WOOL || block.getType() == Material.STAINED_CLAY || block.getType() == Material.STAINED_GLASS || block.getType() == Material.STAINED_GLASS_PANE ||
+								block.getType() == Material.HARD_CLAY || block.getType() == Material.GLASS || block.getType() == Material.THIN_GLASS || block.getType() == Material.CARPET) {
+							if (block.getType() == Material.HARD_CLAY) block.setType(Material.STAINED_CLAY);
+							else if (block.getType() == Material.GLASS) block.setType(Material.STAINED_GLASS);
+							else if (block.getType() == Material.THIN_GLASS) block.setType(Material.STAINED_GLASS_PANE);
+							Byte dyeColor = 15;
+							switch (player.getItemInHand().getData().getData()) {
+							case 0: dyeColor = 15; break;
+							case 1: dyeColor = 14; break;
+							case 2: dyeColor = 13; break;
+							case 3: dyeColor = 12; break;
+							case 4: dyeColor = 11; break;
+							case 5: dyeColor = 10; break;
+							case 6: dyeColor = 9; break;
+							case 7: dyeColor = 8; break;
+							case 8: dyeColor = 7; break;
+							case 9: dyeColor = 6; break;
+							case 10: dyeColor = 5; break;
+							case 11: dyeColor = 4; break;
+							case 12: dyeColor = 3; break;
+							case 13: dyeColor = 2; break;
+							case 14: dyeColor = 1; break;
+							case 15: dyeColor = 0; break;
+							default:
+								break;
+							}
+							block.setData(dyeColor);
 						}
 					}
 				}

@@ -41,15 +41,19 @@ public class EventListenerInventory implements Listener {
 		entitySpawnerMenu.setItem(12, new ItemStack(Material.MONSTER_EGG, 1, (short) 62));
 		entitySpawnerMenu.setItem(13, new ItemStack(Material.MONSTER_EGG, 1, (short) 65));
 		entitySpawnerMenu.setItem(14, new ItemStack(Material.MONSTER_EGG, 1, (short) 66));
-		entitySpawnerMenu.setItem(15, new ItemStack(Material.MONSTER_EGG, 1, (short) 90));
-		entitySpawnerMenu.setItem(16, new ItemStack(Material.MONSTER_EGG, 1, (short) 91));
-		entitySpawnerMenu.setItem(17, new ItemStack(Material.MONSTER_EGG, 1, (short) 92));
-		entitySpawnerMenu.setItem(18, new ItemStack(Material.MONSTER_EGG, 1, (short) 93));
-		entitySpawnerMenu.setItem(19, new ItemStack(Material.MONSTER_EGG, 1, (short) 94));
-		entitySpawnerMenu.setItem(20, new ItemStack(Material.MONSTER_EGG, 1, (short) 95));
-		entitySpawnerMenu.setItem(21, new ItemStack(Material.MONSTER_EGG, 1, (short) 96));
-		entitySpawnerMenu.setItem(22, new ItemStack(Material.MONSTER_EGG, 1, (short) 98));
-		entitySpawnerMenu.setItem(23, new ItemStack(Material.MONSTER_EGG, 1, (short) 100));
+		entitySpawnerMenu.setItem(15, new ItemStack(Material.MONSTER_EGG, 1, (short) 67));
+		entitySpawnerMenu.setItem(16, new ItemStack(Material.MONSTER_EGG, 1, (short) 68));
+		entitySpawnerMenu.setItem(17, new ItemStack(Material.MONSTER_EGG, 1, (short) 90));
+		entitySpawnerMenu.setItem(18, new ItemStack(Material.MONSTER_EGG, 1, (short) 91));
+		entitySpawnerMenu.setItem(19, new ItemStack(Material.MONSTER_EGG, 1, (short) 92));
+		entitySpawnerMenu.setItem(20, new ItemStack(Material.MONSTER_EGG, 1, (short) 93));
+		entitySpawnerMenu.setItem(21, new ItemStack(Material.MONSTER_EGG, 1, (short) 94));
+		entitySpawnerMenu.setItem(22, new ItemStack(Material.MONSTER_EGG, 1, (short) 95));
+		entitySpawnerMenu.setItem(23, new ItemStack(Material.MONSTER_EGG, 1, (short) 96));
+		entitySpawnerMenu.setItem(24, new ItemStack(Material.MONSTER_EGG, 1, (short) 98));
+		entitySpawnerMenu.setItem(25, new ItemStack(Material.MONSTER_EGG, 1, (short) 100));
+		entitySpawnerMenu.setItem(26, new ItemStack(Material.MONSTER_EGG, 1, (short) 101));
+		entitySpawnerMenu.setItem(27, new ItemStack(Material.MONSTER_EGG, 1, (short) 120));
 	}
 	
 	/**
