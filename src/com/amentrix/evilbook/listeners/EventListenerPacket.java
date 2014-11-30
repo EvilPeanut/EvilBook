@@ -27,7 +27,11 @@ public class EventListenerPacket implements Listener {
 			{
 				PacketContainer packet = event.getPacket();
 				if (packet.getStrings().size() >= 1 && packet.getStrings().read(0).equals("MC|AdvCdm")) {
-					String cmd = EvilBook.getCommandBlockCommand(packet);
+					//TODO: Fix
+					event.setCancelled(true);
+					return;
+					/*
+					String cmd = EvilBook.getCommandBlockCommand(packet);				
 					switch (cmd) {
 					case "say":
 						return;
@@ -98,6 +102,7 @@ public class EventListenerPacket implements Listener {
 					}
 					event.getPlayer().sendMessage("§cThis command block command is blocked");
 					event.setCancelled(true);
+					*/
 				}
 			}
 		});

@@ -810,10 +810,12 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Command block command handling
 		//
-		//if (sender instanceof BlockCommandSender) {
+		//TODO: Fix
+		if (sender instanceof BlockCommandSender) {
 	        //BlockCommandSender cmdSender = (BlockCommandSender)sender;
 	        //TODO: Add special command block commands 
-	    //}
+			return true;
+	    }
 		//
 		// Statistics
 		//
