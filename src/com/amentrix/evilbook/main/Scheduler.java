@@ -96,11 +96,18 @@ public class Scheduler {
 					emit.update();
 				}
 				// Mob Disguise
+				for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
+					if (profile.disguise != null) {
+						profile.disguise.teleport(profile.getPlayer().getLocation());
+					}
+				}
+				/*
 				for (Player p : Scheduler.this.plugin.getServer().getOnlinePlayers()) {
 					if (EvilBook.getProfile(p).disguise != null) {
 						EvilBook.getProfile(p).disguise.teleport(p.getLocation());
 					}
 				}
+				*/
 			}
 		}, 0L, 1L);
 	}

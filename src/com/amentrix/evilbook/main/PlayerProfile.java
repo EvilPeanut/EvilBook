@@ -43,6 +43,10 @@ public abstract class PlayerProfile {
 		this.plugin = plugin;
 	}
 	
+	public Player getPlayer() {
+		return Bukkit.getServer().getPlayer(this.name);
+	}
+	
 	public void updateNametag(final String prefix, final String suffix)
 	{
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
@@ -56,13 +60,13 @@ public abstract class PlayerProfile {
 	
 	public Boolean isCanEditWorld(World world) {
 		if (EvilBook.isInSurvival(world) && !this.rank.isHigher(Rank.BUILDER)) {
-			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Survival lands require Advanced Builder rank to edit");
+			getPlayer().sendMessage("§7Survival lands require Advanced Builder rank to edit");
 			return false;
 		} else if (world.getName().equals("FlatLand") && !this.rank.isHigher(Rank.BUILDER)) {
-			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Flatlands require Advanced Builder rank to edit");
+			getPlayer().sendMessage("§7Flatlands require Advanced Builder rank to edit");
 			return false;
 		} else if (world.getName().equals("SkyLand") && !this.rank.isHigher(Rank.ARCHITECT)) {
-			Bukkit.getServer().getPlayer(this.name).sendMessage("§7Skylands require Architect rank to edit");
+			getPlayer().sendMessage("§7Skylands require Architect rank to edit");
 			return false;
 		}
 		return true;
@@ -104,11 +108,11 @@ public abstract class PlayerProfile {
 	public void addAchievement(Achievement achievement) {
 		if (!hasAchievement(achievement)) {
 			this.achievements.add(achievement);
-			Bukkit.getServer().getPlayer(this.name).sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
-			if (achievement.getReward() != null) Bukkit.getServer().getPlayer(this.name).sendMessage(ChatColor.GRAY + "You have unlocked the " + achievement.getReward());
+			getPlayer().sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
+			if (achievement.getReward() != null) getPlayer().sendMessage(ChatColor.GRAY + "You have unlocked the " + achievement.getReward());
 			for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 				if (!player.getName().equals(this.name)) player.sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " " + this.name + " got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
-				player.playSound(Bukkit.getServer().getPlayer(this.name).getLocation(), Sound.FIREWORK_TWINKLE, 99.0F, 1.0F);
+				player.playSound(getPlayer().getLocation(), Sound.FIREWORK_TWINKLE, 99.0F, 1.0F);
 			}
 		}
 	}

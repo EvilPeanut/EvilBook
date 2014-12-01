@@ -142,7 +142,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "fly_amplifier", Double.toString(this.flyAmplifier));
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "jump_amplifier", Double.toString(this.jumpAmplifier));
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "ip", Bukkit.getServer().getPlayer(this.name).getAddress().getAddress().getHostAddress());
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "ip", getPlayer().getAddress().getAddress().getHostAddress());
 		profileSaveAgent.execute();
 	}
 
@@ -152,7 +152,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 	 */
 	@Override
 	public void setNameTitle(String title) {
-		Player player = Bukkit.getServer().getPlayer(this.name);
+		Player player = getPlayer();
 		this.nameTitle = title;
 		if (this.nameTitle == null) {
 			player.setDisplayName(this.name + "§f");
@@ -166,7 +166,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 	 */
 	@Override
 	public void updatePlayerListName() {
-		Player player = Bukkit.getServer().getPlayer(this.name);
+		Player player = getPlayer();
 		if (this.isAway) {
 			player.setPlayerListName("§7*§" + this.rank.getColor(this) + (this.name.length() > 11 ? this.name.substring(0, 11) : this.name));
 		} else {
