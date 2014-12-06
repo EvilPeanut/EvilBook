@@ -32,49 +32,50 @@ public class Scheduler {
 			@Override
 			public void run() {
 				int random = Scheduler.this.rand.nextInt(100);
-				for (Player p : Scheduler.this.plugin.getServer().getOnlinePlayers()) {
-					if (EvilBook.getProfile(p).isAway) continue;
-					if (EvilBook.getProfile(p).lastActionTime != 0 && System.currentTimeMillis() - EvilBook.getProfile(p).lastActionTime > 120000) {
-						EvilBook.getProfile(p).isAway = true;
-						EvilBook.broadcastPlayerMessage(p.getName(), "§5" + p.getDisplayName() + " §dhas gone AFK");
-						EvilBook.getProfile(p).updatePlayerListName();
+				for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
+					Player player = profile.getPlayer();
+					if (profile.isAway) continue;
+					if (profile.lastActionTime != 0 && System.currentTimeMillis() - profile.lastActionTime > 120000) {
+						profile.isAway = true;
+						EvilBook.broadcastPlayerMessage(player.getName(), "§5" + player.getDisplayName() + " §dhas gone AFK");
+						profile.updatePlayerListName();
 						continue;
 					}
-					if (EvilBook.getProfile(p).rank.isAdmin()) {
-						if (EvilBook.getProfile(p).rank.isHigher(Rank.INVESTOR)) {
+					if (profile.rank.isAdmin()) {
+						if (profile.rank.isHigher(Rank.INVESTOR)) {
 							if (random >= 0 && random < 60) {
-								p.sendMessage("§dYou can always §l/donate §dto support the server");
+								player.sendMessage("§dYou can always §l/donate §dto support the server");
 							} else if (random >= 60 && random < 80) {
-								p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
+								player.sendMessage("§dYou can play survival §l/survival §don Amentrix");
 							} else {
-								p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
+								player.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
 							}
 						} else {
 							if (random >= 0 && random < 60) {
-								p.sendMessage("§dYou can always §l/donate §dagain for a higher rank");
+								player.sendMessage("§dYou can always §l/donate §dagain for a higher rank");
 							} else if (random >= 60 && random < 80) {
-								p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
+								player.sendMessage("§dYou can play survival §l/survival §don Amentrix");
 							} else {
-								p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
+								player.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
 							}
 						}
-						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 20;
+						EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 20;
 						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
 					} else {
 						if (random >= 0 && random < 60) {
-							p.sendMessage("§dDonate to become an admin §l/donate");
+							player.sendMessage("§dDonate to become an admin §l/donate");
 						} else if (random >= 60 && random < 70) {
-							p.sendMessage("§dYou can play survival §l/survival §don Amentrix");
+							player.sendMessage("§dYou can play survival §l/survival §don Amentrix");
 						} else if (random >= 70 && random < 80) {
-							p.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
+							player.sendMessage("§dYou can complete achievements §l/achievement §dfor rewards");
 						} else {
-							p.sendMessage("§dEnter our competition to win Tycoon rank for free!");
-							p.sendMessage("§bhttp://www.amentrix.com/Minecraft/Competition.htm");
+							player.sendMessage("§dEnter our competition to win Tycoon rank for free!");
+							player.sendMessage("§bhttp://www.amentrix.com/Minecraft/Competition.htm");
 						}
-						EvilBook.playerProfiles.get(p.getName().toLowerCase()).money += 10;
+						EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 10;
 						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
 					}
-					EvilBook.getProfile(p).saveProfile();
+					profile.saveProfile();
 				}
 			}
 		}, 0L, 6000L);
@@ -104,7 +105,7 @@ public class Scheduler {
 				/*
 				for (Player p : Scheduler.this.plugin.getServer().getOnlinePlayers()) {
 					if (EvilBook.getProfile(p).disguise != null) {
-						EvilBook.getProfile(p).disguise.teleport(p.getLocation());
+						EvilBook.getProfile(p).disguise.teleport(player.getLocation());
 					}
 				}
 				*/
