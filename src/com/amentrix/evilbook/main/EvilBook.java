@@ -4465,9 +4465,9 @@ public class EvilBook extends JavaPlugin {
 	 * @param message The message to broadcast
 	 */
 	public static void broadcastPlayerMessage(String playerName, String message) {
-		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-			if (!getProfile(player).isMuted(playerName)) {
-				player.sendMessage(message);
+		for (PlayerProfile profile : playerProfiles.values()) {
+			if (!profile.isMuted(playerName)) {
+				profile.getPlayer().sendMessage(message);
 			}
 		}
 	}
