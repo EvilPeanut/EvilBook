@@ -200,6 +200,7 @@ public class EventListenerBlock implements Listener {
 		Player player = event.getPlayer();
 		Block block = event.getBlock();
 		if (player != null && !EvilBook.getProfile(player).isCanEditWorld(block.getWorld())) {
+			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 			event.setCancelled(true);
 		} else if (EvilBook.isInSurvival(block.getWorld())) {
 			if (event.getCause() == BlockIgniteEvent.IgniteCause.SPREAD) event.setCancelled(true);
