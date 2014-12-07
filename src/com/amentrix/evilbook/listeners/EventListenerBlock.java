@@ -204,7 +204,7 @@ public class EventListenerBlock implements Listener {
 			event.setCancelled(true);
 		} else if (EvilBook.isInSurvival(block.getWorld())) {
 			if (event.getCause() == BlockIgniteEvent.IgniteCause.SPREAD) event.setCancelled(true);
-		} else {
+		} else if (!EvilBook.isInPrivateWorld(block.getWorld())) {
 			if (event.getCause() != BlockIgniteEvent.IgniteCause.FLINT_AND_STEEL) event.setCancelled(true);
 		}
 	}
