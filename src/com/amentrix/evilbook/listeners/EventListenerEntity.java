@@ -196,7 +196,7 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityTargetLivingEntity(EntityTargetLivingEntityEvent event) {
-		if (event.getTarget() != null && event.getTarget() instanceof Player && EvilBook.getProfile(((Player)event.getTarget()).getName()).isAway) event.setCancelled(true);
+		if (event.getTarget() instanceof Player && EvilBook.getProfile(((Player)event.getTarget()).getName()).isAway) event.setCancelled(true);
 	}
 
 	/**
