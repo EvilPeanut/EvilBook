@@ -154,7 +154,7 @@ public class EventListenerBlock implements Listener {
 				|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL)) {
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "This block requires " + ChatColor.DARK_PURPLE + "Advanced Builder " + ChatColor.LIGHT_PURPLE + "rank or higher");
 			event.setCancelled(true);
-		} else if (!profile.rank.isAdmin() && (block.getType() == Material.WATER ||
+		} else if (!profile.rank.isAdmin() && !EvilBook.isInPrivateWorld(player) && (block.getType() == Material.WATER ||
 				block.getType() == Material.STATIONARY_WATER || block.getType() == Material.LAVA ||
 				block.getType() == Material.STATIONARY_LAVA || block.getType() == Material.TNT ||
 				block.getType() == Material.FIRE || block.getType() == Material.MOB_SPAWNER || 
