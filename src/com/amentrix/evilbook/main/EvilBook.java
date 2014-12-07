@@ -3485,7 +3485,7 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("butcher") || command.getName().equalsIgnoreCase("remove") || command.getName().equalsIgnoreCase("killall") || command.getName().equalsIgnoreCase("mobkill")) {
 			if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				int entities = player.getWorld().getLivingEntities().size();
-				for (LivingEntity entity : player.getWorld().getLivingEntities()) if (entity.getType() == EntityType.PLAYER || (entity.getType() == EntityType.WOLF && ((Tameable)entity).isTamed())) entities--; else entity.remove();
+				for (LivingEntity entity : player.getWorld().getLivingEntities()) if (entity.getType() == EntityType.PLAYER || (entity instanceof Tameable && ((Tameable)entity).isTamed())) entities--; else entity.remove();
 				sender.sendMessage("§5" + entities + "§d animals butchered");
 				alert(sender.getName() + " executed the butcher command");
 			} else {
