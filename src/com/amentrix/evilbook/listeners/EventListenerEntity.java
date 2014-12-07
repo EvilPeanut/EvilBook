@@ -201,7 +201,7 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (!EvilBook.isInSurvival(event.getEntity()) && !event.getEntity().getWorld().getName().contains("Private worlds")) {
+		if (!EvilBook.isInSurvival(event.getEntity()) && !EvilBook.isInPrivateWorld(event.getEntity())) {
 			event.setCancelled(true);
 		} else {
 			for (Iterator<Block> it = event.blockList().iterator(); it.hasNext();) {

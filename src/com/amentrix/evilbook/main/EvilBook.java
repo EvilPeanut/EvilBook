@@ -3702,6 +3702,14 @@ public class EvilBook extends JavaPlugin {
 	public static Boolean isInSurvival(World world) {
 		return world.getName().equals("SurvivalLand") || world.getName().equals("SurvivalLandNether") || world.getName().equals("SurvivalLandTheEnd") ? true : false;
 	}
+	
+	public static Boolean isInPrivateWorld(Entity entity) {
+		return entity.getWorld().getName().contains("Private worlds") ? true : false;
+	}
+	
+	public static Boolean isInPrivateWorld(World world) {
+		return world.getName().contains("Private worlds") ? true : false;
+	}
 
 	/**
 	 * Check if a string can be casted to an integer
