@@ -181,6 +181,7 @@ public class EventListenerEntity implements Listener {
 	public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
 		if (event.getRemover() instanceof Player) {
 			if (!EvilBook.getProfile((Player)event.getRemover()).isCanEditWorld(event.getEntity().getWorld())) {
+				((Player)event.getRemover()).sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 				event.setCancelled(true);
 			} else if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), (Player)event.getRemover())) {
 				// Regions
