@@ -221,7 +221,7 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-		if (EvilBook.isInSurvival(event.getEntity()) == false && (event.getEntityType() == EntityType.ENDERMAN || event.getEntityType() == EntityType.SILVERFISH)) event.setCancelled(true);
+		if (!EvilBook.isInSurvival(event.getEntity()) && !EvilBook.isInPrivateWorld(event.getEntity()) && (event.getEntityType() == EntityType.ENDERMAN || event.getEntityType() == EntityType.SILVERFISH)) event.setCancelled(true);
 	}
 
 	/**
