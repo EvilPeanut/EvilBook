@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -139,8 +140,8 @@ public class EventListenerEntity implements Listener {
 		if (event.getDamager() instanceof Player) {
 			Player player = (Player)event.getDamager();
 			if (!EvilBook.getProfile(player).isCanEditWorld(event.getEntity().getWorld())) {
+				player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 				event.setCancelled(true);
-				return;
 			} else if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), player) == true) {
 				// Regions
 				player.sendMessage("§cYou don't have permission to build here");
