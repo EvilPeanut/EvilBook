@@ -148,8 +148,10 @@ public class EventListenerBlock implements Listener {
 		Player player = event.getPlayer();
 		Block block = event.getBlock();
 		PlayerProfile profile = EvilBook.getProfile(player);
-		if (!profile.isCanEditWorld(block.getWorld()) || event.getBlockAgainst().getState() instanceof Sign) {
+		if (!profile.isCanEditWorld(block.getWorld())) {
 			event.setCancelled(true);
+		} else if (event.getBlockAgainst().getState() instanceof Sign) {
+			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 		} else if (!EvilBook.isInSurvival(player) && !profile.rank.isHigher(Rank.BUILDER) && !EvilBook.isInPrivateWorld(player) && (block.getType() == Material.ANVIL 
 				|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL)) {
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "This block requires " + ChatColor.DARK_PURPLE + "Advanced Builder " + ChatColor.LIGHT_PURPLE + "rank or higher");
