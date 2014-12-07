@@ -505,10 +505,6 @@ public class EventListenerPlayer implements Listener {
 			// Command block ownership logging and protection
 			//
 			if (block.getType() == Material.COMMAND) {
-				//TODO: Fix
-				player.sendMessage(ChatColor.RED + "Command blocks are temporarily disabled for maintenance");
-				event.setCancelled(true);
-				/*
 				if (SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
 						"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") == null) {
 					SQL.insert(TableType.CommandBlock, "'" + player.getName() + "'," + block.getX() + "," + block.getY() + "," + block.getZ());
@@ -519,7 +515,6 @@ public class EventListenerPlayer implements Listener {
 					event.setCancelled(true);
 					return;
 				}
-				*/
 			}
 			//
 			// Mob spawner creature selection menu

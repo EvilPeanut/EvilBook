@@ -103,6 +103,7 @@ public class EvilBook extends JavaPlugin {
 	//
 	public static final Map<String, PlayerProfile> playerProfiles = new HashMap<>();
 	public static final Map<String, Rank> commandBlacklist = new HashMap<>();
+	public static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
 	public static final List<DynamicSign> dynamicSignList = new ArrayList<>();
 	public static final List<String> paidWorldList = new ArrayList<>();
 	public static final List<Region> regionList = new ArrayList<>();
@@ -424,6 +425,24 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/killall", Rank.ADVANCED_BUILDER);
 		commandBlacklist.put("/mobkill", Rank.ADVANCED_BUILDER);
 		commandBlacklist.put("/remove", Rank.ADVANCED_BUILDER);
+		//
+		// Load Command Block Whitelist
+		//
+		cmdBlockWhitelist.put("say", true);
+		cmdBlockWhitelist.put("broadcast", true);
+		cmdBlockWhitelist.put("tellrawr", false);
+		cmdBlockWhitelist.put("setblock", false);
+		cmdBlockWhitelist.put("testfor", true);
+		cmdBlockWhitelist.put("testforblock", true);
+		cmdBlockWhitelist.put("testforblocks", true);
+		cmdBlockWhitelist.put("scoreboard", true);
+		cmdBlockWhitelist.put("effect", false);
+		cmdBlockWhitelist.put("me", true);
+		cmdBlockWhitelist.put("clear", false);
+		cmdBlockWhitelist.put("tell", true);
+		cmdBlockWhitelist.put("toggledownfall", false);
+		cmdBlockWhitelist.put("weather", false);
+		cmdBlockWhitelist.put("time", false);
 		//
 		// Load Block List
 		//
@@ -781,7 +800,6 @@ public class EvilBook extends JavaPlugin {
 		// Register protocolLib listeners
 		//
 		EventListenerPacket.registerSignUpdatePacketReceiver(this);
-		EventListenerPacket.registerCommandBlockPacketReceiver(this);
 		//
 		// Scheduler
 		//
@@ -810,11 +828,18 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Command block command handling
 		//
-		//TODO: Fix
 		if (sender instanceof BlockCommandSender) {
-	        //BlockCommandSender cmdSender = (BlockCommandSender)sender;
-	        //TODO: Add special command block commands 
-			return true;
+			Boolean isFound = false;
+			for (String cmd : cmdBlockWhitelist.keySet()) {
+				if (cmd.equalsIgnoreCase(command.getName()) && (!isInSurvival(((BlockCommandSender)sender).getBlock().getWorld()) || cmdBlockWhitelist.get(cmd))) {
+					isFound = true;
+					break;
+				}
+			}
+			if (!isFound) {
+				logInfo("Command block command blocked: " + command.getName());
+				return true;
+			}
 	    }
 		//
 		// Statistics
@@ -4478,58 +4503,6 @@ public class EvilBook extends JavaPlugin {
 				profile.getPlayer().sendMessage(message);
 			}
 		}
-	}
-
-	public static String getCommandBlockCommand(PacketContainer packet)
-	{
-		try {
-			byte[] Content = packet.getByteArrays().read(0);
-			boolean found = false;
-			String rec = "";
-			for (byte f : Content) {
-				if ((f == 47) && (!found))
-				{
-					found = true;
-					rec = rec + (char)f;
-				}
-				else
-				{
-					if ((f == 0) && (found)) {
-						break;
-					}
-					if (found) {
-						rec = rec + (char)f;
-					}
-				}
-			}
-			return rec.substring(1).split(" ")[0];
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	public static String getCommandBlockCommandParameters(PacketContainer packet)
-	{
-		byte[] Content = packet.getByteArrays().read(0);
-		boolean found = false;
-		String rec = "";
-		for (byte f : Content) {
-			if ((f == 47) && (!found))
-			{
-				found = true;
-				rec = rec + (char)f;
-			}
-			else
-			{
-				if ((f == 0) && (found)) {
-					break;
-				}
-				if (found) {
-					rec = rec + (char)f;
-				}
-			}
-		}
-		return rec.contains(" ") ? rec.substring(1).split(" ")[1] : "";
 	}
 
 	public static String getFriendlyName(Material material) {
