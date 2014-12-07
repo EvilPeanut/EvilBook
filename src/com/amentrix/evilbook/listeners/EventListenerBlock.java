@@ -61,6 +61,7 @@ public class EventListenerBlock implements Listener {
 		Block block = event.getBlock();
 		PlayerProfile profile = EvilBook.getProfile(player);
 		if (!profile.isCanEditWorld(block.getWorld())) {
+			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 			event.setCancelled(true);
 		} else if (profile.rank.isHigher(Rank.STAFF_LAPIS) && player.getItemInHand().getType() == Material.GOLD_SPADE 
 				&& (EvilBook.isInSurvival(player) == false || EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) 
@@ -152,6 +153,7 @@ public class EventListenerBlock implements Listener {
 			event.setCancelled(true);
 		} else if (event.getBlockAgainst().getState() instanceof Sign) {
 			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
+			event.setCancelled(true);
 		} else if (!EvilBook.isInSurvival(player) && !profile.rank.isHigher(Rank.BUILDER) && !EvilBook.isInPrivateWorld(player) && (block.getType() == Material.ANVIL 
 				|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL)) {
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "This block requires " + ChatColor.DARK_PURPLE + "Advanced Builder " + ChatColor.LIGHT_PURPLE + "rank or higher");
