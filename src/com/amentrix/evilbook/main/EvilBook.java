@@ -86,8 +86,6 @@ import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
 import com.amentrix.evilbook.statistics.PlayerStatistics;
 import com.amentrix.evilbook.worldgen.SkylandGenerator;
-import com.comphenix.protocol.events.PacketContainer;
-
 import de.diddiz.LogBlock.Consumer;
 import de.diddiz.LogBlock.LogBlock;
 
