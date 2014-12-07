@@ -188,7 +188,7 @@ public class EventListenerBlock implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onBlockDispense(BlockDispenseEvent event) {
-		if (!event.getBlock().getWorld().getName().contains("Private worlds") && 
+		if (!EvilBook.isInPrivateWorld(event.getBlock().getWorld()) && 
 				(event.getItem().getType() == Material.WATER_BUCKET || event.getItem().getType() == Material.LAVA_BUCKET)) event.setCancelled(true);
 	}
 

@@ -168,7 +168,7 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onHangingBreak(HangingBreakEvent event) {
-		if (!EvilBook.isInSurvival(event.getEntity()) && !event.getEntity().getWorld().getName().contains("Private worlds") 
+		if (!EvilBook.isInSurvival(event.getEntity()) && !EvilBook.isInPrivateWorld(event.getEntity()) 
 				&& event.getCause() == RemoveCause.EXPLOSION) event.setCancelled(true);
 	}
 
