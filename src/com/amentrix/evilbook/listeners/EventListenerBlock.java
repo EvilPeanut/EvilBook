@@ -229,6 +229,6 @@ public class EventListenerBlock implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityBlockForm(EntityBlockFormEvent event) {
-		if (!EvilBook.isInSurvival(event.getEntity())) event.setCancelled(true);
+		if (!EvilBook.isInSurvival(event.getEntity()) && !EvilBook.isInPrivateWorld(event.getEntity())) event.setCancelled(true);
 	}
 }
