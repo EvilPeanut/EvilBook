@@ -124,8 +124,8 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-			if (player != event.getPlayer() && EvilBook.getProfile(player).isInvisible) event.getPlayer().hidePlayer(player);
+		for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
+			if (profile.isInvisible) event.getPlayer().hidePlayer(profile.getPlayer());
 		}
 		// Make sure player statistics entry exists
 		if (!SQL.isKeyExistant(TableType.PlayerStatistics, event.getPlayer().getName())) {
