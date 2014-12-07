@@ -156,6 +156,7 @@ public class EventListenerEntity implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onHangingPlaceEvent(HangingPlaceEvent event) {
 		if (!EvilBook.getProfile(event.getPlayer()).isCanEditWorld(event.getBlock().getWorld())) {
+			event.getPlayer().sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 			event.setCancelled(true);
 		} else if (EvilBook.isInProtectedRegion(event.getBlock().getLocation(), event.getPlayer()) == true) {
 			// Regions
