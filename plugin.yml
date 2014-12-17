@@ -1,6 +1,6 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 6.1.5.6
+version: 7.0.0
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
   repair:
