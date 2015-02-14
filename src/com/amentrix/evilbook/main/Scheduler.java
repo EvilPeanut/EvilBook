@@ -103,6 +103,17 @@ public class Scheduler {
 				//for (Emitter emit : EvilBook.emitterList) {
 					//emit.update();
 				//}
+			}
+		}, 0L, 20L);
+	}
+
+	/**
+	 * Update disguises
+	 */
+	public void updateDisguise() {
+		this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, new Runnable() {
+			@Override
+			public void run() {
 				// Mob Disguise
 				for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
 					if (profile.disguise != null) {
@@ -112,5 +123,4 @@ public class Scheduler {
 			}
 		}, 0L, 1L);
 	}
-
 }

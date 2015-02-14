@@ -826,6 +826,7 @@ public class EvilBook extends JavaPlugin {
 		Scheduler scheduler = new Scheduler(this);
 		scheduler.tipsAutosave();
 		scheduler.updateServices();
+		scheduler.updateDisguise();
 	}
 
 	/**
