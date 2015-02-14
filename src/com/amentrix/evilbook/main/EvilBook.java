@@ -1397,6 +1397,7 @@ public class EvilBook extends JavaPlugin {
 				if (isInSurvival(w)) continue;
 				for (Entity entity : w.getEntities()) {
 					if (entity.getType() == EntityType.PLAYER 
+							|| entity.getType() == EntityType.ARMOR_STAND
 							|| entity.getType() == EntityType.PAINTING
 							|| entity.getType() == EntityType.FISHING_HOOK 
 							|| entity.getType() == EntityType.ITEM_FRAME
