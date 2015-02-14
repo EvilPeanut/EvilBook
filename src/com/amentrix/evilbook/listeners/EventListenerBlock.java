@@ -43,6 +43,12 @@ import com.amentrix.evilbook.statistics.PlayerStatistics;
  * @author Reece Aaron Lecrivain
  */
 public class EventListenerBlock implements Listener {
+	private EvilBook plugin;
+	
+	public EventListenerBlock(EvilBook plugin) {
+		this.plugin = plugin;
+	}
+	
 	/**
 	 * Called when the server is deciding if the block can be placed
 	 */
@@ -58,8 +64,8 @@ public class EventListenerBlock implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event) {
-		Player player = event.getPlayer();
-		Block block = event.getBlock();
+		final Player player = event.getPlayer();
+		final Block block = event.getBlock();
 		PlayerProfile profile = EvilBook.getProfile(player);
 		if (!profile.isCanEditWorld(block.getWorld())) {
 			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
@@ -78,8 +84,8 @@ public class EventListenerBlock implements Listener {
 			player.sendMessage(ChatColor.RED + "You don't have permission to build here");
 			event.setCancelled(true);
 		} else {
-			// Plotworld plot protection
 			if (EvilBook.isInPlotWorld(player)) {
+				// Plotworld plot protection
 				if (EvilBook.isInPlotworldRegion(block.getLocation())) {
 					if (EvilBook.isInProtectedPlotworldRegion(block.getLocation(), player)) {
 						player.sendMessage(ChatColor.RED + "You don't have permission to build here");
@@ -92,9 +98,8 @@ public class EventListenerBlock implements Listener {
 					event.setCancelled(true);
 					return;
 				}
-			}
-			// Survival container protection
-			if (EvilBook.isInSurvival(player)) {
+			} else if (EvilBook.isInSurvival(player)) {
+				// Survival container protection
 				if (block.getState() instanceof InventoryHolder) {
 					if (EvilBook.isContainerProtected(block.getLocation(), player)) {
 						player.sendMessage(ChatColor.GRAY + "You don't have permission to break the " + 
@@ -105,31 +110,7 @@ public class EventListenerBlock implements Listener {
 					EvilBook.unprotectContainer(block.getLocation());
 					player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protection removed");
 				}
-			}
-			// Dynamic signs
-			if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
-				Iterator<DynamicSign> dynamicSigns = EvilBook.dynamicSignList.iterator();
-				while (dynamicSigns.hasNext()) {
-					DynamicSign dynamicSign = dynamicSigns.next();
-					if (dynamicSign.location.getWorld() == block.getWorld() && dynamicSign.location.getBlockX() == block.getX() 
-							&& dynamicSign.location.getBlockY() == block.getY() && dynamicSign.location.getBlockZ() == block.getZ()) {
-						dynamicSign.delete();
-						dynamicSigns.remove();
-					}
-				}
-			}
-			// Emitters								
-			Location emitterLocation = block.getRelative(BlockFace.UP).getLocation();
-			SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + emitterLocation.getWorld().getName() + 
-					"' AND x='" + emitterLocation.getBlockX() + "' AND y='" + emitterLocation.getBlockY() + "' AND z='" + 
-					emitterLocation.getBlockZ() + "'");
-			Iterator<Emitter> emit = EvilBook.emitterList.iterator();
-			while (emit.hasNext()) {
-				Emitter emitter = emit.next();
-				if (emitter.location.getBlock().equals(emitterLocation.getBlock())) emit.remove();
-			}
-			// Achievements
-			if (EvilBook.isInSurvival(player)) {
+				// Achievements
 				switch (block.getType()) {
 				case COAL_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_COAL, 1); break;
 				case IRON_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_IRON, 1); break;
@@ -143,14 +124,31 @@ public class EventListenerBlock implements Listener {
 				default: break;
 				}
 			}
-			// Command block logging
-			if (SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
-					"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") != null) {
-				SQL.deleteRowFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
-						"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
-			}
-			// Statistics
-			GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksBroken, 1);
+			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				@Override
+				public void run() {
+					// Dynamic signs
+					if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
+						Iterator<DynamicSign> dynamicSigns = EvilBook.dynamicSignList.iterator();
+						while (dynamicSigns.hasNext()) {
+							DynamicSign dynamicSign = dynamicSigns.next();
+							if (dynamicSign.location.getWorld() == block.getWorld() && dynamicSign.location.getBlockX() == block.getX() 
+									&& dynamicSign.location.getBlockY() == block.getY() && dynamicSign.location.getBlockZ() == block.getZ()) {
+								dynamicSign.delete();
+								dynamicSigns.remove();
+							}
+						}
+					}
+					// Command block logging
+					if (block.getType() == Material.COMMAND && SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
+							"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") != null) {
+						SQL.deleteRowFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
+								"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
+					}
+					// Statistics
+					GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksBroken, 1);
+				}
+			});
 		}
 	}
 

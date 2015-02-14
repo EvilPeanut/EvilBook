@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -147,7 +148,7 @@ public class EvilBook extends JavaPlugin {
 		// Register event listeners
 		//
 		PluginManager pluginManager = getServer().getPluginManager();
-		pluginManager.registerEvents(new EventListenerBlock(), this);
+		pluginManager.registerEvents(new EventListenerBlock(this), this);
 		pluginManager.registerEvents(new EventListenerEntity(), this);
 		pluginManager.registerEvents(new EventListenerInventory(), this);
 		pluginManager.registerEvents(new EventListenerPlayer(this), this);
@@ -2027,6 +2028,7 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("effect")) {
 			if (args.length == 0) {
 				sender.sendMessage("§5§oIncorrect command usage");
+				sender.sendMessage("§d/effect remove");
 				sender.sendMessage("§d/effect [effect]");
 				sender.sendMessage("§d/effect [effect] [frequency]");
 				sender.sendMessage("§d/effect [effect] [frequency] [amount]");
@@ -2034,50 +2036,69 @@ public class EvilBook extends JavaPlugin {
 				for (EmitterEffect effectType : EmitterEffect.values()) effects += effectType.name().toLowerCase() + " ";
 				sender.sendMessage("§7Effects: " + effects);
 			} else if (args.length >= 1) {
-				if (EmitterEffect.contains(args[0])) {
-					EmitterEffect effect = EmitterEffect.parse(args[0]);
-					if (getProfile(player).rank.isHigher(effect.minimumRank.getPreviousRank())) {
-						if (args.length == 1) {
-							Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, 1, 6);
-							emitterList.add(emitter);
-							emitter.save();
-							sender.sendMessage("§7Created " + effect.name() + " effect");
-						} else if (args.length == 2) {
-							if (isInteger(args[1])) {
-								Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, 1, Integer.parseInt(args[1]));
-								emitterList.add(emitter);
-								emitter.save();
-								sender.sendMessage("§7Created " + effect.name() + " effect");
-							} else {
-								sender.sendMessage("§5Please enter a valid frequency");
-							}
-						} else if (args.length == 3) {
-							if (isInteger(args[1]) && isInteger(args[2])) {
-								Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, Integer.parseInt(args[2]), Integer.parseInt(args[1]));
-								emitterList.add(emitter);
-								emitter.save();
-								sender.sendMessage("§7Created " + effect.name() + " effect");
-							} else {
-								sender.sendMessage("§5Please enter a valid frequency and amount");
-							}
-						} else {
-							sender.sendMessage("§5§oIncorrect command usage");
-							sender.sendMessage("§d/effect " + effect.name());
-							sender.sendMessage("§d/effect " + effect.name() + " [frequency]");
-							sender.sendMessage("§d/effect " + effect.name() + " [frequency] [amount]");
+				if (args[0].equalsIgnoreCase("remove")) {
+					Location emitterLocation = player.getLocation();
+					SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + emitterLocation.getWorld().getName() + 
+							"' AND x='" + emitterLocation.getBlockX() + "' AND y='" + emitterLocation.getBlockY() + "' AND z='" + 
+							emitterLocation.getBlockZ() + "'");
+					Iterator<Emitter> emit = EvilBook.emitterList.iterator();
+					while (emit.hasNext()) {
+						Emitter emitter = emit.next();
+						if (emitter.location.getBlock().equals(emitterLocation.getBlock())) {
+							emit.remove();
+							sender.sendMessage("§7Effect emitter removed");
+							break;
 						}
-					} else {
-						sender.sendMessage("§5You have to be a higher rank");
-						sender.sendMessage("§d" + effect.minimumRank.getName() + " rank is required to create this effect");
 					}
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/effect [effect]");
-					sender.sendMessage("§d/effect [effect] [frequency]");
-					sender.sendMessage("§d/effect [effect] [frequency] [amount]");
-					String effects = "";
-					for (EmitterEffect effectType : EmitterEffect.values()) effects += effectType.name().toLowerCase() + " ";
-					sender.sendMessage("§7Effects: " + effects);
+					if (EmitterEffect.contains(args[0])) {
+						EmitterEffect effect = EmitterEffect.parse(args[0]);
+						if (getProfile(player).rank.isHigher(effect.minimumRank.getPreviousRank())) {
+							if (args.length == 1) {
+								Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, 1, 6);
+								emitterList.add(emitter);
+								emitter.save();
+								sender.sendMessage("§7Created " + effect.name() + " effect");
+								sender.sendMessage("§7It can be removed by standing on top of it and using /effect remove");
+							} else if (args.length == 2) {
+								if (isInteger(args[1])) {
+									Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, 1, Integer.parseInt(args[1]));
+									emitterList.add(emitter);
+									emitter.save();
+									sender.sendMessage("§7Created " + effect.name() + " effect");
+									sender.sendMessage("§7It can be removed by standing on top of it and using /effect remove");
+								} else {
+									sender.sendMessage("§5Please enter a valid frequency");
+								}
+							} else if (args.length == 3) {
+								if (isInteger(args[1]) && isInteger(args[2])) {
+									Emitter emitter = new Emitter(player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5), effect, Integer.parseInt(args[2]), Integer.parseInt(args[1]));
+									emitterList.add(emitter);
+									emitter.save();
+									sender.sendMessage("§7Created " + effect.name() + " effect");
+									sender.sendMessage("§7It can be removed by standing on top of it and using /effect remove");
+								} else {
+									sender.sendMessage("§5Please enter a valid frequency and amount");
+								}
+							} else {
+								sender.sendMessage("§5§oIncorrect command usage");
+								sender.sendMessage("§d/effect " + effect.name());
+								sender.sendMessage("§d/effect " + effect.name() + " [frequency]");
+								sender.sendMessage("§d/effect " + effect.name() + " [frequency] [amount]");
+							}
+						} else {
+							sender.sendMessage("§5You have to be a higher rank");
+							sender.sendMessage("§d" + effect.minimumRank.getName() + " rank is required to create this effect");
+						}
+					} else {
+						sender.sendMessage("§5§oIncorrect command usage");
+						sender.sendMessage("§d/effect [effect]");
+						sender.sendMessage("§d/effect [effect] [frequency]");
+						sender.sendMessage("§d/effect [effect] [frequency] [amount]");
+						String effects = "";
+						for (EmitterEffect effectType : EmitterEffect.values()) effects += effectType.name().toLowerCase() + " ";
+						sender.sendMessage("§7Effects: " + effects);
+					}
 				}
 			}
 			return true;
@@ -2092,12 +2113,14 @@ public class EvilBook extends JavaPlugin {
 					emitterList.add(chimney);
 					chimney.save();
 					sender.sendMessage("§7Created chimney");
+					sender.sendMessage("§7It can be removed by standing on top of it and using /effect remove");
 				} else if (args.length == 1) {
 					if (isInteger(args[0])) {
 						Emitter chimney = new Emitter(player.getLocation(), EmitterEffect.Smoke, Integer.parseInt(args[0]), 2);
 						emitterList.add(chimney);
 						chimney.save();
 						sender.sendMessage("§7Created chimney");
+						sender.sendMessage("§7It can be removed by standing on top of it and using /effect remove");
 					} else {
 						sender.sendMessage("§5Please enter a valid direction");
 						sender.sendMessage("§d0 - South East");
@@ -2116,6 +2139,7 @@ public class EvilBook extends JavaPlugin {
 						emitterList.add(chimney);
 						chimney.save();
 						sender.sendMessage("§7Created chimney");
+						sender.sendMessage("§7It can be removed by standing on top of it and using /effect remove");
 					} else {
 						sender.sendMessage("§5Please enter a valid direction and frequency");
 						sender.sendMessage("§d0 - South East");
