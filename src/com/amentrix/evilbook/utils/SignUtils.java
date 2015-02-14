@@ -29,9 +29,9 @@ public class SignUtils {
 	}
 	
 	public static void updateDynamicSign(DynamicSign dynamicSign) {
+		if (!dynamicSign.location.getChunk().isLoaded()) return;
 		if (dynamicSign.location.getBlock().getState() instanceof Sign == false) return;
 		Sign sign = (Sign) dynamicSign.location.getBlock().getState();
-		if (!sign.getChunk().isLoaded()) return;
 		for (int i = 0; i < 4; i++) {
 			sign.setLine(i, dynamicSign.textLines[i].replace("[time]", EvilBook.getTime(sign.getBlock().getWorld())
 					.replace("[weather]", EvilBook.getWeather(sign.getBlock())))

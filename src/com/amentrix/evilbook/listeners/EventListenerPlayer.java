@@ -65,6 +65,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 //import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -78,6 +79,7 @@ import org.bukkit.material.Dye;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 //import org.bukkit.util.Vector;
+
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
@@ -157,7 +159,6 @@ public class EventListenerPlayer implements Listener {
 	/**
 	 * Called when a player moves
 	 */
-	/*
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		PlayerProfile profile = EvilBook.getProfile(event.getPlayer());
@@ -166,6 +167,7 @@ public class EventListenerPlayer implements Listener {
 			profile.isAway = false;
 			profile.updatePlayerListName();
 		}
+		/*
 		if (event.getTo().getBlockX() > 12550820 || event.getTo().getBlockX() < -12550820 || event.getTo().getBlockZ() > 12550820 || event.getTo().getBlockZ() < -12550820) {
 			event.getPlayer().sendMessage("§7The Far Lands are blocked");
 			event.getPlayer().teleport(event.getTo().add(event.getTo().getBlockX() > 12550820 ? -2 : event.getTo().getBlockX() < -12550820 ? 2 : 0, 0, event.getTo().getBlockZ() > 12550820 ? -2 : event.getTo().getBlockZ() < -12550820 ? 2 : 0));
@@ -194,8 +196,8 @@ public class EventListenerPlayer implements Listener {
 				}
 			}
 		}
+		*/
 	}
-	*/
 
 	/**
 	 * Called when a player throws an egg

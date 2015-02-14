@@ -34,7 +34,6 @@ public class Scheduler {
 				int random = Scheduler.this.rand.nextInt(100);
 				for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
 					Player player = profile.getPlayer();
-					/*
 					if (profile.isAway) continue;
 					if (profile.lastActionTime != 0 && System.currentTimeMillis() - profile.lastActionTime > 120000) {
 						profile.isAway = true;
@@ -42,7 +41,6 @@ public class Scheduler {
 						profile.updatePlayerListName();
 						continue;
 					}
-					*/
 					if (profile.rank.isAdmin()) {
 						if (profile.rank.isHigher(Rank.INVESTOR)) {
 							if (random >= 0 && random < 50) {
