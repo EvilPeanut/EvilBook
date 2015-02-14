@@ -24,22 +24,20 @@ public class SkylandFlowerPopulator extends BlockPopulator {
 		Biome biome;
 		for (x = 0; x < 16; ++x) {
 			for (z = 0; z < 16; ++z) {
-				for (y = 0; y < 128; y++) {
-					if (y > 4){
-						block = chunk.getBlock(x, y, z);
-						biome = block.getBiome();
-						if (block.getRelative(BlockFace.DOWN).getType() == Material.GRASS){
-							if (biome == Biome.PLAINS){
-								if (this.random.nextInt(100) < 7){
-									block.setType((this.random.nextInt(100) < 75) ? Material.YELLOW_FLOWER : Material.RED_ROSE);
-								}
-							} else if (biome != Biome.DESERT && biome != Biome.TAIGA && biome != Biome.TAIGA_HILLS && biome != Biome.ICE_PLAINS && biome != Biome.ICE_MOUNTAINS && biome != Biome.FROZEN_RIVER && biome != Biome.FROZEN_OCEAN) {
-								if (this.random.nextInt(100) < 2){
-									block.setType((this.random.nextInt(100) < 75) ? Material.YELLOW_FLOWER : Material.RED_ROSE);
-								}
+				for (y = 5; y < 128; y++) {
+					block = chunk.getBlock(x, y, z);
+					biome = block.getBiome();
+					if (block.getRelative(BlockFace.DOWN).getType() == Material.GRASS){
+						if (biome == Biome.PLAINS){
+							if (this.random.nextInt(100) < 7){
+								block.setType((this.random.nextInt(100) < 75) ? Material.YELLOW_FLOWER : Material.RED_ROSE);
+							}
+						} else if (biome != Biome.DESERT && biome != Biome.TAIGA && biome != Biome.TAIGA_HILLS && biome != Biome.ICE_PLAINS && biome != Biome.ICE_MOUNTAINS && biome != Biome.FROZEN_RIVER && biome != Biome.FROZEN_OCEAN) {
+							if (this.random.nextInt(100) < 2){
+								block.setType((this.random.nextInt(100) < 75) ? Material.YELLOW_FLOWER : Material.RED_ROSE);
 							}
 						}
-					}
+					}					
 				}
 			}
 		}

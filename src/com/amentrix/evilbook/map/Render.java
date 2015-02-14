@@ -17,6 +17,8 @@ import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
+import com.amentrix.evilbook.main.EvilBook;
+
 /**
  * @author cnaude
  */
@@ -55,35 +57,40 @@ public class Render extends MapRenderer {
             if (f.exists()) {
                 // Load from file, crop and then resize
                 BufferedImage bi = ImageIO.read(f);
-                if (this.type.equals("body")) {
-                    BufferedImage face = bi.getSubimage(8, 8, 8, 8);
-                    BufferedImage faceAcc = bi.getSubimage(40, 8, 8, 8);
-                    BufferedImage leftLeg = bi.getSubimage(4, 20, 4, 12);
-                    BufferedImage rightLeg = flipH(leftLeg);
-                    BufferedImage leftArm = bi.getSubimage(44, 20, 4, 12);
-                    BufferedImage rightArm = flipH(leftArm);
-                    BufferedImage body = bi.getSubimage(20, 20, 8, 12);
-                    BufferedImage combined = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);                    
-                    Graphics2D g = combined.createGraphics(); 
-                    int adj = 8;
-                    g.drawImage(face, 4 + adj, 0, null);
-                    g.drawImage(faceAcc, 4 + adj, 0, null);
-                    g.drawImage(body, 4 + adj, 8, null);
-                    g.drawImage(leftArm, 0 + adj, 8, null);
-                    g.drawImage(rightArm, 12 + adj, 8, null);
-                    g.drawImage(leftLeg, 4 + adj, 20, null);
-                    g.drawImage(rightLeg, 8 + adj, 20, null);  
-                    this.img = combined.getScaledInstance(128, 128, 0);
-                } else if (this.type.equals("url")) {
-                    this.img = bi.getScaledInstance(128, 128, 0);
-                } else {             
-                    BufferedImage combined = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);  
-                    Graphics2D g = combined.createGraphics(); 
-                    BufferedImage face = bi.getSubimage(8, 8, 8, 8);
-                    BufferedImage faceAcc = bi.getSubimage(40, 8, 8, 8);
-                    g.drawImage(face, 0, 0, null);
-                    g.drawImage(faceAcc, 0, 0, null);
-                    this.img = combined.getScaledInstance(128, 128, 0);
+                if (bi != null) {
+	                if (this.type.equals("body")) {
+	                    BufferedImage face = bi.getSubimage(8, 8, 8, 8);
+	                    BufferedImage faceAcc = bi.getSubimage(40, 8, 8, 8);
+	                    BufferedImage leftLeg = bi.getSubimage(4, 20, 4, 12);
+	                    BufferedImage rightLeg = flipH(leftLeg);
+	                    BufferedImage leftArm = bi.getSubimage(44, 20, 4, 12);
+	                    BufferedImage rightArm = flipH(leftArm);
+	                    BufferedImage body = bi.getSubimage(20, 20, 8, 12);
+	                    BufferedImage combined = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);                    
+	                    Graphics2D g = combined.createGraphics(); 
+	                    int adj = 8;
+	                    g.drawImage(face, 4 + adj, 0, null);
+	                    g.drawImage(faceAcc, 4 + adj, 0, null);
+	                    g.drawImage(body, 4 + adj, 8, null);
+	                    g.drawImage(leftArm, 0 + adj, 8, null);
+	                    g.drawImage(rightArm, 12 + adj, 8, null);
+	                    g.drawImage(leftLeg, 4 + adj, 20, null);
+	                    g.drawImage(rightLeg, 8 + adj, 20, null);  
+	                    this.img = combined.getScaledInstance(128, 128, 0);
+	                } else if (this.type.equals("url")) {
+	                    this.img = bi.getScaledInstance(128, 128, 0);
+	                } else {             
+	                    BufferedImage combined = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);  
+	                    Graphics2D g = combined.createGraphics(); 
+	                    BufferedImage face = bi.getSubimage(8, 8, 8, 8);
+	                    BufferedImage faceAcc = bi.getSubimage(40, 8, 8, 8);
+	                    g.drawImage(face, 0, 0, null);
+	                    g.drawImage(faceAcc, 0, 0, null);
+	                    this.img = combined.getScaledInstance(128, 128, 0);
+	                }
+                } else {
+                	f.delete();
+                	EvilBook.logSevere("Removed invalid map image " + f.getName());
                 }
             } 
         } catch (IOException exception) {  

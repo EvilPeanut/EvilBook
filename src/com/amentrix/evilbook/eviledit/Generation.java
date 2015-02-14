@@ -20,16 +20,10 @@ import com.amentrix.evilbook.statistics.GlobalStatistic;
  * @author Reece Aaron Lecrivain
  */
 public class Generation {
-	private static EvilBook plugin;
-	
-	public static void init(EvilBook plugin) {
-		Generation.plugin = plugin;
-	}
-	
 	public static void createPumpkinForest(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			Random positionRandomizer = new Random();
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x += 16) {
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z += 16) {
@@ -52,7 +46,7 @@ public class Generation {
 	public static void createForest(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/forest [treeType]");
 			player.sendMessage("§d/forest [treeType] [density]");
 		} else if (args.length == 2 && !EvilBook.isDouble(args[1])) {
@@ -64,7 +58,7 @@ public class Generation {
 			} else {
 				int trees = 0;
 				double density = args.length == 1 ? 0.2 : Double.parseDouble(args[1]);
-				TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player, plugin);
+				TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player);
 				for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++) {
 					for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++) {
 						if (Math.random() >= density) continue;
@@ -89,7 +83,7 @@ public class Generation {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 2 && args.length != 3 && args.length != 5) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
 				player.sendMessage("§d/hpyramid [blockID / blockName] [size]");
 				player.sendMessage("§d/hpyramid [blockID / blockName] [blockData] [size]");
@@ -111,7 +105,7 @@ public class Generation {
 				return;
 			}
 			int height = size, blockId = actionBlock.getMaterial().getId();
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(player.getWorld(), player);
 			for (int y = 0; y <= height; ++y) {
 				size--;
 				for (int x = 0; x <= size; ++x) {
@@ -135,7 +129,7 @@ public class Generation {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 2 && args.length != 3 && args.length != 5) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
 				player.sendMessage("§d/hsphere [blockID / blockName] [radius]");
 				player.sendMessage("§d/hsphere [blockID / blockName] [blockData] [radius]");
@@ -184,7 +178,7 @@ public class Generation {
 			final int ceilRadiusY = (int) Math.ceil(radiusY);
 			final int ceilRadiusZ = (int) Math.ceil(radiusZ);
 			double nextXn = 0;
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(player.getWorld(), player);
 			forX: for (int x = 0; x <= ceilRadiusX; ++x) {
 				final double xn = nextXn;
 				nextXn = (x + 1) * invRadiusX;
@@ -242,7 +236,7 @@ public class Generation {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 3 && args.length != 4 && args.length != 5) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
 				player.sendMessage("§d/hcylinder [blockID / blockName] [radius] [height]");
 				player.sendMessage("§d/hcylinder [blockID / blockName] [blockData] [radius] [height]");
@@ -276,7 +270,7 @@ public class Generation {
 					if (args.length == 3) actionBlock.setData(args[1]);
 					if (!actionBlock.isValid(player)) return;
 				}
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+				EvilEditEngine engine = CraftEvilEditEngine.createEngine(player.getWorld(), player);
 				forX: for (int x = 0; x <= ceilRadiusX; ++x) {
 					final double xn = nextXn;
 					nextXn = (x + 1) * invRadiusX;
@@ -315,7 +309,7 @@ public class Generation {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else {
 			if (args.length == 0) {
-				TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player, plugin);
+				TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player);
 				player.getWorld().generateTree(player.getLocation(), TreeType.TREE, delegate);
 				delegate.notifyClients();
 				player.sendMessage("§7Created a tree");
@@ -324,7 +318,7 @@ public class Generation {
 				if (treeType == null) {
 					player.sendMessage("§7Please enter a valid tree type");
 				} else {
-					TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player, plugin);
+					TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player);
 					if (player.getWorld().generateTree(player.getLocation(), treeType, delegate)) {
 						Movement.ascendPlayer(player, false);
 						delegate.notifyClients();
@@ -334,7 +328,7 @@ public class Generation {
 					}
 				}
 			} else {
-				player.sendMessage("§5Incorrect command usage");
+				player.sendMessage("§5§oIncorrect command usage");
 				player.sendMessage("§d/tree");
 				player.sendMessage("§d/tree [treeType]");
 			}

@@ -21,13 +21,16 @@ import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Enderman;
+import org.bukkit.entity.Endermite;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
+import org.bukkit.entity.Guardian;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -62,7 +65,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+//import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -74,7 +77,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
+//import org.bukkit.util.Vector;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
@@ -112,11 +115,7 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerLogin(PlayerLoginEvent event) {
-		if (event.getResult().equals(Result.KICK_BANNED)) {
-			event.setKickMessage("§cYou are banned! E-mail §6support@amentrix.com §cfor support");
-		} else {
-			EvilBook.updateWebPlayerStatistics(Bukkit.getServer().getOnlinePlayers().size() + 1);
-		}
+		if (event.getResult().equals(Result.KICK_BANNED)) event.setKickMessage("§cYou are banned! E-mail §6support@amentrix.com §cfor support");
 	}
 
 	/**
@@ -129,7 +128,7 @@ public class EventListenerPlayer implements Listener {
 		}
 		// Make sure player statistics entry exists
 		if (!SQL.isKeyExistant(TableType.PlayerStatistics, event.getPlayer().getName())) {
-			SQL.insert(TableType.PlayerStatistics, "'" + event.getPlayer().getName() + "',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL");
+			SQL.insert(TableType.PlayerStatistics, "'" + event.getPlayer().getName() + "',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL");
 		}
 		//
 		if (SQL.getProperty(TableType.PlayerProfile, event.getPlayer().getName(), "Rank") != null && Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, event.getPlayer().getName(), "Rank")).isAdmin()) {
@@ -158,12 +157,14 @@ public class EventListenerPlayer implements Listener {
 	/**
 	 * Called when a player moves
 	 */
+	/*
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerMove(PlayerMoveEvent event) {
-		EvilBook.getProfile(event.getPlayer()).lastActionTime = System.currentTimeMillis();
-		if (EvilBook.getProfile(event.getPlayer()).isAway) {
-			EvilBook.getProfile(event.getPlayer()).isAway = false;
-			EvilBook.getProfile(event.getPlayer()).updatePlayerListName();
+		PlayerProfile profile = EvilBook.getProfile(event.getPlayer());
+		profile.lastActionTime = System.currentTimeMillis();
+		if (profile.isAway) {
+			profile.isAway = false;
+			profile.updatePlayerListName();
 		}
 		if (event.getTo().getBlockX() > 12550820 || event.getTo().getBlockX() < -12550820 || event.getTo().getBlockZ() > 12550820 || event.getTo().getBlockZ() < -12550820) {
 			event.getPlayer().sendMessage("§7The Far Lands are blocked");
@@ -171,14 +172,14 @@ public class EventListenerPlayer implements Listener {
 			event.setCancelled(true);
 		} else {
 			// Drugcraft
-			if (EvilBook.getProfile(event.getPlayer()).isDrunk) {
+			if (profile.isDrunk) {
 				Vector velocity = event.getPlayer().getVelocity();
 				event.getPlayer().setVelocity(new Vector((velocity.getX() + (1 - new Random().nextInt(3))) / 3, velocity.getY(), (velocity.getZ() + (1 - new Random().nextInt(3))) / 3));
 			}
 			//
 			if (!EvilBook.isInSurvival(event.getPlayer())) {
-				if (EvilBook.getProfile(event.getPlayer()).jumpAmplifier != 0 && !event.getPlayer().isFlying() && event.getFrom().getY() < event.getTo().getY() && event.getPlayer().getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) event.getPlayer().setVelocity(event.getPlayer().getVelocity().setY(EvilBook.getProfile(event.getPlayer()).jumpAmplifier));
-				if (EvilBook.getProfile(event.getPlayer()).runAmplifier != 0 && event.getPlayer().isSprinting()) event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, EvilBook.getProfile(event.getPlayer()).runAmplifier), true);
+				if (profile.jumpAmplifier != 0 && !event.getPlayer().isFlying() && event.getFrom().getY() < event.getTo().getY() && event.getPlayer().getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) event.getPlayer().setVelocity(event.getPlayer().getVelocity().setY(profile.jumpAmplifier));
+				if (profile.runAmplifier != 0 && event.getPlayer().isSprinting()) event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, profile.runAmplifier), true);
 			}
 			// Regions
 			for (Region region : EvilBook.regionList) {
@@ -194,6 +195,7 @@ public class EventListenerPlayer implements Listener {
 			}
 		}
 	}
+	*/
 
 	/**
 	 * Called when a player throws an egg
@@ -218,13 +220,14 @@ public class EventListenerPlayer implements Listener {
 			}
 		}
 		//
-		if (event.getFrom().getWorld().getName().equals("SurvivalLand")) {
+		String fromWorldName = event.getFrom().getWorld().getName();
+		if (fromWorldName.equals("SurvivalLand")) {
 			if (event.getCause() == TeleportCause.NETHER_PORTAL) {
 				event.getPlayer().teleport(Bukkit.getServer().getWorld("SurvivalLandNether").getSpawnLocation());
 			} else if (event.getCause() == TeleportCause.END_PORTAL) {
 				event.getPlayer().teleport(Bukkit.getServer().getWorld("SurvivalLandTheEnd").getSpawnLocation());
 			}
-		} else if (event.getFrom().getWorld().getName().equals("SurvivalLandNether")) {
+		} else if (fromWorldName.equals("SurvivalLandNether") || fromWorldName.equals("SurvivalLandTheEnd")) {
 			event.getPlayer().teleport(Bukkit.getServer().getWorld("SurvivalLand").getSpawnLocation());
 		}
 	}
@@ -271,89 +274,100 @@ public class EventListenerPlayer implements Listener {
 				if (damager instanceof Player)
 				{
 					Player attackPlayer = (Player) damager;
-					event.setDeathMessage(player.getDisplayName() + " was murdered by " + attackPlayer.getDisplayName() + " wielding their " + (attackPlayer.getItemInHand().getType() == Material.AIR ? "fists" : attackPlayer.getItemInHand().getType().toString().toLowerCase().replace("_", " ")));
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was murdered by " + attackPlayer.getDisplayName() + ChatColor.RED + " wielding their " + (attackPlayer.getItemInHand().getType() == Material.AIR ? "fists" : attackPlayer.getItemInHand().getType().toString().toLowerCase().replace("_", " ")));
 				} else if (damager instanceof Zombie) {
-					event.setDeathMessage(player.getDisplayName() + " had their brains eaten by a Zombie");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their brains eaten by a Zombie");
 				} else if (damager instanceof Spider) {
-					event.setDeathMessage(player.getDisplayName() + " had their flesh devoured by a Spider");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their flesh devoured by a Spider");
 				} else if (damager instanceof CaveSpider) {
-					event.setDeathMessage(player.getDisplayName() + " had their flesh devoured by a Cave-Spider");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their flesh devoured by a Cave-Spider");
 				} else if (damager instanceof Enderman) {
-					event.setDeathMessage(player.getDisplayName() + " had their soul consumed by an Enderman");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their soul consumed by an Enderman");
 				} else if (damager instanceof Silverfish) {
-					event.setDeathMessage(player.getDisplayName() + " had their insides ripped out by a Silverfish");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their insides ripped out by a Silverfish");
 				} else if (damager instanceof MagmaCube) {
-					event.setDeathMessage(player.getDisplayName() + " had their corpse burnt to ashes by a Magma-Cube");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse burnt to ashes by a Magma-Cube");
 				} else if (damager instanceof Slime) {
-					event.setDeathMessage(player.getDisplayName() + " had their corpse dissolved in a Slime");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse dissolved in a Slime");
 				} else if (damager instanceof Wolf) {
-					event.setDeathMessage(player.getDisplayName() + " had their corpse ripped appart by a Wolf");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse ripped appart by a Wolf");
 				} else if (damager instanceof PigZombie) {
-					event.setDeathMessage(player.getDisplayName() + " had their corpse cut in two by a Pigman-Zombie");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse cut in two by a Pigman-Zombie");
 				} else if (damager instanceof IronGolem) {
-					event.setDeathMessage(player.getDisplayName() + " had their corpse crushed by an Iron-Golem");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse crushed by an Iron-Golem");
 				} else if (damager instanceof Giant) {
-					event.setDeathMessage(player.getDisplayName() + " had their corpse crushed by a Giant");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse crushed by a Giant");
+				} else if (damager instanceof Blaze) {
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse incinerated by a Blaze");
+				} else if (damager instanceof Endermite) {
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse chewed apart by an Endermite");
+				} else if (damager instanceof Guardian) {
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse zapped by a Guardian");
 				}
 			} else if (damageCause == DamageCause.PROJECTILE) {
 				Projectile pro = (Projectile)damager;
 				if (pro.getShooter() instanceof Player) {
 					Player attackPlayer = (Player) pro.getShooter();
 					if (pro instanceof Arrow) {
-						event.setDeathMessage(player.getDisplayName() + " was killed by " + attackPlayer.getDisplayName() + "'s arrow");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was killed by " + attackPlayer.getDisplayName() + ChatColor.RED + "'s arrow");
 					} else if (pro instanceof Snowball) {
-						event.setDeathMessage(player.getDisplayName() + " was killed by " + attackPlayer.getDisplayName() + "'s snowball");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was killed by " + attackPlayer.getDisplayName() + ChatColor.RED + "'s snowball");
 					} else if (pro instanceof Egg) {
-						event.setDeathMessage(player.getDisplayName() + " was killed by " + attackPlayer.getDisplayName() + "'s egg");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was killed by " + attackPlayer.getDisplayName() + ChatColor.RED + "'s egg");
 					} else {
-						event.setDeathMessage(player.getDisplayName() + " was killed by " + attackPlayer.getDisplayName() + "'s projectile");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was killed by " + attackPlayer.getDisplayName() + ChatColor.RED + "'s projectile");
 					}
-					return;
-				}
-				if (pro instanceof Arrow)
-				{
+				} else if (pro instanceof Arrow) {
 					if ((pro.getShooter() instanceof Skeleton)) {
-						event.setDeathMessage(player.getDisplayName() + " had their bones smashed by a Skeleton's arrow");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their bones smashed by a Skeleton's arrow");
 					} else {
-						event.setDeathMessage(player.getDisplayName() + " had their bones smashed by an arrow trap");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their bones smashed by an arrow trap");
 					}
 				} else if (pro instanceof Snowball) {
-					event.setDeathMessage(player.getDisplayName() + " had their blood frozen by a Snowman's snowball");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their blood frozen by a Snowman's snowball");
 				} else if (pro instanceof Fireball) {
 					if (pro.getShooter() instanceof Ghast) {
-						event.setDeathMessage(player.getDisplayName() + " had their insides boiled by a Ghast's fireball");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their insides boiled by a Ghast's fireball");
 					} else if ((pro.getShooter() instanceof Blaze)) {
-						event.setDeathMessage(player.getDisplayName() + " had their insides boiled by a Blazes's fireball");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their insides boiled by a Blazes's fireball");
 					} else if ((pro.getShooter() instanceof Wither)) {
-						event.setDeathMessage(player.getDisplayName() + " had their insides boiled by a Wither's fireball");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their insides boiled by a Wither's fireball");
 					} else {
-						event.setDeathMessage(player.getDisplayName() + " had their insides boiled by a fireball");
+						event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their insides boiled by a fireball");
 					}
 				}
 			} else if (damageCause == DamageCause.ENTITY_EXPLOSION) {
 				if (damager instanceof Creeper) {
-					event.setDeathMessage(player.getDisplayName() + " was blown up by a Creeper");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse blown apart by a Creeper");
 				} else if (damager instanceof TNTPrimed) {
-					event.setDeathMessage(player.getDisplayName() + " was blown up by TNT");
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was blown up by TNT");
 				}
+			} else if (damageCause == DamageCause.MAGIC) {
+				if (damager instanceof Player) {
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse turned into mush by " + ((Player)damager).getDisplayName());
+				} else {
+					event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse turned into mush");
+				}
+			} else {
+				event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " died");
 			}
 		} else {
 			switch (damageCause) {
-			case DROWNING: event.setDeathMessage(player.getDisplayName() + " drowned to death"); break;
-			case STARVATION: event.setDeathMessage(player.getDisplayName() + " starved to death"); break;
-			case CONTACT: event.setDeathMessage(player.getDisplayName() + " was playing with a cactus when it pricked back"); break;
-			case FIRE: event.setDeathMessage(player.getDisplayName() + " had their corpse burnt to ashes by fire"); break;
-			case FIRE_TICK: event.setDeathMessage(player.getDisplayName() + " had their corpse burnt to ashes by fire"); break;
-			case LAVA: event.setDeathMessage(player.getDisplayName() + " had their corpse burnt to ashes by lava"); break;
-			case LIGHTNING: event.setDeathMessage(player.getDisplayName() + " had their corpse burnt to ashes by lightning"); break;
-			case POISON: event.setDeathMessage(player.getDisplayName() + " died from poisoning"); break;
-			case SUFFOCATION: event.setDeathMessage(player.getDisplayName() + " suffocated to death"); break;
-			case VOID: event.setDeathMessage(player.getDisplayName() + " was crushed by the never ending black hole"); break;
-			case FALL: event.setDeathMessage(player.getDisplayName() + " fell to their death"); break;
-			case SUICIDE: event.setDeathMessage(player.getDisplayName() + " committed suicide"); break;
-			case MAGIC: event.setDeathMessage(player.getDisplayName() + " was destroyed at the hands of a sourcerer"); break;
-			case WITHER: event.setDeathMessage(player.getDisplayName() + " was crushed by a wither"); break;
-			default: event.setDeathMessage(player.getDisplayName() + " died");
+			case DROWNING: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " drowned to death"); break;
+			case STARVATION: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " starved to death"); break;
+			case CONTACT: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was playing with a cactus when it pricked back"); break;
+			case FIRE: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse burnt to ashes by fire"); break;
+			case FIRE_TICK: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse burnt to ashes by fire"); break;
+			case LAVA: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse burnt to ashes by lava"); break;
+			case LIGHTNING: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " had their corpse burnt to ashes by lightning"); break;
+			case POISON: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " died from poisoning"); break;
+			case SUFFOCATION: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " suffocated to death"); break;
+			case VOID: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was crushed by the never ending black hole"); break;
+			case FALL: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " fell to their death"); break;
+			case SUICIDE: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " committed suicide"); break;
+			case MAGIC: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was destroyed at the hands of a sourcerer"); break;
+			case WITHER: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " was crushed by a wither"); break;
+			default: event.setDeathMessage(player.getDisplayName() + ChatColor.RED + " died");
 			}
 		}
 	}
@@ -389,7 +403,6 @@ public class EventListenerPlayer implements Listener {
 			profile.saveProfile();
 			EvilBook.playerProfiles.remove(event.getPlayer().getName().toLowerCase());
 			event.setQuitMessage(ChatColor.GRAY + event.getPlayer().getName() + " has left the game");
-			EvilBook.updateWebPlayerStatistics(Bukkit.getServer().getOnlinePlayers().size() - 1);
 		}
 	}
 
@@ -407,15 +420,16 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
-		EvilBook.getProfile(player).lastActionTime = System.currentTimeMillis();
-		if (EvilBook.getProfile(player).isAway) {
-			EvilBook.getProfile(player).isAway = false;
+		PlayerProfile profile = EvilBook.getProfile(player);
+		profile.lastActionTime = System.currentTimeMillis();
+		if (profile.isAway) {
+			profile.isAway = false;
 			EvilBook.getProfile(event.getPlayer()).updatePlayerListName();
 		}
 		event.setCancelled(true);
 		String message = event.getMessage();
-		EvilBook.broadcastPlayerMessage(player.getName(), EvilBook.getProfile(player).rank.getPrefix(EvilBook.getProfile(player)) + " §" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
-				+ "<§f" + player.getDisplayName() + "§" + EvilBook.getProfile(player).rank.getColor(EvilBook.getProfile(player)) 
+		EvilBook.broadcastPlayerMessage(player.getName(), profile.rank.getPrefix(profile) + " §" + profile.rank.getColor(profile) 
+				+ "<§f" + player.getDisplayName() + "§" + profile.rank.getColor(profile) 
 				+ "> §f" + EvilBook.toFormattedString(message));
 		// Statistics
 		GlobalStatistics.incrementStatistic(GlobalStatistic.MessagesSent, 1);
@@ -436,16 +450,17 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-		if (event.getRightClicked().getType() != EntityType.MINECART_CHEST && event.getRightClicked().getType() != EntityType.MINECART_FURNACE && 
-				event.getRightClicked().getType() != EntityType.MINECART_HOPPER && event.getRightClicked().getType() != EntityType.MINECART_MOB_SPAWNER && 
-				event.getRightClicked().getType() != EntityType.MINECART_TNT && event.getRightClicked().getType() != EntityType.ITEM_FRAME && 
-				event.getRightClicked().getType() != EntityType.FALLING_BLOCK && event.getRightClicked().getType() != EntityType.PRIMED_TNT &&
-				event.getRightClicked().getType() != EntityType.PLAYER && event.getRightClicked().getType() != EntityType.PAINTING && 
-				event.getRightClicked().getType() != EntityType.ARMOR_STAND && event.getRightClicked().getType() != EntityType.MINECART_COMMAND &&
-				event.getRightClicked().getType() != EntityType.VILLAGER && event.getRightClicked() instanceof Tameable == false &&
-				event.getRightClicked().getPassenger() == null && event.getRightClicked() != event.getPlayer().getPassenger() &&
-				(event.getRightClicked().getType() != EntityType.SHEEP || event.getPlayer().getItemInHand().getType() != Material.INK_SACK)) {
-			event.getRightClicked().setPassenger(event.getPlayer());
+		Entity entity = event.getRightClicked();
+		if (entity.getType() != EntityType.MINECART_CHEST && entity.getType() != EntityType.MINECART_FURNACE && 
+				entity.getType() != EntityType.MINECART_HOPPER && entity.getType() != EntityType.MINECART_MOB_SPAWNER && 
+				entity.getType() != EntityType.MINECART_TNT && entity.getType() != EntityType.ITEM_FRAME && 
+				entity.getType() != EntityType.FALLING_BLOCK && entity.getType() != EntityType.PRIMED_TNT &&
+				entity.getType() != EntityType.PLAYER && entity.getType() != EntityType.PAINTING && 
+				entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.MINECART_COMMAND &&
+				entity.getType() != EntityType.VILLAGER && (entity instanceof Monster == false || !EvilBook.isInSurvival(entity)) 
+				&& entity instanceof Tameable == false && entity.getPassenger() == null && entity != event.getPlayer().getPassenger() &&
+				(entity.getType() != EntityType.SHEEP || event.getPlayer().getItemInHand().getType() != Material.INK_SACK)) {
+			entity.setPassenger(event.getPlayer());
 		}
 	}
 
@@ -501,6 +516,29 @@ public class EventListenerPlayer implements Listener {
 			return;
 		}
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			//
+			// Ammeter
+			//
+			if (block.getType() == Material.REDSTONE_WIRE) {
+				if (!event.hasItem() || event.getItem().getType() == Material.REDSTONE || event.getItem().getType() == Material.COAL) {
+					Byte data = block.getData();
+			        StringBuilder line = new StringBuilder(25);
+			        line.append(ChatColor.YELLOW).append("[");
+			        if (data > 10)
+			            line.append(ChatColor.DARK_GREEN);
+			        else if (data > 5)
+			            line.append(ChatColor.GOLD);
+			        else if (data > 0)
+			            line.append(ChatColor.DARK_RED);
+			        for (int i = 0; i < data; i++)
+			            line.append("|");
+			        line.append(ChatColor.BLACK);
+			        for (int i = data; i < 15; i++)
+			            line.append("|");
+			        line.append(ChatColor.YELLOW).append("] ");
+			        player.sendMessage(ChatColor.YELLOW + "Ammeter " + line + ChatColor.WHITE + data + " A");
+				}
+			}
 			//
 			// Command block ownership logging and protection
 			//
@@ -571,13 +609,7 @@ public class EventListenerPlayer implements Listener {
 							signUpdatePacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
 							WrappedChatComponent[] signTextArray = {WrappedChatComponent.fromText(signText[0]), WrappedChatComponent.fromText(signText[1]),
 									WrappedChatComponent.fromText(signText[2]), WrappedChatComponent.fromText(signText[3])};
-							//TODO: Fix this
 							signUpdatePacket.getChatComponentArrays().write(0, signTextArray);
-							//signUpdatePacket.getChatComponents().write(0, WrappedChatComponent.fromText(signText[0]));
-							//signUpdatePacket.getChatComponents().write(1, WrappedChatComponent.fromText(signText[1]));
-							//signUpdatePacket.getChatComponents().write(2, WrappedChatComponent.fromText(signText[2]));
-							//signUpdatePacket.getChatComponents().write(3, WrappedChatComponent.fromText(signText[3]));
-							//signUpdatePacket.getStringArrays().write(0, signText);
 							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signUpdatePacket);
 							PacketContainer signEditPacket = new PacketContainer(PacketType.Play.Server.OPEN_SIGN_ENTITY);
 							signEditPacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
@@ -595,7 +627,7 @@ public class EventListenerPlayer implements Listener {
 			// Bonemeal
 			//
 			if (!EvilBook.getProfile(player.getName()).rank.isHigher(Rank.BUILDER) && player.getItemInHand().getType() == Material.INK_SACK && ((Dye)player.getItemInHand().getData()).getColor() == DyeColor.WHITE && (block.getType() == Material.RED_MUSHROOM || block.getType() == Material.BROWN_MUSHROOM || block.getType() == Material.SAPLING || block.getType() == Material.GRASS)) {
-				player.sendMessage("§dBone meal requires §5Advanced Builder §drank or higher");
+				player.sendMessage("§dBone meal requires §5Creator §drank or higher");
 				event.setCancelled(true);
 				//
 				// Command blocks
@@ -761,7 +793,7 @@ public class EventListenerPlayer implements Listener {
 		} else {
 			if (event.getTo().getWorld() != event.getFrom().getWorld() && !event.getFrom().getWorld().getName().equals("SurvivalLandTheEnd") && !event.getFrom().getWorld().getName().equals("SurvivalLandNether") && !event.getFrom().getWorld().getName().equals("Amentrix_nether") && !event.getFrom().getWorld().getName().equals("Amentrix_the_end")) EvilBook.getProfile(player.getName()).setWorldLastPosition(event.getFrom());
 			// Teleport particle effect
-			if (!EvilBook.getProfile(player).isInvisible) {
+			if (!EvilBook.getProfile(player).isInvisible && ((event.getTo().getWorld() == event.getFrom().getWorld() && event.getFrom().distance(event.getTo()) > 2)) || event.getTo().getWorld() != event.getFrom().getWorld()) {
 				event.getFrom().getWorld().playEffect(event.getFrom(), Effect.SMOKE, 0);
 				event.getTo().getWorld().playEffect(event.getTo(), Effect.ENDER_SIGNAL, 0);
 			}
@@ -800,6 +832,8 @@ public class EventListenerPlayer implements Listener {
 			EvilBook.setSurvivalInventory(player);
 			EvilBook.getCreativeInventory(player);
 			player.setGameMode(GameMode.CREATIVE);
+		} else if (EvilBook.isInMinigame(player)) {
+			player.setGameMode(GameMode.ADVENTURE);
 		}
 		if (player.getWorld().getName().equals("FlatLand")) {
 			player.sendMessage("§7Welcome to the Flat Lands");

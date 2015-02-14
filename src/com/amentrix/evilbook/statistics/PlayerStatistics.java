@@ -19,6 +19,12 @@ public class PlayerStatistics {
 	public static void setStatistic(String playerName, PlayerStatistic statistic, int value) {
 		SQL.setProperty(TableType.PlayerStatistics, playerName, statistic.columnName, Integer.toString(value));
 		switch (statistic) {
+		case KILLED_RARES:
+			EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_RARE);
+			if (value >= 2) EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_RARE_II);
+			if (value >= 5) EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_RARE_III);
+			if (value >= 10) EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_RARE_IV);
+			break;
 		case KILLED_BLAZES: 
 			EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_BLAZE);
 			if (value >= 5) EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_BLAZE_II);

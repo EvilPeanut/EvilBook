@@ -23,14 +23,6 @@ import com.amentrix.evilbook.main.EvilBook;
  * @author Reece Aaron Lecrivain
  */
 public class Session implements CommandExecutor {
-	private EvilBook plugin;
-	
-	public Session(EvilBook plugin) {
-		this.plugin = plugin;
-		Generation.init(plugin);
-		Region.init(plugin);
-	}
-	
 	/**
 	 * Called when a command is executed
 	 */
@@ -49,11 +41,13 @@ public class Session implements CommandExecutor {
 		} else if (command.getName().equalsIgnoreCase("undo") || command.getName().equalsIgnoreCase("/undo")) {	
 			Region.undoEdit(player);
 		} else if (command.getName().equalsIgnoreCase("fill") || command.getName().equalsIgnoreCase("/fill") || command.getName().equalsIgnoreCase("set") || command.getName().equalsIgnoreCase("/set")) {	
-			Region.fillArea(this.plugin, player, args);
+			Region.fillArea(player, args);
 		} else if (command.getName().equalsIgnoreCase("rfill")) {	
 			Region.randomFillArea(player, args);
 		} else if (command.getName().equalsIgnoreCase("rreplace")) {	
 			Region.randomReplaceArea(player, args);
+		} else if (command.getName().equalsIgnoreCase("deforest")) {	
+			Region.deforestArea(player, args);
 		} else if (command.getName().equalsIgnoreCase("del")) {	
 			Region.deleteArea(player, args);
 		} else if (command.getName().equalsIgnoreCase("delete")) {	

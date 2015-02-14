@@ -75,6 +75,10 @@ public enum Achievement {
 	SURVIVAL_KILL_WITHER("Wither Slayer", "Kill a wither in survival", '⚔', 15, null),
 	SURVIVAL_KILL_PLAYER("Homicidal", "Kill another player in survival", '⚔', 5, "Psycho title"),
 	SURVIVAL_KILL_PLAYER_II("Brutal", "Kill 10 players in survival", '⚔', 10, "Brutal title"),
+	SURVIVAL_KILL_RARE("A Rare Kill", "Kill a rare mob in survival", '⚔', 10, null),
+	SURVIVAL_KILL_RARE_II("A Rare Kill II", "Kill 2 rare mobs in survival", '⚔', 20, null),
+	SURVIVAL_KILL_RARE_III("A Rare Kill III", "Kill 5 rare mobs in survival", '⚔', 25, "Rare title"),
+	SURVIVAL_KILL_RARE_IV("A Rare Kill IV", "Kill 10 rare mobs in survival", '⚔', 50, "Legendary title"),
 	// Achievements for entering worlds
 	GLOBAL_WORLD_FLATLAND("Infinite Intentions", "Enter the flat lands", '✈', 5, null),
 	GLOBAL_WORLD_SKYLAND("Sky High", "Enter the sky lands", '✈', 5, null),

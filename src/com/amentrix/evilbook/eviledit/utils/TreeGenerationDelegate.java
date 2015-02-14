@@ -18,11 +18,11 @@ public class TreeGenerationDelegate implements BlockChangeDelegate {
 	private Player player;
 	private EvilEditEngine engine;
 	
-	public TreeGenerationDelegate(Location loc, Player player, EvilBook plugin) {
+	public TreeGenerationDelegate(Location loc, Player player) {
 		this.loc = loc;
 		this.player = player;
 		((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearUndo();
-		this.engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+		this.engine = CraftEvilEditEngine.createEngine(player.getWorld(), player);
 	}
 	
 	@Override

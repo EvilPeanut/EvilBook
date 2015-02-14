@@ -7,16 +7,16 @@ package com.amentrix.evilbook.main;
 public enum Rank {
 	// Normal ranks
 	BUILDER("Builder", "§0[§EBuilder§0]", "E", 0, null),
-	ADVANCED_BUILDER("Advanced Builder", "§0[§5Adv.Builder§0]", "5", 0, "§aUnlocked usage of anvil block\nUnlocked usage of saplings\nUnlocked usage of sand block\nUnlocked usage of gravel block\nUnlocked usage of bone meal\nUnlocked survival world\nUnlocked flatlands world"),
-	ARCHITECT("Architect", "§0[§DArchitect§0]", "D", 0, "§aUnlocked smoke emitter effect\nUnlocked flames emitter effect\nUnlocked hearts emitter effect\nUnlocked redstone fumes emitter effect\nUnlocked slime emitter effect\nUnlocked masic critical hit emitter effect\nUnlocked enchantment table emitter effect\nUnlocked skylands world\nUnlocked /chimney"),
-	MODERATOR("Moderator", "§0[§9Moderator§0]", "9", 0, null),
-	POLICE("Police", "§0[§3Police§0]", "3", 0, null),
+	ADVANCED_BUILDER("Creator", "§0[§5Creator§0]", "5", 0, "§aUnlocked usage of anvil block\nUnlocked usage of saplings\nUnlocked usage of sand block\nUnlocked usage of gravel block\nUnlocked usage of bone meal\nUnlocked survival world\nUnlocked flatlands world"),
+	ARCHITECT("Designer", "§0[§DDesigner§0]", "D", 0, "§aUnlocked smoke emitter effect\nUnlocked flames emitter effect\nUnlocked hearts emitter effect\nUnlocked redstone fumes emitter effect\nUnlocked slime emitter effect\nUnlocked masic critical hit emitter effect\nUnlocked enchantment table emitter effect\nUnlocked skylands world\nUnlocked /chimney"),
+	MODERATOR("Architect", "§0[§9Architect§0]", "9", 0, null),
+	POLICE("Engineer", "§0[§3Engineer§0]", "3", 0, null),
 	// Staff ranks
-	STAFF_COPPER("Copper Staff", "§0[§ECopper Staff§0]", "E", 1000, null),
-	STAFF_SILVER("Silver Staff", "§0[§7Silver Staff§0]", "7", 2000, null),
-	STAFF_GOLD("Gold Staff", "§0[§6Gold Staff§0]", "6", 3000, null),
-	STAFF_LAPIS("Lapis Staff", "§0[§1Lapis Staff§0]", "1", 4000, null),
-	STAFF_DIAMOND("Diamond Staff", "§0[§BDiamond Staff§0]", "B", 5000, null),
+	STAFF_COPPER("Copper Staff", "§0[§EStaff§0]", "E", 1000, null),
+	STAFF_SILVER("Silver Staff", "§0[§7Staff§0]", "7", 2000, null),
+	STAFF_GOLD("Gold Staff", "§0[§6Staff§0]", "6", 3000, null),
+	STAFF_LAPIS("Lapis Staff", "§0[§1Staff§0]", "1", 4000, null),
+	STAFF_DIAMOND("Diamond Staff", "§0[§BStaff§0]", "B", 5000, null),
 	// Donator ranks
 	ADMIN("Admin", "§0[§4Admin§0]", "4", 10000, null),
 	COUNCILLOR("Councillor", "§0[§ACouncillor§0]", "A", 25000, null),

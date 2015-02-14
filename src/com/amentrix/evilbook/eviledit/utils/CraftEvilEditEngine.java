@@ -1,18 +1,9 @@
 package com.amentrix.evilbook.eviledit.utils;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
-
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -23,13 +14,8 @@ import com.amentrix.evilbook.statistics.GlobalStatistics;
  * Based on dhutils by desht
  * @author Reece Aaron Lecrivain
  */
-public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
-	private final Plugin plugin;
+public class CraftEvilEditEngine implements EvilEditEngine {
 	private final World world;
-	private final NMSAbstraction nms;
-
-	private Queue<DeferredBlock> deferredBlocks = new ArrayDeque<>();
-	private BukkitTask relightTask = null;
 
 	private int minX = Integer.MAX_VALUE;
 	private int minZ = Integer.MAX_VALUE;
@@ -41,16 +27,10 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 	
 	private Boolean silent;
 	
-	public CraftEvilEditEngine(Plugin plugin, org.bukkit.World world, Player player, Boolean silent) {
-		NMSHelper.init();
-		this.plugin = plugin;
+	public CraftEvilEditEngine(org.bukkit.World world, Player player, Boolean silent) {
 		this.world = world;
 		this.player = player;
 		this.silent = silent;
-		this.nms = NMSHelper.getNMS();
-		if (this.nms == null) {
-			throw new IllegalStateException("NMS abstraction API is not available");
-		}
 	}
 
 	@Override
@@ -100,11 +80,12 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 		this.maxX = Math.max(this.maxX, x);
 		this.maxZ = Math.max(this.maxZ, z);
 		this.blocksModified++;
-		int oldBlockId = this.world.getBlockTypeIdAt(x, y, z);
-		boolean res = this.nms.setBlockFast(this.world, x, y, z, block, (byte)data);
-		if (this.nms.getBlockLightBlocking(oldBlockId) != this.nms.getBlockLightBlocking(block) || this.nms.getBlockLightEmission(oldBlockId) != this.nms.getBlockLightEmission(block)) {
-			this.deferredBlocks.add(new DeferredBlock(x, y, z));
-		}
+		boolean res = this.world.getBlockAt(x, y, z).setTypeIdAndData(block, (byte) data, false);
+		//int oldBlockId = this.world.getBlockTypeIdAt(x, y, z);
+		//boolean res = this.nms.setBlockFast(this.world, x, y, z, block, (byte)data);
+		//if (this.nms.getBlockLightBlocking(oldBlockId) != this.nms.getBlockLightBlocking(block) || this.nms.getBlockLightEmission(oldBlockId) != this.nms.getBlockLightEmission(block)) {
+			//this.deferredBlocks.add(new DeferredBlock(x, y, z));
+		//}
 		// Logging
 		EvilBook.lbConsumer.queueBlockReplace(this.player.getName(), oldBlockState, new Location(this.world, x, y, z).getBlock().getState());
 		// Return if it was set
@@ -121,78 +102,15 @@ public class CraftEvilEditEngine implements EvilEditEngine, Runnable {
 		// Statistics
 		GlobalStatistics.incrementStatistic(statistic, this.blocksModified);
 		// Do relighting
-		this.relightTask = Bukkit.getScheduler().runTaskTimer(this.plugin, this, 1L, 1L);
+		//this.relightTask = Bukkit.getScheduler().runTaskTimer(this.plugin, this, 1L, 1L);
 	}
 
-	@Override
-	public void run() {
-		long now = System.nanoTime();
-		int n = 1;
-		while (this.deferredBlocks.peek() != null) {
-			DeferredBlock db = this.deferredBlocks.poll();
-			this.nms.recalculateBlockLighting(this.world, db.x, db.y, db.z);
-			if (n++ % 1000 == 0) {
-				// 2000000ns (2ms) is the max relight time per tick
-				if (System.nanoTime() - now > 2000000) {
-					break;
-				}
-			}
-		}
-		if (this.deferredBlocks.isEmpty()) {
-			this.relightTask.cancel();
-			this.relightTask = null;
-			for (ChunkCoords cc : calculateChunks()) {
-				this.world.refreshChunk(cc.x, cc.z);
-			}
-		}
-	}
-
-	public void setDeferredBufferSize(int size) {
-		if (!this.deferredBlocks.isEmpty()) {
-			throw new IllegalStateException("setDeferredBufferSize() called after block updates made");
-		}
-		this.deferredBlocks = new ArrayDeque<>(size);
-	}
-
-	private List<ChunkCoords> calculateChunks() {
-		List<ChunkCoords> res = new ArrayList<>();
-		if (this.blocksModified == 0) {
-			return res;
-		}
-		int x1 = this.minX >> 4; int x2 = this.maxX >> 4;
-		int z1 = this.minZ >> 4; int z2 = this.maxZ >> 4;
-		for (int x = x1; x <= x2; x++) {
-			for (int z = z1; z <= z2; z++) {
-				res.add(new ChunkCoords(x, z));
-			}
-		}
-		return res;
-	}
-
-	public static EvilEditEngine createEngine(Plugin plugin, org.bukkit.World world, Player player) {
+	public static EvilEditEngine createEngine(org.bukkit.World world, Player player) {
 		((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearUndo();
-		return new CraftEvilEditEngine(plugin, world, player, false);
+		return new CraftEvilEditEngine(world, player, false);
 	}
 	
-	public static EvilEditEngine createEngineSilent(Plugin plugin, org.bukkit.World world, Player player) {
-		return new CraftEvilEditEngine(plugin, world, player, true);
-	}
-
-	private class ChunkCoords {
-		public final int x, z;
-		public ChunkCoords(int x, int z) {
-			this.x = x;
-			this.z = z;
-		}
-	}
-
-	private class DeferredBlock {
-		public final int x, y, z;
-
-		public DeferredBlock(int x, int y, int z) {
-			this.x = x;
-			this.y = y;
-			this.z = z;
-		}
+	public static EvilEditEngine createEngineSilent(org.bukkit.World world, Player player) {
+		return new CraftEvilEditEngine(world, player, true);
 	}
 }

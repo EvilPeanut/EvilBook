@@ -13,7 +13,6 @@ public class PacketPlayOut
 	private static Method getHandle;
 	private static Method sendPacket;
 	private static Field playerConnection;
-	private static String version = "";
 	private static Class<?> packetType;
 
 	PacketPlayOut(String name, String prefix, String suffix, Collection players, int paramInt) throws IllegalAccessException, InstantiationException, NoSuchFieldException
@@ -69,7 +68,7 @@ public class PacketPlayOut
 	{
 		try
 		{
-			version = org.bukkit.Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+			String version = org.bukkit.Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 			packetType = Class.forName("net.minecraft.server." + version + ".PacketPlayOutScoreboardTeam");
 
 			Class typeCraftPlayer = Class.forName("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer");

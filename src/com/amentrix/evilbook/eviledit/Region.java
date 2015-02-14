@@ -28,21 +28,40 @@ import com.amentrix.evilbook.statistics.GlobalStatistic;
  * @author Reece Aaron Lecrivain
  */
 public class Region {
-	private static EvilBook plugin;
-	
-	public static void init(EvilBook plugin) {
-		Region.plugin = plugin;
+	public static void deforestArea(Player player, String[] args) {
+		Selection selection = new Selection(player);
+		if (args.length != 0) {
+			player.sendMessage("§5§oIncorrect command usage");
+			player.sendMessage("§d/deforest");
+		} else if (selection.isValid()) {
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
+			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
+			{
+				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
+				{
+					for (int y = selection.getTopYBlock(); y >= selection.getBottomYBlock(); y--)
+					{
+						Material type = selection.getBlock(x, y, z).getType();
+						if (type == Material.LOG || type == Material.LOG_2 || type == Material.LEAVES || type == Material.LEAVES_2) {
+							engine.setBlock(x, y, z, Material.AIR.getId(), (byte) 0);
+						}
+					}
+				}
+			}
+			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks deforested");
+		}
 	}
 	
 	public static void flipArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 || (!args[0].equalsIgnoreCase("x") && !args[0].equalsIgnoreCase("y") && !args[0].equalsIgnoreCase("z"))) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/flip x");
 			player.sendMessage("§d/flip y");
 			player.sendMessage("§d/flip z");
 		} else if (selection.isValid()) {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			List<BlockState> blockList = new ArrayList<>();
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
@@ -67,12 +86,12 @@ public class Region {
 	public static void moveArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 || !EvilBook.isInteger(args[0]) || (!args[1].equalsIgnoreCase("x") && !args[1].equalsIgnoreCase("y") && !args[1].equalsIgnoreCase("z"))) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/move [count] x");
 			player.sendMessage("§d/move [count] y");
 			player.sendMessage("§d/move [count] z");
 		} else if (selection.isValid()) {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			List<BlockState> blockList = new ArrayList<>();
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
@@ -122,7 +141,7 @@ public class Region {
 		if (((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getUndo().size() == 0) {
 			player.sendMessage("§7You have no EvilEdit actions to undo");
 		} else {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngineSilent(plugin, ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getUndo().get(0).getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngineSilent(((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getUndo().get(0).getWorld(), player);
 			for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getUndo()) {
 				// Set the block material and data which includes direction
 				engine.setBlock(block.getLocation(), block.getType().getId(), block.getData().getData());
@@ -151,10 +170,10 @@ public class Region {
 	public static void drainArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/drain");
 		} else if (selection.isValid()) {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -175,7 +194,7 @@ public class Region {
 	public static void greenArea(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -197,7 +216,7 @@ public class Region {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (args.length != 0) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/paste");
 		} else if (((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().size() == 0) {
 			player.sendMessage("§7Please copy an area of blocks before attempting paste");
@@ -217,7 +236,7 @@ public class Region {
 					if (block.getLocation().getBlockZ() > topBlockZ) topBlockZ = block.getLocation().getBlockZ();
 					if (block.getLocation().getBlockZ() < bottomBlockZ) bottomBlockZ = block.getLocation().getBlockZ();
 				}
-				EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+				EvilEditEngine engine = CraftEvilEditEngine.createEngine(player.getWorld(), player);
 				for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy()) {
 					Location loc = new Location(player.getWorld(), 
 							player.getLocation().getBlockX() + (block.getLocation().getBlockX() - bottomBlockX), 
@@ -267,7 +286,7 @@ public class Region {
 				final int bottomBlockX2 = bottomBlockX;
 				final int bottomBlockZ2 = bottomBlockZ;
 				final int bottomBlockY2 = bottomBlockY;
-				final EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, player.getWorld(), player);
+				final EvilEditEngine engine = CraftEvilEditEngine.createEngine(player.getWorld(), player);
 
 				int count = 0;
 				for (int index = 0; index <= ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize(); index += 21952)
@@ -300,7 +319,7 @@ public class Region {
 	public static void copy(final Player player, String[] args) {
 		final Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/copy");
 		} else if (selection.isValid()) {
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearCopy();
@@ -376,11 +395,11 @@ public class Region {
 	public static void cut(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/cut");
 		} else if (selection.isValid()) {
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearCopy();
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -420,7 +439,7 @@ public class Region {
 	public static void randomDeleteArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length > 2) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/rdel");
 			player.sendMessage("§d/rdel [blockID / blockName]");
 			player.sendMessage("§d/rdel [blockID / blockName] [blockData]");
@@ -432,7 +451,7 @@ public class Region {
 				if (!actionBlock.isValid(player)) return;
 			}
 			Random randomizer = new Random();
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -453,7 +472,7 @@ public class Region {
 	public static void deleteArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length > 2) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/del");
 			player.sendMessage("§d/del [blockID / blockName]");
 			player.sendMessage("§d/del [blockID / blockName] [blockData]");
@@ -464,7 +483,7 @@ public class Region {
 				if (args.length == 2) actionBlock.setData(args[1]);
 				if (!actionBlock.isValid(player)) return;
 			}
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -485,7 +504,7 @@ public class Region {
 	public static void randomReplaceArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 && args.length != 4) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/rreplace [blockID / blockName] [blockID / blockName]");
 			player.sendMessage("§d/rreplace [blockID / blockName] [blockData] [blockID / blockName] [blockData]");
 		} else if (selection.isValid()) {
@@ -496,7 +515,7 @@ public class Region {
 			if (args.length == 4) newBlock.setData(args[3]);
 			if (!newBlock.isValid(player)) return;	
 			Random randomizer = new Random();
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -519,7 +538,7 @@ public class Region {
 	public static void randomFillArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/rfill [blockID / blockName]");
 			player.sendMessage("§d/rfill [blockID / blockName] [blockData]");
 		} else if (selection.isValid()) {
@@ -531,7 +550,7 @@ public class Region {
 			}
 			Random randomizer = new Random();
 			Byte blockData = args.length == 2 ? Byte.parseByte(args[1]) : 0;
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -547,10 +566,10 @@ public class Region {
 		}
 	}
 	
-	public static void fillArea(EvilBook plugin, Player player, String[] args) {
+	public static void fillArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/fill [blockID / blockName]");
 			player.sendMessage("§d/fill [blockID / blockName] [blockData]");
 		} else if (selection.isValid()) {
@@ -560,7 +579,7 @@ public class Region {
 				if (args.length == 2) actionBlock.setData(args[1]);
 				if (!actionBlock.isValid(player)) return;
 			}
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -579,7 +598,7 @@ public class Region {
 	public static void setBiome(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/setbiome [biome]");
 		} else if (selection.isValid()) {
 			Biome blockBiome = EvilBook.getBiome(args[0]);
@@ -654,10 +673,10 @@ public class Region {
 	public static void hollowArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/hollow");
 		} else if (selection.isValid()) {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -678,7 +697,7 @@ public class Region {
 	public static void outlineArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/outline [blockID / blockName]");
 			player.sendMessage("§d/outline [blockID / blockName] [blockData]");
 		} else if (selection.isValid()) {
@@ -688,7 +707,7 @@ public class Region {
 				if (args.length == 2) actionBlock.setData(args[1]);
 				if (!actionBlock.isValid(player)) return;
 			}
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -709,7 +728,7 @@ public class Region {
 	public static void wallArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/walls [blockID / blockName]");
 			player.sendMessage("§d/walls [blockID / blockName] [blockData]");
 		} else if (selection.isValid()) {
@@ -719,7 +738,7 @@ public class Region {
 				if (args.length == 2) actionBlock.setData(args[1]);
 				if (!actionBlock.isValid(player)) return;
 			}
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -740,7 +759,7 @@ public class Region {
 	public static void thawSnowArea(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -759,7 +778,7 @@ public class Region {
 	public static void overlaySnowArea(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -776,7 +795,7 @@ public class Region {
 	public static void overlayArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/overlay [blockID / blockName]");
 			player.sendMessage("§d/overlay [blockID / blockName] [blockData]");
 		} else if (selection.isValid()) {
@@ -786,7 +805,7 @@ public class Region {
 				if (args.length == 2) actionBlock.setData(args[1]);
 				if (!actionBlock.isValid(player)) return;
 			}
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -803,7 +822,7 @@ public class Region {
 	public static void replaceArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 && args.length != 4) {
-			player.sendMessage("§5Incorrect command usage");
+			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/replace [blockID / blockName] [blockID / blockName]");
 			player.sendMessage("§d/replace [blockID / blockName] [blockData] [blockID / blockName] [blockData]");
 		} else if (selection.isValid()) {
@@ -813,7 +832,7 @@ public class Region {
 			BlockType newBlock = new BlockType(args.length == 2 ? args[1] : args[2]);
 			if (args.length == 4) newBlock.setData(args[3]);
 			if (!newBlock.isValid(player)) return;
-			EvilEditEngine engine = CraftEvilEditEngine.createEngine(plugin, selection.getWorld(), player);
+			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
 			{
 				for (int z = selection.getBottomZBlock(); z <= selection.getTopZBlock(); z++)
@@ -858,7 +877,7 @@ public class Region {
 					player.sendMessage("§7Selection contains " + blockCount + " " + EvilBook.getFriendlyName(actionBlock.getMaterial()) + " blocks");
 				}
 			} else {
-				player.sendMessage("§5Incorrect command usage");
+				player.sendMessage("§5§oIncorrect command usage");
 				player.sendMessage("§d/count");
 				player.sendMessage("§d/count [blockID / blockName]");
 				player.sendMessage("§d/count [blockID / blockName] [blockData]");

@@ -107,6 +107,10 @@ public class EventListenerEntity implements Listener {
 		if (entity.getKiller() != null) {
 			Player player = entity.getKiller();
 			if (!EvilBook.isInSurvival(player)) return;
+			if (EvilBook.rareSpawnList.contains(entity.getUniqueId())) {
+				PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_RARES, 1);
+				EvilBook.rareSpawnList.remove(entity.getUniqueId());
+			}
 			switch (event.getEntityType()) {
 			case PIG: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_PIGS, 1); break;
 			case VILLAGER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_VILLAGERS, 1); break;
@@ -249,6 +253,9 @@ public class EventListenerEntity implements Listener {
 		LivingEntity spawnedEntity = event.getEntity();
 		if (!EvilBook.isInSurvival(spawnedEntity)) {
 			if (event.getEntityType() == EntityType.SHEEP) ((Sheep)spawnedEntity).setColor(DyeColor.values()[new Random().nextInt(DyeColor.values().length)]);
+			if (event.getSpawnReason() == SpawnReason.SPAWNER && spawnedEntity.getNearbyEntities(32, 32, 32).size() >= 200) {
+				event.setCancelled(true);
+			}
 		} else if (event.getSpawnReason() != SpawnReason.SPAWNER && spawnedEntity instanceof Monster) {
 			Random rand = new Random();
 			if (rand.nextInt(50) == 0) {

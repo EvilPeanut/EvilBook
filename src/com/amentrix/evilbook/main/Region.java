@@ -11,7 +11,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import com.amentrix.evilbook.sql.SQL;
+import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
+import com.amentrix.evilbook.statistics.GlobalStatistic;
+import com.amentrix.evilbook.statistics.GlobalStatistics;
 
 /**
  * Region instance
@@ -71,7 +74,13 @@ public class Region {
 	/**
 	 * @return The leave message
 	 */
-	public String getLeaveMessage(){ return this.leaveMessage; }
+	public String getLeaveMessage() { 
+		return this.leaveMessage == null ? null : this.leaveMessage.replaceAll("(?i)(\\[time\\])", EvilBook.getTime(locationA.getWorld()))
+				.replaceAll("(?i)(\\[weather\\])", EvilBook.getWeather(locationA.getBlock()))
+				.replaceAll("(?i)(\\[online\\])", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
+				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken))
+				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken));
+	}
 	
 	/**
 	 * @param leaveMessage The leave message
@@ -81,7 +90,13 @@ public class Region {
 	/**
 	 * @return The welcome message
 	 */
-	public String getWelcomeMessage(){ return this.welcomeMessage; }
+	public String getWelcomeMessage() { 
+		return this.welcomeMessage == null ? null : this.welcomeMessage.replaceAll("(?i)(\\[time\\])", EvilBook.getTime(locationA.getWorld()))
+				.replaceAll("(?i)(\\[weather\\])", EvilBook.getWeather(locationA.getBlock()))
+				.replaceAll("(?i)(\\[online\\])", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
+				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken))
+				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken));
+	}
 	
 	/**
 	 * @param welcomeMessage The welcome message
@@ -182,20 +197,39 @@ public class Region {
 	 */
 	public void saveRegion() 
 	{
-		SQL.insert(TableType.Region, "'" +
-		this.regionName.replaceAll("'", "''") + "','" + 
-		this.locationA.getWorld().getName() + "','" +
-		this.locationA.getBlockX() + "','" +
-		this.locationA.getBlockY() + "','" +
-		this.locationA.getBlockZ() + "','" +
-		this.locationB.getBlockX() + "','" +
-		this.locationB.getBlockY() + "','" +
-		this.locationB.getBlockZ() + "','" +
-		(this.isProtected() ? 1 : 0) + "','" +
-		this.ownerName + "'," +
-		(this.welcomeMessage == null ? "NULL" : "'" + this.welcomeMessage.replaceAll("'", "''") + "'") + "," +
-		(this.leaveMessage == null ? "NULL" : "'" + this.leaveMessage.replaceAll("'", "''") + "'") + "," +
-		(this.allowedPlayers == null || this.allowedPlayers.size() == 0 ? "NULL" : "'" + StringUtils.join(this.allowedPlayers, ",").replaceAll("'", "''") + "'")  + "," +
-		(this.warpName == null ? "NULL" : "'" + this.warpName.replaceAll("'", "''") + "'"));
+		if (SQL.isKeyExistant(TableType.Region, this.regionName.replaceAll("'", "''"))) {
+			StatementSet saveAgent = new StatementSet();
+			saveAgent.setProperty(TableType.Region, this.regionName, "region_name", this.regionName);
+			saveAgent.setProperty(TableType.Region, this.regionName, "world", this.locationA.getWorld().getName());
+			saveAgent.setProperty(TableType.Region, this.regionName, "x1", this.locationA.getBlockX());
+			saveAgent.setProperty(TableType.Region, this.regionName, "y1", this.locationA.getBlockY());
+			saveAgent.setProperty(TableType.Region, this.regionName, "z1", this.locationA.getBlockZ());
+			saveAgent.setProperty(TableType.Region, this.regionName, "x2", this.locationB.getBlockX());
+			saveAgent.setProperty(TableType.Region, this.regionName, "y2", this.locationB.getBlockY());
+			saveAgent.setProperty(TableType.Region, this.regionName, "z2", this.locationB.getBlockZ());
+			saveAgent.setProperty(TableType.Region, this.regionName, "protected", (this.isProtected() ? 1 : 0));
+			saveAgent.setProperty(TableType.Region, this.regionName, "player_name", this.ownerName);
+			saveAgent.setProperty(TableType.Region, this.regionName, "welcome_message", (this.welcomeMessage == null ? "NULL" : this.welcomeMessage.replaceAll("'", "''")));
+			saveAgent.setProperty(TableType.Region, this.regionName, "leave_message", (this.leaveMessage == null ? "NULL" : this.leaveMessage.replaceAll("'", "''")));
+			saveAgent.setProperty(TableType.Region, this.regionName, "allowed_players", (this.allowedPlayers == null || this.allowedPlayers.size() == 0 ? "NULL" : StringUtils.join(this.allowedPlayers, ",").replaceAll("'", "''")));
+			saveAgent.setProperty(TableType.Region, this.regionName, "warp_name", (this.warpName == null ? "NULL" : this.warpName.replaceAll("'", "''")));
+			saveAgent.execute();
+		} else {
+			SQL.insert(TableType.Region, "'" +
+			this.regionName.replaceAll("'", "''") + "','" + 
+			this.locationA.getWorld().getName() + "','" +
+			this.locationA.getBlockX() + "','" +
+			this.locationA.getBlockY() + "','" +
+			this.locationA.getBlockZ() + "','" +
+			this.locationB.getBlockX() + "','" +
+			this.locationB.getBlockY() + "','" +
+			this.locationB.getBlockZ() + "','" +
+			(this.isProtected() ? 1 : 0) + "','" +
+			this.ownerName + "'," +
+			(this.welcomeMessage == null ? "NULL" : "'" + this.welcomeMessage.replaceAll("'", "''") + "'") + "," +
+			(this.leaveMessage == null ? "NULL" : "'" + this.leaveMessage.replaceAll("'", "''") + "'") + "," +
+			(this.allowedPlayers == null || this.allowedPlayers.size() == 0 ? "NULL" : "'" + StringUtils.join(this.allowedPlayers, ",").replaceAll("'", "''") + "'")  + "," +
+			(this.warpName == null ? "NULL" : "'" + this.warpName.replaceAll("'", "''") + "'"));
+		}
 	}
 }

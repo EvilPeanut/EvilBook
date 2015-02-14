@@ -3,6 +3,21 @@ main: com.amentrix.evilbook.main.EvilBook
 version: 7.0.0
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  claim:
+    description: Claim the plot the player is currently on
+    usage: /<command>
+  plotland:
+    description: Teleport to plotland
+    usage: /<command>
+  deforest:
+    description: Remove all trees and leaves in the selected area
+    usage: /<command>
+  inbox:
+    description: View the player's inbox
+    usage: /<command>
+  feedback:
+    description: Send feedback on the server to the host
+    usage: /<command> [message]
   repair:
     description: Repair an item in the player's hand
     usage: /<command>

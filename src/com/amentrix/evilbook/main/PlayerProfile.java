@@ -3,6 +3,7 @@ package com.amentrix.evilbook.main;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -13,6 +14,7 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
@@ -47,6 +49,23 @@ public abstract class PlayerProfile {
 		return Bukkit.getServer().getPlayer(this.name);
 	}
 	
+	public void viewMailInbox() {
+		int mailCount = getMailCount();
+		Inventory inboxMenu = Bukkit.createInventory(null, (int) (9 * (Math.ceil((double)mailCount / 9))) , mailCount == 0 ? "My inbox (empty)" : "My inbox");
+		if (mailCount != 0) {
+			try (Statement statement = SQL.connection.createStatement()) {
+				try (ResultSet rs = statement.executeQuery("SELECT date_sent, player_sender, message_text FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient='" + this.name + "';")) {
+					while (rs.next()) {
+						inboxMenu.addItem(EvilBook.getBook(rs.getString("date_sent"), rs.getString("player_sender"), Arrays.asList(rs.getString("message_text"))));
+					}
+				}
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}
+		getPlayer().openInventory(inboxMenu);
+	}
+	
 	public void updateNametag(final String prefix, final String suffix)
 	{
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
@@ -60,13 +79,13 @@ public abstract class PlayerProfile {
 	
 	public Boolean isCanEditWorld(World world) {
 		if (EvilBook.isInSurvival(world) && !this.rank.isHigher(Rank.BUILDER)) {
-			getPlayer().sendMessage("§7Survival lands require Advanced Builder rank to edit");
+			getPlayer().sendMessage("§7Survival lands require Creator rank to edit");
 			return false;
 		} else if (world.getName().equals("FlatLand") && !this.rank.isHigher(Rank.BUILDER)) {
-			getPlayer().sendMessage("§7Flatlands require Advanced Builder rank to edit");
+			getPlayer().sendMessage("§7Flatlands require Creator rank to edit");
 			return false;
 		} else if (world.getName().equals("SkyLand") && !this.rank.isHigher(Rank.ARCHITECT)) {
-			getPlayer().sendMessage("§7Skylands require Architect rank to edit");
+			getPlayer().sendMessage("§7Skylands require Designer rank to edit");
 			return false;
 		}
 		return true;
@@ -108,8 +127,10 @@ public abstract class PlayerProfile {
 	public void addAchievement(Achievement achievement) {
 		if (!hasAchievement(achievement)) {
 			this.achievements.add(achievement);
-			getPlayer().sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
-			if (achievement.getReward() != null) getPlayer().sendMessage(ChatColor.GRAY + "You have unlocked the " + achievement.getReward());
+			if (achievement != Achievement.GLOBAL_COMMAND_DONATE) {
+				getPlayer().sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
+				if (achievement.getReward() != null) getPlayer().sendMessage(ChatColor.GRAY + "You have unlocked the " + achievement.getReward());
+			}
 			for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 				if (!player.getName().equals(this.name)) player.sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " " + this.name + " got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
 				player.playSound(getPlayer().getLocation(), Sound.FIREWORK_TWINKLE, 99.0F, 1.0F);

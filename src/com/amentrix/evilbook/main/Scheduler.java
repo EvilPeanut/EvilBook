@@ -34,43 +34,50 @@ public class Scheduler {
 				int random = Scheduler.this.rand.nextInt(100);
 				for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
 					Player player = profile.getPlayer();
+					/*
 					if (profile.isAway) continue;
 					if (profile.lastActionTime != 0 && System.currentTimeMillis() - profile.lastActionTime > 120000) {
 						profile.isAway = true;
-						EvilBook.broadcastPlayerMessage(player.getName(), "�5" + player.getDisplayName() + " �dhas gone AFK");
+						EvilBook.broadcastPlayerMessage(player.getName(), "§5" + player.getDisplayName() + " §dhas gone AFK");
 						profile.updatePlayerListName();
 						continue;
 					}
+					*/
 					if (profile.rank.isAdmin()) {
 						if (profile.rank.isHigher(Rank.INVESTOR)) {
-							if (random >= 0 && random < 60) {
-								player.sendMessage("�dYou can always �l/donate �dto support the server");
-							} else if (random >= 60 && random < 80) {
-								player.sendMessage("�dYou can play survival �l/survival �don Amentrix");
+							if (random >= 0 && random < 50) {
+								player.sendMessage("§c❤ §dYou can §l/donate §dto support the server §c❤");
+							} else if (random >= 50 && random < 65) {
+								player.sendMessage("§c⚔ §dYou can play survival §l/survival §c⚔");
+							} else if (random >= 65 && random < 80) {
+								player.sendMessage("§c⚒ §dYou can play minigames §l/minigame §c⚒");
 							} else {
-								player.sendMessage("�dYou can complete achievements �l/achievement �dfor rewards");
+								player.sendMessage("§c✔ §dComplete §l/achievements §dfor unique rewards §c✔");
 							}
 						} else {
 							if (random >= 0 && random < 60) {
-								player.sendMessage("�dYou can always �l/donate �dagain for a higher rank");
-							} else if (random >= 60 && random < 80) {
-								player.sendMessage("�dYou can play survival �l/survival �don Amentrix");
+								player.sendMessage("§c❤ §dYou can §l/donate §dfor a higher rank §c❤");
+							} else if (random >= 50 && random < 65) {
+								player.sendMessage("§c⚔ §dYou can play survival §l/survival §c⚔");
+							} else if (random >= 65 && random < 80) {
+								player.sendMessage("§c⚒ §dYou can play minigames §l/minigame §c⚒");
 							} else {
-								player.sendMessage("�dYou can complete achievements �l/achievement �dfor rewards");
+								player.sendMessage("§c✔ §dComplete §l/achievements §dfor unique rewards §c✔");
 							}
 						}
 						EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 20;
 						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
 					} else {
-						if (random >= 0 && random < 60) {
-							player.sendMessage("�dDonate to become an admin �l/donate");
-						} else if (random >= 60 && random < 70) {
-							player.sendMessage("�dYou can play survival �l/survival �don Amentrix");
-						} else if (random >= 70 && random < 80) {
-							player.sendMessage("�dYou can complete achievements �l/achievement �dfor rewards");
+						if (random >= 0 && random < 70) {
+							player.sendMessage("§c❤ §dDonate to become an admin §l/donate §c❤");
+						} else if (random >= 70 && random < 75) {
+							player.sendMessage("§c⚔ §dYou can play survival §l/survival §c⚔");
+						} else if (random >= 75 && random < 80) {
+							player.sendMessage("§c⚒ §dYou can play minigames §l/minigame §c⚒");
+						} else if (random >= 80 && random < 90) {
+							player.sendMessage("§c✔ §dComplete §l/achievements §dfor unique rewards §c✔");
 						} else {
-							player.sendMessage("�dEnter our competition to win Tycoon rank for free!");
-							player.sendMessage("�bhttp://www.amentrix.com/Minecraft/Competition.htm");
+							player.sendMessage("§c✉ §dYou can give feedback on the server §l/feedback §c✉");
 						}
 						EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 10;
 						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
@@ -93,22 +100,15 @@ public class Scheduler {
 					SignUtils.updateDynamicSign(dynamicSign);
 				}
 				// Emitters
-				for (Emitter emit : EvilBook.emitterList) {
-					emit.update();
-				}
+				//for (Emitter emit : EvilBook.emitterList) {
+					//emit.update();
+				//}
 				// Mob Disguise
 				for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
 					if (profile.disguise != null) {
 						profile.disguise.teleport(profile.getPlayer().getLocation());
 					}
 				}
-				/*
-				for (Player p : Scheduler.this.plugin.getServer().getOnlinePlayers()) {
-					if (EvilBook.getProfile(p).disguise != null) {
-						EvilBook.getProfile(p).disguise.teleport(player.getLocation());
-					}
-				}
-				*/
 			}
 		}, 0L, 1L);
 	}

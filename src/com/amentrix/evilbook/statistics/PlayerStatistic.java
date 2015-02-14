@@ -31,7 +31,8 @@ public enum PlayerStatistic {
 	KILLED_ZOMBIES("killed_zombies"),
 	KILLED_ENDERDRAGONS("killed_enderdragons"),
 	KILLED_WITHERS("killed_withers"),
-	KILLED_PLAYERS("killed_players");
+	KILLED_PLAYERS("killed_players"),
+	KILLED_RARES("killed_rares");
 	
 	public String columnName;
 	
