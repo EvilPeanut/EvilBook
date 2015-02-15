@@ -98,6 +98,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			setProperty("total_logins", Integer.toString(Integer.parseInt(getProperty("total_logins")) + 1));
 			setProperty("last_login", sdf.format(date));
+			setProperty("ip", getPlayer().getAddress().getAddress().getHostAddress());
 			// Supply a changelog book if the current evilbook version is different to when last logged in
 			String version = plugin.getDescription().getVersion();
 			if (getProperty("evilbook_version") == null || !getProperty("evilbook_version").equals(version)) {
@@ -165,7 +166,6 @@ public class PlayerProfileAdmin extends PlayerProfile {
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "fly_amplifier", Double.toString(this.flyAmplifier));
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "jump_amplifier", Double.toString(this.jumpAmplifier));
 		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "ip", getPlayer().getAddress().getAddress().getHostAddress());
 		profileSaveAgent.execute();
 	}
 

@@ -81,6 +81,7 @@ import org.bukkit.potion.PotionEffectType;
 //import org.bukkit.util.Vector;
 
 
+
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.main.DynamicSign;
@@ -399,13 +400,18 @@ public class EventListenerPlayer implements Listener {
 	 * Called when a player leaves the server
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
-	public void onPlayerQuit(PlayerQuitEvent event) {
-		PlayerProfile profile = EvilBook.getProfile(event.getPlayer());
-		if (profile != null) {
-			profile.saveProfile();
-			EvilBook.playerProfiles.remove(event.getPlayer().getName().toLowerCase());
-			event.setQuitMessage(ChatColor.GRAY + event.getPlayer().getName() + " has left the game");
-		}
+	public void onPlayerQuit(final PlayerQuitEvent event) {
+		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+			@Override
+			public void run() {
+				PlayerProfile profile = EvilBook.getProfile(event.getPlayer());
+				if (profile != null) {
+					profile.saveProfile();
+					EvilBook.playerProfiles.remove(event.getPlayer().getName().toLowerCase());
+				}
+			}
+		});
+		event.setQuitMessage(ChatColor.GRAY + event.getPlayer().getName() + " has left the game");
 	}
 
 	/**
