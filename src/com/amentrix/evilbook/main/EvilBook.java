@@ -3073,7 +3073,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§d/region deny [regionName] [playerName]");
 					}
 					return true;
-				} else if (args[0].equalsIgnoreCase("teleport") || args[0].equalsIgnoreCase("tp")) {
+				} else if (args[0].equalsIgnoreCase("teleport") || args[0].equalsIgnoreCase("tp") || args[0].equalsIgnoreCase("tpa")) {
 					if (args.length == 2) {
 						for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
 							player.teleport(region.getLocationA());
@@ -3879,7 +3879,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Accept Teleport Request Command
 		//
-		if (command.getName().equalsIgnoreCase("accept")) {
+		if (command.getName().equalsIgnoreCase("accept") || command.getName().equalsIgnoreCase("tpaccept")) {
 			if (getProfile(sender).teleportantName != null) {
 				if (getPlayer(getProfile(sender).teleportantName) != null) {
 					getPlayer(getProfile(sender).teleportantName).teleport(player);
@@ -3894,7 +3894,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Teleport To Player Command
 		//
-		if (command.getName().equalsIgnoreCase("tp") || command.getName().equalsIgnoreCase("teleport")) {
+		if (command.getName().equalsIgnoreCase("tp") || command.getName().equalsIgnoreCase("tpa") || command.getName().equalsIgnoreCase("teleport")) {
 			if (args.length == 1) {
 				if (getPlayer(args[0]) != null) {
 					if (!getProfile(sender).rank.isHigher(getProfile(getPlayer(args[0])).rank.getPreviousRank())) {

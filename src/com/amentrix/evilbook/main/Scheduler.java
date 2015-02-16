@@ -32,8 +32,8 @@ public class Scheduler {
 			@Override
 			public void run() {
 				int random = Scheduler.this.rand.nextInt(100);
-				for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
-					Player player = profile.getPlayer();
+				for (final PlayerProfile profile : EvilBook.playerProfiles.values()) {
+					final Player player = profile.getPlayer();
 					if (profile.isAway) continue;
 					if (profile.lastActionTime != 0 && System.currentTimeMillis() - profile.lastActionTime > 120000) {
 						profile.isAway = true;
@@ -63,8 +63,14 @@ public class Scheduler {
 								player.sendMessage("§c✔ §dComplete §l/achievements §dfor unique rewards §c✔");
 							}
 						}
-						EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 20;
-						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
+						plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+							@Override
+							public void run() {
+								EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 20;
+								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
+								profile.saveProfile();
+							}
+						});
 					} else {
 						if (random >= 0 && random < 70) {
 							player.sendMessage("§c❤ §dDonate to become an admin §l/donate §c❤");
@@ -77,10 +83,15 @@ public class Scheduler {
 						} else {
 							player.sendMessage("§c✉ §dYou can give feedback on the server §l/feedback §c✉");
 						}
-						EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 10;
-						GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
+						plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+							@Override
+							public void run() {
+								EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 10;
+								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
+								profile.saveProfile();
+							}
+						});
 					}
-					profile.saveProfile();
 				}
 			}
 		}, 0L, 6000L);

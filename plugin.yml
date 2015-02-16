@@ -333,6 +333,9 @@ commands:
   accept:
     description: Accept a teleport request
     usage: /<command>
+  tpaccept:
+    description: Accept a teleport request
+    usage: /<command>
   disguise:
     description: Disguise the player as another entity
     usage: /<command>
@@ -412,6 +415,9 @@ commands:
     description: Shock a player
     usage: /<command> [player]
   tp:
+    description: Teleport to a player
+    usage: /<command> [player]
+  tpa:
     description: Teleport to a player
     usage: /<command> [player]
   teleport:
