@@ -13,6 +13,7 @@ import com.amentrix.evilbook.eviledit.utils.Selection;
 import com.amentrix.evilbook.eviledit.utils.TreeGenerationDelegate;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.Rank;
+import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
@@ -82,6 +83,8 @@ public class Generation {
 	public static void createPyramid(Player player, String[] args, boolean hollow) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+				player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else if (args.length != 2 && args.length != 3 && args.length != 5) {
 			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
@@ -128,6 +131,8 @@ public class Generation {
 	public static void createSphere(Player player, String[] args, boolean hollow, boolean empty) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else if (args.length != 2 && args.length != 3 && args.length != 5) {
 			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
@@ -235,6 +240,8 @@ public class Generation {
 	public static void createCylinder(Player player, String[] args, boolean hollow) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else if (args.length != 3 && args.length != 4 && args.length != 5) {
 			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
@@ -307,6 +314,8 @@ public class Generation {
 	public static void createTree(Player player, String[] args) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else {
 			if (args.length == 0) {
 				TreeGenerationDelegate delegate = new TreeGenerationDelegate(player.getLocation(), player);

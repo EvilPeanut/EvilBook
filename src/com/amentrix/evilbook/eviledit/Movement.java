@@ -9,6 +9,7 @@ import org.bukkit.util.Vector;
 
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.Rank;
+import com.amentrix.evilbook.minigame.MinigameType;
 
 /**
  * EvilEdit movement methods
@@ -18,6 +19,8 @@ public class Movement {
 	public static void passPlayerThroughOpposingWall(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else {
 			Location pos = player.getLocation(), oldLocation = player.getLocation();	
 			
@@ -47,6 +50,8 @@ public class Movement {
 	public static void ascendPlayerToCeiling(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else {
 			Location pos = player.getLocation();
 			int x = pos.getBlockX();
@@ -73,6 +78,8 @@ public class Movement {
 	public static void descendPlayer(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else {
 			int y = player.getLocation().getBlockY();
 			boolean hasReachedSolid = false;
@@ -94,6 +101,8 @@ public class Movement {
 	public static void ascendPlayer(Player player, Boolean displayMessages) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else {
 			int y = player.getLocation().getBlockY();
 			boolean hasReachedSolid = false;

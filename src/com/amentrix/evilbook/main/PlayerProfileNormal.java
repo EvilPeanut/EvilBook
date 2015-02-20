@@ -70,7 +70,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 					this.money = 100;
 					SQL.insert(TableType.PlayerProfile, 
 							"'" + this.name + "','" + this.rank.toString() + "',NULL,'" + this.money + "'," +
-									"NULL,NULL,NULL,NULL,'4','0.2','0.1','0',NULL,'" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "','1',NULL,NULL,'" + newPlayer.getAddress().getAddress().getHostAddress() + "',NULL");
+									"NULL,NULL,NULL,NULL,'4','0.2','0.1','0',NULL,'" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "','1',NULL,NULL,NULL,'" + newPlayer.getAddress().getAddress().getHostAddress() + "',NULL");
 					// Create new player locations profile
 					String fields = "player_name, home_location", data = "'" + this.name + "',NULL";
 					for (World world : Bukkit.getServer().getWorlds()) {

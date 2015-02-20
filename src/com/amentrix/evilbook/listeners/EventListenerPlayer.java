@@ -12,9 +12,11 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
@@ -74,11 +76,14 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 //import org.bukkit.util.Vector;
+
+
 
 
 
@@ -91,6 +96,7 @@ import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.PlayerProfileNormal;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.main.Region;
+import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
@@ -381,7 +387,6 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		if (EvilBook.isInSurvival(event.getPlayer())) {
-			EvilBook.setSurvivalInventory(event.getPlayer());
 			if (EvilBook.isInSurvival(event.getPlayer())) event.setRespawnLocation(Bukkit.getServer().getWorld("SurvivalLand").getSpawnLocation());
 		}
 		// Regions
@@ -826,23 +831,169 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerWorldChange(PlayerChangedWorldEvent event) {
 		Player player = event.getPlayer();
-		if (EvilBook.isInSurvival(player) && !EvilBook.isInSurvival(event.getFrom())) {
-			EvilBook.setCreativeInventory(player);
-			EvilBook.getSurvivalInventory(player);
+		World from = event.getFrom();
+		World to = player.getWorld();
+		//
+		// Handle inventory saving
+		//
+		if (EvilBook.isInSurvival(from) && !EvilBook.isInSurvival(to)) {
+			// Save survival inventory
+			YamlConfiguration config = new YamlConfiguration();
+			for (int i = 0; i < player.getInventory().getSize(); i++) {
+				ItemStack item = player.getInventory().getItem(i);
+				if (item != null) config.set(Integer.toString(i), item);
+			}
+			config.set("head", player.getInventory().getHelmet());
+			config.set("chest", player.getInventory().getChestplate());
+			config.set("legs", player.getInventory().getLeggings());
+			config.set("boots", player.getInventory().getBoots());
+			config.set("health", player.getHealth());
+			config.set("hunger", player.getFoodLevel());
+			config.set("level", player.getLevel());
+			config.set("xp", player.getExp());
+			SQL.setProperty(TableType.PlayerProfile, player.getName(), "inventory_survival", config.saveToString().replaceAll("'", "''"));
+		} else if (EvilBook.isInMinigame(from, MinigameType.SKYBLOCK) && !EvilBook.isInMinigame(to, MinigameType.SKYBLOCK)) {
+			// Save skyblock inventory
+			YamlConfiguration config = new YamlConfiguration();
+			for (int i = 0; i < player.getInventory().getSize(); i++) {
+				ItemStack item = player.getInventory().getItem(i);
+				if (item != null) config.set(Integer.toString(i), item);
+			}
+			config.set("head", player.getInventory().getHelmet());
+			config.set("chest", player.getInventory().getChestplate());
+			config.set("legs", player.getInventory().getLeggings());
+			config.set("boots", player.getInventory().getBoots());
+			config.set("health", player.getHealth());
+			config.set("hunger", player.getFoodLevel());
+			config.set("level", player.getLevel());
+			config.set("xp", player.getExp());
+			SQL.setProperty(TableType.PlayerProfile, player.getName(), "inventory_skyblock", config.saveToString().replaceAll("'", "''"));
+			// Unload the minigame world if empty
+			if (from.getPlayers().size() == 0) {
+				plugin.getServer().unloadWorld(from, true);
+			}
+		} else {
+			// Save creative inventory
+			YamlConfiguration config = new YamlConfiguration();
+			for (int i = 0; i < player.getInventory().getSize(); i++) {
+				ItemStack item = player.getInventory().getItem(i);
+				if (item != null) config.set(Integer.toString(i), item);
+			}
+			config.set("head", player.getInventory().getHelmet());
+			config.set("chest", player.getInventory().getChestplate());
+			config.set("legs", player.getInventory().getLeggings());
+			config.set("boots", player.getInventory().getBoots());
+			config.set("health", player.getHealth());
+			config.set("hunger", player.getFoodLevel());
+			config.set("level", player.getLevel());
+			config.set("xp", player.getExp());
+			SQL.setProperty(TableType.PlayerProfile, player.getName(), "inventory_creative", config.saveToString().replaceAll("'", "''"));
+		}
+		//
+		// Handle inventory loading
+		//
+		if (!EvilBook.isInSurvival(from) && EvilBook.isInSurvival(to)) {
+			// Load survival inventory
 			for (PotionEffect effect : player.getActivePotionEffects()) player.removePotionEffect(effect.getType());
-			player.setGameMode(GameMode.SURVIVAL);
 			if (EvilBook.getProfile(player).isInvisible && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
 				EvilBook.getProfile(player).isInvisible = false;
 				player.sendMessage("§7Vanish isn't allowed in survival, you are now visible");
 			}
-		} else if (!EvilBook.isInSurvival(player) && EvilBook.isInSurvival(event.getFrom())) {
-			EvilBook.setSurvivalInventory(player);
-			EvilBook.getCreativeInventory(player);
+			player.getInventory().clear();
+			player.setGameMode(GameMode.SURVIVAL);
+			String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_survival");
+			if (inventory == null) {
+				player.getInventory().setHelmet(new ItemStack(Material.AIR));
+				player.getInventory().setChestplate(new ItemStack(Material.AIR));
+				player.getInventory().setLeggings(new ItemStack(Material.AIR));
+				player.getInventory().setBoots(new ItemStack(Material.AIR));
+			} else {
+				YamlConfiguration config = new YamlConfiguration();
+				try {
+					config.loadFromString(inventory);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}	
+				for (int i = 0; i < player.getInventory().getSize(); i++) {
+					if (config.get(Integer.toString(i)) != null) 
+						player.getInventory().setItem(i, (ItemStack)config.get(Integer.toString(i)));
+				}
+				player.getInventory().setHelmet((ItemStack)config.get("head"));
+				player.getInventory().setChestplate((ItemStack)config.get("chest"));
+				player.getInventory().setLeggings((ItemStack)config.get("legs"));
+				player.getInventory().setBoots((ItemStack)config.get("boots"));
+				player.setHealth((double)config.get("health"));
+				player.setFoodLevel((int)config.get("hunger"));
+				player.setLevel((int)config.get("level"));
+				player.setExp((float)config.getDouble("xp"));
+			}
+		} else if (!EvilBook.isInMinigame(from, MinigameType.SKYBLOCK) && EvilBook.isInMinigame(to, MinigameType.SKYBLOCK)) {
+			// Load skyblock inventory
+			player.sendMessage("§bWelcome to Skyblock Survival");
+			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SKYBLOCK);
+			player.getInventory().clear();
+			player.setGameMode(GameMode.SURVIVAL);
+			String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_skyblock");
+			if (inventory == null) {
+				player.getInventory().setHelmet(new ItemStack(Material.AIR));
+				player.getInventory().setChestplate(new ItemStack(Material.AIR));
+				player.getInventory().setLeggings(new ItemStack(Material.AIR));
+				player.getInventory().setBoots(new ItemStack(Material.AIR));
+			} else {
+				YamlConfiguration config = new YamlConfiguration();
+				try {
+					config.loadFromString(inventory);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}	
+				for (int i = 0; i < player.getInventory().getSize(); i++) {
+					if (config.get(Integer.toString(i)) != null) 
+						player.getInventory().setItem(i, (ItemStack)config.get(Integer.toString(i)));
+				}
+				player.getInventory().setHelmet((ItemStack)config.get("head"));
+				player.getInventory().setChestplate((ItemStack)config.get("chest"));
+				player.getInventory().setLeggings((ItemStack)config.get("legs"));
+				player.getInventory().setBoots((ItemStack)config.get("boots"));
+				player.setHealth((double)config.get("health"));
+				player.setFoodLevel((int)config.get("hunger"));
+				player.setLevel((int)config.get("level"));
+				player.setExp((float)config.getDouble("xp"));
+			}
+		} else {
+			// Load creative inventory
+			player.getInventory().clear();
 			player.setGameMode(GameMode.CREATIVE);
-		} else if (EvilBook.isInMinigame(player)) {
-			player.setGameMode(GameMode.ADVENTURE);
+			String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_creative");
+			if (inventory == null) {
+				player.getInventory().setHelmet(new ItemStack(Material.AIR));
+				player.getInventory().setChestplate(new ItemStack(Material.AIR));
+				player.getInventory().setLeggings(new ItemStack(Material.AIR));
+				player.getInventory().setBoots(new ItemStack(Material.AIR));
+			} else {
+				YamlConfiguration config = new YamlConfiguration();
+				try {
+					config.loadFromString(inventory);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}	
+				for (int i = 0; i < player.getInventory().getSize(); i++) {
+					if (config.get(Integer.toString(i)) != null) 
+						player.getInventory().setItem(i, (ItemStack)config.get(Integer.toString(i)));
+				}
+				player.getInventory().setHelmet((ItemStack)config.get("head"));
+				player.getInventory().setChestplate((ItemStack)config.get("chest"));
+				player.getInventory().setLeggings((ItemStack)config.get("legs"));
+				player.getInventory().setBoots((ItemStack)config.get("boots"));
+				player.setHealth((double)config.get("health"));
+				player.setFoodLevel((int)config.get("hunger"));
+				player.setLevel((int)config.get("level"));
+				player.setExp((float)config.getDouble("xp"));
+			}
 		}
+		//
+		// Handle world messages and achievements
+		//
 		if (player.getWorld().getName().equals("FlatLand")) {
 			player.sendMessage("§7Welcome to the Flat Lands");
 			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_FLATLAND);

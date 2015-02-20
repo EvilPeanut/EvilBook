@@ -82,6 +82,7 @@ public enum Achievement {
 	// Achievements for entering worlds
 	GLOBAL_WORLD_FLATLAND("Infinite Intentions", "Enter the flat lands", '✈', 5, null),
 	GLOBAL_WORLD_SKYLAND("Sky High", "Enter the sky lands", '✈', 5, null),
+	GLOBAL_WORLD_SKYBLOCK("SkyBlock High", "Enter the skyblock survival minigame", '✈', 5, null),
 	GLOBAL_WORLD_SURVIVALLAND("Survival Of Fittest", "Enter the survival lands", '✈', 5, null),
 	GLOBAL_WORLD_SURVIVALLANDNETHER("Nether Again", "Enter the survival nether", '✈', 5, null),
 	GLOBAL_WORLD_SURVIVALLANDTHEEND("This Is The End", "Enter the survival end", '✈', 5, null),

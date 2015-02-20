@@ -16,7 +16,7 @@ public class TowerDefenseMinigameListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		final Player player = event.getPlayer();
-		if (!EvilBook.isInMinigame(player)) return;
+		if (!EvilBook.isInMinigame(player, MinigameType.TOWER_DEFENSE)) return;
 		Block block = event.getClickedBlock();
 		//
 		// Tower placement handling

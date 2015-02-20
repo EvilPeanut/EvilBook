@@ -181,8 +181,10 @@ public abstract class PlayerProfile {
 	 */
 	public void setWorldLastPosition(Location location) {
 		String worldName = location.getWorld().getName();
-		if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
-		SQL.setProperty(TableType.PlayerLocation, this.name, worldName, location.getX() + ">" + location.getY() + ">" + location.getZ());
+		if (!worldName.contains("SkyBlock/")) {
+			if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
+			SQL.setProperty(TableType.PlayerLocation, this.name, worldName, location.getX() + ">" + location.getY() + ">" + location.getZ());
+		}
 	}
 
 	/**

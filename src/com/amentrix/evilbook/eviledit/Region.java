@@ -11,6 +11,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
 import com.amentrix.evilbook.eviledit.utils.BlockType;
 import com.amentrix.evilbook.eviledit.utils.CraftEvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
@@ -21,6 +22,7 @@ import com.amentrix.evilbook.main.Emitter;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.Rank;
+import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
@@ -215,6 +217,8 @@ public class Region {
 	public static void paste(final Player player, String[] args) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else if (args.length != 0) {
 			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/paste");
@@ -632,6 +636,8 @@ public class Region {
 	public static void regenerateChunk(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else {
 			BlockState[] logBlockStates = new BlockState[74273];
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearUndo();
@@ -904,6 +910,8 @@ public class Region {
 	public static void spawnEditWand(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7You can't spawn an EvilEdit wand in survival");
+		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+			player.sendMessage("§7You can't spawn an EvilEdit wand in skyblock survival");
 		} else {
 			player.getInventory().addItem(new ItemStack(Material.GOLD_SPADE));
 			EvilBook.getProfile(player).wandMode = EditWandMode.Selection;

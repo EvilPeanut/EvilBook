@@ -1,6 +1,7 @@
 package com.amentrix.evilbook.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -41,7 +43,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -76,6 +77,7 @@ import com.amentrix.evilbook.listeners.EventListenerPlayer;
 import com.amentrix.evilbook.listeners.EventListenerVehicle;
 import com.amentrix.evilbook.map.Maps;
 import com.amentrix.evilbook.minigame.MinigameDifficulty;
+import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.minigame.TowerDefenseMinigame;
 import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
@@ -163,6 +165,8 @@ public class EvilBook extends JavaPlugin {
 		//
 		File check = new File("plugins/EvilBook");
 		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook'");
+		check = new File("plugins/EvilBook/SkyBlock");
+		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook/SkyBlock'");
 		check = new File("plugins/EvilBook/Private worlds");
 		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook/Private worlds'");
 		//
@@ -1395,7 +1399,7 @@ public class EvilBook extends JavaPlugin {
 			int entitiesRemoved = 0;
 			for (World w : getServer().getWorlds()) {
 				entitiesRemoved += w.getEntities().size();
-				if (isInSurvival(w)) continue;
+				if (isInSurvival(w) || isInMinigame(w, MinigameType.SKYBLOCK)) continue;
 				for (Entity entity : w.getEntities()) {
 					if (entity.getType() == EntityType.PLAYER 
 							|| entity.getType() == EntityType.ARMOR_STAND
@@ -1545,7 +1549,7 @@ public class EvilBook extends JavaPlugin {
 			logInfo("This command is not supported by the console");
 			return true;
 		}
-		Player player = (Player)sender;
+		final Player player = (Player)sender;
 		//
 		// Claim Command
 		//
@@ -1605,7 +1609,7 @@ public class EvilBook extends JavaPlugin {
 		// Workbench Command
 		//
 		if (command.getName().equalsIgnoreCase("workbench")) {
-			if (!isInSurvival(player) || getProfile(player).rank.isAdmin()) {
+			if (!isInSurvival(player) || !isInMinigame(player, MinigameType.SKYBLOCK) || getProfile(player).rank.isAdmin()) {
 				player.openWorkbench(null, true);
 			} else {
 				sender.sendMessage("§dAdmin rank is required to use this command in survival");
@@ -1617,7 +1621,7 @@ public class EvilBook extends JavaPlugin {
 		// Repair Command
 		//
 		if (command.getName().equalsIgnoreCase("repair")) {
-			if (!isInSurvival(player) || getProfile(player).rank == Rank.SERVER_HOST) {
+			if (!isInSurvival(player) || !isInMinigame(player, MinigameType.SKYBLOCK) || getProfile(player).rank == Rank.SERVER_HOST) {
 				player.getItemInHand().setDurability((short) 0);
 				sender.sendMessage("§7Your item has been fully repaired");
 			} else {
@@ -1629,7 +1633,7 @@ public class EvilBook extends JavaPlugin {
 		// Feed Command
 		//
 		if (command.getName().equalsIgnoreCase("feed")) {
-			if (!isInSurvival(player) || getProfile(player).rank == Rank.SERVER_HOST) {
+			if (!isInSurvival(player) || !isInMinigame(player, MinigameType.SKYBLOCK) || getProfile(player).rank == Rank.SERVER_HOST) {
 				player.setFoodLevel(20);
 				sender.sendMessage("§7You have been fully fed");
 			} else {
@@ -1641,7 +1645,7 @@ public class EvilBook extends JavaPlugin {
 		// Heal Command
 		//
 		if (command.getName().equalsIgnoreCase("heal")) {
-			if (!isInSurvival(player) || getProfile(player).rank == Rank.SERVER_HOST) {
+			if (!isInSurvival(player) || !isInMinigame(player, MinigameType.SKYBLOCK) || getProfile(player).rank == Rank.SERVER_HOST) {
 				player.setHealth(player.getMaxHealth());
 				sender.sendMessage("§7You have been fully healed");
 			} else {
@@ -1922,8 +1926,28 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§7/minigame skyBlock");
 				sender.sendMessage("§7/minigame towerDefense");
 			} else if (args[0].equalsIgnoreCase("skyBlock")) {
-				sender.sendMessage("§cThis minigame is currently in beta testing");
-				sender.sendMessage("§cIt will be available to the public shortly");
+				File skyblockMap = new File("plugins/EvilBook/SkyBlock/" + player.getUniqueId() + "/");
+				if (skyblockMap.exists()) {
+					WorldCreator skyblockWorld = new WorldCreator("plugins/EvilBook/SkyBlock/" + player.getUniqueId());
+					getServer().createWorld(skyblockWorld);
+					player.teleport(new Location(getServer().getWorld("plugins/EvilBook/SkyBlock/" + player.getUniqueId()), 0.5, 67, -2.5));
+				} else {
+					File template = new File("plugins/EvilBook/SkyBlock/Template");
+					try {
+						FileUtils.copyDirectory(template, skyblockMap);
+						getServer().getScheduler().runTaskLater(this, new Runnable() {
+							@Override
+							public void run() {
+								WorldCreator skyblockWorld = new WorldCreator("plugins/EvilBook/SkyBlock/" + player.getUniqueId());
+								getServer().createWorld(skyblockWorld);
+								player.teleport(new Location(getServer().getWorld("plugins/EvilBook/SkyBlock/" + player.getUniqueId()), 0.5, 67, -2.5));
+							}
+						}, 1);
+					} catch (IOException e) {
+						e.printStackTrace();
+						sender.sendMessage("§cFailed to load minigame");
+					}
+				}
 			} else if (args[0].equalsIgnoreCase("towerDefense")) {
 				if (getProfile(sender).rank != Rank.SERVER_HOST) {
 					sender.sendMessage("§cThis minigame is currently in beta testing");
@@ -2667,7 +2691,7 @@ public class EvilBook extends JavaPlugin {
 		// Disguise Command
 		//
 		if (command.getName().equalsIgnoreCase("disguise")) {
-			if (isInSurvival(player) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+			if ((isInSurvival(player) || isInMinigame(player, MinigameType.SKYBLOCK)) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				sender.sendMessage("§7Mob disguise can't be used in survival");
 			} else {
 				if (args.length == 1) {
@@ -2799,7 +2823,7 @@ public class EvilBook extends JavaPlugin {
 			if (player.getInventory().getItemInHand().getType() == Material.AIR) {
 				sender.sendMessage("§7You can't wear an air helmet");
 			} else {
-				if (isInSurvival(player)) {
+				if (isInSurvival(player) || isInMinigame(player, MinigameType.SKYBLOCK)) {
 					ItemStack itemHelmet = player.getInventory().getItemInHand();
 					if (player.getInventory().getHelmet() != null) {
 						player.getInventory().addItem(player.getInventory().getHelmet());
@@ -2832,7 +2856,7 @@ public class EvilBook extends JavaPlugin {
 		// Butter command
 		//
 		if (command.getName().equalsIgnoreCase("butter")) {
-			if (isInSurvival(player)) {
+			if (isInSurvival(player) || isInMinigame(player, MinigameType.SKYBLOCK)) {
 				sender.sendMessage("§7Butter is illegal in survival");
 				return true;
 			}
@@ -3277,7 +3301,7 @@ public class EvilBook extends JavaPlugin {
 					player.setGameMode(GameMode.SURVIVAL);
 					sender.sendMessage("§7Your gamemode has been changed to survival");
 				} else if (args[0].equalsIgnoreCase("creative") || args[0].equals("1")) {
-					if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+					if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 						player.setGameMode(GameMode.CREATIVE);
 						sender.sendMessage("§7Your gamemode has been changed to creative");
 					} else {
@@ -3297,7 +3321,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage(getPlayer(args[1]).getDisplayName() + "§7's gamemode has been change to survival");
 						alert(sender.getName() + " changed " + getPlayer(args[1]).getName() + "'s gamemode to survival");
 					} else if (args[0].equalsIgnoreCase("creative") || args[0].equals("1")) {
-						if (isInSurvival(getPlayer(args[1])) == false) {
+						if (!isInSurvival(getPlayer(args[1])) && !isInMinigame(getPlayer(args[1]), MinigameType.SKYBLOCK)) {
 							getPlayer(args[1]).setGameMode(GameMode.CREATIVE);
 							getPlayer(args[1]).sendMessage(player.getDisplayName() + "§7 has changed your gamemode to creative");
 							sender.sendMessage(getPlayer(args[1]).getDisplayName() + "§7's gamemode has been change to creative");
@@ -3444,7 +3468,7 @@ public class EvilBook extends JavaPlugin {
 		// Spawn Creature Command
 		//
 		if (command.getName().equalsIgnoreCase("spawncreature") || command.getName().equalsIgnoreCase("cspawn") || command.getName().equalsIgnoreCase("mob") || command.getName().equalsIgnoreCase("spawnmob")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				if (args.length >= 1) {
 					EntityType entityType = getEntity(args[0]);
 					if (entityType != null) {
@@ -3626,7 +3650,7 @@ public class EvilBook extends JavaPlugin {
 		// Enchant Command
 		//
 		if (command.getName().equalsIgnoreCase("enchant")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				if (args.length == 2) {
 					if (isInteger(args[1])) {
 						try {
@@ -3692,7 +3716,7 @@ public class EvilBook extends JavaPlugin {
 		// Storm Command
 		//
 		if (command.getName().equalsIgnoreCase("storm")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setThundering(true);
 				player.getWorld().setStorm(true);
 				sender.sendMessage("§7World weather changed to stormy");
@@ -3705,7 +3729,7 @@ public class EvilBook extends JavaPlugin {
 		// Rain Command
 		//
 		if (command.getName().equalsIgnoreCase("rain")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setStorm(true);
 				sender.sendMessage("§7World weather changed to rainy");
 			} else {
@@ -3717,7 +3741,7 @@ public class EvilBook extends JavaPlugin {
 		// Sun Command
 		//
 		if (command.getName().equalsIgnoreCase("sun")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setThundering(false);
 				player.getWorld().setStorm(false);
 				sender.sendMessage("§7World weather changed to sunny");
@@ -3743,7 +3767,7 @@ public class EvilBook extends JavaPlugin {
 		// Time Command
 		//
 		if (command.getName().equalsIgnoreCase("time")) {
-			if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				if (args.length == 1) {
 					if (isInteger(args[0])) {
 						player.getWorld().setTime(Long.parseLong(args[0]));
@@ -3792,7 +3816,7 @@ public class EvilBook extends JavaPlugin {
 		// Butcher Command
 		//
 		if (command.getName().equalsIgnoreCase("butcher") || command.getName().equalsIgnoreCase("remove") || command.getName().equalsIgnoreCase("killall") || command.getName().equalsIgnoreCase("mobkill")) {
-			if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 				int entities = player.getWorld().getLivingEntities().size();
 				for (LivingEntity entity : player.getWorld().getLivingEntities()) if (entity.getType() == EntityType.PLAYER || (entity instanceof Tameable && ((Tameable)entity).isTamed())) entities--; else entity.remove();
 				sender.sendMessage("§5" + entities + "§d animals butchered");
@@ -3836,7 +3860,7 @@ public class EvilBook extends JavaPlugin {
 		// Dawn Time Command
 		//
 		if (command.getName().equalsIgnoreCase("dawn")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setTime(0L);
 				sender.sendMessage("§7The world time has been changed to dawn");
 			} else {
@@ -3848,7 +3872,7 @@ public class EvilBook extends JavaPlugin {
 		// Day Time Command
 		//
 		if (command.getName().equalsIgnoreCase("day")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setTime(6000L);
 				sender.sendMessage("§7The world time has been changed to day");
 			} else {
@@ -3860,7 +3884,7 @@ public class EvilBook extends JavaPlugin {
 		// Dusk Time Command
 		//
 		if (command.getName().equalsIgnoreCase("dusk")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setTime(12000L);
 				sender.sendMessage("§7The world time has been changed to dusk");
 			} else {
@@ -3872,7 +3896,7 @@ public class EvilBook extends JavaPlugin {
 		// Night Time Command
 		//
 		if (command.getName().equalsIgnoreCase("night")) {
-			if (isInSurvival(player) == false || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 				player.getWorld().setTime(18000L);
 				sender.sendMessage("§7The world time has been changed to night");
 			} else {
@@ -3901,10 +3925,11 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("tp") || command.getName().equalsIgnoreCase("tpa") || command.getName().equalsIgnoreCase("teleport")) {
 			if (args.length == 1) {
 				if (getPlayer(args[0]) != null) {
-					if (!getProfile(sender).rank.isHigher(getProfile(getPlayer(args[0])).rank.getPreviousRank())) {
+					if ((isInMinigame(getPlayer(args[0]), MinigameType.SKYBLOCK) && getProfile(sender).rank != Rank.SERVER_HOST) || !getProfile(sender).rank.isHigher(getProfile(getPlayer(args[0])).rank.getPreviousRank())) {
 						getProfile(getPlayer(args[0])).teleportantName = sender.getName();
 						getPlayer(args[0]).sendMessage("§d" + player.getDisplayName() + " §dwishes to teleport to you");
 						getPlayer(args[0]).sendMessage("§aTo accept the request type /accept");
+						if (isInMinigame(getPlayer(args[0]), MinigameType.SKYBLOCK)) sender.sendMessage(getPlayer(args[0]).getDisplayName() + "§7 is in the SkyBlock Survival minigame");
 						sender.sendMessage("§7A teleport request has been sent to " + getPlayer(args[0]).getDisplayName());
 					} else {
 						player.teleport(getPlayer(args[0]));
@@ -3941,7 +3966,7 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("tphere") || command.getName().equalsIgnoreCase("teleporthere")) {
 			if (args.length == 1) {
 				if (getPlayer(args[0]) != null) {
-					if (!isInSurvival(player) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
+					if ((!isInSurvival(getPlayer(args[0])) && !isInMinigame(getPlayer(args[0]), MinigameType.SKYBLOCK)) || getProfile(sender).rank.isHigher(Rank.ELITE)) {
 						getPlayer(args[0]).teleport(player);
 					} else {
 						sender.sendMessage("§7You can't teleport a player who is in survival");
@@ -3959,7 +3984,7 @@ public class EvilBook extends JavaPlugin {
 		// Give Command
 		//
 		if (command.getName().equalsIgnoreCase("item") || command.getName().equalsIgnoreCase("give")) {
-			if (isInSurvival(player) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+			if ((isInSurvival(player) || isInMinigame(player, MinigameType.SKYBLOCK)) && !getProfile(sender).rank.isHigher(Rank.SERVER_HOST)) {
 				sender.sendMessage("§7Spawning of items is blocked in survival");
 			} else {
 				if (args.length == 1) {
@@ -4015,40 +4040,6 @@ public class EvilBook extends JavaPlugin {
 	 */
 	public static void logWarning(String information) {
 		Logger.getLogger("Minecraft").log(Level.WARNING, "[EvilBook] " + information);
-	}
-
-	/**
-	 * Check if an entity is in the survival world
-	 * @param entity The entity execute the check with
-	 * @return If the entity is in an survival world or not
-	 */
-	public static Boolean isInSurvival(Entity entity) {
-		return entity.getWorld().getName().equals("SurvivalLand") || entity.getWorld().getName().equals("SurvivalLandNether") || entity.getWorld().getName().equals("SurvivalLandTheEnd") ? true : false;
-	}
-
-	/**
-	 * Check if a world is a survival world
-	 * @param worldName The world name to execute the check with
-	 * @return If the world is a survival world or not
-	 */
-	public static Boolean isInSurvival(World world) {
-		return world.getName().equals("SurvivalLand") || world.getName().equals("SurvivalLandNether") || world.getName().equals("SurvivalLandTheEnd") ? true : false;
-	}
-	
-	public static Boolean isInMinigame(Entity entity) {
-		return entity.getWorld().getName().equals("Minigame");
-	}
-	
-	public static Boolean isInPlotWorld(Entity entity) {
-		return entity.getWorld().getName().equals("PlotLand");
-	}
-	
-	public static Boolean isInPrivateWorld(Entity entity) {
-		return entity.getWorld().getName().contains("Private worlds") ? true : false;
-	}
-	
-	public static Boolean isInPrivateWorld(World world) {
-		return world.getName().contains("Private worlds") ? true : false;
 	}
 
 	/**
@@ -4554,142 +4545,45 @@ public class EvilBook extends JavaPlugin {
 	public static boolean isProfileExistant(String playerName) {
 		return SQL.getProperty(TableType.PlayerProfile, playerName, "player_name") != null;
 	}
-
-	/**
-	 * Gets the players creative inventory and equips it
-	 * @param player The player
-	 */
-	public static void getCreativeInventory(Player player) {	
-		// Clear inventory contents
-		player.getInventory().clear();
-		//
-		String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_creative");
-		if (inventory == null) {
-			player.getInventory().setHelmet(new ItemStack(Material.AIR));
-			player.getInventory().setChestplate(new ItemStack(Material.AIR));
-			player.getInventory().setLeggings(new ItemStack(Material.AIR));
-			player.getInventory().setBoots(new ItemStack(Material.AIR));
+	
+	public static Boolean isInSurvival(Entity entity) {
+		return entity.getWorld().getName().equals("SurvivalLand") || entity.getWorld().getName().equals("SurvivalLandNether") || entity.getWorld().getName().equals("SurvivalLandTheEnd") ? true : false;
+	}
+	
+	public static Boolean isInSurvival(World world) {
+		return world.getName().equals("SurvivalLand") || world.getName().equals("SurvivalLandNether") || world.getName().equals("SurvivalLandTheEnd") ? true : false;
+	}
+	
+	public static Boolean isInMinigame(Entity entity, MinigameType minigame) {
+		if (minigame == MinigameType.TOWER_DEFENSE) {
+			return entity.getWorld().getName().equals("Minigame");
+		} else if (minigame == MinigameType.SKYBLOCK) {
+			return entity.getWorld().getName().contains("SkyBlock/");
 		} else {
-			YamlConfiguration config = new YamlConfiguration();
-			try {
-				config.loadFromString(inventory);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}	
-			// Load inventory contents
-			for (int i = 0; i < player.getInventory().getSize(); i++) {
-				if (config.get(Integer.toString(i)) != null) 
-					player.getInventory().setItem(i, (ItemStack)config.get(Integer.toString(i)));
-			}
-			// Load armour
-			player.getInventory().setHelmet((ItemStack)config.get("head"));
-			player.getInventory().setChestplate((ItemStack)config.get("chest"));
-			player.getInventory().setLeggings((ItemStack)config.get("legs"));
-			player.getInventory().setBoots((ItemStack)config.get("boots"));
-			// Load health value
-			player.setHealth((double)config.get("health"));
-			// Load hunger value
-			player.setFoodLevel((int)config.get("hunger"));
-			// Load level and xp
-			player.setLevel((int)config.get("level"));
-			player.setExp((float)config.getDouble("xp"));
+			return false;
 		}
 	}
-
-	/**
-	 * Get the players survival inventory and equip it
-	 * @param player The player
-	 */
-	public static void getSurvivalInventory(Player player) {
-		// Clear inventory contents
-		player.getInventory().clear();
-		//
-		String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_survival");
-		if (inventory == null) {
-			player.getInventory().setHelmet(new ItemStack(Material.AIR));
-			player.getInventory().setChestplate(new ItemStack(Material.AIR));
-			player.getInventory().setLeggings(new ItemStack(Material.AIR));
-			player.getInventory().setBoots(new ItemStack(Material.AIR));
+	
+	public static Boolean isInMinigame(World world, MinigameType minigame) {
+		if (minigame == MinigameType.TOWER_DEFENSE) {
+			return world.getName().equals("Minigame");
+		} else if (minigame == MinigameType.SKYBLOCK) {
+			return world.getName().contains("SkyBlock/");
 		} else {
-			YamlConfiguration config = new YamlConfiguration();
-			try {
-				config.loadFromString(inventory);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}	
-			// Load inventory contents
-			for (int i = 0; i < player.getInventory().getSize(); i++) {
-				if (config.get(Integer.toString(i)) != null) 
-					player.getInventory().setItem(i, (ItemStack)config.get(Integer.toString(i)));
-			}
-			// Load armour
-			player.getInventory().setHelmet((ItemStack)config.get("head"));
-			player.getInventory().setChestplate((ItemStack)config.get("chest"));
-			player.getInventory().setLeggings((ItemStack)config.get("legs"));
-			player.getInventory().setBoots((ItemStack)config.get("boots"));
-			// Load health value
-			player.setHealth((double)config.get("health"));
-			// Load hunger value
-			player.setFoodLevel((int)config.get("hunger"));
-			// Load level and xp
-			player.setLevel((int)config.get("level"));
-			player.setExp((float)config.getDouble("xp"));
-			//
+			return false;
 		}
 	}
-
-	/**
-	 * Set the players creative inventory
-	 * @param player The player
-	 */
-	public static void setCreativeInventory(Player player) {
-		YamlConfiguration config = new YamlConfiguration();
-		// Save inventory contents
-		for (int i = 0; i < player.getInventory().getSize(); i++) {
-			ItemStack item = player.getInventory().getItem(i);
-			if (item != null) config.set(Integer.toString(i), item);
-		}
-		// Save armour
-		config.set("head", player.getInventory().getHelmet());
-		config.set("chest", player.getInventory().getChestplate());
-		config.set("legs", player.getInventory().getLeggings());
-		config.set("boots", player.getInventory().getBoots());
-		// Save health value
-		config.set("health", player.getHealth());
-		// Save hunger value
-		config.set("hunger", player.getFoodLevel());
-		// Save level and xp
-		config.set("level", player.getLevel());
-		config.set("xp", player.getExp());
-		//
-		SQL.setProperty(TableType.PlayerProfile, player.getName(), "inventory_creative", config.saveToString().replaceAll("'", "''"));
+	
+	public static Boolean isInPlotWorld(Entity entity) {
+		return entity.getWorld().getName().equals("PlotLand");
 	}
-
-	/**
-	 * Set the players survival inventory
-	 * @param player The player
-	 */
-	public static void setSurvivalInventory(Player player) {
-		YamlConfiguration config = new YamlConfiguration();
-		// Save inventory contents
-		for (int i = 0; i < player.getInventory().getSize(); i++) {
-			ItemStack item = player.getInventory().getItem(i);
-			if (item != null) config.set(Integer.toString(i), item);
-		}
-		// Save armour
-		config.set("head", player.getInventory().getHelmet());
-		config.set("chest", player.getInventory().getChestplate());
-		config.set("legs", player.getInventory().getLeggings());
-		config.set("boots", player.getInventory().getBoots());
-		// Save health value
-		config.set("health", player.getHealth());
-		// Save hunger value
-		config.set("hunger", player.getFoodLevel());
-		// Save level and xp
-		config.set("level", player.getLevel());
-		config.set("xp", player.getExp());
-		//
-		SQL.setProperty(TableType.PlayerProfile, player.getName(), "inventory_survival", config.saveToString().replaceAll("'", "''"));
+	
+	public static Boolean isInPrivateWorld(Entity entity) {
+		return entity.getWorld().getName().contains("Private worlds") ? true : false;
+	}
+	
+	public static Boolean isInPrivateWorld(World world) {
+		return world.getName().contains("Private worlds") ? true : false;
 	}
 
 	/**
