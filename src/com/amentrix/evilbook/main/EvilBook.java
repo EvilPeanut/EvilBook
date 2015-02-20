@@ -1919,7 +1919,11 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("minigame")) {
 			if (args.length != 1) {
 				sender.sendMessage("§5§oPlease select a minigame to play");
-				sender.sendMessage("§d/minigame towerDefense");
+				sender.sendMessage("§7/minigame skyBlock");
+				sender.sendMessage("§7/minigame towerDefense");
+			} else if (args[0].equalsIgnoreCase("skyBlock")) {
+				sender.sendMessage("§cThis minigame is currently in beta testing");
+				sender.sendMessage("§cIt will be available to the public shortly");
 			} else if (args[0].equalsIgnoreCase("towerDefense")) {
 				if (getProfile(sender).rank != Rank.SERVER_HOST) {
 					sender.sendMessage("§cThis minigame is currently in beta testing");
