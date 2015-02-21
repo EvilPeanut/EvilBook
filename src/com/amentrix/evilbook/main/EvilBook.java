@@ -1923,7 +1923,7 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("minigame")) {
 			if (args.length != 1) {
 				sender.sendMessage("§5§oPlease select a minigame to play");
-				sender.sendMessage("§7/minigame skyBlock");
+				sender.sendMessage("§d/minigame skyBlock");
 				sender.sendMessage("§7/minigame towerDefense");
 			} else if (args[0].equalsIgnoreCase("skyBlock")) {
 				File skyblockMap = new File("plugins/EvilBook/SkyBlock/" + player.getUniqueId() + "/");
@@ -1960,6 +1960,25 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§5§oPlease select a minigame to play");
 				sender.sendMessage("§7The minigame you entered doesn't exist");
 				sender.sendMessage("§d/minigame towerDefense");
+			}
+			return true;
+		}
+		//
+		// Reset Command
+		//
+		if (command.getName().equalsIgnoreCase("reset")) {
+			for (Player p : getServer().getWorld("plugins/EvilBook/SkyBlock/" + player.getUniqueId()).getPlayers()) {
+				p.teleport(getServer().getWorld(Bukkit.getWorlds().get(0).getName()).getSpawnLocation());
+			}
+			getServer().unloadWorld("plugins/EvilBook/SkyBlock/" + player.getUniqueId(), false);
+			SQL.setProperty(TableType.PlayerProfile, player.getName(), "inventory_skyblock", "NULL");
+			File skyblockMap = new File("plugins/EvilBook/SkyBlock/" + player.getUniqueId() + "/");
+			try {
+				FileUtils.deleteDirectory(skyblockMap);
+				sender.sendMessage("§7The minigame map has been reset");
+			} catch (IOException e) {
+				e.printStackTrace();
+				sender.sendMessage("§cFailed to reset minigame map");
 			}
 			return true;
 		}

@@ -75,9 +75,11 @@ public class PlayerProfileNormal extends PlayerProfile {
 					String fields = "player_name, home_location", data = "'" + this.name + "',NULL";
 					for (World world : Bukkit.getServer().getWorlds()) {
 						String worldName = world.getName();
-						if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
-						fields += ", " + worldName;
-						data += ",NULL";
+						if (!worldName.contains("SkyBlock/")) {
+							if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
+							fields += ", " + worldName;
+							data += ",NULL";
+						}
 					}
 					SQL.insert(TableType.PlayerLocation, fields, data);
 					// Statistics

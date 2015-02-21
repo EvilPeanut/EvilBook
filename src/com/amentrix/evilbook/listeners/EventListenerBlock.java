@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.block.Block;
@@ -26,11 +25,11 @@ import org.bukkit.inventory.InventoryHolder;
 
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.main.DynamicSign;
-import com.amentrix.evilbook.main.Emitter;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.Rank;
+import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -161,15 +160,15 @@ public class EventListenerBlock implements Listener {
 		Block block = event.getBlock();
 		PlayerProfile profile = EvilBook.getProfile(player);
 		if (!profile.isCanEditWorld(block.getWorld())) {
-			event.setCancelled(true);
-		} else if (event.getBlockAgainst().getState() instanceof Sign) {
 			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 			event.setCancelled(true);
-		} else if (!EvilBook.isInSurvival(player) && !profile.rank.isHigher(Rank.BUILDER) && !EvilBook.isInPrivateWorld(player) && (block.getType() == Material.ANVIL 
+		} else if (event.getBlockAgainst().getState() instanceof Sign) {
+			event.setCancelled(true);
+		} else if (!EvilBook.isInSurvival(player) && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !profile.rank.isHigher(Rank.BUILDER) && !EvilBook.isInPrivateWorld(player) && (block.getType() == Material.ANVIL 
 				|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL || block.getType() == Material.MOB_SPAWNER)) {
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "This block requires " + ChatColor.DARK_PURPLE + Rank.ADVANCED_BUILDER.getName() + " " + ChatColor.LIGHT_PURPLE + "rank or higher");
 			event.setCancelled(true);
-		} else if (!profile.rank.isAdmin() && !EvilBook.isInPrivateWorld(player) && (block.getType() == Material.WATER ||
+		} else if (!profile.rank.isAdmin() && !EvilBook.isInPrivateWorld(player) && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && (block.getType() == Material.WATER ||
 				block.getType() == Material.STATIONARY_WATER || block.getType() == Material.LAVA ||
 				block.getType() == Material.STATIONARY_LAVA || block.getType() == Material.TNT ||
 				block.getType() == Material.FIRE || block.getType() == Material.PORTAL ||
@@ -198,7 +197,7 @@ public class EventListenerBlock implements Listener {
 				}
 			}
 			// Free-player ice to packed-ice security
-			if (!profile.rank.isAdmin() && !EvilBook.isInSurvival(player) && block.getType() == Material.ICE) block.setType(Material.PACKED_ICE);
+			if (!profile.rank.isAdmin() && !EvilBook.isInSurvival(player) && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && block.getType() == Material.ICE) block.setType(Material.PACKED_ICE);
 			// Survival container protection
 			if (EvilBook.isInSurvival(player) && block.getState() instanceof InventoryHolder) {
 				EvilBook.protectContainer(block.getLocation(), player);

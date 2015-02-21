@@ -259,7 +259,7 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		Player player = event.getPlayer();
-		if (!EvilBook.getProfile(player).rank.isAdmin() && (!EvilBook.isInSurvival(player) || !EvilBook.getProfile(player).rank.isHigher(Rank.ARCHITECT))) {
+		if (!EvilBook.getProfile(player).rank.isAdmin() && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && (!EvilBook.isInSurvival(player) || !EvilBook.getProfile(player).rank.isHigher(Rank.ARCHITECT))) {
 			player.sendMessage((event.getBucket() == Material.LAVA_BUCKET ? "§dLava buckets" : "§dWater buckets") + " are an §5Admin §donly feature");
 			player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
 			event.setCancelled(true);
@@ -406,16 +406,40 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerQuit(final PlayerQuitEvent event) {
+		final Player player = event.getPlayer();
 		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 			@Override
 			public void run() {
-				PlayerProfile profile = EvilBook.getProfile(event.getPlayer());
+				PlayerProfile profile = EvilBook.getProfile(player);
 				if (profile != null) {
 					profile.saveProfile();
-					EvilBook.playerProfiles.remove(event.getPlayer().getName().toLowerCase());
+					EvilBook.playerProfiles.remove(player.getName().toLowerCase());
 				}
 			}
 		});
+		// Handle leaving minigame world
+		if (EvilBook.isInMinigame(event.getPlayer(), MinigameType.SKYBLOCK)) {
+			// Unload world
+			if (event.getPlayer().getWorld().getPlayers().size() >= 1) {
+				plugin.getServer().unloadWorld(event.getPlayer().getWorld(), true);
+			}
+			// Save skyblock inventory
+			YamlConfiguration config = new YamlConfiguration();
+			for (int i = 0; i < player.getInventory().getSize(); i++) {
+				ItemStack item = player.getInventory().getItem(i);
+				if (item != null) config.set(Integer.toString(i), item);
+			}
+			config.set("head", player.getInventory().getHelmet());
+			config.set("chest", player.getInventory().getChestplate());
+			config.set("legs", player.getInventory().getLeggings());
+			config.set("boots", player.getInventory().getBoots());
+			config.set("health", player.getHealth());
+			config.set("hunger", player.getFoodLevel());
+			config.set("level", player.getLevel());
+			config.set("xp", player.getExp());
+			SQL.setProperty(TableType.PlayerProfile, player.getName(), "inventory_skyblock", config.saveToString().replaceAll("'", "''"));
+		}
+		//
 		event.setQuitMessage(ChatColor.GRAY + event.getPlayer().getName() + " has left the game");
 	}
 
@@ -525,6 +549,7 @@ public class EventListenerPlayer implements Listener {
 		//
 		//
 		if (!EvilBook.getProfile(player).isCanEditWorld(player.getWorld())) {
+			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 			event.setCancelled(true);
 			return;
 		}
@@ -894,6 +919,7 @@ public class EventListenerPlayer implements Listener {
 		//
 		if (!EvilBook.isInSurvival(from) && EvilBook.isInSurvival(to)) {
 			// Load survival inventory
+			player.setGameMode(GameMode.SURVIVAL);
 			for (PotionEffect effect : player.getActivePotionEffects()) player.removePotionEffect(effect.getType());
 			if (EvilBook.getProfile(player).isInvisible && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
@@ -901,7 +927,6 @@ public class EventListenerPlayer implements Listener {
 				player.sendMessage("§7Vanish isn't allowed in survival, you are now visible");
 			}
 			player.getInventory().clear();
-			player.setGameMode(GameMode.SURVIVAL);
 			String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_survival");
 			if (inventory == null) {
 				player.getInventory().setHelmet(new ItemStack(Material.AIR));
@@ -930,10 +955,11 @@ public class EventListenerPlayer implements Listener {
 			}
 		} else if (!EvilBook.isInMinigame(from, MinigameType.SKYBLOCK) && EvilBook.isInMinigame(to, MinigameType.SKYBLOCK)) {
 			// Load skyblock inventory
+			player.setGameMode(GameMode.SURVIVAL);
 			player.sendMessage("§bWelcome to Skyblock Survival");
+			player.sendMessage("§7Reset the map using /reset");
 			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SKYBLOCK);
 			player.getInventory().clear();
-			player.setGameMode(GameMode.SURVIVAL);
 			String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_skyblock");
 			if (inventory == null) {
 				player.getInventory().setHelmet(new ItemStack(Material.AIR));
@@ -962,8 +988,8 @@ public class EventListenerPlayer implements Listener {
 			}
 		} else {
 			// Load creative inventory
-			player.getInventory().clear();
 			player.setGameMode(GameMode.CREATIVE);
+			player.getInventory().clear();
 			String inventory = SQL.getProperty(TableType.PlayerProfile, player.getName(), "inventory_creative");
 			if (inventory == null) {
 				player.getInventory().setHelmet(new ItemStack(Material.AIR));

@@ -3,6 +3,9 @@ main: com.amentrix.evilbook.main.EvilBook
 version: 7.0.0
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  reset:
+    description: Reset the current minigame
+    usage: /<command>
   claim:
     description: Claim the plot the player is currently on
     usage: /<command>
