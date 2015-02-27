@@ -78,6 +78,7 @@ import com.amentrix.evilbook.listeners.EventListenerVehicle;
 import com.amentrix.evilbook.map.Maps;
 import com.amentrix.evilbook.minigame.MinigameDifficulty;
 import com.amentrix.evilbook.minigame.MinigameType;
+import com.amentrix.evilbook.minigame.SkyBlockMinigameListener;
 import com.amentrix.evilbook.minigame.TowerDefenseMinigame;
 import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
@@ -155,6 +156,9 @@ public class EvilBook extends JavaPlugin {
 		pluginManager.registerEvents(new EventListenerInventory(), this);
 		pluginManager.registerEvents(new EventListenerPlayer(this), this);
 		pluginManager.registerEvents(new EventListenerVehicle(), this);
+		
+		pluginManager.registerEvents(new SkyBlockMinigameListener(this), this);
+		
 		//
 		// Maps Module
 		//
@@ -4730,8 +4734,13 @@ public class EvilBook extends JavaPlugin {
 	 */
 	public static void broadcastPlayerMessage(String playerName, String message) {
 		for (PlayerProfile profile : playerProfiles.values()) {
-			if (!profile.isMuted(playerName)) {
-				profile.getPlayer().sendMessage(message);
+			try {
+				if (!profile.isMuted(playerName)) {
+					profile.getPlayer().sendMessage(message);
+				}
+			} catch (Exception e) {
+				logSevere("Exception sending chat message to " + profile.name);
+				e.printStackTrace();
 			}
 		}
 	}
