@@ -4125,9 +4125,16 @@ public class EvilBook extends JavaPlugin {
 	 * @param alert The message
 	 */
 	public static void alert(String alert) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			PlayerProfile profile = getProfile(player);
+			if (profile.rank.isHigher(Rank.POLICE)) Bukkit.getServer().getPlayer(profile.name).sendMessage("§7§O" + alert);
+		}
+		/*
+		 * Issue with profiles not unloading?
 		for (PlayerProfile profile : playerProfiles.values()) {
 			if (profile.rank.isHigher(Rank.POLICE)) Bukkit.getServer().getPlayer(profile.name).sendMessage("§7§O" + alert);
 		}
+		*/
 	}
 
 	/**
@@ -4733,6 +4740,14 @@ public class EvilBook extends JavaPlugin {
 	 * @param message The message to broadcast
 	 */
 	public static void broadcastPlayerMessage(String playerName, String message) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			PlayerProfile profile = getProfile(player);
+			if (!profile.isMuted(playerName)) {
+				profile.getPlayer().sendMessage(message);
+			}
+		}
+		/*
+		 * Issue with profiles not unloading?
 		for (PlayerProfile profile : playerProfiles.values()) {
 			try {
 				if (!profile.isMuted(playerName)) {
@@ -4743,6 +4758,7 @@ public class EvilBook extends JavaPlugin {
 				e.printStackTrace();
 			}
 		}
+		*/
 	}
 
 	public static String getFriendlyName(Material material) {
