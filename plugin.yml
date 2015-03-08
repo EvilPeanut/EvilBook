@@ -3,6 +3,9 @@ main: com.amentrix.evilbook.main.EvilBook
 version: 7.0.0
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  skyblock:
+    description: Enter the skyblock survival minigame
+    usage: /<command>
   reset:
     description: Reset the current minigame
     usage: /<command>

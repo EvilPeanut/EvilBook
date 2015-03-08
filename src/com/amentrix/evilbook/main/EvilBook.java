@@ -1922,6 +1922,34 @@ public class EvilBook extends JavaPlugin {
 			return true;
 		}
 		//
+		// Skyblock Command
+		//
+		if (command.getName().equalsIgnoreCase("skyblock")) {
+			File skyblockMap = new File("plugins/EvilBook/SkyBlock/" + player.getUniqueId() + "/");
+			if (skyblockMap.exists()) {
+				WorldCreator skyblockWorld = new WorldCreator("plugins/EvilBook/SkyBlock/" + player.getUniqueId());
+				getServer().createWorld(skyblockWorld);
+				player.teleport(new Location(getServer().getWorld("plugins/EvilBook/SkyBlock/" + player.getUniqueId()), 0.5, 67, -2.5));
+			} else {
+				File template = new File("plugins/EvilBook/SkyBlock/Template");
+				try {
+					FileUtils.copyDirectory(template, skyblockMap);
+					getServer().getScheduler().runTaskLater(this, new Runnable() {
+						@Override
+						public void run() {
+							WorldCreator skyblockWorld = new WorldCreator("plugins/EvilBook/SkyBlock/" + player.getUniqueId());
+							getServer().createWorld(skyblockWorld);
+							player.teleport(new Location(getServer().getWorld("plugins/EvilBook/SkyBlock/" + player.getUniqueId()), 0.5, 67, -2.5));
+						}
+					}, 1);
+				} catch (IOException e) {
+					e.printStackTrace();
+					sender.sendMessage("§cFailed to load minigame");
+				}
+			}
+			return true;
+		}
+		//
 		// Minigame Command
 		//
 		if (command.getName().equalsIgnoreCase("minigame")) {
