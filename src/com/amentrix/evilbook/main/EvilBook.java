@@ -230,28 +230,6 @@ public class EvilBook extends JavaPlugin {
 			getServer().shutdown();
 			return;
 		}
-		// Player OP status check (DONT REMOVE)
-		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT player_name, rank FROM " + SQL.database + ".`evilbook-playerprofiles`;")) {
-				while (rs.next()) {
-					if (Rank.valueOf(rs.getString("rank")).isHigher(Rank.POLICE)) {
-						OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
-						if (!player.isOp()) {
-							getServer().getOfflinePlayer(rs.getString("player_name")).setOp(true);
-							logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
-						}
-					} else {
-						OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
-						if (player.isOp()) {
-							getServer().getOfflinePlayer(rs.getString("player_name")).setOp(false);
-							logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
-						}
-					}
-				}
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
 		// Make sure the SQL emitter table contains all emitter effect types
 		String prepStatement = "ALTER TABLE " + SQL.database + ".`evilbook-emitters` MODIFY effect ENUM(";
 		for (EmitterEffect effect : EmitterEffect.values()) prepStatement += "'" + effect.name() + "',";
@@ -951,7 +929,39 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§d/drwatson respring");
 				sender.sendMessage("§d/drwatson memstat");
 				sender.sendMessage("§d/drwatson liststat");
+				sender.sendMessage("§d/drwatson opfix");
 				sender.sendMessage("§d/drwatson worldinfo [worldName]");
+			} else if (args[0].equalsIgnoreCase("opfix")) {
+				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+					@Override
+					public void run() {
+						try (Statement statement = SQL.connection.createStatement()) {
+							try (ResultSet rs = statement.executeQuery("SELECT player_name, rank FROM " + SQL.database + ".`evilbook-playerprofiles`;")) {
+								while (rs.next()) {
+									if (Rank.valueOf(rs.getString("rank")).isHigher(Rank.POLICE)) {
+										OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
+										if (!player.isOp()) {
+											getServer().getOfflinePlayer(rs.getString("player_name")).setOp(true);
+											logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
+										} else {
+											logInfo("Passed player " + rs.getString("player_name") + "'s OP status");
+										}
+									} else {
+										OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
+										if (player.isOp()) {
+											getServer().getOfflinePlayer(rs.getString("player_name")).setOp(false);
+											logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
+										} else {
+											logInfo("Passed player " + rs.getString("player_name") + "'s OP status");
+										}
+									}
+								}
+							}
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+					}
+				});
 			} else if (args[0].equalsIgnoreCase("liststat")) {
 				sender.sendMessage("§5Lists Size Information");
 				sender.sendMessage("§dPlayer Profiles = " + playerProfiles.size());
