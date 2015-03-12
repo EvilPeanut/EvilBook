@@ -155,10 +155,8 @@ public class EvilBook extends JavaPlugin {
 		pluginManager.registerEvents(new EventListenerEntity(), this);
 		pluginManager.registerEvents(new EventListenerInventory(), this);
 		pluginManager.registerEvents(new EventListenerPlayer(this), this);
-		pluginManager.registerEvents(new EventListenerVehicle(), this);
-		
+		pluginManager.registerEvents(new EventListenerVehicle(), this);		
 		pluginManager.registerEvents(new SkyBlockMinigameListener(this), this);
-		
 		//
 		// Maps Module
 		//
@@ -231,6 +229,28 @@ public class EvilBook extends JavaPlugin {
 			logSevere("Failed to load MySQL module");
 			getServer().shutdown();
 			return;
+		}
+		// Player OP status check (DONT REMOVE)
+		try (Statement statement = SQL.connection.createStatement()) {
+			try (ResultSet rs = statement.executeQuery("SELECT player_name, rank FROM " + SQL.database + ".`evilbook-playerprofiles`;")) {
+				while (rs.next()) {
+					if (Rank.valueOf(rs.getString("rank")).isHigher(Rank.POLICE)) {
+						OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
+						if (!player.isOp()) {
+							getServer().getOfflinePlayer(rs.getString("player_name")).setOp(true);
+							logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
+						}
+					} else {
+						OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
+						if (player.isOp()) {
+							getServer().getOfflinePlayer(rs.getString("player_name")).setOp(false);
+							logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
+						}
+					}
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
 		}
 		// Make sure the SQL emitter table contains all emitter effect types
 		String prepStatement = "ALTER TABLE " + SQL.database + ".`evilbook-emitters` MODIFY effect ENUM(";
