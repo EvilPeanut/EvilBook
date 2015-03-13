@@ -87,7 +87,6 @@ import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
 import com.amentrix.evilbook.statistics.PlayerStatistics;
-import com.amentrix.evilbook.utils.UUIDFetcher;
 import com.amentrix.evilbook.worldgen.PlotlandGenerator;
 import com.amentrix.evilbook.worldgen.SkylandGenerator;
 
@@ -239,8 +238,6 @@ public class EvilBook extends JavaPlugin {
 				try (ResultSet rs = statement.executeQuery("SELECT player_owner FROM " + SQL.database + ".`evilbook-commandblock`;")) {
 					while (rs.next()) {
 						try (Statement setStatement = SQL.connection.createStatement()) {
-							//UUIDFetcher fetcher = new UUIDFetcher(Arrays.asList(rs.getString("player_owner")));
-							//fetcher.getUUIDOf(rs.getString("player_owner")).toString()
 							OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_owner"));
 							setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET player_UUID='" + player.getUniqueId().toString() + "' WHERE player_owner='" + rs.getString("player_owner") + "';");
 						} catch (Exception e) {
@@ -253,6 +250,27 @@ public class EvilBook extends JavaPlugin {
 				exception.printStackTrace();
 			}
 			logInfo("Updated command block protection database!");
+		}
+		// evilbook-mail player name to UUID converter
+		if (SQL.isColumnExistant(TableType.Mail, "player_recipient")) {
+			logInfo("Updating mail database...");
+			SQL.insertNullColumn(TableType.Mail, "player_recipient_UUID CHAR(36)");
+			try (Statement statement = SQL.connection.createStatement()) {
+				try (ResultSet rs = statement.executeQuery("SELECT player_recipient FROM " + SQL.database + ".`evilbook-mail`;")) {
+					while (rs.next()) {
+						try (Statement setStatement = SQL.connection.createStatement()) {
+							OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_recipient"));
+							setStatement.execute("UPDATE " + SQL.database + "." + TableType.Mail.tableName + " SET player_recipient_UUID='" + player.getUniqueId().toString() + "' WHERE player_recipient='" + rs.getString("player_recipient") + "';");
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				SQL.deleteColumn(TableType.Mail, "player_recipient");
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+			logInfo("Updated mail database!");
 		}
 		// Make sure the SQL emitter table contains all emitter effect types
 		String prepStatement = "ALTER TABLE " + SQL.database + ".`evilbook-emitters` MODIFY effect ENUM(";
@@ -1373,7 +1391,7 @@ public class EvilBook extends JavaPlugin {
 					if (getPlayer(args[0]) != null) {
 						getProfile(args[0]).rank = getProfile(args[0]).rank.getPreviousRank();
 						// Alert owner that player has been demoted via mail
-						if (!sender.getName().equals(EvilBook.config.getProperty("server_host"))) SQL.insert(TableType.Mail, "'Server Report','" + EvilBook.config.getProperty("server_host") + "','" + sender.getName() + " has demoted " + args[0] + " to " + getProfile(args[0]).rank.getName() + " rank','" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "'");
+						if (!sender.getName().equals(EvilBook.config.getProperty("server_host"))) SQL.insert(TableType.Mail, "'Server Report','" + getServer().getOfflinePlayer(EvilBook.config.getProperty("server_host")).getUniqueId().toString() + "','" + sender.getName() + " has demoted " + args[0] + " to " + getProfile(args[0]).rank.getName() + " rank','" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "'");
 						//
 						if (getProfile(args[0]).rank == Rank.POLICE) { 
 							getServer().getOfflinePlayer(args[0]).setOp(false);
@@ -1654,7 +1672,7 @@ public class EvilBook extends JavaPlugin {
 			if (args.length > 0) {
 				StringBuilder message = new StringBuilder();
 				for (int i = 0; i < args.length; i++) message.append(" " + args[i].replaceAll("'", "''"));
-				SQL.insert(TableType.Mail, "'" + sender.getName() + "','" + EvilBook.config.getProperty("server_host") + "','" + message + "','" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "'");
+				SQL.insert(TableType.Mail, "'" + player.getName() + "','" + getServer().getOfflinePlayer(EvilBook.config.getProperty("server_host")).getUniqueId().toString() + "','" + message + "','" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "'");
 				sender.sendMessage("§7Message sent to the server host");
 				sender.sendMessage("§7Thank you for your feedback");
 			} else {
@@ -1956,7 +1974,7 @@ public class EvilBook extends JavaPlugin {
 					if (isProfileExistant(args[1])) {
 						StringBuilder message = new StringBuilder();
 						for (int i = 2; i < args.length; i++) message.append(" " + args[i].replaceAll("'", "''"));
-						SQL.insert(TableType.Mail, "'" + sender.getName() + "','" + getServer().getOfflinePlayer(args[1]).getName() + "','" + message + "','" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "'");
+						SQL.insert(TableType.Mail, "'" + player.getName() + "','" + getServer().getOfflinePlayer(args[1]).getUniqueId().toString() + "','" + message + "','" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "'");
 						sender.sendMessage("§7Message sent");
 					} else {
 						sender.sendMessage("§7The recipient player doesn't exist");

@@ -54,7 +54,7 @@ public abstract class PlayerProfile {
 		Inventory inboxMenu = Bukkit.createInventory(null, (int) (9 * (Math.ceil((double)mailCount / 9))) , mailCount == 0 ? "My inbox (empty)" : "My inbox");
 		if (mailCount != 0) {
 			try (Statement statement = SQL.connection.createStatement()) {
-				try (ResultSet rs = statement.executeQuery("SELECT date_sent, player_sender, message_text FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient='" + this.name + "';")) {
+				try (ResultSet rs = statement.executeQuery("SELECT date_sent, player_sender, message_text FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient_UUID='" + getPlayer().getUniqueId().toString() + "';")) {
 					while (rs.next()) {
 						inboxMenu.addItem(EvilBook.getBook(rs.getString("date_sent"), rs.getString("player_sender"), Arrays.asList(rs.getString("message_text"))));
 					}
@@ -93,7 +93,7 @@ public abstract class PlayerProfile {
 	
 	public int getMailCount() {
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient='" + this.name + "';")) {
+			try (ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient_UUID='" + getPlayer().getUniqueId().toString() + "';")) {
 				while (rs.next()) {
 					return rs.getInt(1);
 				}

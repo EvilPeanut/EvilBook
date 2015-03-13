@@ -68,8 +68,8 @@ public class EventListenerInventory implements Listener {
 			if (event.getClickedInventory().getTitle().equals("My inbox") && event.getCurrentItem().getType() == Material.WRITTEN_BOOK) {
 				Player player = (Player)event.getWhoClicked();
 				BookMeta book = (BookMeta) event.getCurrentItem().getItemMeta();
-				try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM " + SQL.database + ".`evilbook-mail` WHERE player_recipient=? AND message_text=?")) {
-					statement.setString(1, player.getName());
+				try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM " + SQL.database + ".`evilbook-mail` WHERE player_recipient_UUID=? AND message_text=?")) {
+					statement.setString(1, player.getUniqueId().toString());
 					statement.setString(2, book.getPage(1));
 					statement.executeUpdate();
 				} catch (Exception exception) {
