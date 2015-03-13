@@ -87,6 +87,7 @@ import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
 import com.amentrix.evilbook.statistics.PlayerStatistics;
+import com.amentrix.evilbook.utils.UUIDFetcher;
 import com.amentrix.evilbook.worldgen.PlotlandGenerator;
 import com.amentrix.evilbook.worldgen.SkylandGenerator;
 
@@ -229,6 +230,29 @@ public class EvilBook extends JavaPlugin {
 			logSevere("Failed to load MySQL module");
 			getServer().shutdown();
 			return;
+		}
+		// evilbook-commandblock player name to UUID converter
+		if (SQL.isColumnExistant(TableType.CommandBlock, "player_owner")) {
+			logInfo("Updating command block protection database...");
+			SQL.insertNullColumn(TableType.CommandBlock, "player_UUID CHAR(36)");
+			try (Statement statement = SQL.connection.createStatement()) {
+				try (ResultSet rs = statement.executeQuery("SELECT player_owner FROM " + SQL.database + ".`evilbook-commandblock`;")) {
+					while (rs.next()) {
+						try (Statement setStatement = SQL.connection.createStatement()) {
+							//UUIDFetcher fetcher = new UUIDFetcher(Arrays.asList(rs.getString("player_owner")));
+							//fetcher.getUUIDOf(rs.getString("player_owner")).toString()
+							OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_owner"));
+							setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET player_UUID='" + player.getUniqueId().toString() + "' WHERE player_owner='" + rs.getString("player_owner") + "';");
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				SQL.deleteColumn(TableType.CommandBlock, "player_owner");
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+			logInfo("Updated command block protection database!");
 		}
 		// Make sure the SQL emitter table contains all emitter effect types
 		String prepStatement = "ALTER TABLE " + SQL.database + ".`evilbook-emitters` MODIFY effect ENUM(";

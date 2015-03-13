@@ -139,9 +139,9 @@ public class EventListenerBlock implements Listener {
 						}
 					}
 					// Command block logging
-					if (block.getType() == Material.COMMAND && SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
+					if (block.getType() == Material.COMMAND && SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_uuid='" + player.getUniqueId().toString() + 
 							"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") != null) {
-						SQL.deleteRowFromCriteria(TableType.CommandBlock, "player_owner='" + player.getName() + 
+						SQL.deleteRowFromCriteria(TableType.CommandBlock, "player_uuid='" + player.getUniqueId().toString() + 
 								"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
 					}
 					// Statistics
