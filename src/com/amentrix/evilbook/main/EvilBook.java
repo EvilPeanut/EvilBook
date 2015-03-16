@@ -4110,7 +4110,7 @@ public class EvilBook extends JavaPlugin {
 		// Give Command
 		//
 		if (command.getName().equalsIgnoreCase("item") || command.getName().equalsIgnoreCase("give")) {
-			if ((isInSurvival(player) || isInMinigame(player, MinigameType.SKYBLOCK)) && !getProfile(sender).rank.isHigher(Rank.ADMIN_STAFF)) {
+			if ((isInSurvival(player) || isInMinigame(player, MinigameType.SKYBLOCK)) && getProfile(sender).rank != Rank.SERVER_HOST) {
 				sender.sendMessage("§7Spawning items is blocked in survival");
 			} else {
 				if (args.length == 1) {
