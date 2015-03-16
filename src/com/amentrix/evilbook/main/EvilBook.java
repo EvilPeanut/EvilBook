@@ -4407,29 +4407,6 @@ public class EvilBook extends JavaPlugin {
 	}
 
 	/**
-	 * Returns a colorized string
-	 * @param string The string to colorize
-	 * @return The colorized string
-	 */
-	public static String colorizeString(String string) {
-		String name = "";
-		int color = 0;
-		for (char c : string.toCharArray()) {
-			if (color == 0) name += "§a" + c;
-			if (color == 1) name += "§b" + c;
-			if (color == 2) name += "§c" + c;
-			if (color == 3) name += "§d" + c;
-			if (color == 4) {
-				name += "§e" + c;
-				color = 0;
-			} else {
-				color++;
-			}
-		}
-		return name;
-	}
-
-	/**
 	 * Returns an itemstack of a book
 	 * @param title The title of the book
 	 * @param author The author of the book
