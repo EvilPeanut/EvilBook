@@ -4067,10 +4067,7 @@ public class EvilBook extends JavaPlugin {
 					destination.setY(Double.valueOf(args[1]));
 					destination.setZ(Double.valueOf(args[2]));
 					player.teleport(destination);
-					sender.sendMessage("§aTeleported to co-ordinates");
-					sender.sendMessage("§dX: " + args[0]);
-					sender.sendMessage("§dY: " + args[1]);
-					sender.sendMessage("§dZ: " + args[2]);
+					sender.sendMessage("§7Teleported to " + args[0] + ", " + args[1] + ", " + args[2]);
 				} else {
 					sender.sendMessage("§5§oIncorrect command usage");
 					sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]");
