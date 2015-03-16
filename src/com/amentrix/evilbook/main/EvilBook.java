@@ -83,6 +83,7 @@ import com.amentrix.evilbook.minigame.TowerDefenseMinigame;
 import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
+import com.amentrix.evilbook.statistics.CommandStatistics;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
@@ -918,6 +919,7 @@ public class EvilBook extends JavaPlugin {
 		// Statistics
 		//
 		GlobalStatistics.incrementStatistic(GlobalStatistic.CommandsExecuted, 1);
+		CommandStatistics.increment(command.getName());
 		//
 		// Alt Command
 		//
