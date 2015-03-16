@@ -3954,7 +3954,11 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("hug")) {
 			if (args.length >= 1) {
-				broadcastPlayerMessage(sender.getName(), player.getDisplayName() + " hugs " + args[0]);
+				if (getPlayer(args[0]) != null) {
+					broadcastPlayerMessage(sender.getName(), player.getDisplayName() + " hugs " + getPlayer(args[0]).getDisplayName());
+				} else {
+					broadcastPlayerMessage(sender.getName(), player.getDisplayName() + " hugs " + args[0]);
+				}
 			} else {
 				broadcastPlayerMessage(sender.getName(), player.getDisplayName() + " hugs themselves");
 			}
@@ -3965,7 +3969,11 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("kiss")) {
 			if (args.length >= 1) {
-				broadcastPlayerMessage(sender.getName(), player.getDisplayName() + " kisses " + args[0]);
+				if (getPlayer(args[0]) != null) {
+					broadcastPlayerMessage(sender.getName(), player.getDisplayName() + " kisses " + getPlayer(args[0]).getDisplayName());
+				} else {
+					broadcastPlayerMessage(sender.getName(), player.getDisplayName() + " kisses " + args[0]);
+				}
 			} else {
 				broadcastPlayerMessage(sender.getName(), player.getDisplayName() + " kisses themselves");
 			}
