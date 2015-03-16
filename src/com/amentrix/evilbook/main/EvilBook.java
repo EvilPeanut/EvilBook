@@ -4108,7 +4108,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("item") || command.getName().equalsIgnoreCase("give")) {
 			if ((isInSurvival(player) || isInMinigame(player, MinigameType.SKYBLOCK)) && !getProfile(sender).rank.isHigher(Rank.ADMIN_STAFF)) {
-				sender.sendMessage("§7Spawning of items is blocked in survival");
+				sender.sendMessage("§7Spawning items is blocked in survival");
 			} else {
 				if (args.length == 1) {
 					Material material = getBlockMaterial(args[0]);
@@ -4119,15 +4119,21 @@ public class EvilBook extends JavaPlugin {
 					}
 				} else if (args.length == 2) {
 					Material material = getBlockMaterial(args[0]);
-					if (material == null || !isInteger(args[1])) {
-						player.sendMessage("§7Please enter a valid name or ID and amount");
+					if (material == null) {
+						player.sendMessage("§7Please enter a valid name or ID");
+					} else if (!isInteger(args[1])) {
+						player.sendMessage("§7Please enter a valid amount");
 					} else {
 						player.getInventory().addItem(new ItemStack(material, Integer.parseInt(args[1])));
 					}
 				} else if (args.length == 3) {
 					Material material = getBlockMaterial(args[0]);
-					if (material == null || !isInteger(args[1]) || !isByte(args[2])) {
-						player.sendMessage("§7Please enter a valid name or ID, amount and data");
+					if (material == null) {
+						player.sendMessage("§7Please enter a valid name or ID");
+					} else if (!isInteger(args[1])) {
+						player.sendMessage("§7Please enter a valid amount");
+					} else if (!isByte(args[2])) {
+						player.sendMessage("§7Please enter a valid data value");
 					} else {
 						player.getInventory().addItem(new ItemStack(material, Integer.parseInt(args[1]), Byte.parseByte(args[2])));
 					}
