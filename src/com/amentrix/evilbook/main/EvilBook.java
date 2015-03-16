@@ -3925,7 +3925,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("setspawn")) {
 			player.getWorld().setSpawnLocation(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-			sender.sendMessage("§7The world spawn has been moved");
+			sender.sendMessage("§7World spawn set to " + player.getLocation().getBlockX() + ", " + player.getLocation().getBlockY() + ", " + player.getLocation().getBlockZ());
 			return true;
 		}
 		//
