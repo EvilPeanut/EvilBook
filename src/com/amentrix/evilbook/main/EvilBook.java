@@ -4907,6 +4907,8 @@ public class EvilBook extends JavaPlugin {
 		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_ZOMBIE_II)) titles += "Zombie ";
 		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_RARE_III)) titles += "Rare ";
 		if (getProfile(player).hasAchievement(Achievement.SURVIVAL_KILL_RARE_IV)) titles += "Legendary ";
+		if (getProfile(player).hasAchievement(Achievement.SKYBLOCK_CRAFT_BED)) titles += "Sandman ";
+		if (getProfile(player).hasAchievement(Achievement.SKYBLOCK_CRAFT_JUKEBOX)) titles += "Juke ";
 		return titles;
 	}
 	

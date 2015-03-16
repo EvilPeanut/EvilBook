@@ -5,6 +5,14 @@ package com.amentrix.evilbook.achievement;
  * @author Reece Aaron Lecrivain
  */
 public enum Achievement {
+	// Achievements for doing tasks in skyblock minigame
+	SKYBLOCK_CRAFT_STONEBUTTON("Skyblock Button Pusher", "Craft a stone button in skyblock survival", '✰', 5, null),
+	SKYBLOCK_CRAFT_BOAT("Skyblock Boatman", "Craft a boat in skyblock survival", '✰', 10, null),
+	SKYBLOCK_CRAFT_DOOR("Skyblock Doorman", "Craft a wooden door in skyblock survival", '✰', 10, null),
+	SKYBLOCK_CRAFT_BOW("Skyblock Bowman", "Craft a bow in skyblock survival", '✰', 20, null),
+	SKYBLOCK_CRAFT_ROD("Skyblock Fisherman", "Craft a fishing rod in skyblock survival", '✰', 20, null),
+	SKYBLOCK_CRAFT_BED("Skyblock Sandman", "Craft a bed in skyblock survival", '✰', 20, "Sandman title"),
+	SKYBLOCK_CRAFT_JUKEBOX("Skyblock Rave", "Craft a jukebox in skyblock survival", '✰', 25, "Juke title"),
 	// Achievements for mining in survival
 	SURVIVAL_MINE_COAL("Coal Miner", "Mine coal in survival", '⚒', 5, null),
 	SURVIVAL_MINE_COAL_II("Coal Miner II", "Mine 50 coal in survival", '⚒', 10, null),
