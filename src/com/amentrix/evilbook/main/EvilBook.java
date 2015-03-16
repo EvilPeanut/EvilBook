@@ -3800,8 +3800,6 @@ public class EvilBook extends JavaPlugin {
 							if (getEnchantment(args[0].toUpperCase()) == Enchantment.SILK_TOUCH) sender.sendMessage("§7Item enchanted with silk touch");
 							if (getEnchantment(args[0].toUpperCase()) == Enchantment.THORNS) sender.sendMessage("§7Item enchanted with thorns " + toRomanNumerals(args[1]));
 							if (getEnchantment(args[0].toUpperCase()) == Enchantment.WATER_WORKER) sender.sendMessage("§7Item enchanted with aqua affinity");
-						} catch (RuntimeException exception) {
-							throw exception;
 						} catch (Exception exception) {
 							if (getEnchantment(args[0].toUpperCase()) == null) {
 								sender.sendMessage("§7This enchantment doesn't exist");
