@@ -25,8 +25,7 @@ import com.amentrix.evilbook.sql.TableType;
  * @author Reece Aaron Lecrivain
  */
 public class PlayerProfileAdmin extends PlayerProfile {
-	public String nameAlias, customRankPrefix = "§0[§6Custom§0]", customRankColor = "6";
-	public Boolean isLogging = false;
+	String nameAlias, customRankPrefix = "§0[§6Custom§0]", customRankColor = "6";
 	public Clipboard clipboard = new Clipboard();
 
 	/**

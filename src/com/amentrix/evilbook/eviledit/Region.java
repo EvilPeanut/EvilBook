@@ -29,8 +29,8 @@ import com.amentrix.evilbook.statistics.GlobalStatistic;
  * EvilEdit region methods
  * @author Reece Aaron Lecrivain
  */
-public class Region {
-	public static void deforestArea(Player player, String[] args) {
+class Region {
+	static void deforestArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -55,7 +55,7 @@ public class Region {
 		}
 	}
 	
-	public static void flipArea(Player player, String[] args) {
+	static void flipArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 || (!args[0].equalsIgnoreCase("x") && !args[0].equalsIgnoreCase("y") && !args[0].equalsIgnoreCase("z"))) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -85,7 +85,7 @@ public class Region {
 		}
 	}
 	
-	public static void moveArea(Player player, String[] args) {
+	static void moveArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 || !EvilBook.isInteger(args[0]) || (!args[1].equalsIgnoreCase("x") && !args[1].equalsIgnoreCase("y") && !args[1].equalsIgnoreCase("z"))) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -139,7 +139,7 @@ public class Region {
 		}
 	}
 	
-	public static void undoEdit(Player player) {
+	static void undoEdit(Player player) {
 		if (((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getUndo().size() == 0) {
 			player.sendMessage("§7You have no EvilEdit actions to undo");
 		} else {
@@ -169,7 +169,7 @@ public class Region {
 		}
 	}
 	
-	public static void drainArea(Player player, String[] args) {
+	static void drainArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -193,7 +193,7 @@ public class Region {
 		}
 	}	
 	
-	public static void greenArea(Player player) {
+	static void greenArea(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
@@ -214,7 +214,7 @@ public class Region {
 		}
 	}	
 
-	public static void paste(final Player player, String[] args) {
+	static void paste(final Player player, String[] args) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
@@ -320,7 +320,7 @@ public class Region {
 		}
 	}
 
-	public static void copy(final Player player, String[] args) {
+	static void copy(final Player player, String[] args) {
 		final Selection selection = new Selection(player);
 		if (args.length != 0) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -396,7 +396,7 @@ public class Region {
 		}
 	}
 	
-	public static void cut(Player player, String[] args) {
+	static void cut(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -440,7 +440,7 @@ public class Region {
 		}
 	}
 
-	public static void randomDeleteArea(Player player, String[] args) {
+	static void randomDeleteArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length > 2) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -473,7 +473,7 @@ public class Region {
 		}
 	}
 
-	public static void deleteArea(Player player, String[] args) {
+	static void deleteArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length > 2) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -505,7 +505,7 @@ public class Region {
 		}
 	}
 
-	public static void randomReplaceArea(Player player, String[] args) {
+	static void randomReplaceArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 && args.length != 4) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -539,7 +539,7 @@ public class Region {
 		}
 	}
 
-	public static void randomFillArea(Player player, String[] args) {
+	static void randomFillArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -570,7 +570,7 @@ public class Region {
 		}
 	}
 	
-	public static void fillArea(Player player, String[] args) {
+	static void fillArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -599,7 +599,7 @@ public class Region {
 		}
 	}
 
-	public static void setBiome(Player player, String[] args) {
+	static void setBiome(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -633,7 +633,7 @@ public class Region {
 		}
 	}
 	
-	public static void regenerateChunk(Player player) {
+	static void regenerateChunk(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
@@ -676,7 +676,7 @@ public class Region {
 		}
 	}
 	
-	public static void hollowArea(Player player, String[] args) {
+	static void hollowArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -700,7 +700,7 @@ public class Region {
 		}
 	}
 
-	public static void outlineArea(Player player, String[] args) {
+	static void outlineArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -731,7 +731,7 @@ public class Region {
 		}
 	}
 
-	public static void wallArea(Player player, String[] args) {
+	static void wallArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -762,7 +762,7 @@ public class Region {
 		}
 	}
 
-	public static void thawSnowArea(Player player) {
+	static void thawSnowArea(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
@@ -781,7 +781,7 @@ public class Region {
 		}
 	}
 	
-	public static void overlaySnowArea(Player player) {
+	static void overlaySnowArea(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
@@ -798,7 +798,7 @@ public class Region {
 		}
 	}
 	
-	public static void overlayArea(Player player, String[] args) {
+	static void overlayArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -825,7 +825,7 @@ public class Region {
 		}
 	}
 	
-	public static void replaceArea(Player player, String[] args) {
+	static void replaceArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 && args.length != 4) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -856,7 +856,7 @@ public class Region {
 		}
 	}
 
-	public static void count(Player player, String[] args) {
+	static void count(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
 			if (args.length == 0 || args.length == 1 || args.length == 2) {
@@ -891,23 +891,23 @@ public class Region {
 		}
 	}
 	
-	public static void size(Player player) {
+	static void size(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) player.sendMessage("§7Selection size of " + (selection.getTopXBlock() + 1 - selection.getBottomXBlock()) + "x" + (selection.getTopYBlock() + 1 - selection.getBottomYBlock()) + "x" + (selection.getTopZBlock() + 1 - selection.getBottomZBlock()) + " blocks");
 	}
 	
-	public static void deselectEditLocations(Player player) {
+	static void deselectEditLocations(Player player) {
 		EvilBook.getProfile(player).actionLocationA = null;
 		EvilBook.getProfile(player).actionLocationB = null;
 		player.sendMessage("§7You have deselected your EvilEdit selection");
 	}
 	
-	public static void toggleEditWand(Player player) {
+	static void toggleEditWand(Player player) {
 		EvilBook.getProfile(player).wandMode = EvilBook.getProfile(player).wandMode == EditWandMode.None ? EditWandMode.Selection : EditWandMode.None;
 		player.sendMessage("§7Edit wand " + (EvilBook.getProfile(player).wandMode == EditWandMode.None ? "disabled" : "in selection mode"));
 	}
 
-	public static void spawnEditWand(Player player) {
+	static void spawnEditWand(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7You can't spawn an EvilEdit wand in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {

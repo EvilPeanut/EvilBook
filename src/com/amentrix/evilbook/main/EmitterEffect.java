@@ -4,7 +4,7 @@ package com.amentrix.evilbook.main;
  * Emitter effect enumerator
  * @author Reece Aaron Lecrivain
  */
-public enum EmitterEffect {
+enum EmitterEffect {
 	Smoke(Rank.ARCHITECT),
 	LavaPop(Rank.ARCHITECT),
 	LavaDrip(Rank.ARCHITECT),
@@ -31,14 +31,14 @@ public enum EmitterEffect {
 		this.minimumRank = rank;
 	}
 	
-	public static boolean contains(String test) {
+	static boolean contains(String test) {
 	    for (EmitterEffect e : EmitterEffect.values()) {
 	        if (e.name().equalsIgnoreCase(test)) return true;
 	    }
 	    return false;
 	}
 	
-	public static EmitterEffect parse(String test) {
+	static EmitterEffect parse(String test) {
 	    for (EmitterEffect e : EmitterEffect.values()) {
 	        if (e.name().equalsIgnoreCase(test)) return e;
 	    }

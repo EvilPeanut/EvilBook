@@ -14,7 +14,7 @@ public enum GlobalStatistic {
 	BlocksBroken("blocks_broken"),
 	BlocksPlaced("blocks_placed");
 	
-	public String columnName;
+	String columnName;
 	
 	GlobalStatistic(String columnName) {
 		this.columnName = columnName;

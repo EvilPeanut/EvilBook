@@ -6,7 +6,7 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 
-public class SkylandBigMushroomPopulator extends BlockPopulator
+class SkylandBigMushroomPopulator extends BlockPopulator
 {
 	@Override
 	public void populate(World world, Random positionRandomizer, Chunk chunk) {

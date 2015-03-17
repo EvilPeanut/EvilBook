@@ -167,7 +167,7 @@ public class Session implements CommandExecutor {
 		}
 	}
 
-	public static void setState(BlockState oldBlock, BlockState newBlock) {
+	static void setState(BlockState oldBlock, BlockState newBlock) {
 		try {
 			if (oldBlock instanceof BrewingStand && newBlock instanceof BrewingStand) {
 				BrewingStand state = (BrewingStand)oldBlock;

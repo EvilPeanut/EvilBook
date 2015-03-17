@@ -1,27 +1,16 @@
 package com.amentrix.evilbook.minigame;
 
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.main.EvilBook;
 
 public class SkyBlockMinigameListener implements Listener {
-	private EvilBook plugin;
-
-	public SkyBlockMinigameListener(EvilBook plugin) {
-		this.plugin = plugin;
-	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onItemCraft(CraftItemEvent event) {

@@ -12,22 +12,22 @@ import com.amentrix.evilbook.utils.SignUtils;
  * Schedulers and timed events
  * @author Reece Aaron Lecrivain
  */
-public class Scheduler {
-	EvilBook plugin;
-	Random rand = new Random();
+class Scheduler {
+	private EvilBook plugin;
+	private Random rand = new Random();
 	
 	/**
 	 * Define a new scheduler
 	 * @param evilBook The parent EvilBook plugin
 	 */
-	public Scheduler(EvilBook evilBook) {
+	Scheduler(EvilBook evilBook) {
 		this.plugin = evilBook;
 	}
 
 	/**
 	 * Autosave the player profiles and display a tip
 	 */
-	public void tipsAutosave() {
+	void tipsAutosave() {
 		this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, new Runnable() {
 			@Override
 			public void run() {
@@ -100,7 +100,7 @@ public class Scheduler {
 	/**
 	 * Update the services
 	 */
-	public void updateServices() {
+	void updateServices() {
 		this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, new Runnable() {
 			@Override
 			public void run() {
@@ -119,7 +119,7 @@ public class Scheduler {
 	/**
 	 * Update disguises
 	 */
-	public void updateDisguise() {
+	void updateDisguise() {
 		this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, new Runnable() {
 			@Override
 			public void run() {

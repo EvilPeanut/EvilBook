@@ -119,21 +119,6 @@ public class NametagManager
 		}
 	}
 
-	static void update(String player, String prefix, String suffix)
-	{
-		if ((prefix == null) || (prefix.isEmpty())) {
-			prefix = getPrefix(player);
-		}
-
-		if ((suffix == null) || (suffix.isEmpty())) {
-			suffix = getSuffix(player);
-		}
-
-		TeamInfo t = get(prefix, suffix);
-
-		addToTeam(t, player);
-	}
-
 	public static void overlap(String player, String prefix, String suffix)
 	{
 		if (prefix == null) {
@@ -151,36 +136,6 @@ public class NametagManager
 	public static void clear(String player)
 	{
 		removeFromTeam(player);
-	}
-
-	static String getPrefix(String player)
-	{
-		for (TeamInfo team : getTeams()) {
-			for (String p : getTeamPlayers(team))
-			{
-				if (p.equals(player)) {
-					return team.getPrefix();
-				}
-			}
-		}
-		return "";
-	}
-
-	static String getSuffix(String player)
-	{
-		for (TeamInfo team : getTeams()) {
-			for (String p : getTeamPlayers(team)) {
-				if (p.equals(player)) {
-					return team.getSuffix();
-				}
-			}
-		}
-		return "";
-	}
-
-	static String getFormattedName(String player)
-	{
-		return getPrefix(player) + player + getSuffix(player);
 	}
 
 	private static TeamInfo declareTeam(String name, String prefix, String suffix)
@@ -426,11 +381,5 @@ public class NametagManager
 
 			e.printStackTrace();
 		}
-	}
-
-	static void reset()
-	{
-		for (TeamInfo team : getTeams())
-			removeTeam(team);
 	}
 }

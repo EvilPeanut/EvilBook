@@ -33,7 +33,7 @@ public enum Rank {
 	
 	public Boolean isHigher(Rank compareRank) { return this.compareTo(compareRank) > 0 ? true : false; }
 	
-	public Boolean isCustomRank() { return isHigher(Rank.ELITE); }
+	Boolean isCustomRank() { return isHigher(Rank.ELITE); }
 	
 	/**
 	 * @return If the player is an ADMIN
@@ -180,7 +180,7 @@ public enum Rank {
 		return this;
 	}
 	
-	public static boolean contains(String test) {
+	static boolean contains(String test) {
 	    for (Rank rank : Rank.values()) {
 	        if (rank.name().equals(test)) {
 	            return true;

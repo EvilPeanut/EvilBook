@@ -8,7 +8,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.generator.BlockPopulator;
 
-public class PlotlandPopulator extends BlockPopulator {
+class PlotlandPopulator extends BlockPopulator {
 
 	@Override
 	public void populate(World world, Random rand, Chunk chunk) {

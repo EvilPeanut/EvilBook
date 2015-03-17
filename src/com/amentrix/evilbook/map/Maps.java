@@ -32,9 +32,9 @@ import com.amentrix.evilbook.main.EvilBook;
  * @author cnaude
  */
 public class Maps implements CommandExecutor {
-	public EvilBook plugin;
+	EvilBook plugin;
 	
-	public static final int MAGIC_NUMBER = Integer.MAX_VALUE - 395742;
+	private static final int MAGIC_NUMBER = Integer.MAX_VALUE - 395742;
 	private File pluginFolder;
 	private File cacheFolder;
 	private File mapsFile;
@@ -137,7 +137,7 @@ public class Maps implements CommandExecutor {
 		return false;
 	}
 
-	public boolean downloadSkin(String pName) {
+	boolean downloadSkin(String pName) {
 		try {
 			URL website = new URL("http://skins.minecraft.net/MinecraftSkins/" + pName + ".png");
 			try (ReadableByteChannel rbc = Channels.newChannel(website.openStream())) {
@@ -151,7 +151,7 @@ public class Maps implements CommandExecutor {
 		}
 	}
 	
-	public boolean downloadURL(String url) {
+	private boolean downloadURL(String url) {
 		try {
 			URL website = new URL(url);
 			try (ReadableByteChannel rbc = Channels.newChannel(website.openStream())) {
@@ -165,11 +165,11 @@ public class Maps implements CommandExecutor {
 		}
 	}
 
-	public String getFileName(String name) {
+	private String getFileName(String name) {
 		return this.cacheFolder.getAbsolutePath() + "/" + name + ".png";
 	}
 
-	public void postWorldLoad() {
+	private void postWorldLoad() {
 		ArrayList<Short> badIds = new ArrayList<>();
 		for (short mapId : mapIdList.keySet()) {
 			String name = mapIdList.get(mapId);
@@ -215,7 +215,7 @@ public class Maps implements CommandExecutor {
 		}
 	}
 
-	public void cleanup(String pName) {
+	void cleanup(String pName) {
 		for (short mapId : mapIdList.keySet()) {
 			MapView mv = this.plugin.getServer().getMap(mapId);
 			if (mv != null) {
@@ -228,7 +228,7 @@ public class Maps implements CommandExecutor {
 		}
 	}
 
-	public void loadMapIdList() {
+	private void loadMapIdList() {
 		if (this.mapsFile.exists()) {
 			try (BufferedReader reader = new BufferedReader(new FileReader(this.mapsFile))) {
 				String text;
@@ -257,7 +257,7 @@ public class Maps implements CommandExecutor {
 		}
 	}
 
-	public ItemStack getMap(Player player, String name, String type) {
+	private ItemStack getMap(Player player, String name, String type) {
 		ItemStack m = new ItemStack(Material.EMPTY_MAP);
 		if (type.equals("url")){
 			File f = new File(getFileName(name.split("/")[name.split("/").length - 1].split(".png")[0]));

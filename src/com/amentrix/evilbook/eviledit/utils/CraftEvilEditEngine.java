@@ -27,7 +27,7 @@ public class CraftEvilEditEngine implements EvilEditEngine {
 	
 	private Boolean silent;
 	
-	public CraftEvilEditEngine(org.bukkit.World world, Player player, Boolean silent) {
+	private CraftEvilEditEngine(org.bukkit.World world, Player player, Boolean silent) {
 		this.world = world;
 		this.player = player;
 		this.silent = silent;

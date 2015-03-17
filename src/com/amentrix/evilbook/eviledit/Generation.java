@@ -20,8 +20,8 @@ import com.amentrix.evilbook.statistics.GlobalStatistic;
  * EvilEdit generation methods
  * @author Reece Aaron Lecrivain
  */
-public class Generation {
-	public static void createPumpkinForest(Player player) {
+class Generation {
+	static void createPumpkinForest(Player player) {
 		Selection selection = new Selection(player);
 		if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
@@ -44,7 +44,7 @@ public class Generation {
 		}
 	}
 
-	public static void createForest(Player player, String[] args) {
+	static void createForest(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
 			player.sendMessage("§5§oIncorrect command usage");
@@ -80,7 +80,7 @@ public class Generation {
 		}
 	}
 	
-	public static void createPyramid(Player player, String[] args, boolean hollow) {
+	static void createPyramid(Player player, String[] args, boolean hollow) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
@@ -98,10 +98,8 @@ public class Generation {
 			player.sendMessage("§7Please enter a valid size");
 		} else {
 			BlockType actionBlock = new BlockType(args[0]);
-			if (args.length >= 1) {
-				if (args.length == 3) actionBlock.setData(args[1]);
-				if (!actionBlock.isValid(player)) return;
-			}
+			if (args.length == 3) actionBlock.setData(args[1]);
+			if (!actionBlock.isValid(player)) return;
 			int size = args.length == 2 ? Integer.parseInt(args[1]) : Integer.parseInt(args[2]);
 			if (size > 50) {
 				player.sendMessage("§7The maximum size limit is 50");
@@ -128,7 +126,7 @@ public class Generation {
 		}
 	}
 
-	public static void createSphere(Player player, String[] args, boolean hollow, boolean empty) {
+	static void createSphere(Player player, String[] args, boolean hollow, boolean empty) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
@@ -172,10 +170,8 @@ public class Generation {
 				return;
 			}		 
 			BlockType actionBlock = new BlockType(args[0]);
-			if (args.length >= 1) {
-				if (args.length == 3) actionBlock.setData(args[1]);
-				if (!actionBlock.isValid(player)) return;
-			}
+			if (args.length == 3) actionBlock.setData(args[1]);
+			if (!actionBlock.isValid(player)) return;
 			final double invRadiusX = 1 / radiusX;
 			final double invRadiusY = 1 / radiusY;
 			final double invRadiusZ = 1 / radiusZ;
@@ -237,7 +233,7 @@ public class Generation {
 		}
 	}
 
-	public static void createCylinder(Player player, String[] args, boolean hollow) {
+	static void createCylinder(Player player, String[] args, boolean hollow) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
@@ -273,10 +269,8 @@ public class Generation {
 				final int ceilRadiusZ = (int) Math.ceil(radiusZ);
 				double nextXn = 0;
 				BlockType actionBlock = new BlockType(args[0]);
-				if (args.length >= 1) {
-					if (args.length == 3) actionBlock.setData(args[1]);
-					if (!actionBlock.isValid(player)) return;
-				}
+				if (args.length == 3) actionBlock.setData(args[1]);
+				if (!actionBlock.isValid(player)) return;
 				EvilEditEngine engine = CraftEvilEditEngine.createEngine(player.getWorld(), player);
 				forX: for (int x = 0; x <= ceilRadiusX; ++x) {
 					final double xn = nextXn;
@@ -311,7 +305,7 @@ public class Generation {
 		}
 	}
     
-	public static void createTree(Player player, String[] args) {
+	static void createTree(Player player, String[] args) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {

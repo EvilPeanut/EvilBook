@@ -22,12 +22,12 @@ import com.amentrix.evilbook.main.EvilBook;
 /**
  * @author cnaude
  */
-public class Render extends MapRenderer {
+class Render extends MapRenderer {
     private Image img;
     private final String type;
     private final List<String> rendered = new ArrayList<>();
      
-    public Render(String file, String type) {
+    Render(String file, String type) {
         this.type = type;
         readImage(file);
     }
@@ -98,7 +98,7 @@ public class Render extends MapRenderer {
         }        
     }
     
-    public void removePlayer(String pName) {
+    void removePlayer(String pName) {
         for (int x = this.rendered.size()-1; x > 0; x--) {
             if (this.rendered.get(x).equals(pName)) {
                 this.rendered.remove(x);

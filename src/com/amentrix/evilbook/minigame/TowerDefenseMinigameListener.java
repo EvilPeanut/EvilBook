@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.amentrix.evilbook.main.EvilBook;
 
-public class TowerDefenseMinigameListener implements Listener {
+class TowerDefenseMinigameListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerInteract(PlayerInteractEvent event) {

@@ -12,8 +12,8 @@ import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.sql.SQL;
 
 public class PlayerHomeMarkers {
-	static MarkerSet set;
-	static MarkerIcon icon;
+	private static MarkerSet set;
+	private static MarkerIcon icon;
 
 	public static void loadPlayerHomes() {
 		set = EvilBook.markerAPI.getMarkerSet("evilbook.player_homes");

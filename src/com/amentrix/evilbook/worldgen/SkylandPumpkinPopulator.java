@@ -10,7 +10,7 @@ import org.bukkit.generator.BlockPopulator;
 /**
  * @author Reece Aaron Lecrivain
  */
-public class SkylandPumpkinPopulator extends BlockPopulator {
+class SkylandPumpkinPopulator extends BlockPopulator {
 	/**
 	 * Populate the chunk
 	 */

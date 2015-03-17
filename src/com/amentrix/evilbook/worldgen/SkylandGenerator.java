@@ -19,13 +19,11 @@ public class SkylandGenerator extends org.bukkit.generator.ChunkGenerator {
 	private double[] q;
 	private double[] t = new double[256];
 
-	double[] d;
-	double[] e;
-	double[] f;
-	double[] g;
-	double[] h;
-
-	int[][] i = new int[32][32];
+	private double[] d;
+	private double[] e;
+	private double[] f;
+	private double[] g;
+	private double[] h;
 
 	@Override
 	public List<BlockPopulator> getDefaultPopulators(World world){

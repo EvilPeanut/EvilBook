@@ -2,17 +2,17 @@ package com.amentrix.evilbook.worldgen;
 
 import java.util.Random;
 
-public class NoiseGeneratorPerlin
+class NoiseGeneratorPerlin
 {
     private int[] permutations;
-    double xCoord, yCoord, zCoord;
+    private double xCoord, yCoord, zCoord;
 
     public NoiseGeneratorPerlin()
     {
         this(new Random());
     }
 
-    public NoiseGeneratorPerlin(Random par1Random)
+    NoiseGeneratorPerlin(Random par1Random)
     {
         this.permutations = new int[512];
         this.xCoord = par1Random.nextDouble() * 256.0D;
@@ -35,12 +35,12 @@ public class NoiseGeneratorPerlin
         }
     }
 
-    public final static double lerp(double par1, double par3, double par5)
+    private final static double lerp(double par1, double par3, double par5)
     {
         return par3 + par1 * (par5 - par3);
     }
 
-    public final static double func_76309_a(int par1, double par2, double par4)
+    private final static double func_76309_a(int par1, double par2, double par4)
     {
         int var6 = par1 & 15;
         double var7 = (1 - ((var6 & 8) >> 3)) * par2;
@@ -48,7 +48,7 @@ public class NoiseGeneratorPerlin
         return ((var6 & 1) == 0 ? var7 : -var7) + ((var6 & 2) == 0 ? var9 : -var9);
     }
 
-    public final static double grad(int par1, double par2, double par4, double par6)
+    private final static double grad(int par1, double par2, double par4, double par6)
     {
         int var8 = par1 & 15;
         double var9 = var8 < 8 ? par2 : par4;
@@ -56,7 +56,7 @@ public class NoiseGeneratorPerlin
         return ((var8 & 1) == 0 ? var9 : -var9) + ((var8 & 2) == 0 ? var11 : -var11);
     }
 
-    public void populateNoiseArray(double[] par1ArrayOfDouble, double par2, double par4, double par6, int par8, int par9, int par10, double par11, double par13, double par15, double par17)
+    void populateNoiseArray(double[] par1ArrayOfDouble, double par2, double par4, double par6, int par8, int par9, int par10, double par11, double par13, double par15, double par17)
     {
         int var19;
         int var22;

@@ -9,11 +9,11 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.generator.BlockPopulator;
 
-public class SkylandMushroomPopulator extends BlockPopulator {
+class SkylandMushroomPopulator extends BlockPopulator {
 
 	private Random random;
 
-	public SkylandMushroomPopulator(World world) {
+	SkylandMushroomPopulator(World world) {
 		this.random = new Random(world.getSeed());
 	}
 

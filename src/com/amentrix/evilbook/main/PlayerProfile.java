@@ -27,21 +27,26 @@ import com.amentrix.evilbook.sql.TableType;
  * @author Reece Aaron Lecrivain
  */
 public abstract class PlayerProfile {
-	public String name, nameTitle, lastMessage, teleportantName, lastMsgPlayer;
-	public List<String> warps = new ArrayList<>(), mutedPlayers = new ArrayList<>();
+	String name, nameTitle;
+	public String lastMessage;
+	String teleportantName;
+	String lastMsgPlayer;
+	List<String> warps = new ArrayList<>(), mutedPlayers = new ArrayList<>();
 	public Boolean isAway = false, isInvisible = false, isDrunk = false;
-	public List<Achievement> achievements = new ArrayList<>();
+	List<Achievement> achievements = new ArrayList<>();
 	public long lastMessageTime = 0, lastActionTime = 0;
-	public double jumpAmplifier = 0, flyAmplifier = 0.1, walkAmplifier = 0.2;
+	double jumpAmplifier = 0, flyAmplifier = 0.1, walkAmplifier = 0.2;
 	public Rank rank = Rank.BUILDER;
 	public Entity disguise;
-	public Location lastLocation, homeLocation, lastBlockInteraction;
-	public int runAmplifier = 4, money = 0;
+	public Location lastLocation;
+	Location homeLocation;
+	public Location lastBlockInteraction;
+	int runAmplifier = 4, money = 0;
 	public EditWandMode wandMode = EditWandMode.Selection;
 	public Location actionLocationA, actionLocationB;
-	public EvilBook plugin;
+	private EvilBook plugin;
 	
-	public PlayerProfile(EvilBook plugin) {
+	PlayerProfile(EvilBook plugin) {
 		this.plugin = plugin;
 	}
 	
@@ -49,7 +54,7 @@ public abstract class PlayerProfile {
 		return Bukkit.getServer().getPlayer(this.name);
 	}
 	
-	public void viewMailInbox() {
+	void viewMailInbox() {
 		int mailCount = getMailCount();
 		Inventory inboxMenu = Bukkit.createInventory(null, (int) (9 * (Math.ceil((double)mailCount / 9))) , mailCount == 0 ? "My inbox (empty)" : "My inbox");
 		if (mailCount != 0) {
@@ -66,7 +71,7 @@ public abstract class PlayerProfile {
 		getPlayer().openInventory(inboxMenu);
 	}
 	
-	public void updateNametag(final String prefix, final String suffix)
+	void updateNametag(final String prefix, final String suffix)
 	{
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 		{
@@ -115,7 +120,7 @@ public abstract class PlayerProfile {
 	 * @param achievement The achievement to check for
 	 * @return If the player has the achievement
 	 */
-	public Boolean hasAchievement(Achievement achievement) {
+	Boolean hasAchievement(Achievement achievement) {
 		return this.achievements.contains(achievement);
 	}
 	
@@ -143,7 +148,7 @@ public abstract class PlayerProfile {
 	 * @param playerName The player to test with
 	 * @return If the player if muted
 	 */
-	public Boolean isMuted(String playerName) {
+	Boolean isMuted(String playerName) {
 		return this.mutedPlayers.contains(playerName.toLowerCase(Locale.UK));
 	}
 
@@ -152,7 +157,7 @@ public abstract class PlayerProfile {
 	 * @param property The property to set
 	 * @param value The value of the property
 	 */
-	public void setProperty(String property, String value) {
+	void setProperty(String property, String value) {
 		SQL.setProperty(TableType.PlayerProfile, this.name, property, value);
 	}
 	
@@ -161,7 +166,7 @@ public abstract class PlayerProfile {
 	 * @param property The property to get
 	 * @return The value of the property
 	 */
-	public String getProperty(String property) {
+	String getProperty(String property) {
 		return SQL.getProperty(TableType.PlayerProfile, this.name, property);
 	}
 	
@@ -170,7 +175,7 @@ public abstract class PlayerProfile {
 	 * @param property The property to get
 	 * @return The value of the property
 	 */
-	public String getProperty(TableType tableType, String property) {
+	String getProperty(TableType tableType, String property) {
 		return SQL.getProperty(tableType, this.name, property);
 	}
 
@@ -191,7 +196,7 @@ public abstract class PlayerProfile {
 	 * Get the player's last position in the world
 	 * @param world The world to get their last location in
 	 */
-	public Location getWorldLastPosition(String world) {
+	Location getWorldLastPosition(String world) {
 		String worldName = world;
 		if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
 		String result = SQL.getProperty(TableType.PlayerLocation, this.name, worldName);

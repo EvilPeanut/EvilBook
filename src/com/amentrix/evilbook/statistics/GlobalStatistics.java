@@ -24,7 +24,7 @@ public class GlobalStatistics {
 		return value;
 	}
 
-	public static void setStatistic(GlobalStatistic statistic, String value) {
+	private static void setStatistic(GlobalStatistic statistic, String value) {
 		SQL.setProperty(TableType.Statistics, new SimpleDateFormat("yyyy-MM-dd").format(new Date()), statistic.columnName, value);
 	}
 	

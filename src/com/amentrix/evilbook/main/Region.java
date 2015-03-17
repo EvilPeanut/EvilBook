@@ -39,17 +39,12 @@ public class Region {
 	/**
 	 * @param playerName The player to add to the region permissions
 	 */
-	public void addAllowedPlayer(String playerName) { if (this.allowedPlayers.contains(playerName) == false) this.allowedPlayers.add(playerName); }
+	void addAllowedPlayer(String playerName) { if (this.allowedPlayers.contains(playerName) == false) this.allowedPlayers.add(playerName); }
 	
 	/**
 	 * @param playerName The player to remove region permissions of
 	 */
-	public void removeAllowedPlayer(String playerName) { if (this.allowedPlayers.contains(playerName)) this.allowedPlayers.remove(playerName); }
-	
-	/**
-	 * @param playerName The player to check for region permissions
-	 */
-	public Boolean isPermitted(String playerName) { return this.allowedPlayers.contains(playerName) ? true : false; }
+	void removeAllowedPlayer(String playerName) { if (this.allowedPlayers.contains(playerName)) this.allowedPlayers.remove(playerName); }
 	
 	/**
 	 * @return The region owner's name
@@ -116,12 +111,12 @@ public class Region {
 	/**
 	 * @return If protection is enabled
 	 */
-	public Boolean isProtected(){ return this.isProtected; }
+	Boolean isProtected(){ return this.isProtected; }
 	
 	/**
 	 * @param isProtected If protection is enabled
 	 */
-	public void isProtected(Boolean isProtected) { this.isProtected = isProtected; }
+	void isProtected(Boolean isProtected) { this.isProtected = isProtected; }
 	
 	/**
 	 * @return The first location point
@@ -154,7 +149,7 @@ public class Region {
 	 * @param leaveMessage The leave message of the region
 	 * @param allowedPlayers The players who have rights to the region
 	 */
-	public Region(String regionName, Location locationA, Location locationB, Boolean isProtected, String ownerName, String welcomeMessage, String leaveMessage, String allowedPlayers, String warpName)
+	Region(String regionName, Location locationA, Location locationB, Boolean isProtected, String ownerName, String welcomeMessage, String leaveMessage, String allowedPlayers, String warpName)
 	{
 		this.regionName = regionName;
 		this.locationA = locationA;
@@ -167,7 +162,7 @@ public class Region {
 		if (warpName != null) this.warpName = warpName;
 	}
 
-	public Region(ResultSet rs) {
+	Region(ResultSet rs) {
 		try {
 			this.regionName = rs.getString("region_name");
 			this.locationA = new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x1"), rs.getInt("y1"), rs.getInt("z1"));
@@ -183,7 +178,7 @@ public class Region {
 		}
 	}
 	
-	public void delete() {
+	void delete() {
 		try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM " + SQL.database + ".`evilbook-regions` WHERE region_name=?")) {
 			statement.setString(1, this.regionName.replaceAll("'", "''"));
 			statement.executeUpdate();
@@ -195,7 +190,7 @@ public class Region {
 	/**
 	 * Save the region externally
 	 */
-	public void saveRegion() 
+	void saveRegion() 
 	{
 		if (SQL.isKeyExistant(TableType.Region, this.regionName.replaceAll("'", "''"))) {
 			StatementSet saveAgent = new StatementSet();

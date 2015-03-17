@@ -15,8 +15,8 @@ import com.amentrix.evilbook.minigame.MinigameType;
  * EvilEdit movement methods
  * @author Reece Aaron Lecrivain
  */
-public class Movement {
-	public static void passPlayerThroughOpposingWall(Player player) {
+class Movement {
+	static void passPlayerThroughOpposingWall(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
@@ -47,7 +47,7 @@ public class Movement {
 		}
 	}
 
-	public static void ascendPlayerToCeiling(Player player) {
+	static void ascendPlayerToCeiling(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
@@ -75,7 +75,7 @@ public class Movement {
 		}
 	}
 
-	public static void descendPlayer(Player player) {
+	static void descendPlayer(Player player) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
@@ -98,7 +98,7 @@ public class Movement {
 		}
 	}
 
-	public static void ascendPlayer(Player player, Boolean displayMessages) {
+	static void ascendPlayer(Player player, Boolean displayMessages) {
 		if (EvilBook.isInSurvival(player) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage(ChatColor.GRAY + "You can't use this command in survival");
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {

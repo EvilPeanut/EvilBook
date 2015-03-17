@@ -35,7 +35,7 @@ public class DynamicSign {
 		}
 	}
 	
-	public DynamicSign(ResultSet properties) {
+	DynamicSign(ResultSet properties) {
 		try {
 			this.location = new Location(Bukkit.getServer().getWorld(properties.getString("world")), properties.getInt("x"), properties.getInt("y"), properties.getInt("z"));
 			this.textLines = new String[4];

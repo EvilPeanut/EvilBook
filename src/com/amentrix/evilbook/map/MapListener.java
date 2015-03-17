@@ -15,11 +15,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
 
-public class MapListener implements Listener {
-	Maps mapModule;
-	public static final List<MapView> mapViews = new ArrayList<>();
+class MapListener implements Listener {
+	private Maps mapModule;
+	static final List<MapView> mapViews = new ArrayList<>();
 	
-	public MapListener(Maps mapModule) {
+	MapListener(Maps mapModule) {
 		this.mapModule = mapModule;
 	}
 	

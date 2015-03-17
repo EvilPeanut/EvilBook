@@ -13,8 +13,8 @@ import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.sql.SQL;
 
 public class WarpMarkers {
-	static MarkerSet set;
-	static MarkerIcon icon;
+	private static MarkerSet set;
+	private static MarkerIcon icon;
 
 	public static void loadWarps() {
 		set = EvilBook.markerAPI.getMarkerSet("evilbook.warps");

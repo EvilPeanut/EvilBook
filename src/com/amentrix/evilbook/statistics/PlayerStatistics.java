@@ -16,7 +16,7 @@ public class PlayerStatistics {
 		return value;
 	}
 
-	public static void setStatistic(String playerName, PlayerStatistic statistic, int value) {
+	private static void setStatistic(String playerName, PlayerStatistic statistic, int value) {
 		SQL.setProperty(TableType.PlayerStatistics, playerName, statistic.columnName, Integer.toString(value));
 		switch (statistic) {
 		case KILLED_RARES:

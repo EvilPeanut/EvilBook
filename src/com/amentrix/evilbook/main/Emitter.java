@@ -14,17 +14,17 @@ import com.amentrix.evilbook.sql.TableType;
  */
 public class Emitter {
 	public Location location;
-	public EmitterEffect effect;
+	private EmitterEffect effect;
 	private int data, frequency, frequencyTick = 0;
 
-	public Emitter(Location location, EmitterEffect effect, int data, int frequency) {
+	Emitter(Location location, EmitterEffect effect, int data, int frequency) {
 		this.location = location;
 		this.effect = effect;
 		this.data = data;
 		this.frequency = frequency;
 	}
 	
-	public Emitter(EvilBook plugin, ResultSet properties) {
+	Emitter(EvilBook plugin, ResultSet properties) {
 		try {
 			this.location = new Location(plugin.getServer().getWorld(properties.getString("world")), properties.getInt("x"), properties.getInt("y"), properties.getInt("z"));
 			this.effect = EmitterEffect.parse(properties.getString("effect"));

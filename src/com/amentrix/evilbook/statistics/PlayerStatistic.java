@@ -34,7 +34,7 @@ public enum PlayerStatistic {
 	KILLED_PLAYERS("killed_players"),
 	KILLED_RARES("killed_rares");
 	
-	public String columnName;
+	String columnName;
 	
 	PlayerStatistic(String columnName) {
 		this.columnName = columnName;

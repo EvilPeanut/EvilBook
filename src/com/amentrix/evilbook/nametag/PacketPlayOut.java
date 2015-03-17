@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.bukkit.entity.Player;
 
-public class PacketPlayOut
+class PacketPlayOut
 {
 	private Object packet;
 	private static Method getHandle;

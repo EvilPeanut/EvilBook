@@ -2,12 +2,12 @@ package com.amentrix.evilbook.worldgen;
 
 import java.util.Random;
 
-public class NoiseGeneratorOctaves
+class NoiseGeneratorOctaves
 {
     private NoiseGeneratorPerlin[] generatorCollection;
     private int octaves;
 
-    public NoiseGeneratorOctaves(Random par1Random, int par2)
+    NoiseGeneratorOctaves(Random par1Random, int par2)
     {
         this.octaves = par2;
         this.generatorCollection = new NoiseGeneratorPerlin[par2];
@@ -18,7 +18,7 @@ public class NoiseGeneratorOctaves
         }
     }
 
-    public double[] generateNoiseOctaves(double[] par1ArrayOfDouble, int par2, int par3, int par4, int par5, int par6, int par7, double par8, double par10, double par12)
+    double[] generateNoiseOctaves(double[] par1ArrayOfDouble, int par2, int par3, int par4, int par5, int par6, int par7, double par8, double par10, double par12)
     {
     	double[] p1ad = par1ArrayOfDouble;
         if (p1ad == null)
@@ -55,12 +55,12 @@ public class NoiseGeneratorOctaves
         return p1ad;
     }
 
-    public double[] generateNoiseOctaves(double[] par1ArrayOfDouble, int par2, int par3, int par4, int par5, double par6, double par8)
+    double[] generateNoiseOctaves(double[] par1ArrayOfDouble, int par2, int par3, int par4, int par5, double par6, double par8)
     {
         return this.generateNoiseOctaves(par1ArrayOfDouble, par2, 10, par3, par4, 1, par5, par6, 1.0D, par8);
     }
     
-    long floor_double_long(double par0)
+    private static long floor_double_long(double par0)
     {
         long var2 = (long)par0;
         return par0 < var2 ? var2 - 1L : var2;

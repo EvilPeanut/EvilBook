@@ -100,31 +100,31 @@ import de.diddiz.LogBlock.LogBlock;
  */
 public class EvilBook extends JavaPlugin {
 	// Reference lists
-	public static final Map<Material, List<String>> blockList = new LinkedHashMap<>();
-	public static final Map<Biome, List<String>> biomeList = new LinkedHashMap<>();
+	private static final Map<Material, List<String>> blockList = new LinkedHashMap<>();
+	private static final Map<Biome, List<String>> biomeList = new LinkedHashMap<>();
 	public static final Map<TreeType, List<String>> treeTypeList = new LinkedHashMap<>();
 	//
 	public static final Map<String, PlayerProfile> playerProfiles = new HashMap<>();
 	public static final Map<String, Rank> commandBlacklist = new HashMap<>();
-	public static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
+	private static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
 	public static final List<DynamicSign> dynamicSignList = new ArrayList<>();
 	public static final List<String> paidWorldList = new ArrayList<>();
 	public static final List<Region> regionList = new ArrayList<>();
-	public static final List<Region> plotRegionList = new ArrayList<>();
+	private static final List<Region> plotRegionList = new ArrayList<>();
 	public static final List<Emitter> emitterList = new ArrayList<>();
 	//
 	public static final List<UUID> rareSpawnList = new ArrayList<>();
 	//
-	public static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
-	public Session editSession = new Session();
-	public Random random = new Random();
+	private static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
+	private Session editSession = new Session();
+	private Random random = new Random();
 	// Log block API
 	public static Consumer lbConsumer = null;
 	// Dynmap API
-	public static DynmapAPI dynmapAPI;
+	private static DynmapAPI dynmapAPI;
 	public static MarkerAPI markerAPI;
 	// Maps Module
-	public Maps maps;
+	private Maps maps;
 	// Config
 	public static Properties config;
 
@@ -157,7 +157,7 @@ public class EvilBook extends JavaPlugin {
 		pluginManager.registerEvents(new EventListenerInventory(), this);
 		pluginManager.registerEvents(new EventListenerPlayer(this), this);
 		pluginManager.registerEvents(new EventListenerVehicle(), this);		
-		pluginManager.registerEvents(new SkyBlockMinigameListener(this), this);
+		pluginManager.registerEvents(new SkyBlockMinigameListener(), this);
 		//
 		// Maps Module
 		//
@@ -4217,7 +4217,7 @@ public class EvilBook extends JavaPlugin {
 	 * Log information to the minecraft server console
 	 * @param information The information to log
 	 */
-	public static void logInfo(String information) {
+	private static void logInfo(String information) {
 		Logger.getLogger("Minecraft").log(Level.INFO, "[EvilBook] " + information);
 	}
 
@@ -4244,15 +4244,6 @@ public class EvilBook extends JavaPlugin {
 	 */
 	public static Boolean isInteger(String string) {
 		try {Integer.parseInt(string); return true;} catch (Exception exception) {return false;}
-	}
-
-	/**
-	 * Check if a string can be casted to a float
-	 * @param string The string to execute the cast check with
-	 * @return If the string can be casted to a float
-	 */
-	public static Boolean isFloat(String string) {
-		try {Float.parseFloat(string); return true;} catch (Exception exception) {return false;}
 	}
 
 	/**
@@ -4296,7 +4287,7 @@ public class EvilBook extends JavaPlugin {
 	 * Sends a message alert to copper staff and above ranks
 	 * @param alert The message
 	 */
-	public static void alert(String alert) {
+	private static void alert(String alert) {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			PlayerProfile profile = getProfile(player);
 			if (profile.rank.isHigher(Rank.POLICE)) Bukkit.getServer().getPlayer(profile.name).sendMessage("§7§O" + alert);
@@ -4382,7 +4373,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param location The location to execute the check with
 	 * @return If the location is in the region's X range
 	 */
-	static Boolean isInRegionXRange(Region region, Location location) {
+	private static Boolean isInRegionXRange(Region region, Location location) {
 		if (region.getLocationA().getBlockX() <= region.getLocationB().getBlockX()) {
 			if (location.getBlockX() >= region.getLocationA().getBlockX() && location.getBlockX() <= region.getLocationB().getBlockX()) return true;
 		} else if (region.getLocationA().getBlockX() >= region.getLocationB().getBlockX()) {
@@ -4397,7 +4388,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param location The location to execute the check with
 	 * @return If the location is in the region's Y range
 	 */
-	static Boolean isInRegionYRange(Region region, Location playerLocation) {
+	private static Boolean isInRegionYRange(Region region, Location playerLocation) {
 		if (region.getLocationA().getBlockY() <= region.getLocationB().getBlockY()) {
 			if (playerLocation.getBlockY() >= region.getLocationA().getBlockY() && playerLocation.getBlockY() <= region.getLocationB().getBlockY()) return true;
 		} else if (region.getLocationA().getBlockY() >= region.getLocationB().getBlockY()) {
@@ -4412,7 +4403,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param location The location to execute the check with
 	 * @return If the location is in the region's Z range
 	 */
-	static Boolean isInRegionZRange(Region region, Location playerLocation) {
+	private static Boolean isInRegionZRange(Region region, Location playerLocation) {
 		if (region.getLocationA().getBlockZ() <= region.getLocationB().getBlockZ()) {
 			if (playerLocation.getBlockZ() >= region.getLocationA().getBlockZ() && playerLocation.getBlockZ() <= region.getLocationB().getBlockZ()) return true;
 		} else if (region.getLocationA().getBlockZ() >= region.getLocationB().getBlockZ()) {
@@ -4426,7 +4417,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param name The name of the entity type
 	 * @return The entity type
 	 */
-	public static EntityType getEntity(String name) {
+	private static EntityType getEntity(String name) {
 		if (EntityType.fromName(name) != null) return EntityType.fromName(name);
 		try {if (EntityType.fromId(Integer.parseInt(name)) != null) return EntityType.fromId(Integer.parseInt(name));} catch (Exception exception) { /*This is fine it just means its not a number*/ }
 		if (name.equalsIgnoreCase("mooshroom")) return EntityType.MUSHROOM_COW;
@@ -4450,7 +4441,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param name The name of the enchantment
 	 * @return The enchantment
 	 */
-	public static Enchantment getEnchantment(String name) {
+	private static Enchantment getEnchantment(String name) {
 		if (Enchantment.getByName(name) != null) return Enchantment.getByName(name);
 		try {if (Enchantment.getById(Integer.parseInt(name)) != null) return Enchantment.getById(Integer.parseInt(name));} catch (Exception exception) { /*This is fine it just means its not a number*/ }
 		if (name.equalsIgnoreCase("power")) return Enchantment.ARROW_DAMAGE;
@@ -4485,7 +4476,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param text The text in the book
 	 * @return The book itemstack
 	 */
-	public static ItemStack getBook(String title, String author, List<String> text) {
+	static ItemStack getBook(String title, String author, List<String> text) {
 		ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
 		BookMeta meta = (BookMeta)book.getItemMeta();
 		meta.setTitle(title);
@@ -4529,7 +4520,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param number The number to convert into roman numerals
 	 * @return The string number as roman numerals
 	 */
-	public static String toRomanNumerals(String number) {
+	private static String toRomanNumerals(String number) {
 		if (number.equals("1")) return "I";
 		if (number.equals("2")) return "II";
 		if (number.equals("3")) return "III";
@@ -4721,7 +4712,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param playerName The player name to execute the check with
 	 * @return If the player's profile is existant
 	 */
-	public static boolean isProfileExistant(String playerName) {
+	private static boolean isProfileExistant(String playerName) {
 		return SQL.getProperty(TableType.PlayerProfile, playerName, "player_name") != null;
 	}
 	
@@ -4914,7 +4905,7 @@ public class EvilBook extends JavaPlugin {
 		return blockList.get(material) == null ? "Air" : blockList.get(material).get(0);
 	}
 
-	public static void incrementOwnerBalance(int increment) {
+	private static void incrementOwnerBalance(int increment) {
 		if (getPlayer(EvilBook.config.getProperty("server_host")) != null) {
 			getProfile(EvilBook.config.getProperty("server_host")).money += increment;
 			getPlayer(EvilBook.config.getProperty("server_host")).sendMessage("§7You have recieved §a$" + increment + " §7from taxes");
@@ -4925,7 +4916,7 @@ public class EvilBook extends JavaPlugin {
 		}
 	}
 	
-	public String getUnlockedTitles(Player player) {
+	private static String getUnlockedTitles(Player player) {
 		String titles = "";
 		if (getProfile(player).rank.isAdmin()) {
 			titles += "Elf Mr Mrs Miss Lord Dr Prof Crafter Epic ";
@@ -4961,7 +4952,7 @@ public class EvilBook extends JavaPlugin {
 		return titles;
 	}
 	
-	public String getPlayerIP(String playerName) {
+	private static String getPlayerIP(String playerName) {
 		try (Statement statement = SQL.connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.tableName + " WHERE player_name='" + playerName + "';")) {
 				if (!rs.isBeforeFirst()) return null;
@@ -4982,7 +4973,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param name The name of the player
 	 * @return The player
 	 */
-	public static Player getPlayer(String name) {
+	private static Player getPlayer(String name) {
 		if (Bukkit.getServer().getPlayer(name) != null) return Bukkit.getServer().getPlayer(name);
 		for (PlayerProfile profile : playerProfiles.values()) {
 			if (profile.name.toLowerCase(Locale.UK).startsWith(name.toLowerCase(Locale.UK)) || (profile instanceof PlayerProfileAdmin && ((PlayerProfileAdmin)profile).nameAlias != null && ((PlayerProfileAdmin)profile).getStrippedNameAlias().toLowerCase(Locale.UK).startsWith(name.toLowerCase(Locale.UK)))) return Bukkit.getServer().getPlayer(profile.name);
@@ -4994,12 +4985,12 @@ public class EvilBook extends JavaPlugin {
 	}
 	
 	/** round n down to nearest multiple of m */
-	long roundDown(long n, long m) {
+	private static long roundDown(long n, long m) {
 	    return n >= 0 ? (n / m) * m : ((n - m + 1) / m) * m;
 	}
 	 
 	/** round n up to nearest multiple of m */
-	long roundUp(long n, long m) {
+	private static long roundUp(long n, long m) {
 	    return n >= 0 ? ((n + m - 1) / m) * m : (n / m) * m;
 	}
 }
