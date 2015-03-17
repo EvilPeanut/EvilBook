@@ -1063,6 +1063,23 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Check `evilbook-dynamicsigns` table
 				//
+				sender.sendMessage("§7Dr. Watson scanning `evilbook-commandblock`...");
+				try (Statement statement = SQL.connection.createStatement()) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.CommandBlock.tableName + ";")) {
+						while (rs.next()) {
+							if (rs.getString("world") == null) {
+								sender.sendMessage("§7--> World is not available");
+							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
+								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a command block"); 
+							}
+						}
+					}
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+				//
+				// Check `evilbook-dynamicsigns` table
+				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-dynamicsigns`...");
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
@@ -1163,6 +1180,25 @@ public class EvilBook extends JavaPlugin {
 				}
 				sender.sendMessage("§7Dr. Watson scan finished");
 			} else if (args[0].equalsIgnoreCase("sqlclean")) {
+				//
+				// Clean `evilbook-dynamicsigns` table
+				//
+				sender.sendMessage("§7Dr. Watson cleaning `evilbook-commandblock`...");
+				try (Statement statement = SQL.connection.createStatement()) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.CommandBlock.tableName + ";")) {
+						while (rs.next()) {
+							if (rs.getString("world") == null) {
+								sender.sendMessage("§7--> FIXED: World is not available");
+								SQL.deleteRowFromCriteria(TableType.CommandBlock, "x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "' AND world IS NULL");
+							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
+								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a command block"); 
+								SQL.deleteRowFromCriteria(TableType.CommandBlock, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
+							}
+						}
+					}
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
 				//
 				// Clean `evilbook-dynamicsigns` table
 				//
