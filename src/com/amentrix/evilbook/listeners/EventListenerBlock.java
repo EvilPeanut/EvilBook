@@ -140,9 +140,9 @@ public class EventListenerBlock implements Listener {
 					}
 					// Command block logging
 					if (block.getType() == Material.COMMAND && SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_uuid='" + player.getUniqueId().toString() + 
-							"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") != null) {
+							"' AND world='" + block.getWorld().getName() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") != null) {
 						SQL.deleteRowFromCriteria(TableType.CommandBlock, "player_uuid='" + player.getUniqueId().toString() + 
-								"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
+								"' AND world='" + block.getWorld().getName() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
 					}
 					// Statistics
 					GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksBroken, 1);

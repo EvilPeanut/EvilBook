@@ -231,6 +231,31 @@ public class EvilBook extends JavaPlugin {
 			getServer().shutdown();
 			return;
 		}
+		// evilbook-commandblock world column existance check (column absent in previous releases)
+		if (!SQL.isColumnExistant(TableType.CommandBlock, "world")) {
+			logInfo("Updating command block protection database...");
+			SQL.insertNullColumn(TableType.CommandBlock, "world TINYTEXT");
+			try (Statement statement = SQL.connection.createStatement()) {
+				try (ResultSet rs = statement.executeQuery("SELECT x, y, z FROM " + SQL.database + ".`evilbook-commandblock`;")) {
+					while (rs.next()) {
+						try (Statement setStatement = SQL.connection.createStatement()) {
+							for (World world : getServer().getWorlds()) {
+								if (world.getBlockAt(rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getType() == Material.COMMAND) {
+									setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET world='" + world.getName() + "' WHERE x=" + rs.getInt("x") + " AND y=" + rs.getInt("y") + " AND z=" + rs.getInt("z") + ";");
+									continue;
+								}
+								logWarning("Failed to indentify world of command block at " + rs.getInt("x") + ", " + rs.getInt("y") + ", " + rs.getInt("z"));
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+			logInfo("Updated command block protection database!");
+		}
 		// evilbook-commandblock player name to UUID converter
 		if (SQL.isColumnExistant(TableType.CommandBlock, "player_owner")) {
 			logInfo("Updating command block protection database...");
