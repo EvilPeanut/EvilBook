@@ -1712,7 +1712,7 @@ public class EvilBook extends JavaPlugin {
 		// Workbench Command
 		//
 		if (command.getName().equalsIgnoreCase("workbench")) {
-			if (!isInSurvival(player) || !isInMinigame(player, MinigameType.SKYBLOCK) || getProfile(player).rank.isAdmin()) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(player).rank.isAdmin()) {
 				player.openWorkbench(null, true);
 			} else {
 				sender.sendMessage("§dAdmin rank is required to use this command in survival");
@@ -1724,7 +1724,7 @@ public class EvilBook extends JavaPlugin {
 		// Repair Command
 		//
 		if (command.getName().equalsIgnoreCase("repair")) {
-			if (!isInSurvival(player) || !isInMinigame(player, MinigameType.SKYBLOCK) || getProfile(player).rank == Rank.SERVER_HOST) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(player).rank == Rank.SERVER_HOST) {
 				player.getItemInHand().setDurability((short) 0);
 				sender.sendMessage("§7Your item has been fully repaired");
 			} else {
@@ -1736,7 +1736,7 @@ public class EvilBook extends JavaPlugin {
 		// Feed Command
 		//
 		if (command.getName().equalsIgnoreCase("feed")) {
-			if (!isInSurvival(player) || !isInMinigame(player, MinigameType.SKYBLOCK) || getProfile(player).rank == Rank.SERVER_HOST) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(player).rank == Rank.SERVER_HOST) {
 				player.setFoodLevel(20);
 				sender.sendMessage("§7You have been fully fed");
 			} else {
@@ -1748,7 +1748,7 @@ public class EvilBook extends JavaPlugin {
 		// Heal Command
 		//
 		if (command.getName().equalsIgnoreCase("heal")) {
-			if (!isInSurvival(player) || !isInMinigame(player, MinigameType.SKYBLOCK) || getProfile(player).rank == Rank.SERVER_HOST) {
+			if ((!isInSurvival(player) && !isInMinigame(player, MinigameType.SKYBLOCK)) || getProfile(player).rank == Rank.SERVER_HOST) {
 				player.setHealth(player.getMaxHealth());
 				sender.sendMessage("§7You have been fully healed");
 			} else {
