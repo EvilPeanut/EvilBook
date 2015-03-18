@@ -581,9 +581,9 @@ public class EventListenerPlayer implements Listener {
 			// Command block ownership logging and protection
 			//
 			if (block.getType() == Material.COMMAND) {
-				if (SQL.getPropertyFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getName() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player") == null) {
-					SQL.insert(TableType.CommandBlock, "'" + player.getUniqueId().toString() + "','" + block.getWorld().getName() + "'," + block.getX() + "," + block.getY() + "," + block.getZ());
-				} else if (!SQL.getPropertyFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getName() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'"
+				if (SQL.getPropertyFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player") == null) {
+					SQL.insert(TableType.CommandBlock, "'" + player.getUniqueId().toString() + "','" + block.getWorld().getUID().toString() + "'," + block.getX() + "," + block.getY() + "," + block.getZ());
+				} else if (!SQL.getPropertyFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'"
 						, "player").equals(player.getUniqueId().toString()) &&
 						!EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 					player.sendMessage(ChatColor.GRAY + "You don't have permission to edit this command block");

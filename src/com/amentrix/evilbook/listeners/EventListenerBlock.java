@@ -140,9 +140,9 @@ public class EventListenerBlock implements Listener {
 						}
 					}
 					// Command block logging
-					if (blockType == Material.COMMAND && SQL.isRowExistant(TableType.CommandBlock, "world='" + block.getWorld().getName() + 
+					if (blockType == Material.COMMAND && SQL.isRowExistant(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + 
 							"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'")) {
-						SQL.deleteRowFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getName() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
+						SQL.deleteRowFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
 					}
 					// Statistics
 					GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksBroken, 1);

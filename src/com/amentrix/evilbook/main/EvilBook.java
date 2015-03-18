@@ -234,14 +234,14 @@ public class EvilBook extends JavaPlugin {
 		// evilbook-commandblock world column existance check (column absent in previous releases)
 		if (!SQL.isColumnExistant(TableType.CommandBlock, "world")) {
 			logInfo("Updating command block protection database...");
-			SQL.insertNullColumn(TableType.CommandBlock, "world TINYTEXT");
+			SQL.insertNullColumn(TableType.CommandBlock, "world CHAR(36)");
 			try (Statement statement = SQL.connection.createStatement()) {
 				try (ResultSet rs = statement.executeQuery("SELECT x, y, z FROM " + SQL.database + ".`evilbook-commandblock`;")) {
 					while (rs.next()) {
 						try (Statement setStatement = SQL.connection.createStatement()) {
 							for (World world : getServer().getWorlds()) {
 								if (world.getBlockAt(rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getType() == Material.COMMAND) {
-									setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET world='" + world.getName() + "' WHERE x=" + rs.getInt("x") + " AND y=" + rs.getInt("y") + " AND z=" + rs.getInt("z") + ";");
+									setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET world='" + world.getUID().toString() + "' WHERE x=" + rs.getInt("x") + " AND y=" + rs.getInt("y") + " AND z=" + rs.getInt("z") + ";");
 									continue;
 								}
 								logWarning("Failed to indentify world of command block at " + rs.getInt("x") + ", " + rs.getInt("y") + ", " + rs.getInt("z"));
@@ -1009,7 +1009,28 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§d/drwatson memstat");
 				sender.sendMessage("§d/drwatson liststat");
 				sender.sendMessage("§d/drwatson opfix");
+				sender.sendMessage("§d/drwatson updatecbworlduuid");
 				sender.sendMessage("§d/drwatson worldinfo [worldName]");
+			} else if (args[0].equalsIgnoreCase("updatecbworlduuid")) {
+				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+					@Override
+					public void run() {
+						try (Statement statement = SQL.connection.createStatement()) {
+							try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + ".`evilbook-commandblock`;")) {
+								while (rs.next()) {
+									try (Statement setStatement = SQL.connection.createStatement()) {
+										String UUID = getServer().getWorld(rs.getString("world")).getUID().toString();
+										setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET world='" + UUID + "' WHERE world='" + rs.getString("world") + "';");
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+					}
+				});
 			} else if (args[0].equalsIgnoreCase("opfix")) {
 				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
 					@Override
@@ -1079,7 +1100,7 @@ public class EvilBook extends JavaPlugin {
 						while (rs.next()) {
 							if (rs.getString("world") == null) {
 								sender.sendMessage("§7--> World is not available");
-							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
+							} else if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
 								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a command block"); 
 							}
 						}
@@ -1200,7 +1221,7 @@ public class EvilBook extends JavaPlugin {
 							if (rs.getString("world") == null) {
 								sender.sendMessage("§7--> FIXED: World is not available");
 								SQL.deleteRowFromCriteria(TableType.CommandBlock, "x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "' AND world IS NULL");
-							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
+							} else if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
 								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a command block"); 
 								SQL.deleteRowFromCriteria(TableType.CommandBlock, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
 							}
