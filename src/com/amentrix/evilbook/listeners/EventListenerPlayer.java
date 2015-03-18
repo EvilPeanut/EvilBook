@@ -625,7 +625,7 @@ public class EventListenerPlayer implements Listener {
 					//
 					if (!EvilBook.isInProtectedRegion(block.getLocation(), player)) {
 						try {
-							for (Iterator<DynamicSign> iterator = EvilBook.dynamicSignList.iterator(); iterator.hasNext();) {
+							for (Iterator<DynamicSign> iterator = EvilBook.dynamicSignList.get(sign.getLocation().getWorld()).iterator(); iterator.hasNext();) {
 								DynamicSign dynamicSign = iterator.next();
 								if (dynamicSign.location.getBlockX() == sign.getLocation().getBlockX() && 
 										dynamicSign.location.getBlockY() == sign.getLocation().getBlockY() &&
@@ -724,7 +724,7 @@ public class EventListenerPlayer implements Listener {
 							case WHITE: dyeTextColor = ChatColor.WHITE; break;
 							default: dyeTextColor = ChatColor.BLACK;
 							}
-							for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
+							for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(player.getWorld())) {
 								if (dynamicSign.location.equals(block.getLocation())) {
 									if (dynamicSign.textLines[0].length() != 0) dynamicSign.textLines[0] = dyeTextColor + (dynamicSign.textLines[0].startsWith("§") && !dynamicSign.textLines[0].startsWith("§l") && !dynamicSign.textLines[0].startsWith("§k") && !dynamicSign.textLines[0].startsWith("§n") && !dynamicSign.textLines[0].startsWith("§m") && !dynamicSign.textLines[0].startsWith("§o") && !dynamicSign.textLines[0].startsWith("§r") ? dynamicSign.textLines[0].substring(2, dynamicSign.textLines[0].length()) : dynamicSign.textLines[0]);
 									if (dynamicSign.textLines[1].length() != 0) dynamicSign.textLines[1] = dyeTextColor + (dynamicSign.textLines[1].startsWith("§") && !dynamicSign.textLines[1].startsWith("§l") && !dynamicSign.textLines[1].startsWith("§k") && !dynamicSign.textLines[1].startsWith("§n") && !dynamicSign.textLines[1].startsWith("§m") && !dynamicSign.textLines[1].startsWith("§o") && !dynamicSign.textLines[1].startsWith("§r") ? dynamicSign.textLines[1].substring(2, dynamicSign.textLines[1].length()) : dynamicSign.textLines[1]);

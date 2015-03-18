@@ -129,7 +129,7 @@ public class EventListenerBlock implements Listener {
 				public void run() {
 					// Dynamic signs
 					if (blockType == Material.SIGN_POST || blockType == Material.WALL_SIGN) {
-						Iterator<DynamicSign> dynamicSigns = EvilBook.dynamicSignList.iterator();
+						Iterator<DynamicSign> dynamicSigns = EvilBook.dynamicSignList.get(block.getWorld()).iterator();
 						while (dynamicSigns.hasNext()) {
 							DynamicSign dynamicSign = dynamicSigns.next();
 							if (dynamicSign.location.getWorld() == block.getWorld() && dynamicSign.location.getBlockX() == block.getX() 

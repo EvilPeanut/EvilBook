@@ -154,7 +154,7 @@ class Region {
 			// Undo dynamic sign removals
 			for (DynamicSign dynamicSign : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoDynamicSignList) {
 				dynamicSign.create();
-				EvilBook.dynamicSignList.add(dynamicSign);
+				EvilBook.dynamicSignList.get(dynamicSign.location.getWorld()).add(dynamicSign);
 			}
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoDynamicSignList = new ArrayList<>();
 			// Undo emitter removals
@@ -259,7 +259,7 @@ class Region {
 							player.getLocation().getBlockY() + (newDynamicSign.location.getBlockY() - bottomBlockY), 
 							player.getLocation().getBlockZ() + (newDynamicSign.location.getBlockZ() - bottomBlockZ));
 					newDynamicSign.create();
-					EvilBook.dynamicSignList.add(newDynamicSign);
+					EvilBook.dynamicSignList.get(player.getWorld()).add(newDynamicSign);
 				}
 				((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList = new ArrayList<>();
 				// Paste emitters
@@ -337,7 +337,7 @@ class Region {
 							// Append the block to the copy list
 							((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendCopy(selection.getBlock(x, y, z).getState());
 							// Dynamic signs
-							for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
+							for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(selection.getWorld())) {
 								if (dynamicSign.location.getWorld().getName().equals(selection.getWorld().getName()) && 
 										dynamicSign.location.getBlockX() == x &&
 										dynamicSign.location.getBlockY() == y &&
@@ -413,7 +413,7 @@ class Region {
 						// Append the block to the copy list
 						((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendCopy(selection.getBlock(x, y, z).getState());
 						// Dynamic signs
-						for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
+						for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(selection.getWorld())) {
 							if (dynamicSign.location.getWorld().getName().equals(selection.getWorld().getName()) && 
 									dynamicSign.location.getBlockX() == x &&
 									dynamicSign.location.getBlockY() == y &&

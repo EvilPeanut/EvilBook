@@ -107,7 +107,7 @@ public class EvilBook extends JavaPlugin {
 	public static final Map<String, PlayerProfile> playerProfiles = new HashMap<>();
 	public static final Map<String, Rank> commandBlacklist = new HashMap<>();
 	private static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
-	public static final List<DynamicSign> dynamicSignList = new ArrayList<>();
+	public static final Map<World, List<DynamicSign>> dynamicSignList = new HashMap<>();
 	public static final List<String> paidWorldList = new ArrayList<>();
 	public static final List<Region> regionList = new ArrayList<>();
 	private static final List<Region> plotRegionList = new ArrayList<>();
@@ -353,11 +353,15 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Load dynamic signs
 		//
+		for (World world : getServer().getWorlds()) {
+			dynamicSignList.put(world, new ArrayList());
+		}
 		try (Statement statement = SQL.connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
 				while (rs.next()) {
-					if (getServer().getWorld(UUID.fromString(rs.getString("world"))) != null) {
-						dynamicSignList.add(new DynamicSign(rs));
+					World world = getServer().getWorld(UUID.fromString(rs.getString("world")));
+					if (world != null) {
+						dynamicSignList.get(world).add(new DynamicSign(rs));
 					} else {
 						logInfo("Dynamic sign in " + rs.getString("world") + " at " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + " not loaded location unavailable");
 					}

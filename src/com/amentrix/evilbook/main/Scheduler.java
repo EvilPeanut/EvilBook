@@ -2,6 +2,7 @@ package com.amentrix.evilbook.main;
 
 import java.util.Random;
 
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -105,15 +106,24 @@ class Scheduler {
 			@Override
 			public void run() {
 				// Dynamic Signs
-				for (DynamicSign dynamicSign : EvilBook.dynamicSignList) {
-					SignUtils.updateDynamicSign(dynamicSign);
-				}
+				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+					@Override
+					public void run() {
+						for (World world : EvilBook.dynamicSignList.keySet()) {
+							if (world.getPlayers().size() != 0) {
+								for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
+									SignUtils.updateDynamicSign(dynamicSign);
+								}
+							}
+						}
+					}
+				});
 				// Emitters
 				//for (Emitter emit : EvilBook.emitterList) {
 					//emit.update();
 				//}
 			}
-		}, 0L, 20L);
+		}, 0L, 10L);
 	}
 
 	/**

@@ -20,7 +20,7 @@ public class SignUtils {
 			line[i] = EvilBook.replaceAllIgnoreCase(line[i], "[BlocksPlaced]", "[blocksplaced]");
 		}
 		DynamicSign dynamicSign = new DynamicSign(sign.getBlock().getLocation(), line);
-		EvilBook.dynamicSignList.add(dynamicSign);
+		EvilBook.dynamicSignList.get(sign.getWorld()).add(dynamicSign);
 		updateDynamicSign(dynamicSign);
 	}
 
@@ -31,6 +31,8 @@ public class SignUtils {
 	public static void updateDynamicSign(DynamicSign dynamicSign) {
 		if (!dynamicSign.location.getChunk().isLoaded()) return;
 		if (dynamicSign.location.getBlock().getState() instanceof Sign == false) return;
+		//EvilBook.logInfo("Updating dynamic sign at " + dynamicSign.location.getWorld().getName() +
+				//", " + dynamicSign.location.getBlockX() + ", " + dynamicSign.location.getBlockY() + ", " + dynamicSign.location.getBlockZ());
 		Sign sign = (Sign) dynamicSign.location.getBlock().getState();
 		for (int i = 0; i < 4; i++) {
 			sign.setLine(i, dynamicSign.textLines[i].replace("[time]", EvilBook.getTime(sign.getBlock().getWorld())
