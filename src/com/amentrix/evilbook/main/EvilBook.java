@@ -1071,7 +1071,7 @@ public class EvilBook extends JavaPlugin {
 				}
 			} else if (args[0].equalsIgnoreCase("sql")) {
 				//
-				// Check `evilbook-dynamicsigns` table
+				// Check `evilbook-commandblock` table
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-commandblock`...");
 				try (Statement statement = SQL.connection.createStatement()) {
@@ -1191,7 +1191,7 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§7Dr. Watson scan finished");
 			} else if (args[0].equalsIgnoreCase("sqlclean")) {
 				//
-				// Clean `evilbook-dynamicsigns` table
+				// Clean `evilbook-commandblock` table
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-commandblock`...");
 				try (Statement statement = SQL.connection.createStatement()) {
