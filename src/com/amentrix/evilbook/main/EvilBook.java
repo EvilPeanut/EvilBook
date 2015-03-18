@@ -259,19 +259,29 @@ public class EvilBook extends JavaPlugin {
 		// evilbook-commandblock player name to UUID converter
 		if (SQL.isColumnExistant(TableType.CommandBlock, "player_owner")) {
 			logInfo("Updating command block protection database...");
-			SQL.insertNullColumn(TableType.CommandBlock, "player_UUID CHAR(36)");
+			SQL.insertNullColumn(TableType.CommandBlock, "player CHAR(36)");
 			try (Statement statement = SQL.connection.createStatement()) {
 				try (ResultSet rs = statement.executeQuery("SELECT player_owner FROM " + SQL.database + ".`evilbook-commandblock`;")) {
 					while (rs.next()) {
 						try (Statement setStatement = SQL.connection.createStatement()) {
 							OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_owner"));
-							setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET player_UUID='" + player.getUniqueId().toString() + "' WHERE player_owner='" + rs.getString("player_owner") + "';");
+							setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET player='" + player.getUniqueId().toString() + "' WHERE player_owner='" + rs.getString("player_owner") + "';");
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					}
 				}
 				SQL.deleteColumn(TableType.CommandBlock, "player_owner");
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+			logInfo("Updated command block protection database!");
+		}
+		// evilbook-commandblock update 'player_UUID' column name to 'player'
+		if (SQL.isColumnExistant(TableType.CommandBlock, "player_UUID")) {
+			logInfo("Updating command block protection database...");
+			try (Statement stmt = SQL.connection.createStatement()) {
+				stmt.execute("ALTER TABLE " + SQL.database + "." + TableType.CommandBlock.tableName + " CHANGE player_UUID player CHAR(36)");
 			} catch (Exception exception) {
 				exception.printStackTrace();
 			}
@@ -4217,7 +4227,7 @@ public class EvilBook extends JavaPlugin {
 	 * Log information to the minecraft server console
 	 * @param information The information to log
 	 */
-	private static void logInfo(String information) {
+	public static void logInfo(String information) {
 		Logger.getLogger("Minecraft").log(Level.INFO, "[EvilBook] " + information);
 	}
 

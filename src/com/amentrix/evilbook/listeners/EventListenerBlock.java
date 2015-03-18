@@ -65,6 +65,7 @@ public class EventListenerBlock implements Listener {
 	public void onBlockBreak(BlockBreakEvent event) {
 		final Player player = event.getPlayer();
 		final Block block = event.getBlock();
+		final Material blockType = block.getType();
 		PlayerProfile profile = EvilBook.getProfile(player);
 		if (!profile.isCanEditWorld(block.getWorld())) {
 			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
@@ -102,15 +103,15 @@ public class EventListenerBlock implements Listener {
 				if (block.getState() instanceof InventoryHolder) {
 					if (EvilBook.isContainerProtected(block.getLocation(), player)) {
 						player.sendMessage(ChatColor.GRAY + "You don't have permission to break the " + 
-								EvilBook.getFriendlyName(block.getType()).toLowerCase(Locale.UK));
+								EvilBook.getFriendlyName(blockType).toLowerCase(Locale.UK));
 						event.setCancelled(true);
 						return;
 					}
 					EvilBook.unprotectContainer(block.getLocation());
-					player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protection removed");
+					player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(blockType) + " protection removed");
 				}
 				// Achievements
-				switch (block.getType()) {
+				switch (blockType) {
 				case COAL_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_COAL, 1); break;
 				case IRON_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_IRON, 1); break;
 				case LAPIS_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_LAPIS, 1); break;
@@ -127,7 +128,7 @@ public class EventListenerBlock implements Listener {
 				@Override
 				public void run() {
 					// Dynamic signs
-					if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
+					if (blockType == Material.SIGN_POST || blockType == Material.WALL_SIGN) {
 						Iterator<DynamicSign> dynamicSigns = EvilBook.dynamicSignList.iterator();
 						while (dynamicSigns.hasNext()) {
 							DynamicSign dynamicSign = dynamicSigns.next();
@@ -139,10 +140,9 @@ public class EventListenerBlock implements Listener {
 						}
 					}
 					// Command block logging
-					if (block.getType() == Material.COMMAND && SQL.getPropertyFromCriteria(TableType.CommandBlock, "player_uuid='" + player.getUniqueId().toString() + 
-							"' AND world='" + block.getWorld().getName() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player_owner") != null) {
-						SQL.deleteRowFromCriteria(TableType.CommandBlock, "player_uuid='" + player.getUniqueId().toString() + 
-								"' AND world='" + block.getWorld().getName() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
+					if (blockType == Material.COMMAND && SQL.isRowExistant(TableType.CommandBlock, "world='" + block.getWorld().getName() + 
+							"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'")) {
+						SQL.deleteRowFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getName() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
 					}
 					// Statistics
 					GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksBroken, 1);
