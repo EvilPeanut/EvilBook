@@ -29,20 +29,24 @@ public class SignUtils {
 	}
 	
 	public static void updateDynamicSign(DynamicSign dynamicSign) {
-		if (!dynamicSign.location.getChunk().isLoaded()) return;
-		if (dynamicSign.location.getBlock().getState() instanceof Sign == false) return;
-		//EvilBook.logInfo("Updating dynamic sign at " + dynamicSign.location.getWorld().getName() +
-				//", " + dynamicSign.location.getBlockX() + ", " + dynamicSign.location.getBlockY() + ", " + dynamicSign.location.getBlockZ());
-		Sign sign = (Sign) dynamicSign.location.getBlock().getState();
-		for (int i = 0; i < 4; i++) {
-			sign.setLine(i, dynamicSign.textLines[i].replace("[time]", EvilBook.getTime(sign.getBlock().getWorld())
-					.replace("[weather]", EvilBook.getWeather(sign.getBlock())))
-					.replace("[online]", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
-					.replace("[blocksbroken]", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken))
-					.replace("[blocksplaced]", GlobalStatistics.getStatistic(GlobalStatistic.BlocksPlaced))
-					);
+		try {
+			if (!dynamicSign.location.getChunk().isLoaded()) return;
+			if (dynamicSign.location.getBlock().getState() instanceof Sign == false) return;
+			//EvilBook.logInfo("Updating dynamic sign at " + dynamicSign.location.getWorld().getName() +
+					//", " + dynamicSign.location.getBlockX() + ", " + dynamicSign.location.getBlockY() + ", " + dynamicSign.location.getBlockZ());
+			Sign sign = (Sign) dynamicSign.location.getBlock().getState();
+			for (int i = 0; i < 4; i++) {
+				sign.setLine(i, dynamicSign.textLines[i].replace("[time]", EvilBook.getTime(sign.getBlock().getWorld())
+						.replace("[weather]", EvilBook.getWeather(sign.getBlock())))
+						.replace("[online]", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
+						.replace("[blocksbroken]", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken))
+						.replace("[blocksplaced]", GlobalStatistics.getStatistic(GlobalStatistic.BlocksPlaced))
+						);
+			}
+			sign.update();
+		} catch (Exception e) {
+			// We don't care about async errors in this case
 		}
-		sign.update();
 	}
 	
 	public static Boolean isDynamicSign(Sign sign) {
