@@ -3,6 +3,8 @@ package com.amentrix.evilbook.main;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -22,7 +24,7 @@ public class DynamicSign {
 		this.textLines = textLines;
 		try {
 			SQL.insert(TableType.DynamicSign, "world, x, y, z, line1, line2, line3, line4", "'" + 
-			location.getWorld().getName() + "','" + 
+			location.getWorld().getUID().toString() + "','" + 
 			location.getBlockX() + "','" +
 			location.getBlockY() + "','" + 
 			location.getBlockZ() + "','" +
@@ -37,7 +39,7 @@ public class DynamicSign {
 	
 	DynamicSign(ResultSet properties) {
 		try {
-			this.location = new Location(Bukkit.getServer().getWorld(properties.getString("world")), properties.getInt("x"), properties.getInt("y"), properties.getInt("z"));
+			this.location = new Location(Bukkit.getServer().getWorld(UUID.fromString(properties.getString("world"))), properties.getInt("x"), properties.getInt("y"), properties.getInt("z"));
 			this.textLines = new String[4];
 			this.textLines[0] = properties.getString("line1");
 			this.textLines[1] = properties.getString("line2");
@@ -50,7 +52,7 @@ public class DynamicSign {
 	
 	public void delete() {
 		try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM " + SQL.database + ".`evilbook-dynamicsigns` WHERE world=? AND x=? AND y=? AND z=?")) {
-			statement.setString(1, this.location.getWorld().getName());
+			statement.setString(1, this.location.getWorld().getUID().toString());
 			statement.setInt(2, this.location.getBlockX());
 			statement.setInt(3, this.location.getBlockY());
 			statement.setInt(4, this.location.getBlockZ());
@@ -64,7 +66,7 @@ public class DynamicSign {
 	public void create() {
 		try {
 			SQL.insert(TableType.DynamicSign, "'" + 
-			this.location.getWorld().getName() + "','" + 
+			this.location.getWorld().getUID().toString() + "','" + 
 			this.location.getBlockX() + "','" +
 			this.location.getBlockY() + "','" + 
 			this.location.getBlockZ() + "','" +

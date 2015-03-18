@@ -356,7 +356,7 @@ public class EvilBook extends JavaPlugin {
 		try (Statement statement = SQL.connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
 				while (rs.next()) {
-					if (getServer().getWorld(rs.getString("world")) != null) {
+					if (getServer().getWorld(UUID.fromString(rs.getString("world"))) != null) {
 						dynamicSignList.add(new DynamicSign(rs));
 					} else {
 						logInfo("Dynamic sign in " + rs.getString("world") + " at " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + " not loaded location unavailable");
@@ -1010,7 +1010,28 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§d/drwatson liststat");
 				sender.sendMessage("§d/drwatson opfix");
 				sender.sendMessage("§d/drwatson updatecbworlduuid");
+				sender.sendMessage("§d/drwatson updatedsworlduuid");
 				sender.sendMessage("§d/drwatson worldinfo [worldName]");
+			} else if (args[0].equalsIgnoreCase("updatedsworlduuid")) {
+				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+					@Override
+					public void run() {
+						try (Statement statement = SQL.connection.createStatement()) {
+							try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + ".`evilbook-dynamicsigns`;")) {
+								while (rs.next()) {
+									try (Statement setStatement = SQL.connection.createStatement()) {
+										String UUID = getServer().getWorld(rs.getString("world")).getUID().toString();
+										setStatement.execute("UPDATE " + SQL.database + "." + TableType.DynamicSign.tableName + " SET world='" + UUID + "' WHERE world='" + rs.getString("world") + "';");
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+					}
+				});
 			} else if (args[0].equalsIgnoreCase("updatecbworlduuid")) {
 				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
 					@Override
@@ -1115,9 +1136,9 @@ public class EvilBook extends JavaPlugin {
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
 						while (rs.next()) {
-							if (Bukkit.getWorld(rs.getString("world")) == null) {
+							if (Bukkit.getWorld(UUID.fromString(rs.getString("world"))) == null) {
 								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded");
-							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
+							} else if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
 								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a sign"); 
 							}
 						}
@@ -1237,10 +1258,10 @@ public class EvilBook extends JavaPlugin {
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + ".`evilbook-dynamicsigns`;")) {
 						while (rs.next()) {
-							if (Bukkit.getWorld(rs.getString("world")) == null) {
+							if (Bukkit.getWorld(UUID.fromString(rs.getString("world"))) == null) {
 								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
 								SQL.deleteRowFromCriteria(TableType.DynamicSign, "world='" + rs.getString("world") + "'");
-							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
+							} else if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
 								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a sign"); 
 								SQL.deleteRowFromCriteria(TableType.DynamicSign, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
 							}
