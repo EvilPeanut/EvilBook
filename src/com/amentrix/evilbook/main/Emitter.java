@@ -36,72 +36,76 @@ public class Emitter {
 	}
 
 	public void update() {
-		if (!this.location.getBlock().getChunk().isLoaded()) return;
-		if (this.frequencyTick == this.frequency) {
-			switch (this.effect) {
-			case Cloud:
-				this.location.getWorld().playEffect(this.location, Effect.CLOUD, this.data);
-				break;
-			case EnchantmentTable:
-				this.location.getWorld().playEffect(this.location, Effect.FLYING_GLYPH, this.data);
-				break;
-			case FireworksSpark:
-				this.location.getWorld().playEffect(this.location, Effect.FIREWORKS_SPARK, this.data);
-				break;
-			case Flames:
-				this.location.getWorld().playEffect(this.location, Effect.MOBSPAWNER_FLAMES, this.data);
-				break;
-			case Hearts:
-				this.location.getWorld().playEffect(this.location, Effect.HEART, this.data);
-				break;
-			case HugeExplosion:
-				this.location.getWorld().playEffect(this.location, Effect.EXPLOSION_HUGE, this.data);
-				break;
-			case LargeExplosion:
-				this.location.getWorld().playEffect(this.location, Effect.EXPLOSION_LARGE, this.data);
-				break;
-			case MagicCriticalHit:
-				this.location.getWorld().playEffect(this.location, Effect.MAGIC_CRIT, this.data);
-				break;
-			case Potion:
-				this.location.getWorld().playEffect(this.location, Effect.POTION_BREAK, this.data);
-				break;
-			case RedstoneFumes:
-				this.location.getWorld().playEffect(this.location, Effect.COLOURED_DUST, this.data);
-				break;
-			case Slime:
-				this.location.getWorld().playEffect(this.location, Effect.SLIME, this.data);
-				break;
-			case Smoke:
-				this.location.getWorld().playEffect(this.location, Effect.SMOKE, this.data);
-				break;
-			case LavaDrip:
-				this.location.getWorld().playEffect(this.location, Effect.LAVADRIP, this.data);
-				break;
-			case LavaPop:
-				this.location.getWorld().playEffect(this.location, Effect.LAVA_POP, this.data);
-				break;
-			case Note:
-				this.location.getWorld().playEffect(this.location, Effect.NOTE, this.data);
-				break;
-			case Portal:
-				this.location.getWorld().playEffect(this.location, Effect.PORTAL, this.data);
-				break;
-			case Thundercloud:
-				this.location.getWorld().playEffect(this.location, Effect.VILLAGER_THUNDERCLOUD, this.data);
-				break;
-			case VoidFog:
-				this.location.getWorld().playEffect(this.location, Effect.VOID_FOG, this.data);
-				break;
-			case WaterDrip:
-				this.location.getWorld().playEffect(this.location, Effect.WATERDRIP, this.data);
-				break;
-			default:
-				break;
+		try {
+			if (!this.location.getBlock().getChunk().isLoaded()) return;
+			if (this.frequencyTick == this.frequency) {
+				switch (this.effect) {
+				case Cloud:
+					this.location.getWorld().playEffect(this.location, Effect.CLOUD, this.data);
+					break;
+				case EnchantmentTable:
+					this.location.getWorld().playEffect(this.location, Effect.FLYING_GLYPH, this.data);
+					break;
+				case FireworksSpark:
+					this.location.getWorld().playEffect(this.location, Effect.FIREWORKS_SPARK, this.data);
+					break;
+				case Flames:
+					this.location.getWorld().playEffect(this.location, Effect.MOBSPAWNER_FLAMES, this.data);
+					break;
+				case Hearts:
+					this.location.getWorld().playEffect(this.location, Effect.HEART, this.data);
+					break;
+				case HugeExplosion:
+					this.location.getWorld().playEffect(this.location, Effect.EXPLOSION_HUGE, this.data);
+					break;
+				case LargeExplosion:
+					this.location.getWorld().playEffect(this.location, Effect.EXPLOSION_LARGE, this.data);
+					break;
+				case MagicCriticalHit:
+					this.location.getWorld().playEffect(this.location, Effect.MAGIC_CRIT, this.data);
+					break;
+				case Potion:
+					this.location.getWorld().playEffect(this.location, Effect.POTION_BREAK, this.data);
+					break;
+				case RedstoneFumes:
+					this.location.getWorld().playEffect(this.location, Effect.COLOURED_DUST, this.data);
+					break;
+				case Slime:
+					this.location.getWorld().playEffect(this.location, Effect.SLIME, this.data);
+					break;
+				case Smoke:
+					this.location.getWorld().playEffect(this.location, Effect.SMOKE, this.data);
+					break;
+				case LavaDrip:
+					this.location.getWorld().playEffect(this.location, Effect.LAVADRIP, this.data);
+					break;
+				case LavaPop:
+					this.location.getWorld().playEffect(this.location, Effect.LAVA_POP, this.data);
+					break;
+				case Note:
+					this.location.getWorld().playEffect(this.location, Effect.NOTE, this.data);
+					break;
+				case Portal:
+					this.location.getWorld().playEffect(this.location, Effect.PORTAL, this.data);
+					break;
+				case Thundercloud:
+					this.location.getWorld().playEffect(this.location, Effect.VILLAGER_THUNDERCLOUD, this.data);
+					break;
+				case VoidFog:
+					this.location.getWorld().playEffect(this.location, Effect.VOID_FOG, this.data);
+					break;
+				case WaterDrip:
+					this.location.getWorld().playEffect(this.location, Effect.WATERDRIP, this.data);
+					break;
+				default:
+					break;
+				}
+				this.frequencyTick = 0;
+			} else {
+				this.frequencyTick++;
 			}
-			this.frequencyTick = 0;
-		} else {
-			this.frequencyTick++;
+		} catch (Exception e) {
+			// We don't care about async errors in this case
 		}
 	}
 	

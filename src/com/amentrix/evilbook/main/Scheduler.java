@@ -106,22 +106,27 @@ class Scheduler {
 			@Override
 			public void run() {
 				// Dynamic Signs
-				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-					@Override
-					public void run() {
-						for (World world : EvilBook.dynamicSignList.keySet()) {
-							if (world.getPlayers().size() != 0) {
+				for (final World world : EvilBook.dynamicSignList.keySet()) {
+					if (world.getPlayers().size() != 0) {
+						plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+							@Override
+							public void run() {
 								for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
 									SignUtils.updateDynamicSign(dynamicSign);
 								}
 							}
+						});
+					}
+				}
+				// Emitters
+				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+					@Override
+					public void run() {
+						for (Emitter emit : EvilBook.emitterList) {
+							emit.update();
 						}
 					}
 				});
-				// Emitters
-				//for (Emitter emit : EvilBook.emitterList) {
-					//emit.update();
-				//}
 			}
 		}, 0L, 10L);
 	}
