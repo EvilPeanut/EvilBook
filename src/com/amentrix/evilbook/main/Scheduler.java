@@ -113,14 +113,9 @@ class Scheduler {
 					}
 				}
 				// Emitters
-				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-					@Override
-					public void run() {
-						for (Emitter emit : EvilBook.emitterList) {
-							emit.update();
-						}
-					}
-				});
+				for (Emitter emit : EvilBook.emitterList) {
+					emit.update();
+				}
 			}
 		}, 0L, 10L);
 	}

@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 
 import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
@@ -36,8 +37,7 @@ public class Emitter {
 	}
 
 	public void update() {
-		try {
-			if (!this.location.getBlock().getChunk().isLoaded()) return;
+		if (isSeen()) {
 			if (this.frequencyTick == this.frequency) {
 				switch (this.effect) {
 				case Cloud:
@@ -104,9 +104,18 @@ public class Emitter {
 			} else {
 				this.frequencyTick++;
 			}
-		} catch (Exception e) {
-			// We don't care about async errors in this case
 		}
+	}
+	
+	public Boolean isSeen() {
+		if (!location.getChunk().isLoaded()) return false;
+		for (Player player : location.getWorld().getPlayers()) {
+			if (Math.abs(player.getLocation().getBlockX() - location.getBlockX()) <= 16
+					&& Math.abs(player.getLocation().getBlockZ() - location.getBlockZ()) <= 16) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void save() {

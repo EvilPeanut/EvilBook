@@ -156,31 +156,40 @@ public class EventListenerBlock implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		Player player = event.getPlayer();
-		Block block = event.getBlock();
+		final Player player = event.getPlayer();
+		final Block block = event.getBlock();
 		PlayerProfile profile = EvilBook.getProfile(player);
 		if (!profile.isCanEditWorld(block.getWorld())) {
 			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 			event.setCancelled(true);
 		} else if (event.getBlockAgainst().getState() instanceof Sign) {
 			event.setCancelled(true);
-		} else if (!EvilBook.isInSurvival(player) && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !profile.rank.isHigher(Rank.BUILDER) && !EvilBook.isInPrivateWorld(player) && (block.getType() == Material.ANVIL 
-				|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL || block.getType() == Material.MOB_SPAWNER)) {
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "This block requires " + ChatColor.DARK_PURPLE + Rank.ADVANCED_BUILDER.getName() + " " + ChatColor.LIGHT_PURPLE + "rank or higher");
-			event.setCancelled(true);
-		} else if (!profile.rank.isAdmin() && !EvilBook.isInPrivateWorld(player) && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && (block.getType() == Material.WATER ||
-				block.getType() == Material.STATIONARY_WATER || block.getType() == Material.LAVA ||
-				block.getType() == Material.STATIONARY_LAVA || block.getType() == Material.TNT ||
-				block.getType() == Material.FIRE || block.getType() == Material.PORTAL ||
-				block.getType() == Material.DRAGON_EGG) &&
-				(!EvilBook.isInSurvival(player) || !profile.rank.isHigher(Rank.ARCHITECT))) {
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "This block is " + ChatColor.DARK_PURPLE + "Admin " + ChatColor.LIGHT_PURPLE + "only");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "Please type " + ChatColor.GOLD + "/admin " + ChatColor.LIGHT_PURPLE + "to learn how to become admin");
-			event.setCancelled(true);
 		} else if (EvilBook.isInProtectedRegion(block.getLocation(), player)) {
 			player.sendMessage(ChatColor.RED + "You don't have permission to build here");
 			event.setCancelled(true);
 		} else {
+			// Ranked blocks
+			if (!EvilBook.isInSurvival(player) && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.isInPrivateWorld(player)) {
+				if (!profile.rank.isHigher(Rank.BUILDER) && (block.getType() == Material.ANVIL 
+						|| block.getType() == Material.SAPLING || block.getType() == Material.SAND || block.getType() == Material.GRAVEL || block.getType() == Material.MOB_SPAWNER)) {
+					player.sendMessage(ChatColor.LIGHT_PURPLE + "This block requires " + ChatColor.DARK_PURPLE + Rank.ADVANCED_BUILDER.getName() + " " + ChatColor.LIGHT_PURPLE + "rank or higher");
+					event.setCancelled(true);
+					return;
+				} else if (!profile.rank.isAdmin()) {
+					if (block.getType() == Material.WATER || block.getType() == Material.STATIONARY_WATER ||
+							block.getType() == Material.LAVA || block.getType() == Material.STATIONARY_LAVA ||
+							block.getType() == Material.TNT || block.getType() == Material.FIRE ||
+							block.getType() == Material.PORTAL || block.getType() == Material.DRAGON_EGG) {
+						player.sendMessage(ChatColor.LIGHT_PURPLE + "This block is " + ChatColor.DARK_PURPLE + "Admin " + ChatColor.LIGHT_PURPLE + "only");
+						player.sendMessage(ChatColor.LIGHT_PURPLE + "Please type " + ChatColor.GOLD + "/admin " + ChatColor.LIGHT_PURPLE + "to learn how to become admin");
+						event.setCancelled(true);
+						return;
+					} else if (block.getType() == Material.ICE) {
+						// Free-player ice to packed-ice security
+						block.setType(Material.PACKED_ICE);
+					}
+				}
+			}
 			// Plotworld plot protection
 			if (EvilBook.isInPlotWorld(player)) {
 				if (EvilBook.isInPlotworldRegion(block.getLocation())) {
@@ -196,15 +205,19 @@ public class EventListenerBlock implements Listener {
 					return;
 				}
 			}
-			// Free-player ice to packed-ice security
-			if (!profile.rank.isAdmin() && !EvilBook.isInSurvival(player) && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && block.getType() == Material.ICE) block.setType(Material.PACKED_ICE);
-			// Survival container protection
-			if (EvilBook.isInSurvival(player) && block.getState() instanceof InventoryHolder) {
-				EvilBook.protectContainer(block.getLocation(), player);
-				player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protected");
-			}
-			// Statistics
-			GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksPlaced, 1);
+			// Async stats and survival container protection
+			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				@Override
+				public void run() {
+					// Survival container protection
+					if (EvilBook.isInSurvival(player) && block.getState() instanceof InventoryHolder) {
+						EvilBook.protectContainer(block.getLocation(), player);
+						player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protected");
+					}
+					// Statistics
+					GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksPlaced, 1);
+				}
+			});
 		}
 	}
 
