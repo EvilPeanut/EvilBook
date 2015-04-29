@@ -3,9 +3,10 @@ package com.amentrix.evilbook.listeners;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.event.Listener;
+
 import com.amentrix.evilbook.achievement.Achievement;
+import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.EvilBook;
-import com.amentrix.evilbook.utils.SignUtils;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -36,9 +37,9 @@ public class EventListenerPacket implements Listener {
 					sign.setLine(1, lines[1].getJson().substring(1, lines[1].getJson().length() - 1));
 					sign.setLine(2, lines[2].getJson().substring(1, lines[2].getJson().length() - 1));
 					sign.setLine(3, lines[3].getJson().substring(1, lines[3].getJson().length() - 1));
-					SignUtils.formatSignText(sign);
-					if (SignUtils.isDynamicSign(sign)) {
-						SignUtils.formatDynamicSign(sign);
+					formatSignText(sign);
+					if (DynamicSign.isDynamicSign(sign)) {
+						DynamicSign.formatDynamicSign(sign);
 						EvilBook.getProfile(event.getPlayer()).addAchievement(Achievement.GLOBAL_DYNAMIC_SIGN);
 					}
 					sign.update();
@@ -46,5 +47,9 @@ public class EventListenerPacket implements Listener {
 				}
 			}
 		});
+	}
+	
+	static void formatSignText(Sign sign) {
+		for (int i = 0; i < 4; i++) sign.setLine(i, EvilBook.toFormattedString(sign.getLine(i)));
 	}
 }

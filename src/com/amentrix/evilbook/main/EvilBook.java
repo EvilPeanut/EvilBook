@@ -1012,6 +1012,7 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§d/drwatson respring");
 				sender.sendMessage("§d/drwatson memstat");
 				sender.sendMessage("§d/drwatson liststat");
+				sender.sendMessage("§d/drwatson listscan");
 				sender.sendMessage("§d/drwatson opfix");
 				sender.sendMessage("§d/drwatson updatecbworlduuid");
 				sender.sendMessage("§d/drwatson updatedsworlduuid");
@@ -1097,6 +1098,17 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§dEmitters = " + emitterList.size());
 				sender.sendMessage("§dRare Spawns = " + rareSpawnList.size());
 				sender.sendMessage("§dIn Use Survival Workbenches = " + inUseSurvivalWorkbenchesList.size());
+			} else if (args[0].equalsIgnoreCase("listscan")) {
+				sender.sendMessage("§7Dr. Watson scanning dynamicSignList...");
+				for (final World world : EvilBook.dynamicSignList.keySet()) {
+					for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
+						if (dynamicSign.location.getBlock().getType() != Material.SIGN_POST && dynamicSign.location.getBlock().getType() != Material.WALL_SIGN) {
+							sender.sendMessage("§7--> Dynamic sign at (" + dynamicSign.location.getBlockX() + ", " + dynamicSign.location.getBlockY() + ", " + 
+									dynamicSign.location.getBlockZ() + ") isn't a sign");
+						}
+					}	
+				}
+				sender.sendMessage("§7Dr. Watson scan finished");
 			} else if (args[0].equalsIgnoreCase("worldinfo")) {
 				if (args.length == 2) {
 					World world = getServer().getWorld(args[1]);

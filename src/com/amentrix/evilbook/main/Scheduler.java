@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.GlobalStatistics;
-import com.amentrix.evilbook.utils.SignUtils;
 
 /**
  * Schedulers and timed events
@@ -108,14 +107,9 @@ class Scheduler {
 				// Dynamic Signs
 				for (final World world : EvilBook.dynamicSignList.keySet()) {
 					if (world.getPlayers().size() != 0) {
-						plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-							@Override
-							public void run() {
-								for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
-									SignUtils.updateDynamicSign(dynamicSign);
-								}
-							}
-						});
+						for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
+							dynamicSign.update();
+						}
 					}
 				}
 				// Emitters
