@@ -104,7 +104,7 @@ public class SQL {
 		}
 		return null;
 	}
-
+	
 	public static String getPropertyFromCriteria(TableType table, String criteria, String property) {
 		try (Statement statement = connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery("SELECT " + property + " FROM " + database + "." + table.tableName + " WHERE " + criteria + ";")) {

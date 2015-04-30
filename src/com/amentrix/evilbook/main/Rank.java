@@ -29,7 +29,7 @@ public enum Rank {
 	SERVER_HOST("Server Host", "§0[§BServer Host§0]", "B", Integer.MAX_VALUE, null);
 	
 	private String prefix, color, name, unlocks;
-	private Integer evilEditAreaLimit;
+	private int evilEditAreaLimit;
 	
 	public Boolean isHigher(Rank compareRank) { return this.compareTo(compareRank) > 0 ? true : false; }
 	
@@ -71,7 +71,7 @@ public enum Rank {
 	/**
 	 * @return The evil edit area limit of the rank
 	 */
-	public Integer getEvilEditAreaLimit(){ return this.evilEditAreaLimit; }
+	public int getEvilEditAreaLimit(){ return this.evilEditAreaLimit; }
 	
 	/**
 	 * Define a new rank
@@ -80,7 +80,7 @@ public enum Rank {
 	 * @param color The color of the rank
 	 * @param evilEditAreaLimit The evil edit area limit of the rank
 	 */
-	Rank (String name, String prefix, String color, Integer evilEditAreaLimit, String unlocks) {
+	Rank (String name, String prefix, String color, int evilEditAreaLimit, String unlocks) {
 		this.name = name;
 		this.prefix = prefix;
 		this.color = color;
