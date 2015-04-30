@@ -8,9 +8,14 @@ import java.sql.Statement;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.amentrix.evilbook.main.EvilBook;
+import com.amentrix.evilbook.main.Rank;
 
 /**
  * SQL framework
@@ -92,7 +97,10 @@ public class SQL {
 		}
 	}
 
-	public static String getProperty(TableType table, String key, String property) {
+	//
+	// Get methods
+	//
+	public static String getString(TableType table, String key, String property) {
 		try (Statement statement = connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery("SELECT " + property + " FROM " + database + "." + table.tableName + " WHERE " + table.keyName + "='" + key + "';")) {
 				if (rs.next()) return rs.getString(property);
@@ -105,7 +113,7 @@ public class SQL {
 		return null;
 	}
 	
-	public static String getPropertyFromCriteria(TableType table, String criteria, String property) {
+	public static String getStringFromCriteria(TableType table, String criteria, String property) {
 		try (Statement statement = connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery("SELECT " + property + " FROM " + database + "." + table.tableName + " WHERE " + criteria + ";")) {
 				if (rs.next()) return rs.getString(property);
@@ -117,19 +125,120 @@ public class SQL {
 		}
 		return null;
 	}
-
-	public static void setProperty(TableType table, String key, String property, Object value) {
+	
+	public static int getInteger(TableType table, String key, String property) {
 		try (Statement statement = connection.createStatement()) {
-			if (value instanceof String) {
-				statement.execute("UPDATE " + database + "." + table.tableName + " SET " + property + (value.equals("NULL") ? "=NULL WHERE " : "='" + value + "' WHERE ") + table.keyName + "='" + key + "';");
-			} else if (value instanceof Integer) {
-				statement.execute("UPDATE " + database + "." + table.tableName + " SET " + property + (value.equals("NULL") ? "=NULL WHERE " : "=" + value + " WHERE ") + table.keyName + "='" + key + "';");
+			try (ResultSet rs = statement.executeQuery("SELECT " + property + " FROM " + database + "." + table.tableName + " WHERE " + table.keyName + "='" + key + "';")) {
+				if (rs.next()) return rs.getInt(property);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	public static Rank getRank(String playerName) {
+		try (Statement statement = connection.createStatement()) {
+			try (ResultSet rs = statement.executeQuery("SELECT rank FROM " + database + "." + TableType.PlayerProfile.tableName + " WHERE " + TableType.PlayerProfile.keyName + "='" + playerName + "';")) {
+				if (rs.next()) return Rank.valueOf(rs.getString("rank"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static void getInventory(Player player, String inventory) {
+		player.getInventory().clear();
+		player.getInventory().setHelmet(new ItemStack(Material.AIR));
+		player.getInventory().setChestplate(new ItemStack(Material.AIR));
+		player.getInventory().setLeggings(new ItemStack(Material.AIR));
+		player.getInventory().setBoots(new ItemStack(Material.AIR));
+		try (Statement statement = connection.createStatement()) {
+			try (ResultSet rs = statement.executeQuery("SELECT inventory_" + inventory + " FROM " + database + "." + TableType.PlayerProfile.tableName + " WHERE " + TableType.PlayerProfile.keyName + "='" + player.getName() + "';")) {
+				if (rs.next()) {
+					YamlConfiguration config = new YamlConfiguration();
+					try {
+						config.loadFromString(rs.getString("inventory_" + inventory));
+						for (int i = 0; i < player.getInventory().getSize(); i++) {
+							if (config.get(Integer.toString(i)) != null) 
+								player.getInventory().setItem(i, (ItemStack)config.get(Integer.toString(i)));
+						}
+						player.getInventory().setHelmet((ItemStack)config.get("head"));
+						player.getInventory().setChestplate((ItemStack)config.get("chest"));
+						player.getInventory().setLeggings((ItemStack)config.get("legs"));
+						player.getInventory().setBoots((ItemStack)config.get("boots"));
+						player.setHealth((double)config.get("health"));
+						player.setFoodLevel((int)config.get("hunger"));
+						player.setLevel((int)config.get("level"));
+						player.setExp((float)config.getDouble("xp"));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	
+	//
+	// Set Methods
+	//
+	public static void setString(TableType table, String key, String property, String value) {
+		try (Statement statement = connection.createStatement()) {
+			statement.execute("UPDATE " + database + "." + table.tableName + " SET " + property + (value.equals("NULL") ? "=NULL WHERE " : "='" + value + "' WHERE ") + table.keyName + "='" + key + "';");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void setInteger(TableType table, String key, String property, int value) {
+		try (Statement statement = connection.createStatement()) {
+			statement.execute("UPDATE " + database + "." + table.tableName + " SET " + property + "=" + value + " WHERE " + table.keyName + "='" + key + "';");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void setRank(String playerName, Rank rank) {
+		try (Statement statement = connection.createStatement()) {
+			statement.execute("UPDATE " + database + "." + TableType.PlayerProfile.tableName + " SET rank='" + rank.toString() + "' WHERE " + TableType.PlayerProfile.keyName + "='" + playerName + "';");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void setInventory(Player player, String inventory) {
+		try (Statement statement = connection.createStatement()) {
+			YamlConfiguration config = new YamlConfiguration();
+			for (int i = 0; i < player.getInventory().getSize(); i++) {
+				ItemStack item = player.getInventory().getItem(i);
+				if (item != null) config.set(Integer.toString(i), item);
+			}
+			config.set("head", player.getInventory().getHelmet());
+			config.set("chest", player.getInventory().getChestplate());
+			config.set("legs", player.getInventory().getLeggings());
+			config.set("boots", player.getInventory().getBoots());
+			config.set("health", player.getHealth());
+			config.set("hunger", player.getFoodLevel());
+			config.set("level", player.getLevel());
+			config.set("xp", player.getExp());
+			statement.execute("UPDATE " + database + "." + TableType.PlayerProfile.tableName + " SET inventory_" + inventory + "='" + config.saveToString().replaceAll("'", "''") + "' WHERE " + TableType.PlayerProfile.keyName + "='" + player.getName() + "';");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
+	//
+	//
+	//
 	public static void deleteColumn(TableType table, String column) {
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("ALTER TABLE " + database + "." + table.tableName + " DROP COLUMN " + column + ";");
@@ -251,9 +360,10 @@ public class SQL {
 	}
 
 	public static Location getWarp(String name) {
+		//TODO: Change to SQL.getLocation()
 		try {
 			if (!isKeyExistant(TableType.Warps, name)) return null;
-			String rawWarp = getProperty(TableType.Warps, name, "Location");
+			String rawWarp = getString(TableType.Warps, name, "Location");
 			Location location = new Location(Bukkit.getServer().getWorld(rawWarp.split(">")[0]), 
 					Double.valueOf(rawWarp.split(">")[1]),
 					Double.valueOf(rawWarp.split(">")[2]), 

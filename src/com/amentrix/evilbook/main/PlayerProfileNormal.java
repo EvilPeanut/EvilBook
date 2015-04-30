@@ -115,9 +115,9 @@ public class PlayerProfileNormal extends PlayerProfile {
 			// Player profile statistics
 			Date date = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			setProperty("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
-			setProperty("last_login", sdf.format(date));
-			setProperty("ip", getPlayer().getAddress().getAddress().getHostAddress());
+			setInteger("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
+			setString("last_login", sdf.format(date));
+			setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
 			// Supply a changelog book if the current evilbook version is different to when last logged in
 			String version = plugin.getDescription().getVersion();
 			if (getProperty("evilbook_version") == null || !getProperty("evilbook_version").equals(version)) {
@@ -137,7 +137,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 				text.add("§5§oTitles\n\n§dThe Sandman title has been added as a reward for crafting a bed in skyblock survival\n\n§d"
 						+ "The Juke title has been added as a reward for crafting a jukebox in skyblock survival");
 				newPlayer.getInventory().addItem(EvilBook.getBook("EvilBook 7.1 Guide", EvilBook.config.getProperty("server_name"), text));
-				setProperty("evilbook_version", version);
+				setString("evilbook_version", version);
 			}
 		} catch (Exception exception) {
 			newPlayer.kickPlayer("§cA login error has occured and our team has been notified, sorry for the inconvenience");

@@ -10,14 +10,12 @@ import com.amentrix.evilbook.sql.TableType;
  * @author Reece Aaron Lecrivain
  */
 public class PlayerStatistics {
-	public static String getStatistic(String playerName, PlayerStatistic statistic) {
-		String value = SQL.getProperty(TableType.PlayerStatistics, playerName, statistic.columnName);
-		if (value == null) return "0";
-		return value;
+	public static int getStatistic(String playerName, PlayerStatistic statistic) {
+		return SQL.getInteger(TableType.PlayerStatistics, playerName, statistic.columnName);
 	}
 
 	private static void setStatistic(String playerName, PlayerStatistic statistic, int value) {
-		SQL.setProperty(TableType.PlayerStatistics, playerName, statistic.columnName, value);
+		SQL.setInteger(TableType.PlayerStatistics, playerName, statistic.columnName, value);
 		switch (statistic) {
 		case KILLED_RARES:
 			EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_RARE);
@@ -153,6 +151,6 @@ public class PlayerStatistics {
 	}
 	
 	public static void incrementStatistic(String playerName, PlayerStatistic statistic, int increment) {
-		setStatistic(playerName, statistic, Integer.parseInt(getStatistic(playerName, statistic)) + increment);
+		setStatistic(playerName, statistic, getStatistic(playerName, statistic) + increment);
 	}
 }

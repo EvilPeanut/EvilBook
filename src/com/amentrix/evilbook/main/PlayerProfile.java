@@ -157,8 +157,17 @@ public abstract class PlayerProfile {
 	 * @param property The property to set
 	 * @param value The value of the property
 	 */
-	void setProperty(String property, Object value) {
-		SQL.setProperty(TableType.PlayerProfile, this.name, property, value);
+	void setString(String property, String value) {
+		SQL.setString(TableType.PlayerProfile, this.name, property, value);
+	}
+	
+	/**
+	 * Set a player profile property
+	 * @param property The property to set
+	 * @param value The value of the property
+	 */
+	void setInteger(String property, int value) {
+		SQL.setInteger(TableType.PlayerProfile, this.name, property, value);
 	}
 	
 	/**
@@ -167,7 +176,7 @@ public abstract class PlayerProfile {
 	 * @return The value of the property
 	 */
 	String getProperty(String property) {
-		return SQL.getProperty(TableType.PlayerProfile, this.name, property);
+		return SQL.getString(TableType.PlayerProfile, this.name, property);
 	}
 	
 	/**
@@ -176,7 +185,7 @@ public abstract class PlayerProfile {
 	 * @return The value of the property
 	 */
 	String getProperty(TableType tableType, String property) {
-		return SQL.getProperty(tableType, this.name, property);
+		return SQL.getString(tableType, this.name, property);
 	}
 
 	/**
@@ -185,10 +194,11 @@ public abstract class PlayerProfile {
 	 * @param location Their location in the world
 	 */
 	public void setWorldLastPosition(Location location) {
+		//TODO: Change to SQL.setLocation()
 		String worldName = location.getWorld().getName();
 		if (!worldName.contains("SkyBlock/")) {
 			if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
-			SQL.setProperty(TableType.PlayerLocation, this.name, worldName, location.getX() + ">" + location.getY() + ">" + location.getZ());
+			SQL.setString(TableType.PlayerLocation, this.name, worldName, location.getX() + ">" + location.getY() + ">" + location.getZ());
 		}
 	}
 
@@ -197,9 +207,10 @@ public abstract class PlayerProfile {
 	 * @param world The world to get their last location in
 	 */
 	Location getWorldLastPosition(String world) {
+		//TODO: Change to SQL.getLocation()
 		String worldName = world;
 		if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
-		String result = SQL.getProperty(TableType.PlayerLocation, this.name, worldName);
+		String result = SQL.getString(TableType.PlayerLocation, this.name, worldName);
 		if (result == null) return Bukkit.getServer().getWorld(world).getSpawnLocation();
 		String[] location = result.split(">");
 		return new Location(Bukkit.getServer().getWorld(world), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2]));

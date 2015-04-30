@@ -1449,7 +1449,7 @@ public class EvilBook extends JavaPlugin {
 					if (getPlayer(args[0]) != null) {
 						sender.sendMessage("§5" + getPlayer(args[0]).getDisplayName() + "'s account balance is §d$" + getProfile(args[0]).money);
 					} else {
-						sender.sendMessage("§5" + getServer().getOfflinePlayer(args[0]).getName() + "'s account balance is §d$" + SQL.getProperty(TableType.PlayerProfile, args[0], "money"));
+						sender.sendMessage("§5" + getServer().getOfflinePlayer(args[0]).getName() + "'s account balance is §d$" + SQL.getInteger(TableType.PlayerProfile, args[0], "money"));
 					}
 				} else {
 					sender.sendMessage("§7You can't view a player's account balance who doesn't exist");
@@ -1480,7 +1480,7 @@ public class EvilBook extends JavaPlugin {
 						//
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to Admin rank");
 					} else {
-						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", "ADMIN");
+						SQL.setRank(args[0], Rank.ADMIN);
 						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to Admin rank");
 					}
 					getServer().getOfflinePlayer(args[0]).setOp(true);
@@ -1540,9 +1540,9 @@ public class EvilBook extends JavaPlugin {
 						getProfile(args[0]).updatePlayerListName();
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been demoted to " + getProfile(args[0]).rank.getName() + " rank");
 					} else {
-						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getPreviousRank() == Rank.POLICE) getServer().getOfflinePlayer(args[0]).setOp(false);
-						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getPreviousRank().toString());
-						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been demoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
+						if (SQL.getRank(args[0]).getPreviousRank() == Rank.POLICE) getServer().getOfflinePlayer(args[0]).setOp(false);
+						SQL.setRank(args[0], SQL.getRank(args[0]).getPreviousRank());
+						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been demoted to " + SQL.getRank(args[0]).getName() + " rank");
 					}
 				} else {
 					sender.sendMessage("§7You can't demote a player who doesn't exist");
@@ -1688,9 +1688,9 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7You can't promote offline players");
 							return true;
 						}
-						if (Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().equals(Rank.STAFF_COPPER)) getServer().getOfflinePlayer(args[0]).setOp(true);
-						SQL.setProperty(TableType.PlayerProfile, args[0], "rank", Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getNextRank().toString());
-						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
+						if (SQL.getRank(args[0]).getNextRank().equals(Rank.STAFF_COPPER)) getServer().getOfflinePlayer(args[0]).setOp(true);
+						SQL.setRank(args[0], SQL.getRank(args[0]).getNextRank());
+						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + SQL.getRank(args[0]).getName() + " rank");
 					}
 				} else {
 					sender.sendMessage("§7You can't promote a player who doesn't exist");
@@ -1727,8 +1727,8 @@ public class EvilBook extends JavaPlugin {
 								return true;
 							}
 							if (rank.isHigher(Rank.POLICE) && !getServer().getOfflinePlayer(args[0]).isOp()) getServer().getOfflinePlayer(args[0]).setOp(true);
-							SQL.setProperty(TableType.PlayerProfile, args[0], "rank", rank.name());
-							broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + Rank.valueOf(SQL.getProperty(TableType.PlayerProfile, args[0], "rank")).getName() + " rank");
+							SQL.setRank(args[0], rank);
+							broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + SQL.getRank(args[0]).getName() + " rank");
 						}
 					} else {
 						sender.sendMessage("§5This rank doesn't exist");
@@ -1915,8 +1915,8 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§dBlocks placed = " + GlobalStatistics.getStatistic(GlobalStatistic.BlocksPlaced) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
 				} else if (args[0].equalsIgnoreCase("player")) {
 					sender.sendMessage("§5" + player.getName() + "'s General Statistics");
-					sender.sendMessage("§dMoney = $" + SQL.getProperty(TableType.PlayerProfile, player.getName(), "money"));
-					sender.sendMessage("§dTotal logins = " + SQL.getProperty(TableType.PlayerProfile, player.getName(), "total_logins"));
+					sender.sendMessage("§dMoney = $" + SQL.getInteger(TableType.PlayerProfile, player.getName(), "money"));
+					sender.sendMessage("§dTotal logins = " + SQL.getInteger(TableType.PlayerProfile, player.getName(), "total_logins"));
 					sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(player.getLastPlayed())));
 				} else if (args[0].equalsIgnoreCase("survival")) {
 					List<String> text = new ArrayList<>();
@@ -1957,8 +1957,8 @@ public class EvilBook extends JavaPlugin {
 					OfflinePlayer statPlayer = getServer().getOfflinePlayer(args[1]);
 					if (statPlayer.hasPlayedBefore()) {
 						sender.sendMessage("§5" + statPlayer.getName() + "'s General Statistics");
-						sender.sendMessage("§dMoney = $" + SQL.getProperty(TableType.PlayerProfile, statPlayer.getName(), "money"));
-						sender.sendMessage("§dTotal logins = " + SQL.getProperty(TableType.PlayerProfile, statPlayer.getName(), "total_logins"));
+						sender.sendMessage("§dMoney = $" + SQL.getInteger(TableType.PlayerProfile, statPlayer.getName(), "money"));
+						sender.sendMessage("§dTotal logins = " + SQL.getInteger(TableType.PlayerProfile, statPlayer.getName(), "total_logins"));
 						sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(statPlayer.getLastPlayed())));
 					} else {
 						sender.sendMessage("§7Statistics for this player weren't found");
@@ -2206,7 +2206,7 @@ public class EvilBook extends JavaPlugin {
 				p.teleport(getServer().getWorld(Bukkit.getWorlds().get(0).getName()).getSpawnLocation());
 			}
 			getServer().unloadWorld("plugins/EvilBook/SkyBlock/" + player.getUniqueId(), false);
-			SQL.setProperty(TableType.PlayerProfile, player.getName(), "inventory_skyblock", "NULL");
+			SQL.setString(TableType.PlayerProfile, player.getName(), "inventory_skyblock", "NULL");
 			File skyblockMap = new File("plugins/EvilBook/SkyBlock/" + player.getUniqueId() + "/");
 			try {
 				FileUtils.deleteDirectory(skyblockMap);
@@ -3525,8 +3525,7 @@ public class EvilBook extends JavaPlugin {
 								sender.sendMessage("§7You have paid " + getPlayer(args[0]).getDisplayName() + " §c$" + args[1]);
 								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
 							} else {
-								String money = SQL.getProperty(TableType.PlayerProfile, args[0], "money");
-								money = Integer.toString(Integer.parseInt(money) + Integer.parseInt(args[1]));
+								SQL.setInteger(TableType.PlayerProfile, args[0], "money", SQL.getInteger(TableType.PlayerProfile, args[0], "money") + Integer.parseInt(args[1]));
 								getProfile(sender).money -= Integer.parseInt(args[1]);
 								sender.sendMessage("§7You have paid " + getServer().getOfflinePlayer(args[0]).getName() + " §c$" + args[1]);
 								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
@@ -3708,8 +3707,9 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7Please set a home first using /sethome");
 				}
 			} else {
-				if (SQL.getProperty(TableType.PlayerLocation, args[0], "home_location") != null) {
-					String[] location = SQL.getProperty(TableType.PlayerLocation, args[0], "home_location").split(">");
+				//TODO: Change to SQL.getLocation()
+				if (SQL.getString(TableType.PlayerLocation, args[0], "home_location") != null) {
+					String[] location = SQL.getString(TableType.PlayerLocation, args[0], "home_location").split(">");
 					player.teleport(new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2])));
 					sender.sendMessage("§7Welcome to " + args[0] + "'s home");
 				} else {
@@ -3811,7 +3811,7 @@ public class EvilBook extends JavaPlugin {
 					}
 				}
 			} else if (args.length == 2 && args[0].equalsIgnoreCase("list") && getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-				String playerWarps = SQL.getProperty(TableType.PlayerProfile, args[1], "warp_list");
+				String playerWarps = SQL.getString(TableType.PlayerProfile, args[1], "warp_list");
 				if (playerWarps != null) {
 					List<String> warps = Arrays.asList(playerWarps.split(","));
 					sender.sendMessage("§5" + args[1] + "'s warps");
@@ -4781,7 +4781,7 @@ public class EvilBook extends JavaPlugin {
 	 * @return If the player's profile is existant
 	 */
 	private static boolean isProfileExistant(String playerName) {
-		return SQL.getProperty(TableType.PlayerProfile, playerName, "player_name") != null;
+		return SQL.getString(TableType.PlayerProfile, playerName, "player_name") != null;
 	}
 	
 	public static Boolean isInSurvival(Entity entity) {
@@ -4858,7 +4858,7 @@ public class EvilBook extends JavaPlugin {
 	public static Boolean isContainerProtected(Location location, Player player) {
 		if (SQL.isRowExistant(TableType.ContainerProtection, "world='" + location.getWorld().getName() + 
 				"' AND x='" + location.getBlockX() + "' AND y='" + location.getBlockY() + "' AND z='" + location.getBlockZ() + "'") &&
-				!SQL.getPropertyFromCriteria(TableType.ContainerProtection, "world='" + location.getWorld().getName() + 
+				!SQL.getStringFromCriteria(TableType.ContainerProtection, "world='" + location.getWorld().getName() + 
 						"' AND x='" + location.getBlockX() + "' AND y='" + location.getBlockY() + "' AND z='" + location.getBlockZ() + "'"
 						, "player_name").equals(player.getName())) {
 			return true;
@@ -4978,8 +4978,8 @@ public class EvilBook extends JavaPlugin {
 			getProfile(EvilBook.config.getProperty("server_host")).money += increment;
 			getPlayer(EvilBook.config.getProperty("server_host")).sendMessage("§7You have recieved §a$" + increment + " §7from taxes");
 		} else {
-			SQL.setProperty(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money",
-					Integer.parseInt(SQL.getProperty(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money")) + increment);
+			SQL.setInteger(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money",
+					SQL.getInteger(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money") + increment);
 		}
 	}
 	
