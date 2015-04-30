@@ -186,10 +186,10 @@ public class EventListenerPlayer implements Listener {
 				if (profile.runAmplifier != 0 && player.isSprinting()) player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, profile.runAmplifier), true);
 			}
 			// Regions
-			try {
-				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-					@Override
-					public void run() {
+			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				@Override
+				public void run() {
+					try {
 						for (Region region : EvilBook.regionList) {
 							if (region.getLeaveMessage() != null && EvilBook.isInRegion(region, from) && EvilBook.isInRegion(region, to) == false) {
 								player.sendMessage(region.getLeaveMessage());
@@ -201,11 +201,11 @@ public class EventListenerPlayer implements Listener {
 								}
 							}
 						}
+					} catch (Exception e) {
+						//Ignore rare async entity world add - WARNING: May be cause of crashes if thrown in large quantity
 					}
-				});
-			} catch (Exception e) {
-				//Ignore rare async entity world add - WARNING: May be cause of crashes if thrown in large quantity
-			}
+				}
+			});
 		}
 	}
 
