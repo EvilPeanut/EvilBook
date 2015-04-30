@@ -4978,9 +4978,8 @@ public class EvilBook extends JavaPlugin {
 			getProfile(EvilBook.config.getProperty("server_host")).money += increment;
 			getPlayer(EvilBook.config.getProperty("server_host")).sendMessage("§7You have recieved §a$" + increment + " §7from taxes");
 		} else {
-			String money = SQL.getProperty(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money");
-			money = Integer.toString(Integer.parseInt(money) + increment);
-			SQL.setProperty(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money", money);
+			SQL.setProperty(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money",
+					Integer.parseInt(SQL.getProperty(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money")) + increment);
 		}
 	}
 	

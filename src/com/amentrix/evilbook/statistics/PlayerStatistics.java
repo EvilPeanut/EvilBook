@@ -17,7 +17,7 @@ public class PlayerStatistics {
 	}
 
 	private static void setStatistic(String playerName, PlayerStatistic statistic, int value) {
-		SQL.setProperty(TableType.PlayerStatistics, playerName, statistic.columnName, Integer.toString(value));
+		SQL.setProperty(TableType.PlayerStatistics, playerName, statistic.columnName, value);
 		switch (statistic) {
 		case KILLED_RARES:
 			EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_RARE);

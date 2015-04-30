@@ -157,7 +157,7 @@ public abstract class PlayerProfile {
 	 * @param property The property to set
 	 * @param value The value of the property
 	 */
-	void setProperty(String property, String value) {
+	void setProperty(String property, Object value) {
 		SQL.setProperty(TableType.PlayerProfile, this.name, property, value);
 	}
 	
