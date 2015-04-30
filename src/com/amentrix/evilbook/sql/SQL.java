@@ -163,19 +163,22 @@ public class SQL {
 				if (rs.next()) {
 					YamlConfiguration config = new YamlConfiguration();
 					try {
-						config.loadFromString(rs.getString("inventory_" + inventory));
-						for (int i = 0; i < player.getInventory().getSize(); i++) {
-							if (config.get(Integer.toString(i)) != null) 
-								player.getInventory().setItem(i, (ItemStack)config.get(Integer.toString(i)));
+						String rawInventory = rs.getString("inventory_" + inventory);
+						if (rawInventory != null) {
+							config.loadFromString(rawInventory);
+							for (int i = 0; i < player.getInventory().getSize(); i++) {
+								if (config.get(Integer.toString(i)) != null) 
+									player.getInventory().setItem(i, (ItemStack)config.get(Integer.toString(i)));
+							}
+							player.getInventory().setHelmet((ItemStack)config.get("head"));
+							player.getInventory().setChestplate((ItemStack)config.get("chest"));
+							player.getInventory().setLeggings((ItemStack)config.get("legs"));
+							player.getInventory().setBoots((ItemStack)config.get("boots"));
+							player.setHealth((double)config.get("health"));
+							player.setFoodLevel((int)config.get("hunger"));
+							player.setLevel((int)config.get("level"));
+							player.setExp((float)config.getDouble("xp"));
 						}
-						player.getInventory().setHelmet((ItemStack)config.get("head"));
-						player.getInventory().setChestplate((ItemStack)config.get("chest"));
-						player.getInventory().setLeggings((ItemStack)config.get("legs"));
-						player.getInventory().setBoots((ItemStack)config.get("boots"));
-						player.setHealth((double)config.get("health"));
-						player.setFoodLevel((int)config.get("hunger"));
-						player.setLevel((int)config.get("level"));
-						player.setExp((float)config.getDouble("xp"));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

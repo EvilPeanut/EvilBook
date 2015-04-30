@@ -35,13 +35,16 @@ public abstract class PlayerProfile {
 	public Boolean isAway = false, isInvisible = false, isDrunk = false;
 	List<Achievement> achievements = new ArrayList<>();
 	public long lastMessageTime = 0, lastActionTime = 0;
-	double jumpAmplifier = 0, flyAmplifier = 0.1, walkAmplifier = 0.2;
+	public double jumpAmplifier = 0;
+	double flyAmplifier = 0.1;
+	double walkAmplifier = 0.2;
 	public Rank rank = Rank.BUILDER;
 	public Entity disguise;
 	public Location lastLocation;
 	Location homeLocation;
 	public Location lastBlockInteraction;
-	int runAmplifier = 4, money = 0;
+	public int runAmplifier = 4;
+	int money = 0;
 	public EditWandMode wandMode = EditWandMode.Selection;
 	public Location actionLocationA, actionLocationB;
 	private EvilBook plugin;

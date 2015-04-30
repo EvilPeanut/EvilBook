@@ -3,6 +3,7 @@ package com.amentrix.evilbook.listeners;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Random;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
@@ -77,6 +78,8 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.material.Dye;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
+
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.main.DynamicSign;
@@ -158,42 +161,52 @@ public class EventListenerPlayer implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerMove(PlayerMoveEvent event) {
-		PlayerProfile profile = EvilBook.getProfile(event.getPlayer());
+		final Player player = event.getPlayer();
+		final Location to = event.getTo();
+		final Location from = event.getFrom();
+		PlayerProfile profile = EvilBook.getProfile(player);
 		profile.lastActionTime = System.currentTimeMillis();
 		if (profile.isAway) {
 			profile.isAway = false;
 			profile.updatePlayerListName();
 		}
-		/*
-		if (event.getTo().getBlockX() > 12550820 || event.getTo().getBlockX() < -12550820 || event.getTo().getBlockZ() > 12550820 || event.getTo().getBlockZ() < -12550820) {
-			event.getPlayer().sendMessage("§7The Far Lands are blocked");
-			event.getPlayer().teleport(event.getTo().add(event.getTo().getBlockX() > 12550820 ? -2 : event.getTo().getBlockX() < -12550820 ? 2 : 0, 0, event.getTo().getBlockZ() > 12550820 ? -2 : event.getTo().getBlockZ() < -12550820 ? 2 : 0));
+		if (to.getBlockX() > 12550820 || to.getBlockX() < -12550820 || to.getBlockZ() > 12550820 || to.getBlockZ() < -12550820) {
+			player.sendMessage("§7The Far Lands are blocked");
+			player.teleport(to.add(to.getBlockX() > 12550820 ? -2 : to.getBlockX() < -12550820 ? 2 : 0, 0, to.getBlockZ() > 12550820 ? -2 : to.getBlockZ() < -12550820 ? 2 : 0));
 			event.setCancelled(true);
 		} else {
 			// Drugcraft
 			if (profile.isDrunk) {
-				Vector velocity = event.getPlayer().getVelocity();
-				event.getPlayer().setVelocity(new Vector((velocity.getX() + (1 - new Random().nextInt(3))) / 3, velocity.getY(), (velocity.getZ() + (1 - new Random().nextInt(3))) / 3));
+				Vector velocity = player.getVelocity();
+				player.setVelocity(new Vector((velocity.getX() + (1 - new Random().nextInt(3))) / 3, velocity.getY(), (velocity.getZ() + (1 - new Random().nextInt(3))) / 3));
 			}
 			//
-			if (!EvilBook.isInSurvival(event.getPlayer())) {
-				if (profile.jumpAmplifier != 0 && !event.getPlayer().isFlying() && event.getFrom().getY() < event.getTo().getY() && event.getPlayer().getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) event.getPlayer().setVelocity(event.getPlayer().getVelocity().setY(profile.jumpAmplifier));
-				if (profile.runAmplifier != 0 && event.getPlayer().isSprinting()) event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, profile.runAmplifier), true);
+			if (!EvilBook.isInSurvival(player)) {
+				if (profile.jumpAmplifier != 0 && !player.isFlying() && from.getY() < to.getY() && player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) player.setVelocity(player.getVelocity().setY(profile.jumpAmplifier));
+				if (profile.runAmplifier != 0 && player.isSprinting()) player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, profile.runAmplifier), true);
 			}
 			// Regions
-			for (Region region : EvilBook.regionList) {
-				if (region.getLeaveMessage() != null && EvilBook.isInRegion(region, event.getFrom()) && EvilBook.isInRegion(region, event.getTo()) == false) {
-					event.getPlayer().sendMessage(region.getLeaveMessage());
-				} else if (EvilBook.isInRegion(region, event.getTo())) {
-					if (region.getWelcomeMessage() != null && EvilBook.isInRegion(region, event.getFrom()) == false) event.getPlayer().sendMessage(region.getWelcomeMessage());
-					if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
-						event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
-						break;
+			try {
+				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+					@Override
+					public void run() {
+						for (Region region : EvilBook.regionList) {
+							if (region.getLeaveMessage() != null && EvilBook.isInRegion(region, from) && EvilBook.isInRegion(region, to) == false) {
+								player.sendMessage(region.getLeaveMessage());
+							} else if (EvilBook.isInRegion(region, to)) {
+								if (region.getWelcomeMessage() != null && EvilBook.isInRegion(region, from) == false) player.sendMessage(region.getWelcomeMessage());
+								if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
+									player.teleport(SQL.getWarp(region.getWarp()));
+									break;
+								}
+							}
+						}
 					}
-				}
+				});
+			} catch (Exception e) {
+				//Ignore rare async entity world add - WARNING: May be cause of crashes if thrown in large quantity
 			}
 		}
-		*/
 	}
 
 	/**

@@ -2852,6 +2852,7 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (isDouble(args[0]) && Double.valueOf(args[0]) <= 41) {
 					getProfile(sender).jumpAmplifier = Double.valueOf(args[0]) / 4;
+					sender.sendMessage("§7Your jump height has been set");
 				} else {
 					sender.sendMessage("§7Please enter a valid jump height");
 				}
