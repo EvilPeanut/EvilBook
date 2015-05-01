@@ -1014,8 +1014,6 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§d/drwatson liststat");
 				sender.sendMessage("§d/drwatson listscan");
 				sender.sendMessage("§d/drwatson opfix");
-				sender.sendMessage("§d/drwatson updatecbworlduuid");
-				sender.sendMessage("§d/drwatson updatedsworlduuid");
 				sender.sendMessage("§d/drwatson worldinfo [worldName]");
 			} else if (args[0].equalsIgnoreCase("updatedsworlduuid")) {
 				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
