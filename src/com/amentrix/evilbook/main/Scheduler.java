@@ -32,8 +32,8 @@ class Scheduler {
 			@Override
 			public void run() {
 				int random = Scheduler.this.rand.nextInt(100);
-				for (final PlayerProfile profile : EvilBook.playerProfiles.values()) {
-					final Player player = profile.getPlayer();
+				for (final Player player : plugin.getServer().getOnlinePlayers()) {
+					final PlayerProfile profile = EvilBook.getProfile(player);
 					if (profile.isAway) continue;
 					if (profile.lastActionTime != 0 && System.currentTimeMillis() - profile.lastActionTime > 120000) {
 						profile.isAway = true;
