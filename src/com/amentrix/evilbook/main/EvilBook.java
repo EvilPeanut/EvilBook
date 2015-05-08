@@ -498,6 +498,8 @@ public class EvilBook extends JavaPlugin {
 		commandBlacklist.put("/delete", Rank.ADMIN);
 		commandBlacklist.put("/tree", Rank.ADMIN);
 		commandBlacklist.put("/rename", Rank.ADMIN);
+		commandBlacklist.put("/nick", Rank.ADMIN);
+		commandBlacklist.put("/nickname", Rank.ADMIN);
 		commandBlacklist.put("/tool", Rank.ADMIN);
 		commandBlacklist.put("/toggleeditwand", Rank.ADMIN);
 		//
