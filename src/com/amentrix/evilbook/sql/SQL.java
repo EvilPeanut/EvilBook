@@ -32,10 +32,10 @@ public class SQL {
 			connection = DriverManager.getConnection("jdbc:mysql://" + EvilBook.config.getProperty("host") + "/" + database + "?user=" + EvilBook.config.getProperty("user") + "&password=" + EvilBook.config.getProperty("password")); 
 			// Create the player profile table
 			try (Statement stmt = connection.createStatement()) {
-				stmt.execute("CREATE TABLE IF NOT EXISTS " + database + "." + TableType.PlayerProfile.tableName + "(player_name VARCHAR(16), rank TINYTEXT, "
+				stmt.execute("CREATE TABLE IF NOT EXISTS " + database + "." + TableType.PlayerProfile.tableName + "(player_name VARCHAR(16), player CHAR(36), rank TINYTEXT, "
 						+ "rank_prefix TINYTEXT, money INT, name_title VARCHAR(32), name_alias VARCHAR(20), muted_players TEXT, warp_list TEXT, "
 						+ "run_amplifier TINYINT, walk_amplifier DOUBLE, fly_amplifier DOUBLE, jump_amplifier DOUBLE, "
-						+ "achievement_list TEXT, last_login DATETIME, total_logins INT, inventory_creative TEXT, inventory_survival TEXT, inventory_skyblock TEXT, ip VARCHAR(15), evilbook_version TEXT, PRIMARY KEY (player_name))");
+						+ "achievement_list TEXT, last_login DATETIME, total_logins INT, inventory_creative TEXT, inventory_survival TEXT, inventory_skyblock TEXT, ip VARCHAR(15), evilbook_version TEXT, PRIMARY KEY (player))");
 			}
 			// Create the player location table
 			try (Statement stmt = connection.createStatement()) {

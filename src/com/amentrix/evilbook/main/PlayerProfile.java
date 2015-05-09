@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -48,6 +47,7 @@ public abstract class PlayerProfile {
 	public EditWandMode wandMode = EditWandMode.Selection;
 	public Location actionLocationA, actionLocationB;
 	private EvilBook plugin;
+	public String UUID;
 	
 	PlayerProfile(EvilBook plugin) {
 		this.plugin = plugin;
@@ -161,7 +161,7 @@ public abstract class PlayerProfile {
 	 * @param value The value of the property
 	 */
 	void setString(String property, String value) {
-		SQL.setString(TableType.PlayerProfile, this.name, property, value);
+		SQL.setString(TableType.PlayerProfile, UUID, property, value);
 	}
 	
 	/**
@@ -170,7 +170,7 @@ public abstract class PlayerProfile {
 	 * @param value The value of the property
 	 */
 	void setInteger(String property, int value) {
-		SQL.setInteger(TableType.PlayerProfile, this.name, property, value);
+		SQL.setInteger(TableType.PlayerProfile, UUID, property, value);
 	}
 	
 	/**
@@ -179,7 +179,7 @@ public abstract class PlayerProfile {
 	 * @return The value of the property
 	 */
 	String getProperty(String property) {
-		return SQL.getString(TableType.PlayerProfile, this.name, property);
+		return SQL.getString(TableType.PlayerProfile, UUID, property);
 	}
 	
 	/**
@@ -188,7 +188,7 @@ public abstract class PlayerProfile {
 	 * @return The value of the property
 	 */
 	String getProperty(TableType tableType, String property) {
-		return SQL.getString(tableType, this.name, property);
+		return SQL.getString(tableType, UUID, property);
 	}
 
 	/**

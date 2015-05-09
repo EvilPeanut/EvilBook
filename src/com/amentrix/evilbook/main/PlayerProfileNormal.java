@@ -35,7 +35,8 @@ public class PlayerProfileNormal extends PlayerProfile {
 		super(plugin);
 		try {
 			this.name = newPlayer.getName();
-			if (getProperty("player_name") != null) {
+			this.UUID = newPlayer.getUniqueId().toString();
+			if (getProperty("player") != null) {
 				this.rank = Rank.valueOf(getProperty("rank"));
 				this.money = Integer.parseInt(getProperty("money"));
 				if (getProperty(TableType.PlayerLocation, "home_location") != null) {
@@ -69,8 +70,8 @@ public class PlayerProfileNormal extends PlayerProfile {
 					this.rank = Rank.BUILDER;
 					this.money = 100;
 					SQL.insert(TableType.PlayerProfile, 
-							"'" + this.name + "','" + this.rank.toString() + "',NULL,'" + this.money + "'," +
-									"NULL,NULL,NULL,NULL,'4','0.2','0.1','0',NULL,'" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "','1',NULL,NULL,NULL,'" + newPlayer.getAddress().getAddress().getHostAddress() + "',NULL");
+							"'" + this.name + "','" + newPlayer.getUniqueId().toString() + "','" + this.rank.toString() + "',NULL,'" + this.money + "'," +
+									"NULL,NULL,NULL,NULL,'4','0.2','0.1','0',NULL,'" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "','0',NULL,NULL,NULL,'" + newPlayer.getAddress().getAddress().getHostAddress() + "',NULL");
 					// Create new player locations profile
 					String fields = "player_name, home_location", data = "'" + this.name + "',NULL";
 					for (World world : Bukkit.getServer().getWorlds()) {
@@ -157,17 +158,17 @@ public class PlayerProfileNormal extends PlayerProfile {
 	public void saveProfile() {
 		StatementSet profileSaveAgent = new StatementSet();
 		profileSaveAgent.setProperty(TableType.PlayerLocation, this.name, "home_location", this.homeLocation == null ? "NULL" : this.homeLocation.getX() + ">" + this.homeLocation.getY() + ">" + this.homeLocation.getZ() + ">" + this.homeLocation.getWorld().getName());
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "name_title", this.nameTitle == null ? "NULL" : this.nameTitle);
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "name_alias", "NULL");
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "muted_players", (this.mutedPlayers.size() != 0 ? StringUtils.join(this.mutedPlayers, ",") : "NULL"));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "rank", this.rank.toString());
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "money", Integer.toString(this.money));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "warp_list", (this.warps.size() != 0 ? StringUtils.join(this.warps, ",").replaceAll("'", "''") : "NULL"));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "run_amplifier", Integer.toString(this.runAmplifier));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "walk_amplifier", Double.toString(this.walkAmplifier));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "fly_amplifier", Double.toString(this.flyAmplifier));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "jump_amplifier", Double.toString(this.jumpAmplifier));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.name, "achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "name_title", this.nameTitle == null ? "NULL" : this.nameTitle);
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "name_alias", "NULL");
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "muted_players", (this.mutedPlayers.size() != 0 ? StringUtils.join(this.mutedPlayers, ",") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "rank", this.rank.toString());
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "money", Integer.toString(this.money));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "warp_list", (this.warps.size() != 0 ? StringUtils.join(this.warps, ",").replaceAll("'", "''") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "run_amplifier", Integer.toString(this.runAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "walk_amplifier", Double.toString(this.walkAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "fly_amplifier", Double.toString(this.flyAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "jump_amplifier", Double.toString(this.jumpAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
 		profileSaveAgent.execute();
 	}
 

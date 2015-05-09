@@ -1057,32 +1057,6 @@ public class EvilBook extends JavaPlugin {
 						}
 					}
 				});
-			} else if (args[0].equalsIgnoreCase("updateppuuid")) {
-				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
-					@Override
-					public void run() {
-						SQL.insertNullColumn(TableType.PlayerProfile, "player CHAR(36)");
-						int total = SQL.getRowCount(TableType.PlayerProfile);
-						try (Statement statement = SQL.connection.createStatement()) {
-							try (ResultSet rs = statement.executeQuery("SELECT player_name FROM " + SQL.database + ".`evilbook-playerprofiles`;")) {
-								while (rs.next()) {
-									try (Statement setStatement = SQL.connection.createStatement()) {
-										String UUID = getServer().getOfflinePlayer(rs.getString("player_name")).getUniqueId().toString();
-										setStatement.execute("UPDATE " + SQL.database + "." + TableType.PlayerProfile.tableName + " SET player='" + UUID + "' WHERE player_name='" + rs.getString("player_name") + "';");
-										total--;
-										if (total % 10 == 0) {
-											logInfo(total + " profiles left to update to UUID");
-										}
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
-							}
-						} catch (Exception exception) {
-							exception.printStackTrace();
-						}
-					}
-				});
 			} else if (args[0].equalsIgnoreCase("opfix")) {
 				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
 					@Override
@@ -4808,7 +4782,7 @@ public class EvilBook extends JavaPlugin {
 	 * @return If the player's profile is existant
 	 */
 	private static boolean isProfileExistant(String playerName) {
-		return SQL.getString(TableType.PlayerProfile, playerName, "player_name") != null;
+		return SQL.getString(TableType.PlayerProfile, Bukkit.getOfflinePlayer(playerName).getUniqueId().toString(), "player_name") != null;
 	}
 	
 	public static Boolean isInSurvival(Entity entity) {
