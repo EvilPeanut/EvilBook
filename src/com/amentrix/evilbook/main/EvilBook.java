@@ -134,6 +134,15 @@ public class EvilBook extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		//
+		// Check mandatory files and folders exist
+		//
+		File check = new File("plugins/EvilBook");
+		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook'");
+		check = new File("plugins/EvilBook/SkyBlock");
+		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook/SkyBlock'");
+		check = new File("plugins/EvilBook/Private worlds");
+		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook/Private worlds'");
+		//
 		// Load or create config file
 		//
 		File propertiesFile = new File("plugins/EvilBook/Config.yml");
@@ -163,15 +172,6 @@ public class EvilBook extends JavaPlugin {
 		//
 		this.maps = new Maps(this);
 		getCommand("map").setExecutor(this.maps);
-		//
-		// Check mandatory files and folders exist
-		//
-		File check = new File("plugins/EvilBook");
-		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook'");
-		check = new File("plugins/EvilBook/SkyBlock");
-		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook/SkyBlock'");
-		check = new File("plugins/EvilBook/Private worlds");
-		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook/Private worlds'");
 		//
 		// World generators
 		//
