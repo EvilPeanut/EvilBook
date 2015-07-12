@@ -214,6 +214,7 @@ public class EventListenerEntity implements Listener {
 			for (Iterator<Block> it = event.blockList().iterator(); it.hasNext();) {
 				if (EvilBook.isContainerProtected(it.next().getLocation())) {
 					//TODO: Check this actually removes the protected container
+					// Async?
 					it.remove();
 				}
 			}
