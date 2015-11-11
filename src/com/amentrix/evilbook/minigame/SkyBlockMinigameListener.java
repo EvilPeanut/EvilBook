@@ -1,7 +1,6 @@
 package com.amentrix.evilbook.minigame;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -20,37 +19,37 @@ public class SkyBlockMinigameListener implements Listener {
 		// Craft stone button achievement
 		//
 		if (item.getType() == Material.STONE_BUTTON) {
-			EvilBook.getProfile((Player) event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_STONEBUTTON);
+			EvilBook.getProfile(event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_STONEBUTTON);
 		//
 		// Craft boat achievement
 		//
 		} else if (item.getType() == Material.BOAT) {
-			EvilBook.getProfile((Player) event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_BOAT);
+			EvilBook.getProfile(event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_BOAT);
 		//
 		// Craft wooden door achievement
 		//
 		} else if (item.getType() == Material.WOODEN_DOOR) {
-			EvilBook.getProfile((Player) event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_DOOR);
+			EvilBook.getProfile(event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_DOOR);
 		//
 		// Craft bow achievement
 		//
 		} else if (item.getType() == Material.BOW) {
-			EvilBook.getProfile((Player) event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_BOW);
+			EvilBook.getProfile(event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_BOW);
 		//
 		// Craft fishing rod achievement
 		//
 		} else if (item.getType() == Material.FISHING_ROD) {
-			EvilBook.getProfile((Player) event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_ROD);
+			EvilBook.getProfile(event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_ROD);
 		//
 		// Craft bed achievement
 		//
 		} else if (item.getType() == Material.BED) {
-			EvilBook.getProfile((Player) event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_BED);	
+			EvilBook.getProfile(event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_BED);	
 		//
 		// Craft jukebox achievement
 		//
 		} else if (item.getType() == Material.JUKEBOX) {
-			EvilBook.getProfile((Player) event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_JUKEBOX);	
+			EvilBook.getProfile(event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_JUKEBOX);	
 		}
 	}
 }

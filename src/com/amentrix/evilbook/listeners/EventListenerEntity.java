@@ -184,7 +184,7 @@ public class EventListenerEntity implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
 		if (event.getRemover() instanceof Player) {
-			if (!EvilBook.getProfile((Player)event.getRemover()).isCanEditWorld(event.getEntity().getWorld())) {
+			if (!EvilBook.getProfile(event.getRemover()).isCanEditWorld(event.getEntity().getWorld())) {
 				((Player)event.getRemover()).sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 				event.setCancelled(true);
 			} else if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), (Player)event.getRemover())) {
@@ -234,7 +234,7 @@ public class EventListenerEntity implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityDamage(EntityDamageEvent event) {
-		if (event.getEntity() instanceof Player && EvilBook.getProfile((Player)event.getEntity()).isAway) {
+		if (event.getEntity() instanceof Player && EvilBook.getProfile(event.getEntity()).isAway) {
 			event.setCancelled(true);
 		} else {
 			for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
