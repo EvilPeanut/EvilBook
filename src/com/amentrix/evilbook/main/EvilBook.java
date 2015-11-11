@@ -2912,7 +2912,7 @@ public class EvilBook extends JavaPlugin {
 							double doubleSpeed = (double)speed / 100;
 							getProfile(sender).flyAmplifier = doubleSpeed;
 							player.setFlySpeed((float) doubleSpeed);
-							sender.sendMessage("§7Set walk speed limit to " + args[1]);
+							sender.sendMessage("§7Set fly speed limit to " + args[1]);
 						} else {
 							sender.sendMessage("§7Please enter a valid speed above 0 and below 100");
 						}
@@ -2924,7 +2924,7 @@ public class EvilBook extends JavaPlugin {
 						int speed = Integer.parseInt(args[1]);
 						if (speed > 0 && speed <= 100) {
 							getProfile(sender).runAmplifier = speed;
-							sender.sendMessage("§7Set walk speed limit to " + args[1]);
+							sender.sendMessage("§7Set run speed limit to " + args[1]);
 						} else {
 							sender.sendMessage("§7Please enter a valid speed above 0 and below 100");
 						}
