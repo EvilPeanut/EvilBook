@@ -36,7 +36,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
-import com.amentrix.evilbook.statistics.PlayerStatistics;
 
 /**
  * Entity and hanging entity event listener
@@ -108,29 +107,29 @@ public class EventListenerEntity implements Listener {
 			Player player = entity.getKiller();
 			if (!EvilBook.isInSurvival(player)) return;
 			if (EvilBook.rareSpawnList.contains(entity.getUniqueId())) {
-				PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_RARES, 1);
+				PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_RARES, 1);
 				EvilBook.rareSpawnList.remove(entity.getUniqueId());
 			}
 			switch (event.getEntityType()) {
-			case PIG: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_PIGS, 1); break;
-			case VILLAGER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_VILLAGERS, 1); break;
-			case CAVE_SPIDER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_CAVESPIDERS, 1); break;
-			case ENDERMAN: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ENDERMEN, 1); break;
-			case SPIDER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SPIDERS, 1); break;
-			case WOLF: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WOLVES, 1); break;
-			case PIG_ZOMBIE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ZOMBIEPIGS, 1); break;
-			case BLAZE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_BLAZES, 1); break;
-			case CREEPER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_CREEPERS, 1); break;
-			case GHAST: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_GHASTS, 1); break;
-			case MAGMA_CUBE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_MAGMACUBES, 1); break;
-			case SILVERFISH: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SILVERFISH, 1); break;
-			case SKELETON: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SKELETONS, 1); break;
-			case SLIME: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SLIMES, 1); break;
-			case WITCH: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WITCHES, 1); break;
-			case ZOMBIE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ZOMBIES, 1); break;
-			case ENDER_DRAGON: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ENDERDRAGONS, 1); break;
-			case WITHER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WITHERS, 1); break;
-			case PLAYER: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.KILLED_PLAYERS, 1); break;
+			case PIG: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_PIGS, 1); break;
+			case VILLAGER: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_VILLAGERS, 1); break;
+			case CAVE_SPIDER: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_CAVESPIDERS, 1); break;
+			case ENDERMAN: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ENDERMEN, 1); break;
+			case SPIDER: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SPIDERS, 1); break;
+			case WOLF: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WOLVES, 1); break;
+			case PIG_ZOMBIE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ZOMBIEPIGS, 1); break;
+			case BLAZE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_BLAZES, 1); break;
+			case CREEPER: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_CREEPERS, 1); break;
+			case GHAST: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_GHASTS, 1); break;
+			case MAGMA_CUBE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_MAGMACUBES, 1); break;
+			case SILVERFISH: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SILVERFISH, 1); break;
+			case SKELETON: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SKELETONS, 1); break;
+			case SLIME: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_SLIMES, 1); break;
+			case WITCH: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WITCHES, 1); break;
+			case ZOMBIE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ZOMBIES, 1); break;
+			case ENDER_DRAGON: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_ENDERDRAGONS, 1); break;
+			case WITHER: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_WITHERS, 1); break;
+			case PLAYER: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.KILLED_PLAYERS, 1); break;
 			default: break;
 			}
 		}

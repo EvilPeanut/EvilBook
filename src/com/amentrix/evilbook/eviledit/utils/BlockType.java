@@ -5,13 +5,14 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.eviledit.Session;
 import com.amentrix.evilbook.main.EvilBook;
+import com.amentrix.evilbook.reference.BlockReference;
 
 public class BlockType {
 	private Material material;
 	private Byte data = 0;
 	
 	public BlockType(String blockName) {
-		this.material = EvilBook.getBlockMaterial(blockName);
+		this.material = BlockReference.getBlockMaterial(blockName);
 	}
 	
 	public Boolean isValid(Player player) {

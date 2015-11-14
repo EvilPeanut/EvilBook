@@ -11,12 +11,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +29,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.SkullType;
-import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
@@ -81,13 +78,16 @@ import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.minigame.SkyBlockMinigameListener;
 import com.amentrix.evilbook.minigame.TowerDefenseMinigame;
 import com.amentrix.evilbook.nametag.NametagManager;
+import com.amentrix.evilbook.reference.BiomeReference;
+import com.amentrix.evilbook.reference.BlockReference;
+import com.amentrix.evilbook.reference.TreeReference;
+import com.amentrix.evilbook.region.Region;
+import com.amentrix.evilbook.region.RegionListener;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.CommandStatistics;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
-import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
-import com.amentrix.evilbook.statistics.PlayerStatistics;
 import com.amentrix.evilbook.worldgen.PlotlandGenerator;
 import com.amentrix.evilbook.worldgen.SkylandGenerator;
 
@@ -99,11 +99,6 @@ import de.diddiz.LogBlock.LogBlock;
  * @author Reece Aaron Lecrivain
  */
 public class EvilBook extends JavaPlugin {
-	// Reference lists
-	private static final Map<Material, List<String>> blockList = new LinkedHashMap<>();
-	private static final Map<Biome, List<String>> biomeList = new LinkedHashMap<>();
-	public static final Map<TreeType, List<String>> treeTypeList = new LinkedHashMap<>();
-	//
 	public static final Map<String, PlayerProfile> playerProfiles = new HashMap<>();
 	public static final Map<String, Rank> commandBlacklist = new HashMap<>();
 	private static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
@@ -167,6 +162,7 @@ public class EvilBook extends JavaPlugin {
 		pluginManager.registerEvents(new EventListenerPlayer(this), this);
 		pluginManager.registerEvents(new EventListenerVehicle(), this);		
 		pluginManager.registerEvents(new SkyBlockMinigameListener(), this);
+		pluginManager.registerEvents(new RegionListener(this), this);
 		//
 		// Maps Module
 		//
@@ -297,6 +293,26 @@ public class EvilBook extends JavaPlugin {
 						try (Statement setStatement = SQL.connection.createStatement()) {
 							OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_recipient"));
 							setStatement.execute("UPDATE " + SQL.database + "." + TableType.Mail.tableName + " SET player_recipient_UUID='" + player.getUniqueId().toString() + "' WHERE player_recipient='" + rs.getString("player_recipient") + "';");
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				SQL.deleteColumn(TableType.Mail, "player_recipient");
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+			logInfo("Updated mail database!");
+		}
+		// Fix missing player UUID's
+		if (SQL.isColumnExistant(TableType.PlayerProfile, "player")) {
+			try (Statement statement = SQL.connection.createStatement()) {
+				try (ResultSet rs = statement.executeQuery("SELECT player, player_name FROM " + SQL.database + ".`evilbook-playerprofiles` WHERE player IS NULL;")) {
+					while (rs.next()) {
+						try (Statement setStatement = SQL.connection.createStatement()) {
+							OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
+							setStatement.execute("UPDATE " + SQL.database + "." + TableType.PlayerProfile.tableName + " SET player='" + player.getUniqueId().toString() + "' WHERE player_name='" + rs.getString("player_name") + "';");
+							logInfo("Auto-fixed missing UUID for " + rs.getString("player_name"));
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -554,248 +570,6 @@ public class EvilBook extends JavaPlugin {
 		cmdBlockWhitelist.put("weather", false);
 		cmdBlockWhitelist.put("time", false);
 		//
-		// Load Block List
-		//
-		blockList.put(Material.AIR, Arrays.asList("Air", "Void"));
-		blockList.put(Material.STONE, Arrays.asList("Stone", "SmoothStone"));
-		blockList.put(Material.GRASS, Arrays.asList("Grass"));
-		blockList.put(Material.DIRT, Arrays.asList("Dirt", "Mud", "Ground"));
-		blockList.put(Material.COBBLESTONE, Arrays.asList("Cobble Stone", "CobbleStone", "Cobble"));
-		blockList.put(Material.WOOD, Arrays.asList("Planks", "WoodPlanks", "WoodenPlanks"));
-		blockList.put(Material.SAPLING, Arrays.asList("Sapling", "TreeSapling"));
-		blockList.put(Material.BEDROCK, Arrays.asList("BedRock", "Adminium"));
-		blockList.put(Material.WATER, Arrays.asList("Water"));
-		blockList.put(Material.STATIONARY_WATER, Arrays.asList("Stationary Water", "StationaryWater", "StaticWater", "StillWater"));
-		blockList.put(Material.LAVA, Arrays.asList("Lava"));
-		blockList.put(Material.STATIONARY_LAVA, Arrays.asList("Stationary Lava", "StationaryLava", "StaticLava", "StillLava"));
-		blockList.put(Material.SAND, Arrays.asList("Sand"));
-		blockList.put(Material.GRAVEL, Arrays.asList("Gravel"));
-		blockList.put(Material.GOLD_ORE, Arrays.asList("Gold Ore", "GoldOre", "Gold"));
-		blockList.put(Material.IRON_ORE, Arrays.asList("Iron Ore", "IronOre", "Iron"));
-		blockList.put(Material.COAL_ORE, Arrays.asList("Coal Ore", "CoalOre", "Coal"));
-		blockList.put(Material.LOG, Arrays.asList("Wood", "Log"));
-		blockList.put(Material.LEAVES, Arrays.asList("Leaves"));
-		blockList.put(Material.SPONGE, Arrays.asList("Sponge"));
-		blockList.put(Material.GLASS, Arrays.asList("Glass", "GlassBlock"));
-		blockList.put(Material.LAPIS_ORE, Arrays.asList("Lapis Ore", "LapisOre", "LapisLazuliOre"));
-		blockList.put(Material.LAPIS_BLOCK, Arrays.asList("Lapis Block", "LapisBlock", "LapisLazuliBlock"));
-		blockList.put(Material.DISPENSER, Arrays.asList("Dispenser", "ItemDispenser"));
-		blockList.put(Material.SANDSTONE, Arrays.asList("Sandstone"));
-		blockList.put(Material.NOTE_BLOCK, Arrays.asList("Note Block", "NoteBlock"));
-		blockList.put(Material.BED_BLOCK, Arrays.asList("Bed"));
-		blockList.put(Material.POWERED_RAIL, Arrays.asList("Powered Rail", "PoweredRail", "PowerRail"));
-		blockList.put(Material.DETECTOR_RAIL, Arrays.asList("Detector Rail", "DetectorRail", "PressureRail", "PressurePlateRail"));
-		blockList.put(Material.PISTON_STICKY_BASE, Arrays.asList("Sticky Piston", "StickyPiston"));
-		blockList.put(Material.WEB, Arrays.asList("Cobweb", "Web"));
-		blockList.put(Material.LONG_GRASS, Arrays.asList("Tall Grass", "TallGrass"));
-		blockList.put(Material.DEAD_BUSH, Arrays.asList("Dead Bush", "DeadBush", "DeadSapling"));
-		blockList.put(Material.PISTON_BASE, Arrays.asList("Piston"));
-		blockList.put(Material.PISTON_EXTENSION, Arrays.asList("Piston Extension"));
-		blockList.put(Material.WOOL, Arrays.asList("Wool"));
-		blockList.put(Material.PISTON_MOVING_PIECE, Arrays.asList("Block Moved By Piston"));
-		blockList.put(Material.YELLOW_FLOWER, Arrays.asList("Dandelion"));
-		blockList.put(Material.RED_ROSE, Arrays.asList("Poppy"));
-		blockList.put(Material.BROWN_MUSHROOM, Arrays.asList("Brown Mushroom", "BrownMushroom", "Mushroom"));
-		blockList.put(Material.RED_MUSHROOM, Arrays.asList("Red Mushroom", "RedMushroom"));
-		blockList.put(Material.GOLD_BLOCK, Arrays.asList("Gold Block", "GoldBlock"));
-		blockList.put(Material.IRON_BLOCK, Arrays.asList("Iron Block", "IronBlock"));
-		blockList.put(Material.DOUBLE_STEP, Arrays.asList("Double Slab", "DoubleSlab"));
-		blockList.put(Material.STEP, Arrays.asList("Slab"));
-		blockList.put(Material.BRICK, Arrays.asList("Brick", "Bricks"));
-		blockList.put(Material.TNT, Arrays.asList("TNT", "Dynamite"));
-		blockList.put(Material.BOOKSHELF, Arrays.asList("Bookshelf"));
-		blockList.put(Material.MOSSY_COBBLESTONE, Arrays.asList("Moss Cobble Stone", "MossStone", "MossyStone", "MossCobble", "MossyCobble", "MossCobbleStone", "MossyCobbleStone"));
-		blockList.put(Material.OBSIDIAN, Arrays.asList("Obsidian"));
-		blockList.put(Material.TORCH, Arrays.asList("Torch"));
-		blockList.put(Material.FIRE, Arrays.asList("Fire"));
-		blockList.put(Material.MOB_SPAWNER, Arrays.asList("Spawner", "MonsterSpawner", "MobSpawner"));
-		blockList.put(Material.WOOD_STAIRS, Arrays.asList("Oak Wood Stairs", "OakWoodStairs", "WoodStairs", "WoodenStairs"));
-		blockList.put(Material.CHEST, Arrays.asList("Chest"));
-		blockList.put(Material.REDSTONE_WIRE, Arrays.asList("Redstone Wire", "RedstoneWire", "Wire"));
-		blockList.put(Material.DIAMOND_ORE, Arrays.asList("Diamond Ore", "DiamondOre"));
-		blockList.put(Material.DIAMOND_BLOCK, Arrays.asList("Diamond Block", "DiamondBlock"));
-		blockList.put(Material.WORKBENCH, Arrays.asList("Crafting table", "CraftingTable", "CraftingBench", "Workbench"));
-		blockList.put(Material.CROPS, Arrays.asList("Wheat Seed", "WheatSeed", "WheatSeeds"));
-		blockList.put(Material.SOIL, Arrays.asList("Farmland", "Soil"));
-		blockList.put(Material.FURNACE, Arrays.asList("Furnace"));
-		blockList.put(Material.BURNING_FURNACE, Arrays.asList("Burning Furnace", "BurningFurnace"));
-		blockList.put(Material.SIGN_POST, Arrays.asList("Sign", "SignPost"));
-		blockList.put(Material.WOODEN_DOOR, Arrays.asList("Door", "WoodenDoor", "WoodDoor"));
-		blockList.put(Material.LADDER, Arrays.asList("Ladder"));
-		blockList.put(Material.RAILS, Arrays.asList("Rail", "Track"));
-		blockList.put(Material.COBBLESTONE_STAIRS, Arrays.asList("Cobble Stone Stairs", "CobbleStoneStairs", "CobbleStairs"));
-		blockList.put(Material.WALL_SIGN, Arrays.asList("Wall Sign", "WallSign", "WallSignPost"));
-		blockList.put(Material.LEVER, Arrays.asList("Lever", "Switch"));
-		blockList.put(Material.STONE_PLATE, Arrays.asList("Stone Pressure Plate", "StonePressurePlate", "PressurePlate"));
-		blockList.put(Material.IRON_DOOR_BLOCK, Arrays.asList("Iron Door", "IronDoor"));
-		blockList.put(Material.WOOD_PLATE, Arrays.asList("Wooden Pressure Plate", "WoodenPressurePlate", "WoodPressurePlate"));
-		blockList.put(Material.REDSTONE_ORE, Arrays.asList("Redstone Ore", "RedstoneOre"));
-		blockList.put(Material.GLOWING_REDSTONE_ORE, Arrays.asList("Glowing Redstone Ore", "GlowingRedstone", "GlowingRedstoneOre"));
-		blockList.put(Material.REDSTONE_TORCH_OFF, Arrays.asList("Off Redstone Torch", "OffRedstoneTorch"));
-		blockList.put(Material.REDSTONE_TORCH_ON, Arrays.asList("Redstone Torch", "RedstoneTorch"));
-		blockList.put(Material.STONE_BUTTON, Arrays.asList("Stone Button", "StoneButton"));
-		blockList.put(Material.SNOW, Arrays.asList("Snow", "Snow Patch", "SnowPatch", "FlatSnow"));
-		blockList.put(Material.ICE, Arrays.asList("Ice", "IceBlock"));
-		blockList.put(Material.SNOW_BLOCK, Arrays.asList("Snow Block", "SnowBlock"));
-		blockList.put(Material.CACTUS, Arrays.asList("Cactus"));
-		blockList.put(Material.CLAY, Arrays.asList("Clay", "ClayBlock"));
-		blockList.put(Material.SUGAR_CANE_BLOCK, Arrays.asList("Sugar Cane", "SugarCane", "Sugar", "Reed", "Cane"));
-		blockList.put(Material.JUKEBOX, Arrays.asList("Jukebox"));
-		blockList.put(Material.FENCE, Arrays.asList("Fence"));
-		blockList.put(Material.PUMPKIN, Arrays.asList("Pumpkin"));
-		blockList.put(Material.NETHERRACK, Arrays.asList("Netherrack"));
-		blockList.put(Material.SOUL_SAND, Arrays.asList("Soul Sand", "SoulSand", "SinkingSand"));
-		blockList.put(Material.GLOWSTONE, Arrays.asList("Glowstone"));
-		blockList.put(Material.PORTAL, Arrays.asList("Portal", "NetherPortal"));
-		blockList.put(Material.JACK_O_LANTERN, Arrays.asList("Jack O' Lantern", "JackOLantern", "Lantern", "PumpkinLantern"));
-		blockList.put(Material.CAKE_BLOCK, Arrays.asList("Cake", "CakeBlock"));
-		blockList.put(Material.DIODE_BLOCK_OFF, Arrays.asList("Redstone Repeater", "RedstoneRepeater", "OffRedstoneRepeater"));
-		blockList.put(Material.DIODE_BLOCK_ON, Arrays.asList("On Redstone Repeater"));
-		blockList.put(Material.STAINED_GLASS, Arrays.asList("Stained Glass", "StainedGlass"));
-		blockList.put(Material.TRAP_DOOR, Arrays.asList("Trap Door", "TrapDoor"));
-		blockList.put(Material.MONSTER_EGGS, Arrays.asList("Monster Egg", "MonsterEgg"));
-		blockList.put(Material.SMOOTH_BRICK, Arrays.asList("Stone Bricks", "StoneBricks", "StoneBrick"));
-		blockList.put(Material.HUGE_MUSHROOM_1, Arrays.asList("Huge Brown Mushroom", "HugeBrownMushroom", "HugeMushroom"));
-		blockList.put(Material.HUGE_MUSHROOM_2, Arrays.asList("Huge Red Mushroom", "HugeRedMushroom"));
-		blockList.put(Material.IRON_FENCE, Arrays.asList("Iron Bars", "IronBars", "Bars"));
-		blockList.put(Material.THIN_GLASS, Arrays.asList("Glass Pane", "GlassPane", "ThinGlass"));
-		blockList.put(Material.MELON_BLOCK, Arrays.asList("Melon"));
-		blockList.put(Material.PUMPKIN_STEM, Arrays.asList("Pumpkin Stem", "PumpkinStem"));
-		blockList.put(Material.MELON_STEM, Arrays.asList("Melon Stem", "MelonStem"));
-		blockList.put(Material.VINE, Arrays.asList("Vines", "Vine"));
-		blockList.put(Material.FENCE_GATE, Arrays.asList("Fence Gate", "FenceGate", "Gate"));
-		blockList.put(Material.BRICK_STAIRS, Arrays.asList("Brick Stairs", "BrickStairs"));
-		blockList.put(Material.SMOOTH_STAIRS, Arrays.asList("Stone Brick Stairs", "StoneBrickStairs"));
-		blockList.put(Material.MYCEL, Arrays.asList("Mycelium"));
-		blockList.put(Material.WATER_LILY, Arrays.asList("LilyPad"));
-		blockList.put(Material.NETHER_BRICK, Arrays.asList("Nether Bricks", "NetherBricks", "NetherBrick"));
-		blockList.put(Material.NETHER_FENCE, Arrays.asList("Nether Brick Fence", "NetherBrickFence"));
-		blockList.put(Material.NETHER_BRICK_STAIRS, Arrays.asList("Nether Brick Stairs", "NetherBrickStairs"));
-		blockList.put(Material.NETHER_WARTS, Arrays.asList("Nether Wart", "NetherWart"));
-		blockList.put(Material.ENCHANTMENT_TABLE, Arrays.asList("Enchanting Table", "EnchantingTable", "EnchantmentTable"));
-		blockList.put(Material.BREWING_STAND, Arrays.asList("Brewing stand", "BrewingStand"));
-		blockList.put(Material.CAULDRON, Arrays.asList("Cauldron"));
-		blockList.put(Material.ENDER_PORTAL, Arrays.asList("Ender Portal", "Ender Portal", "EndPortal"));
-		blockList.put(Material.ENDER_PORTAL_FRAME, Arrays.asList("Ender Portal Frame", "EnderPortalFrame", "EndPortalFrame"));
-		blockList.put(Material.ENDER_STONE, Arrays.asList("Ender Stone", "EnderStone", "EndStone"));
-		blockList.put(Material.DRAGON_EGG, Arrays.asList("Dragon Egg", "DragonEgg"));
-		blockList.put(Material.REDSTONE_LAMP_OFF, Arrays.asList("Redstone Lamp", "RedstoneLamp", "OffRedstoneLamp"));
-		blockList.put(Material.REDSTONE_LAMP_ON, Arrays.asList("On Redstone Lamp"));
-		blockList.put(Material.WOOD_DOUBLE_STEP, Arrays.asList("Wooden Double Slab", "WoodenDoubleSlab"));
-		blockList.put(Material.WOOD_STEP, Arrays.asList("Wooden Slab", "WoodenSlab", "WoodenStep"));
-		blockList.put(Material.COCOA, Arrays.asList("Cocoa Plant", "CocoaPlant"));
-		blockList.put(Material.SANDSTONE_STAIRS, Arrays.asList("Sandstone Stairs", "SandstoneStairs"));
-		blockList.put(Material.EMERALD_ORE, Arrays.asList("Emerald Ore", "EmeraldOre", "Emerald"));
-		blockList.put(Material.ENDER_CHEST, Arrays.asList("Ender Chest", "EnderChest"));
-		blockList.put(Material.TRIPWIRE_HOOK, Arrays.asList("Tripwire Hook", "TripwireHook"));
-		blockList.put(Material.TRIPWIRE, Arrays.asList("Tripwire"));
-		blockList.put(Material.EMERALD_BLOCK, Arrays.asList("Emerald Block", "EmeraldBlock"));
-		blockList.put(Material.SPRUCE_WOOD_STAIRS, Arrays.asList("Spruce Wood Stairs", "SpruceWoodStairs"));
-		blockList.put(Material.BIRCH_WOOD_STAIRS, Arrays.asList("Birch Wood Stairs", "BirchWoodStairs"));
-		blockList.put(Material.JUNGLE_WOOD_STAIRS, Arrays.asList("Jungle Wood Stairs", "JungleWoodStairs"));
-		blockList.put(Material.COMMAND, Arrays.asList("Command Block", "CommandBlock", "CommandBeacon"));
-		blockList.put(Material.BEACON, Arrays.asList("Beacon"));
-		blockList.put(Material.COBBLE_WALL, Arrays.asList("Cobble Stone Wall", "CobblestoneWall", "CobbleWall"));
-		blockList.put(Material.FLOWER_POT, Arrays.asList("Flower Pot", "FlowerPot", "PlantPot", "Pot"));
-		blockList.put(Material.CARROT, Arrays.asList("Carrots"));
-		blockList.put(Material.POTATO, Arrays.asList("Potatoes", "Potatos"));
-		blockList.put(Material.WOOD_BUTTON, Arrays.asList("Wood Button", "WoodButton", "WoodenButton"));
-		blockList.put(Material.SKULL, Arrays.asList("Skull", "Head", "MobHead"));
-		blockList.put(Material.ANVIL, Arrays.asList("Anvil"));
-		blockList.put(Material.TRAPPED_CHEST, Arrays.asList("Trapped chest", "TrappedChest", "TrapChest", "ChestTrap", "RedstoneChest"));
-		blockList.put(Material.GOLD_PLATE, Arrays.asList("Light Weighted Pressure Plate", "LightWeightedPressurePlate", "LightPressurePlate"));
-		blockList.put(Material.IRON_PLATE, Arrays.asList("Heavy Weighted Pressure Plate", "HeavyWeightedPressurePlate", "HeavyPressurePlate"));
-		blockList.put(Material.REDSTONE_COMPARATOR_OFF, Arrays.asList("Inactive Redstone Comparator", "InactiveRedstoneComparator", "RedstoneComparator", "Comparator"));
-		blockList.put(Material.REDSTONE_COMPARATOR_ON, Arrays.asList("Active Redstone Comparator", "ActiveRedstoneComparator", "ActiveComparator"));
-		blockList.put(Material.DAYLIGHT_DETECTOR, Arrays.asList("Daylight Sensor", "DaylightSensor", "LightSensor", "SolarPanel"));
-		blockList.put(Material.REDSTONE_BLOCK, Arrays.asList("Block Of Redstone", "BlockOfRedstone", "RedstoneBlock"));
-		blockList.put(Material.QUARTZ_ORE, Arrays.asList("Nether Quartz Ore", "NetherQuartzOre", "QuartzOre", "NetherOre"));
-		blockList.put(Material.HOPPER, Arrays.asList("Hopper"));
-		blockList.put(Material.QUARTZ_BLOCK, Arrays.asList("Block of Quartz", "BlockofQuartz", "QuartzBlock"));
-		blockList.put(Material.QUARTZ_STAIRS, Arrays.asList("Quartz Stairs", "QuartzStairs"));
-		blockList.put(Material.ACTIVATOR_RAIL, Arrays.asList("Activator Rail", "ActivatorRail"));
-		blockList.put(Material.DROPPER, Arrays.asList("Dropper"));
-		blockList.put(Material.STAINED_CLAY, Arrays.asList("Stained Clay", "StainedClay"));
-		blockList.put(Material.STAINED_GLASS_PANE, Arrays.asList("Stained Glass Pane", "StainedPane", "StainedGlassPane"));
-		blockList.put(Material.LEAVES_2, Arrays.asList("Acacia Leaves", "AcaciaLeaves"));
-		blockList.put(Material.LOG_2, Arrays.asList("Acacia Wood", "AcaciaWood"));
-		blockList.put(Material.ACACIA_STAIRS, Arrays.asList("Acacia Stairs", "AcaciaStairs"));
-		blockList.put(Material.DARK_OAK_STAIRS, Arrays.asList("Dark Oak Stairs", "DarkOakStairs"));
-		blockList.put(Material.SLIME_BLOCK, Arrays.asList("Slime", "SlimeBlock"));
-		blockList.put(Material.BARRIER, Arrays.asList("Barrier"));
-		blockList.put(Material.IRON_TRAPDOOR, Arrays.asList("Iron Trapdoor", "IronTrapdoor", "IronHatch"));
-		blockList.put(Material.PRISMARINE, Arrays.asList("Prismarine"));
-		blockList.put(Material.SEA_LANTERN, Arrays.asList("Sea Lantern", "SeaLantern", "Lantern"));
-		blockList.put(Material.HAY_BLOCK, Arrays.asList("Hay Block", "Hay", "HayBlock"));
-		blockList.put(Material.CARPET, Arrays.asList("Carpet"));
-		blockList.put(Material.HARD_CLAY, Arrays.asList("Hardened Clay", "HardClay", "HardenedClay"));
-		blockList.put(Material.COAL_BLOCK, Arrays.asList("Block of Coal", "CoalBlock", "BlockofCoal"));
-		blockList.put(Material.PACKED_ICE, Arrays.asList("Packed Ice", "PackedIce"));
-		blockList.put(Material.DOUBLE_PLANT, Arrays.asList("Sunflower"));
-		// UNUSED BLOCKS
-		blockList.put(null, null);
-		blockList.put(null, null);
-		blockList.put(null, null);
-		//
-		blockList.put(Material.RED_SANDSTONE, Arrays.asList("Red Sandstone", "RedSandstone"));
-		blockList.put(Material.RED_SANDSTONE_STAIRS, Arrays.asList("Red Sandstone Stairs", "RedSandstoneStairs"));
-		blockList.put(Material.DOUBLE_STONE_SLAB2, Arrays.asList("Double Red Sandstone Slab", "DoubleRedSandstoneSlab", "RedSandstoneDoubleSlab"));
-		blockList.put(Material.STONE_SLAB2, Arrays.asList("Red Sandstone Slab", "RedSandstoneSlab"));
-		blockList.put(Material.SPRUCE_FENCE_GATE, Arrays.asList("Spruce Fence Gate", "SpruceFenceGate", "SpruceGate"));
-		blockList.put(Material.BIRCH_FENCE_GATE, Arrays.asList("Birch Fence Gate", "BirchFenceGate", "BirchGate"));
-		blockList.put(Material.JUNGLE_FENCE_GATE, Arrays.asList("Jungle Fence Gate", "JungleFenceGate", "JungleGate"));
-		blockList.put(Material.DARK_OAK_FENCE_GATE, Arrays.asList("Dark Oak Fence Gate", "DarkOakFenceGate", "DarkOakGate"));
-		blockList.put(Material.ACACIA_FENCE_GATE, Arrays.asList("Acacia Fence Gate", "AcaciaFenceGate", "AcaciaGate"));
-		blockList.put(Material.SPRUCE_FENCE, Arrays.asList("Spruce Fence", "SpruceFence"));
-		blockList.put(Material.BIRCH_FENCE, Arrays.asList("Birch Fence", "BirchFence"));
-		blockList.put(Material.JUNGLE_FENCE, Arrays.asList("Jungle Fence", "JungleFence"));
-		blockList.put(Material.DARK_OAK_FENCE, Arrays.asList("Dark Oak Fence", "DarkOakFence"));
-		blockList.put(Material.ACACIA_FENCE, Arrays.asList("Acacia Fence", "AcaciaFence"));
-		blockList.put(Material.SPRUCE_DOOR, Arrays.asList("Spruce Door", "SpruceDoor"));
-		blockList.put(Material.BIRCH_DOOR, Arrays.asList("Birch Door", "BirchDoor"));
-		blockList.put(Material.JUNGLE_DOOR, Arrays.asList("Jungle Door", "JungleDoor"));
-		blockList.put(Material.ACACIA_DOOR, Arrays.asList("Acacia Door", "AcaciaDoor"));
-		blockList.put(Material.DARK_OAK_DOOR, Arrays.asList("Dark Oak Door", "DarkOakDoor"));
-		//
-		// Load Biome List
-		//
-		biomeList.put(Biome.OCEAN, Arrays.asList("Ocean", "Sea"));
-		biomeList.put(Biome.PLAINS, Arrays.asList("Plains", "Plain"));
-		biomeList.put(Biome.DESERT, Arrays.asList("Desert"));
-		biomeList.put(Biome.FOREST, Arrays.asList("Forest"));
-		biomeList.put(Biome.TAIGA, Arrays.asList("Taiga"));
-		biomeList.put(Biome.SWAMPLAND, Arrays.asList("Swampland", "Swamp"));
-		biomeList.put(Biome.RIVER, Arrays.asList("River"));
-		biomeList.put(Biome.HELL, Arrays.asList("Hell"));
-		biomeList.put(Biome.SKY, Arrays.asList("Sky"));
-		biomeList.put(Biome.FROZEN_OCEAN, Arrays.asList("Frozen Ocean", "FrozenOcean", "FrozenSea"));
-		biomeList.put(Biome.FROZEN_RIVER, Arrays.asList("Frozen River", "FrozenRiver"));
-		biomeList.put(Biome.ICE_PLAINS, Arrays.asList("Ice Plains", "IcePlains", "IcePlain"));
-		biomeList.put(Biome.ICE_MOUNTAINS, Arrays.asList("Ice Mountains", "IceMountains", "IceMountain"));
-		biomeList.put(Biome.MUSHROOM_ISLAND, Arrays.asList("Mushroom Island", "MushroomIsland", "Mushroom"));
-		biomeList.put(Biome.BEACH, Arrays.asList("Beach"));
-		biomeList.put(Biome.JUNGLE, Arrays.asList("Jungle"));
-		biomeList.put(Biome.SAVANNA, Arrays.asList("Savanna"));
-		biomeList.put(Biome.MESA, Arrays.asList("MESA"));
-		//
-		// Load Tree Type List
-		//
-		treeTypeList.put(TreeType.ACACIA, Arrays.asList("Acacia"));
-		treeTypeList.put(TreeType.BIG_TREE, Arrays.asList("Big Tree", "BigTree"));
-		treeTypeList.put(TreeType.BIRCH, Arrays.asList("Birch"));
-		treeTypeList.put(TreeType.BROWN_MUSHROOM, Arrays.asList("Brown Mushroom", "BrownMushroom"));
-		treeTypeList.put(TreeType.DARK_OAK, Arrays.asList("Dark Oak", "DarkOak"));
-		treeTypeList.put(TreeType.JUNGLE, Arrays.asList("Jungle"));
-		treeTypeList.put(TreeType.JUNGLE_BUSH, Arrays.asList("Jungle Bush", "JungleBush"));
-		treeTypeList.put(TreeType.MEGA_REDWOOD, Arrays.asList("Mega Redwood", "MegaRedwood"));
-		treeTypeList.put(TreeType.RED_MUSHROOM, Arrays.asList("Red Mushroom", "RedMushroom"));
-		treeTypeList.put(TreeType.REDWOOD, Arrays.asList("Redwood"));
-		treeTypeList.put(TreeType.SMALL_JUNGLE, Arrays.asList("Small Jungle", "SmallJungle"));
-		treeTypeList.put(TreeType.SWAMP, Arrays.asList("Swamp"));
-		treeTypeList.put(TreeType.TALL_BIRCH, Arrays.asList("Tall Birch", "TallBirch"));
-		treeTypeList.put(TreeType.TALL_REDWOOD, Arrays.asList("Tall Redwood", "TallRedwood"));
-		treeTypeList.put(TreeType.TREE, Arrays.asList("Tree"));
-		//
 		// Register EvilEdit Commands
 		//
 		// Generation
@@ -959,7 +733,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Statistics
 		//
-		GlobalStatistics.incrementStatistic(GlobalStatistic.CommandsExecuted, 1);
+		GlobalStatistic.incrementStatistic(GlobalStatistic.CommandsExecuted, 1);
 		CommandStatistics.increment(command.getName());
 		//
 		// Alt Command
@@ -1388,9 +1162,9 @@ public class EvilBook extends JavaPlugin {
 				// Respring
 				//
 				broadcastPlayerMessage(sender.getName(), "§d[§5Server§d] Server respringing...");
-				blockList.clear();
-				biomeList.clear();
-				treeTypeList.clear();
+				BlockReference.blockList.clear();
+				BiomeReference.biomeList.clear();
+				TreeReference.treeTypeList.clear();
 				commandBlacklist.clear();
 				dynamicSignList.clear();
 				paidWorldList.clear();
@@ -1904,15 +1678,15 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (args[0].equalsIgnoreCase("server")) {
 					sender.sendMessage("§5Server General Statistics");
-					sender.sendMessage("§dEconomic growth = $" + GlobalStatistics.getStatistic(GlobalStatistic.EconomyGrowth) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_growth") + " total");
-					sender.sendMessage("§dEconomic trade = $" + GlobalStatistics.getStatistic(GlobalStatistic.EconomyTrade) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_trade") + " total");
-					sender.sendMessage("§dPlayer logins = " + GlobalStatistics.getStatistic(GlobalStatistic.LoginTotal) + " today §7" + SQL.getColumnSum(TableType.Statistics, "login_total") + " total");
-					sender.sendMessage("§dNew players = " + GlobalStatistics.getStatistic(GlobalStatistic.LoginNewPlayers) + " today");
+					sender.sendMessage("§dEconomic growth = $" + GlobalStatistic.getStatistic(GlobalStatistic.EconomyGrowth) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_growth") + " total");
+					sender.sendMessage("§dEconomic trade = $" + GlobalStatistic.getStatistic(GlobalStatistic.EconomyTrade) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_trade") + " total");
+					sender.sendMessage("§dPlayer logins = " + GlobalStatistic.getStatistic(GlobalStatistic.LoginTotal) + " today §7" + SQL.getColumnSum(TableType.Statistics, "login_total") + " total");
+					sender.sendMessage("§dNew players = " + GlobalStatistic.getStatistic(GlobalStatistic.LoginNewPlayers) + " today");
 					sender.sendMessage("§dTotal unique players = " + SQL.getRowCount(TableType.PlayerProfile));
-					sender.sendMessage("§dCommands executed = " + GlobalStatistics.getStatistic(GlobalStatistic.CommandsExecuted) + " today §7" + SQL.getColumnSum(TableType.Statistics, "commands_executed") + " total");
-					sender.sendMessage("§dMessages sent = " + GlobalStatistics.getStatistic(GlobalStatistic.MessagesSent) + " today §7" + SQL.getColumnSum(TableType.Statistics, "messages_sent") + " total");
-					sender.sendMessage("§dBlocks broken = " + GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_broken") + " total");
-					sender.sendMessage("§dBlocks placed = " + GlobalStatistics.getStatistic(GlobalStatistic.BlocksPlaced) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
+					sender.sendMessage("§dCommands executed = " + GlobalStatistic.getStatistic(GlobalStatistic.CommandsExecuted) + " today §7" + SQL.getColumnSum(TableType.Statistics, "commands_executed") + " total");
+					sender.sendMessage("§dMessages sent = " + GlobalStatistic.getStatistic(GlobalStatistic.MessagesSent) + " today §7" + SQL.getColumnSum(TableType.Statistics, "messages_sent") + " total");
+					sender.sendMessage("§dBlocks broken = " + GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_broken") + " total");
+					sender.sendMessage("§dBlocks placed = " + GlobalStatistic.getStatistic(GlobalStatistic.BlocksPlaced) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
 				} else if (args[0].equalsIgnoreCase("player")) {
 					sender.sendMessage("§5" + player.getName() + "'s General Statistics");
 					sender.sendMessage("§dMoney = $" + SQL.getInteger(TableType.PlayerProfile, player.getName(), "money"));
@@ -1968,34 +1742,34 @@ public class EvilBook extends JavaPlugin {
 					if (statPlayer.hasPlayedBefore()) {
 						List<String> text = new ArrayList<>();
 						text.add("§5" + statPlayer.getName() + "'s Survival Statistics\n\n§7Page 1 - Mined ores\n§7Page 2 - Mob kills\n§7Page 3 - Mob kills");
-						text.add("§5§oTotal ores mined\n\n§dCoal = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_COAL) + "\n" +
-								"§dIron = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_IRON) + "\n" +
-								"§dRedstone = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_REDSTONE) + "\n" +
-								"§dLapis Lazuli = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_LAPIS) + "\n" +
-								"§dQuartz = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_NETHERQUARTZ) + "\n" +
-								"§dGold = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_GOLD) + "\n" +
-								"§dDiamond = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_DIAMOND) + "\n" +
-								"§dEmerald = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_EMERALD) + "\n");
-						text.add("§5§oTotal mobs killed\n\n§dPigs = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_PIGS) + "\n" +
-								"§dVillagers = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_VILLAGERS) + "\n" +
-								"§dCave Spiders = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_CAVESPIDERS) + "\n" +
-								"§dEndermen = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ENDERMEN) + "\n" +
-								"§dSpiders = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SPIDERS) + "\n" +
-								"§dWolves = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WOLVES) + "\n" +
-								"§dZombie Pigmen = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ZOMBIEPIGS) + "\n" +
-								"§dBlazes = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_BLAZES) + "\n" + 
-								"§dCreepers = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_CREEPERS) + "\n" +
-								"§dGhasts = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_GHASTS) + "\n" +
-								"§dMagmacubes = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_MAGMACUBES) + "\n");
-						text.add("§5§oTotal mobs killed\n\n§dSilverfish = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SILVERFISH) + "\n" +
-								"§dSkeletons = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SKELETONS) + "\n" +
-								"§dSlimes = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SLIMES) + "\n" +
-								"§dWitches = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WITCHES) + "\n" +
-								"§dZombies = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ZOMBIES) + "\n" +
-								"§dEnder Dragons = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ENDERDRAGONS) + "\n" +
-								"§dWithers = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WITHERS) + "\n" +
-								"§dPlayers = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_PLAYERS) + "\n" +
-								"§dRare Mobs = " + PlayerStatistics.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_RARES));
+						text.add("§5§oTotal ores mined\n\n§dCoal = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_COAL) + "\n" +
+								"§dIron = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_IRON) + "\n" +
+								"§dRedstone = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_REDSTONE) + "\n" +
+								"§dLapis Lazuli = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_LAPIS) + "\n" +
+								"§dQuartz = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_NETHERQUARTZ) + "\n" +
+								"§dGold = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_GOLD) + "\n" +
+								"§dDiamond = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_DIAMOND) + "\n" +
+								"§dEmerald = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_EMERALD) + "\n");
+						text.add("§5§oTotal mobs killed\n\n§dPigs = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_PIGS) + "\n" +
+								"§dVillagers = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_VILLAGERS) + "\n" +
+								"§dCave Spiders = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_CAVESPIDERS) + "\n" +
+								"§dEndermen = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ENDERMEN) + "\n" +
+								"§dSpiders = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SPIDERS) + "\n" +
+								"§dWolves = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WOLVES) + "\n" +
+								"§dZombie Pigmen = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ZOMBIEPIGS) + "\n" +
+								"§dBlazes = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_BLAZES) + "\n" + 
+								"§dCreepers = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_CREEPERS) + "\n" +
+								"§dGhasts = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_GHASTS) + "\n" +
+								"§dMagmacubes = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_MAGMACUBES) + "\n");
+						text.add("§5§oTotal mobs killed\n\n§dSilverfish = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SILVERFISH) + "\n" +
+								"§dSkeletons = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SKELETONS) + "\n" +
+								"§dSlimes = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_SLIMES) + "\n" +
+								"§dWitches = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WITCHES) + "\n" +
+								"§dZombies = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ZOMBIES) + "\n" +
+								"§dEnder Dragons = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_ENDERDRAGONS) + "\n" +
+								"§dWithers = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_WITHERS) + "\n" +
+								"§dPlayers = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_PLAYERS) + "\n" +
+								"§dRare Mobs = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.KILLED_RARES));
 						player.getInventory().addItem(getBook(statPlayer.getName() + "'s Survival Statistics", config.getProperty("server_name"), text));
 						sender.sendMessage("§7Please check your inventory for the survival statistics guide");
 					} else {
@@ -3093,14 +2867,14 @@ public class EvilBook extends JavaPlugin {
 					if (itemHelmet.getType().isBlock() == false) {
 						sender.sendMessage("§7You are now wearing a custom helmet");
 					} else {
-						sender.sendMessage("§7You are now wearing a " + getFriendlyName(itemHelmet.getType()) + " helmet");
+						sender.sendMessage("§7You are now wearing a " + BlockReference.getFriendlyName(itemHelmet.getType()) + " helmet");
 					}
 				} else {
 					player.getInventory().setHelmet(player.getInventory().getItemInHand());
 					if (player.getInventory().getItemInHand().getType().isBlock() == false) {
 						sender.sendMessage("§7You are now wearing a custom helmet");
 					} else {
-						sender.sendMessage("§7You are now wearing a " + getFriendlyName(player.getInventory().getItemInHand().getType()) + " helmet");
+						sender.sendMessage("§7You are now wearing a " + BlockReference.getFriendlyName(player.getInventory().getItemInHand().getType()) + " helmet");
 					}
 				}
 				getProfile(player).addAchievement(Achievement.GLOBAL_COMMAND_HELMET);
@@ -3524,12 +3298,12 @@ public class EvilBook extends JavaPlugin {
 								getProfile(args[0]).money += Integer.parseInt(args[1]);
 								getPlayer(args[0]).sendMessage("§7You have recieved §a$" + args[1] + " §7from " + player.getDisplayName());
 								sender.sendMessage("§7You have paid " + getPlayer(args[0]).getDisplayName() + " §c$" + args[1]);
-								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
+								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
 							} else {
 								SQL.setInteger(TableType.PlayerProfile, args[0], "money", SQL.getInteger(TableType.PlayerProfile, args[0], "money") + Integer.parseInt(args[1]));
 								getProfile(sender).money -= Integer.parseInt(args[1]);
 								sender.sendMessage("§7You have paid " + getServer().getOfflinePlayer(args[0]).getName() + " §c$" + args[1]);
-								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
+								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
 							}
 						} else {
 							sender.sendMessage("§7You don't have enough money to do this");
@@ -4246,14 +4020,14 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§7Spawning items is blocked in survival");
 			} else {
 				if (args.length == 1) {
-					Material material = getBlockMaterial(args[0]);
+					Material material = BlockReference.getBlockMaterial(args[0]);
 					if (material == null) {
 						player.sendMessage("§7Please enter a valid name or ID");
 					} else {
 						player.getInventory().addItem(new ItemStack(material));
 					}
 				} else if (args.length == 2) {
-					Material material = getBlockMaterial(args[0]);
+					Material material = BlockReference.getBlockMaterial(args[0]);
 					if (material == null) {
 						player.sendMessage("§7Please enter a valid name or ID");
 					} else if (!isInteger(args[1])) {
@@ -4262,7 +4036,7 @@ public class EvilBook extends JavaPlugin {
 						player.getInventory().addItem(new ItemStack(material, Integer.parseInt(args[1])));
 					}
 				} else if (args.length == 3) {
-					Material material = getBlockMaterial(args[0]);
+					Material material = BlockReference.getBlockMaterial(args[0]);
 					if (material == null) {
 						player.sendMessage("§7Please enter a valid name or ID");
 					} else if (!isInteger(args[1])) {
@@ -4881,59 +4655,6 @@ public class EvilBook extends JavaPlugin {
 	}
 
 	/**
-	 * Return the block material from an argument
-	 * @param block The argument containing the block ID or name
-	 * @return The block material or null if it can't be found
-	 */
-	public static Material getBlockMaterial(String block) {
-		int blockID = 0;
-		for (Entry<Material, List<String>> entry : blockList.entrySet()) {
-			/*
-			if (entry.getKey() == null) {
-				blockID += 3;
-				continue;
-			}
-			*/
-			if (isInteger(block)) {
-				if (Integer.parseInt(block) == blockID) return entry.getKey();
-			} else {
-				if (entry.getValue() == null) continue;
-				for (String subItem : entry.getValue()) {
-					if (subItem != null && block.equalsIgnoreCase(subItem)) {
-						return entry.getKey();
-					}
-				}
-			}
-			blockID++;
-		}
-		return null;
-	}
-
-	public static Biome getBiome(String biome) {
-		for (Entry<Biome, List<String>> entry : biomeList.entrySet()) {
-			if (entry.getValue() == null) continue;
-			for (String subItem : entry.getValue()) {
-				if (subItem != null && biome.equalsIgnoreCase(subItem)) {
-					return entry.getKey();
-				}
-			}
-		}
-		return null;
-	}
-
-	public static TreeType getTreeType(String treeType) {
-		for (Entry<TreeType, List<String>> entry : treeTypeList.entrySet()) {
-			if (entry.getValue() == null) continue;
-			for (String subItem : entry.getValue()) {
-				if (subItem != null && treeType.equalsIgnoreCase(subItem)) {
-					return entry.getKey();
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Return the value of a private world property
 	 * @param worldName The name of the private world
 	 * @param property The property to fetch the value of
@@ -4968,10 +4689,6 @@ public class EvilBook extends JavaPlugin {
 			}
 		}
 		*/
-	}
-
-	public static String getFriendlyName(Material material) {
-		return blockList.get(material) == null ? "Air" : blockList.get(material).get(0);
 	}
 
 	private static void incrementOwnerBalance(int increment) {

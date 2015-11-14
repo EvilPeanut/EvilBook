@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
-import com.amentrix.evilbook.statistics.GlobalStatistics;
 
 /**
  * EvilEdit engine instance
@@ -100,7 +99,7 @@ public class CraftEvilEditEngine implements EvilEditEngine {
 	@Override
 	public void notifyClients(GlobalStatistic statistic) {
 		// Statistics
-		GlobalStatistics.incrementStatistic(statistic, this.blocksModified);
+		GlobalStatistic.incrementStatistic(statistic, this.blocksModified);
 		// Do relighting
 		//this.relightTask = Bukkit.getScheduler().runTaskTimer(this.plugin, this, 1L, 1L);
 	}

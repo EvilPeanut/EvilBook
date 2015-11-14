@@ -20,7 +20,6 @@ import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
-import com.amentrix.evilbook.statistics.GlobalStatistics;
 
 /**
  * PlayerProfileNormal instance
@@ -36,7 +35,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 		try {
 			this.name = newPlayer.getName();
 			this.UUID = newPlayer.getUniqueId().toString();
-			if (getProperty("player") != null) {
+			if (getProperty("player_name") != null) {
 				this.rank = Rank.valueOf(getProperty("rank"));
 				this.money = Integer.parseInt(getProperty("money"));
 				if (getProperty(TableType.PlayerLocation, "home_location") != null) {
@@ -84,7 +83,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 					}
 					SQL.insert(TableType.PlayerLocation, fields, data);
 					// Statistics
-					GlobalStatistics.incrementStatistic(GlobalStatistic.LoginNewPlayers, 1);
+					GlobalStatistic.incrementStatistic(GlobalStatistic.LoginNewPlayers, 1);
 					//
 					newPlayer.setDisplayName("§f" + this.name);
 					newPlayer.setPlayerListName("§" + this.rank.getColor(this) + (this.name.length() > 14 ? this.name.substring(0, 14) : this.name));
@@ -114,11 +113,15 @@ public class PlayerProfileNormal extends PlayerProfile {
 			// NametagEdit
 			updateNametag("§" + this.rank.getColor(this), null);
 			// Player profile statistics
-			Date date = new Date();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			setInteger("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
-			setString("last_login", sdf.format(date));
-			setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
+			try {
+				Date date = new Date();
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				setInteger("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
+				setString("last_login", sdf.format(date));
+				setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
+			} catch (Exception statsException) {
+				EvilBook.logSevere("Failed to update on-login stats for " + newPlayer.getName());
+			}
 			// Supply a changelog book if the current evilbook version is different to when last logged in
 			String version = plugin.getDescription().getVersion();
 			if (getProperty("evilbook_version") == null || !getProperty("evilbook_version").equals(version)) {

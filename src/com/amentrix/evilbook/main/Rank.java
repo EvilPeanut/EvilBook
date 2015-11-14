@@ -57,8 +57,12 @@ public enum Rank {
 	 * @return The color of the rank
 	 */
 	public String getColor(PlayerProfile player) {
-		if (this.isCustomRank()) return ((PlayerProfileAdmin)player).customRankColor;
-		return this.color;
+		try {
+			if (this.isCustomRank()) return ((PlayerProfileAdmin)player).customRankColor;
+			return this.color;
+		} catch (Exception exception) {
+			return this.color;
+		}
 	}
 	
 	/**

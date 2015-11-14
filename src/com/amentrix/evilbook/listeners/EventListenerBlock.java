@@ -30,12 +30,11 @@ import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
+import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
-import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
-import com.amentrix.evilbook.statistics.PlayerStatistics;
 
 /**
  * Block event listener
@@ -103,24 +102,24 @@ public class EventListenerBlock implements Listener {
 				if (block.getState() instanceof InventoryHolder) {
 					if (EvilBook.isContainerProtected(block.getLocation(), player)) {
 						player.sendMessage(ChatColor.GRAY + "You don't have permission to break the " + 
-								EvilBook.getFriendlyName(blockType).toLowerCase(Locale.UK));
+								BlockReference.getFriendlyName(blockType).toLowerCase(Locale.UK));
 						event.setCancelled(true);
 						return;
 					}
 					EvilBook.unprotectContainer(block.getLocation());
-					player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(blockType) + " protection removed");
+					player.sendMessage(ChatColor.GRAY + BlockReference.getFriendlyName(blockType) + " protection removed");
 				}
 				// Achievements
 				switch (blockType) {
-				case COAL_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_COAL, 1); break;
-				case IRON_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_IRON, 1); break;
-				case LAPIS_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_LAPIS, 1); break;
-				case GOLD_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_GOLD, 1); break;
-				case DIAMOND_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_DIAMOND, 1); break;
-				case REDSTONE_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_REDSTONE, 1); break;
-				case GLOWING_REDSTONE_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_REDSTONE, 1); break;
-				case EMERALD_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_EMERALD, 1); break;
-				case QUARTZ_ORE: PlayerStatistics.incrementStatistic(player.getName(), PlayerStatistic.MINED_NETHERQUARTZ, 1); break;
+				case COAL_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_COAL, 1); break;
+				case IRON_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_IRON, 1); break;
+				case LAPIS_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_LAPIS, 1); break;
+				case GOLD_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_GOLD, 1); break;
+				case DIAMOND_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_DIAMOND, 1); break;
+				case REDSTONE_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_REDSTONE, 1); break;
+				case GLOWING_REDSTONE_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_REDSTONE, 1); break;
+				case EMERALD_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_EMERALD, 1); break;
+				case QUARTZ_ORE: PlayerStatistic.incrementStatistic(player.getName(), PlayerStatistic.MINED_NETHERQUARTZ, 1); break;
 				default: break;
 				}
 			}
@@ -145,7 +144,7 @@ public class EventListenerBlock implements Listener {
 						SQL.deleteRowFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
 					}
 					// Statistics
-					GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksBroken, 1);
+					GlobalStatistic.incrementStatistic(GlobalStatistic.BlocksBroken, 1);
 				}
 			});
 		}
@@ -212,10 +211,10 @@ public class EventListenerBlock implements Listener {
 					// Survival container protection
 					if (EvilBook.isInSurvival(player) && block.getState() instanceof InventoryHolder) {
 						EvilBook.protectContainer(block.getLocation(), player);
-						player.sendMessage(ChatColor.GRAY + EvilBook.getFriendlyName(block.getType()) + " protected");
+						player.sendMessage(ChatColor.GRAY + BlockReference.getFriendlyName(block.getType()) + " protected");
 					}
 					// Statistics
-					GlobalStatistics.incrementStatistic(GlobalStatistic.BlocksPlaced, 1);
+					GlobalStatistic.incrementStatistic(GlobalStatistic.BlocksPlaced, 1);
 				}
 			});
 		}

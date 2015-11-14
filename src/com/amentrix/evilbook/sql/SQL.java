@@ -141,7 +141,7 @@ public class SQL {
 	
 	public static Rank getRank(String playerName) {
 		try (Statement statement = connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT rank FROM " + database + "." + TableType.PlayerProfile.tableName + " WHERE " + TableType.PlayerProfile.keyName + "='" + playerName + "';")) {
+			try (ResultSet rs = statement.executeQuery("SELECT rank FROM " + database + "." + TableType.PlayerProfile.tableName + " WHERE player_name='" + playerName + "';")) {
 				if (rs.next()) return Rank.valueOf(rs.getString("rank"));
 			} catch (Exception e) {
 				e.printStackTrace();

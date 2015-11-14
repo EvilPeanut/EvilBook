@@ -14,6 +14,8 @@ import com.amentrix.evilbook.eviledit.utils.TreeGenerationDelegate;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
+import com.amentrix.evilbook.reference.BlockReference;
+import com.amentrix.evilbook.reference.TreeReference;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
@@ -53,7 +55,7 @@ class Generation {
 		} else if (args.length == 2 && !EvilBook.isDouble(args[1])) {
 			player.sendMessage("§7Please enter a valid forest density");
 		} else if (selection.isValid()) {
-			TreeType treeType = EvilBook.getTreeType(args[0]);
+			TreeType treeType = TreeReference.getTreeType(args[0]);
 			if (treeType == null) {
 				player.sendMessage("§7Please enter a valid tree type");
 			} else {
@@ -75,7 +77,7 @@ class Generation {
 					}
 				}
 				delegate.notifyClients();
-				player.sendMessage("§7Created a " + trees + " " + EvilBook.treeTypeList.get(treeType).get(0) + " tree forest");
+				player.sendMessage("§7Created a " + trees + " " + TreeReference.treeTypeList.get(treeType).get(0) + " tree forest");
 			}
 		}
 	}
@@ -122,7 +124,7 @@ class Generation {
 			}
 			if (!hollow) Movement.ascendPlayer(player, false);
 			engine.notifyClients(GlobalStatistic.BlocksPlaced);
-			player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block pyramid made of " + EvilBook.getFriendlyName(actionBlock.getMaterial()));
+			player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block pyramid made of " + BlockReference.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}
 
@@ -229,7 +231,7 @@ class Generation {
 			}
 			if (!hollow) Movement.ascendPlayer(player, false);
 			engine.notifyClients(GlobalStatistic.BlocksPlaced);
-			player.sendMessage((hollow ? empty ? "§7Created an empty hollow " : "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block sphere made of " + EvilBook.getFriendlyName(actionBlock.getMaterial()));
+			player.sendMessage((hollow ? empty ? "§7Created an empty hollow " : "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block sphere made of " + BlockReference.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}
 
@@ -301,7 +303,7 @@ class Generation {
 				}
 				if (!hollow) Movement.ascendPlayer(player, false);
 				engine.notifyClients(GlobalStatistic.BlocksPlaced);
-				player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block cylinder made of " + EvilBook.getFriendlyName(actionBlock.getMaterial()));
+				player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block cylinder made of " + BlockReference.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}
     
@@ -317,7 +319,7 @@ class Generation {
 				delegate.notifyClients();
 				player.sendMessage("§7Created a tree");
 			} else if (args.length == 1) {
-				TreeType treeType = EvilBook.getTreeType(args[0]);
+				TreeType treeType = TreeReference.getTreeType(args[0]);
 				if (treeType == null) {
 					player.sendMessage("§7Please enter a valid tree type");
 				} else {
@@ -325,9 +327,9 @@ class Generation {
 					if (player.getWorld().generateTree(player.getLocation(), treeType, delegate)) {
 						Movement.ascendPlayer(player, false);
 						delegate.notifyClients();
-						player.sendMessage("§7Created a " + EvilBook.treeTypeList.get(treeType).get(0) + " tree");
+						player.sendMessage("§7Created a " + TreeReference.treeTypeList.get(treeType).get(0) + " tree");
 					} else {
-						player.sendMessage("§7This is not a valid location for a " + EvilBook.treeTypeList.get(treeType).get(0) + " tree");
+						player.sendMessage("§7This is not a valid location for a " + TreeReference.treeTypeList.get(treeType).get(0) + " tree");
 					}
 				}
 			} else {

@@ -1,4 +1,4 @@
-package com.amentrix.evilbook.main;
+package com.amentrix.evilbook.region;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,11 +10,11 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
-import com.amentrix.evilbook.statistics.GlobalStatistics;
 
 /**
  * Region instance
@@ -39,12 +39,12 @@ public class Region {
 	/**
 	 * @param playerName The player to add to the region permissions
 	 */
-	void addAllowedPlayer(String playerName) { if (this.allowedPlayers.contains(playerName) == false) this.allowedPlayers.add(playerName); }
+	public void addAllowedPlayer(String playerName) { if (this.allowedPlayers.contains(playerName) == false) this.allowedPlayers.add(playerName); }
 	
 	/**
 	 * @param playerName The player to remove region permissions of
 	 */
-	void removeAllowedPlayer(String playerName) { if (this.allowedPlayers.contains(playerName)) this.allowedPlayers.remove(playerName); }
+	public void removeAllowedPlayer(String playerName) { if (this.allowedPlayers.contains(playerName)) this.allowedPlayers.remove(playerName); }
 	
 	/**
 	 * @return The region owner's name
@@ -73,8 +73,8 @@ public class Region {
 		return this.leaveMessage == null ? null : this.leaveMessage.replaceAll("(?i)(\\[time\\])", EvilBook.getTime(locationA.getWorld()))
 				.replaceAll("(?i)(\\[weather\\])", EvilBook.getWeather(locationA.getBlock()))
 				.replaceAll("(?i)(\\[online\\])", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
-				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken))
-				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken));
+				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken))
+				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken));
 	}
 	
 	/**
@@ -89,8 +89,8 @@ public class Region {
 		return this.welcomeMessage == null ? null : this.welcomeMessage.replaceAll("(?i)(\\[time\\])", EvilBook.getTime(locationA.getWorld()))
 				.replaceAll("(?i)(\\[weather\\])", EvilBook.getWeather(locationA.getBlock()))
 				.replaceAll("(?i)(\\[online\\])", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
-				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken))
-				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken));
+				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken))
+				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken));
 	}
 	
 	/**
@@ -111,12 +111,12 @@ public class Region {
 	/**
 	 * @return If protection is enabled
 	 */
-	Boolean isProtected(){ return this.isProtected; }
+	public Boolean isProtected(){ return this.isProtected; }
 	
 	/**
 	 * @param isProtected If protection is enabled
 	 */
-	void isProtected(Boolean isProtected) { this.isProtected = isProtected; }
+	public void isProtected(Boolean isProtected) { this.isProtected = isProtected; }
 	
 	/**
 	 * @return The first location point
@@ -149,7 +149,7 @@ public class Region {
 	 * @param leaveMessage The leave message of the region
 	 * @param allowedPlayers The players who have rights to the region
 	 */
-	Region(String regionName, Location locationA, Location locationB, Boolean isProtected, String ownerName, String welcomeMessage, String leaveMessage, String allowedPlayers, String warpName)
+	public Region(String regionName, Location locationA, Location locationB, Boolean isProtected, String ownerName, String welcomeMessage, String leaveMessage, String allowedPlayers, String warpName)
 	{
 		this.regionName = regionName;
 		this.locationA = locationA;
@@ -162,7 +162,7 @@ public class Region {
 		if (warpName != null) this.warpName = warpName;
 	}
 
-	Region(ResultSet rs) {
+	public Region(ResultSet rs) {
 		try {
 			this.regionName = rs.getString("region_name");
 			this.locationA = new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x1"), rs.getInt("y1"), rs.getInt("z1"));
@@ -178,7 +178,7 @@ public class Region {
 		}
 	}
 	
-	void delete() {
+	public void delete() {
 		try (PreparedStatement statement = SQL.connection.prepareStatement("DELETE FROM " + SQL.database + ".`evilbook-regions` WHERE region_name=?")) {
 			statement.setString(1, this.regionName.replaceAll("'", "''"));
 			statement.executeUpdate();
@@ -190,7 +190,7 @@ public class Region {
 	/**
 	 * Save the region externally
 	 */
-	void saveRegion() 
+	public void saveRegion() 
 	{
 		if (SQL.isKeyExistant(TableType.Region, this.regionName.replaceAll("'", "''"))) {
 			StatementSet saveAgent = new StatementSet();

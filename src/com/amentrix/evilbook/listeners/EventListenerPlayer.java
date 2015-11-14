@@ -88,13 +88,13 @@ import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.PlayerProfileNormal;
 import com.amentrix.evilbook.main.Rank;
-import com.amentrix.evilbook.main.Region;
 import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.nametag.NametagManager;
+import com.amentrix.evilbook.reference.BlockReference;
+import com.amentrix.evilbook.region.Region;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
-import com.amentrix.evilbook.statistics.GlobalStatistics;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
@@ -143,17 +143,7 @@ public class EventListenerPlayer implements Listener {
 		NametagManager.sendTeamsToPlayer(event.getPlayer());
 		NametagManager.clear(event.getPlayer().getName());
 		// Statistics
-		GlobalStatistics.incrementStatistic(GlobalStatistic.LoginTotal, 1);
-		// Regions
-		for (Region region : EvilBook.regionList) {
-			if (EvilBook.isInRegion(region, event.getPlayer().getLocation())) {
-				if (region.getWelcomeMessage() != null) event.getPlayer().sendMessage(region.getWelcomeMessage());
-				if (region.getWarp() != null) {
-					event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
-					break;
-				}
-			}
-		}
+		GlobalStatistic.incrementStatistic(GlobalStatistic.LoginTotal, 1);
 	}
 
 	/**
@@ -185,27 +175,6 @@ public class EventListenerPlayer implements Listener {
 				if (profile.jumpAmplifier != 0 && !player.isFlying() && from.getY() < to.getY() && player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) player.setVelocity(player.getVelocity().setY(profile.jumpAmplifier));
 				if (profile.runAmplifier != 0 && player.isSprinting()) player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20, profile.runAmplifier), true);
 			}
-			// Regions
-			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-				@Override
-				public void run() {
-					try {
-						for (Region region : EvilBook.regionList) {
-							if (region.getLeaveMessage() != null && EvilBook.isInRegion(region, from) && EvilBook.isInRegion(region, to) == false) {
-								player.sendMessage(region.getLeaveMessage());
-							} else if (EvilBook.isInRegion(region, to)) {
-								if (region.getWelcomeMessage() != null && EvilBook.isInRegion(region, from) == false) player.sendMessage(region.getWelcomeMessage());
-								if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
-									player.teleport(SQL.getWarp(region.getWarp()));
-									break;
-								}
-							}
-						}
-					} catch (Exception e) {
-						//Ignore rare async entity world add - WARNING: May be cause of crashes if thrown in large quantity
-					}
-				}
-			});
 		}
 	}
 
@@ -392,16 +361,6 @@ public class EventListenerPlayer implements Listener {
 		if (EvilBook.isInSurvival(event.getPlayer())) {
 			if (EvilBook.isInSurvival(event.getPlayer())) event.setRespawnLocation(Bukkit.getServer().getWorld("SurvivalLand").getSpawnLocation());
 		}
-		// Regions
-		for (Region region : EvilBook.regionList) {
-			if (EvilBook.isInRegion(region, event.getRespawnLocation())) {
-				if (region.getWelcomeMessage() != null) event.getPlayer().sendMessage(region.getWelcomeMessage());
-				if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
-					event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
-					break;
-				}
-			}
-		}
 	}
 
 	/**
@@ -459,7 +418,7 @@ public class EventListenerPlayer implements Listener {
 				+ "<§f" + player.getDisplayName() + "§" + profile.rank.getColor(profile) 
 				+ "> §f" + EvilBook.toFormattedString(message));
 		// Statistics
-		GlobalStatistics.incrementStatistic(GlobalStatistic.MessagesSent, 1);
+		GlobalStatistic.incrementStatistic(GlobalStatistic.MessagesSent, 1);
 	}
 
 	/**
@@ -672,7 +631,7 @@ public class EventListenerPlayer implements Listener {
 					player.sendMessage("§7Ender chests are blocked in survival");
 					event.setCancelled(true);
 				} else if (block.getState() instanceof InventoryHolder && EvilBook.isContainerProtected(event.getClickedBlock().getLocation(), player)) {
-					player.sendMessage(ChatColor.GRAY + "You don't have permission to use this " + EvilBook.getFriendlyName(block.getType()).toLowerCase());
+					player.sendMessage(ChatColor.GRAY + "You don't have permission to use this " + BlockReference.getFriendlyName(block.getType()).toLowerCase());
 					event.setCancelled(true);
 				}
 			} else if (event.hasItem()) {

@@ -6,7 +6,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.statistics.GlobalStatistic;
-import com.amentrix.evilbook.statistics.GlobalStatistics;
 
 /**
  * Schedulers and timed events
@@ -67,7 +66,7 @@ class Scheduler {
 							@Override
 							public void run() {
 								EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 20;
-								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
+								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
 								profile.saveProfile();
 							}
 						});
@@ -87,7 +86,7 @@ class Scheduler {
 							@Override
 							public void run() {
 								EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 10;
-								GlobalStatistics.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
+								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
 								profile.saveProfile();
 							}
 						});

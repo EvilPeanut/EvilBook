@@ -179,7 +179,11 @@ public abstract class PlayerProfile {
 	 * @return The value of the property
 	 */
 	String getProperty(String property) {
-		return SQL.getString(TableType.PlayerProfile, UUID, property);
+		String value = SQL.getString(TableType.PlayerProfile, UUID, property);
+		if (value == null) {
+			return SQL.getStringFromCriteria(TableType.PlayerProfile, "player_name='" + this.name + "'", property);
+		}
+		return value;
 	}
 	
 	/**
@@ -188,7 +192,11 @@ public abstract class PlayerProfile {
 	 * @return The value of the property
 	 */
 	String getProperty(TableType tableType, String property) {
-		return SQL.getString(tableType, UUID, property);
+		String value = SQL.getString(tableType, UUID, property);
+		if (value == null) {
+			return SQL.getStringFromCriteria(tableType, "player_name='" + this.name + "'", property);
+		}
+		return value;
 	}
 
 	/**

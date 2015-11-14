@@ -23,6 +23,8 @@ import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
+import com.amentrix.evilbook.reference.BiomeReference;
+import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
@@ -605,7 +607,7 @@ class Region {
 			player.sendMessage("§5§oIncorrect command usage");
 			player.sendMessage("§d/setbiome [biome]");
 		} else if (selection.isValid()) {
-			Biome blockBiome = EvilBook.getBiome(args[0]);
+			Biome blockBiome = BiomeReference.getBiome(args[0]);
 			if (blockBiome == null) {
 				player.sendMessage("§7A biome with this name doesn't exist");
 			} else {
@@ -880,7 +882,7 @@ class Region {
 				if (args.length == 0) {
 					player.sendMessage("§7Selection contains " + blockCount + " blocks");
 				} else {
-					player.sendMessage("§7Selection contains " + blockCount + " " + EvilBook.getFriendlyName(actionBlock.getMaterial()) + " blocks");
+					player.sendMessage("§7Selection contains " + blockCount + " " + BlockReference.getFriendlyName(actionBlock.getMaterial()) + " blocks");
 				}
 			} else {
 				player.sendMessage("§5§oIncorrect command usage");

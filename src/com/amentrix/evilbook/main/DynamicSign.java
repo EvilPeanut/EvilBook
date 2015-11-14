@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
-import com.amentrix.evilbook.statistics.GlobalStatistics;
 
 /**
  * DynamicSign instance
@@ -90,8 +89,8 @@ public class DynamicSign {
 				sign.setLine(i, textLines[i].replace("[time]", EvilBook.getTime(sign.getBlock().getWorld())
 						.replace("[weather]", EvilBook.getWeather(sign.getBlock())))
 						.replace("[online]", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
-						.replace("[blocksbroken]", GlobalStatistics.getStatistic(GlobalStatistic.BlocksBroken))
-						.replace("[blocksplaced]", GlobalStatistics.getStatistic(GlobalStatistic.BlocksPlaced))
+						.replace("[blocksbroken]", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken))
+						.replace("[blocksplaced]", GlobalStatistic.getStatistic(GlobalStatistic.BlocksPlaced))
 						);
 			}
 			sign.update();
