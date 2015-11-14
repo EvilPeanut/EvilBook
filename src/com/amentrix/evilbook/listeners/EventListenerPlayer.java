@@ -91,6 +91,7 @@ import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.reference.BlockReference;
+import com.amentrix.evilbook.reference.CommandReference;
 import com.amentrix.evilbook.region.Region;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
@@ -738,19 +739,19 @@ public class EventListenerPlayer implements Listener {
 		} else {
 			EvilBook.getProfile(player).lastMessage = event.getMessage();
 			EvilBook.getProfile(player).lastMessageTime = System.currentTimeMillis();
-			if (EvilBook.commandBlacklist.containsKey(event.getMessage().toLowerCase().split(" ")[0]) == false) return;
-			if (!EvilBook.getProfile(player).rank.isHigher(EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getPreviousRank())) {
-				if (EvilBook.getProfile(player).rank.isAdmin() == false && EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.ADMIN)) {
+			if (CommandReference.commandBlacklist.containsKey(event.getMessage().toLowerCase().split(" ")[0]) == false) return;
+			if (!EvilBook.getProfile(player).rank.isHigher(CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getPreviousRank())) {
+				if (EvilBook.getProfile(player).rank.isAdmin() == false && CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.ADMIN)) {
 					player.sendMessage("§dThis is an §5Admin §donly command");
 					player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
-				} else if (EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.SERVER_HOST)) {
+				} else if (CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.SERVER_HOST)) {
 					player.sendMessage("§7This command is blocked for security reasons");
 				} else {
-					player.sendMessage("§dThis is an §" + EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank and higher only command");
-					if (EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).isAdmin()) {
-						player.sendMessage("§dPlease type §6/donate §dto learn how to become §" + EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank");
+					player.sendMessage("§dThis is an §" + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank and higher only command");
+					if (CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).isAdmin()) {
+						player.sendMessage("§dPlease type §6/donate §dto learn how to become §" + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank");
 					} else {
-						player.sendMessage("§dPlease type §6/ranks §dto learn how to become §" + EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + EvilBook.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank");
+						player.sendMessage("§dPlease type §6/ranks §dto learn how to become §" + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank");
 					}
 				}
 				event.setCancelled(true);
