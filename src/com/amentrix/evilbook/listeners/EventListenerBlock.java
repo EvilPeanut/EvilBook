@@ -276,9 +276,7 @@ public class EventListenerBlock implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onBlockPhysics(BlockPhysicsEvent event)
 	{
-		Block block = event.getBlock();
-
-		if (block.getType() == Material.TRAP_DOOR) {
+		if (event.getBlock().getType() == Material.TRAP_DOOR) {
 			event.setCancelled(true);
 		}
 	}
