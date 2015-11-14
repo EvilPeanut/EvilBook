@@ -241,11 +241,9 @@ public class EvilBook extends JavaPlugin {
 						}
 					}
 				}
-				SQL.deleteColumn(TableType.Mail, "player_recipient");
 			} catch (Exception exception) {
 				exception.printStackTrace();
 			}
-			logInfo("Updated mail database!");
 		}
 		// Make sure the SQL emitter table contains all emitter effect types
 		String prepStatement = "ALTER TABLE " + SQL.database + ".`evilbook-emitters` MODIFY effect ENUM(";
