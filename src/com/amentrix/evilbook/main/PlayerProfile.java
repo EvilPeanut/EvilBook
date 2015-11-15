@@ -25,7 +25,6 @@ import com.amentrix.evilbook.sql.TableType;
  * PlayerProfile parent instance
  * @author Reece Aaron Lecrivain
  */
-//TODO: Use one query to load player profile from SQL
 public abstract class PlayerProfile {
 	String name, nameTitle;
 	public String lastMessage;
@@ -179,6 +178,7 @@ public abstract class PlayerProfile {
 	 * @param property The property to get
 	 * @return The value of the property
 	 */
+	//TODO: Remove
 	String getProperty(String property) {
 		String value = SQL.getString(TableType.PlayerProfile, UUID, property);
 		if (value == null) {
@@ -192,6 +192,7 @@ public abstract class PlayerProfile {
 	 * @param property The property to get
 	 * @return The value of the property
 	 */
+	//TODO: Remove
 	String getProperty(TableType tableType, String property) {
 		String value = SQL.getString(tableType, UUID, property);
 		if (value == null) {
