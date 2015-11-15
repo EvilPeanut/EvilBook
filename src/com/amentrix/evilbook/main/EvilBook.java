@@ -562,116 +562,6 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§d/drwatson listscan");
 				sender.sendMessage("§d/drwatson opfix");
 				sender.sendMessage("§d/drwatson worldinfo [worldName]");
-			} else if (args[0].equalsIgnoreCase("updatedsworlduuid")) {
-				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
-					@Override
-					public void run() {
-						try (Statement statement = SQL.connection.createStatement()) {
-							try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + ".`evilbook-dynamicsigns`;")) {
-								while (rs.next()) {
-									try (Statement setStatement = SQL.connection.createStatement()) {
-										String UUID = getServer().getWorld(rs.getString("world")).getUID().toString();
-										setStatement.execute("UPDATE " + SQL.database + "." + TableType.DynamicSign.tableName + " SET world='" + UUID + "' WHERE world='" + rs.getString("world") + "';");
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
-							}
-						} catch (Exception exception) {
-							exception.printStackTrace();
-						}
-					}
-				});
-			} else if (args[0].equalsIgnoreCase("updatecbworlduuid")) {
-				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
-					@Override
-					public void run() {
-						try (Statement statement = SQL.connection.createStatement()) {
-							try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + ".`evilbook-commandblock`;")) {
-								while (rs.next()) {
-									try (Statement setStatement = SQL.connection.createStatement()) {
-										String UUID = getServer().getWorld(rs.getString("world")).getUID().toString();
-										setStatement.execute("UPDATE " + SQL.database + "." + TableType.CommandBlock.tableName + " SET world='" + UUID + "' WHERE world='" + rs.getString("world") + "';");
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
-							}
-						} catch (Exception exception) {
-							exception.printStackTrace();
-						}
-					}
-				});
-			} else if (args[0].equalsIgnoreCase("opfix")) {
-				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
-					@Override
-					public void run() {
-						try (Statement statement = SQL.connection.createStatement()) {
-							try (ResultSet rs = statement.executeQuery("SELECT player_name, rank FROM " + SQL.database + ".`evilbook-playerprofiles`;")) {
-								while (rs.next()) {
-									if (Rank.valueOf(rs.getString("rank")).isHigher(Rank.POLICE)) {
-										OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
-										if (!player.isOp()) {
-											getServer().getOfflinePlayer(rs.getString("player_name")).setOp(true);
-											logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
-										} else {
-											logInfo("Passed player " + rs.getString("player_name") + "'s OP status");
-										}
-									} else {
-										OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
-										if (player.isOp()) {
-											getServer().getOfflinePlayer(rs.getString("player_name")).setOp(false);
-											logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
-										} else {
-											logInfo("Passed player " + rs.getString("player_name") + "'s OP status");
-										}
-									}
-								}
-							}
-						} catch (Exception exception) {
-							exception.printStackTrace();
-						}
-					}
-				});
-			} else if (args[0].equalsIgnoreCase("liststat")) {
-				sender.sendMessage("§5Lists Size Information");
-				sender.sendMessage("§dPlayer Profiles = " + playerProfiles.size());
-				sender.sendMessage("§dDynamic Signs = " + dynamicSignList.size());
-				sender.sendMessage("§dPaid Worlds = " + paidWorldList.size());
-				sender.sendMessage("§dRegions = " + regionList.size());
-				sender.sendMessage("§dPlot Regions = " + plotRegionList.size());
-				sender.sendMessage("§dEmitters = " + emitterList.size());
-				sender.sendMessage("§dRare Spawns = " + rareSpawnList.size());
-				sender.sendMessage("§dIn Use Survival Workbenches = " + inUseSurvivalWorkbenchesList.size());
-			} else if (args[0].equalsIgnoreCase("listscan")) {
-				sender.sendMessage("§7Dr. Watson scanning dynamicSignList...");
-				for (final World world : EvilBook.dynamicSignList.keySet()) {
-					for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
-						if (dynamicSign.location.getBlock().getType() != Material.SIGN_POST && dynamicSign.location.getBlock().getType() != Material.WALL_SIGN) {
-							sender.sendMessage("§7--> Dynamic sign at (" + dynamicSign.location.getBlockX() + ", " + dynamicSign.location.getBlockY() + ", " + 
-									dynamicSign.location.getBlockZ() + ") isn't a sign");
-						}
-					}	
-				}
-				sender.sendMessage("§7Dr. Watson scan finished");
-			} else if (args[0].equalsIgnoreCase("worldinfo")) {
-				if (args.length == 2) {
-					World world = getServer().getWorld(args[1]);
-					if (world == null) {
-						sender.sendMessage("§7The world " + args[1] + " isn't loaded");
-					} else {
-						sender.sendMessage("§5" + args[1] + " World Information");
-						sender.sendMessage("§dAutosave = " + world.isAutoSave());
-						sender.sendMessage("§dWeather duration = " + world.getWeatherDuration());
-						sender.sendMessage("§dSeed = " + world.getSeed());
-						sender.sendMessage("§dDifficulty = " + world.getDifficulty().name());
-						sender.sendMessage("§dSpawn kept in memory = " + world.getKeepSpawnInMemory());
-						sender.sendMessage("§dPlayers in world = " + world.getPlayers().size());
-					}
-				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/drwatson worldinfo [worldName]");
-				}
 			} else if (args[0].equalsIgnoreCase("sql")) {
 				//
 				// Check `evilbook-commandblock` table
@@ -955,6 +845,76 @@ public class EvilBook extends JavaPlugin {
 				int freePercentage = (int) Math.round((double)(Runtime.getRuntime().freeMemory()) / (double)(Runtime.getRuntime().maxMemory()) * 100);
 				sender.sendMessage("§dUsed memory " + ((100 - freePercentage) > 90 ? "§c" : "§a") + ((Runtime.getRuntime().maxMemory() / 1048576) - (Runtime.getRuntime().freeMemory() / 1048576)) + "MB §e(" + (100 - freePercentage) + "%)");
 				sender.sendMessage("§dFree memory " + (freePercentage > 10 ? "§a" : "§c") + Runtime.getRuntime().freeMemory() / 1048576 + "MB §e(" + freePercentage + "%)");
+			} else if (args[0].equalsIgnoreCase("liststat")) {
+				sender.sendMessage("§5Lists Size Information");
+				sender.sendMessage("§dPlayer Profiles = " + playerProfiles.size());
+				sender.sendMessage("§dDynamic Signs = " + dynamicSignList.size());
+				sender.sendMessage("§dPaid Worlds = " + paidWorldList.size());
+				sender.sendMessage("§dRegions = " + regionList.size());
+				sender.sendMessage("§dPlot Regions = " + plotRegionList.size());
+				sender.sendMessage("§dEmitters = " + emitterList.size());
+				sender.sendMessage("§dRare Spawns = " + rareSpawnList.size());
+				sender.sendMessage("§dIn Use Survival Workbenches = " + inUseSurvivalWorkbenchesList.size());
+			} else if (args[0].equalsIgnoreCase("listscan")) {
+				sender.sendMessage("§7Dr. Watson scanning dynamicSignList...");
+				for (final World world : EvilBook.dynamicSignList.keySet()) {
+					for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
+						if (dynamicSign.location.getBlock().getType() != Material.SIGN_POST && dynamicSign.location.getBlock().getType() != Material.WALL_SIGN) {
+							sender.sendMessage("§7--> Dynamic sign at (" + dynamicSign.location.getBlockX() + ", " + dynamicSign.location.getBlockY() + ", " + 
+									dynamicSign.location.getBlockZ() + ") isn't a sign");
+						}
+					}	
+				}
+				sender.sendMessage("§7Dr. Watson scan finished");
+			} else if (args[0].equalsIgnoreCase("opfix")) {
+				getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+					@Override
+					public void run() {
+						try (Statement statement = SQL.connection.createStatement()) {
+							try (ResultSet rs = statement.executeQuery("SELECT player_name, rank FROM " + SQL.database + ".`evilbook-playerprofiles`;")) {
+								while (rs.next()) {
+									if (Rank.valueOf(rs.getString("rank")).isHigher(Rank.POLICE)) {
+										OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
+										if (!player.isOp()) {
+											getServer().getOfflinePlayer(rs.getString("player_name")).setOp(true);
+											logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
+										} else {
+											logInfo("Passed player " + rs.getString("player_name") + "'s OP status");
+										}
+									} else {
+										OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
+										if (player.isOp()) {
+											getServer().getOfflinePlayer(rs.getString("player_name")).setOp(false);
+											logInfo("Auto-fixed player " + rs.getString("player_name") + "'s OP status");
+										} else {
+											logInfo("Passed player " + rs.getString("player_name") + "'s OP status");
+										}
+									}
+								}
+							}
+						} catch (Exception exception) {
+							exception.printStackTrace();
+						}
+					}
+				});
+			} else if (args[0].equalsIgnoreCase("worldinfo")) {
+				if (args.length == 2) {
+					World world = getServer().getWorld(args[1]);
+					if (world == null) {
+						sender.sendMessage("§7The world " + args[1] + " isn't loaded");
+					} else {
+						sender.sendMessage("§5" + args[1] + " World Information");
+						sender.sendMessage("§dAutosave = " + world.isAutoSave());
+						sender.sendMessage("§dWeather duration = " + world.getWeatherDuration());
+						sender.sendMessage("§dSeed = " + world.getSeed());
+						sender.sendMessage("§dDifficulty = " + world.getDifficulty().name());
+						sender.sendMessage("§dSpawn kept in memory = " + world.getKeepSpawnInMemory());
+						sender.sendMessage("§dPlayers in world = " + world.getPlayers().size());
+					}
+				} else {
+					sender.sendMessage("§5§oIncorrect command usage");
+					sender.sendMessage("§d/drwatson worldinfo [worldName]");
+				}
 			}
 			return true;
 		}
