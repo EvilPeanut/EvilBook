@@ -119,29 +119,9 @@ public class PlayerProfileNormal extends PlayerProfile {
 				setInteger("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
 				setString("last_login", sdf.format(date));
 				setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
+				setString("evilbook_version", plugin.getDescription().getVersion());
 			} catch (Exception statsException) {
 				EvilBook.logSevere("Failed to update on-login stats for " + newPlayer.getName());
-			}
-			// Supply a changelog book if the current evilbook version is different to when last logged in
-			String version = plugin.getDescription().getVersion();
-			if (getProperty("evilbook_version") == null || !getProperty("evilbook_version").equals(version)) {
-				if (rank == Rank.ADVANCED_BUILDER) {
-					newPlayer.sendMessage("§cYou have not been demoted your rank name has changed");
-				} else if (rank == Rank.ARCHITECT) {
-					newPlayer.sendMessage("§cYou have not been demoted your rank name has changed");
-				} else if (rank == Rank.MODERATOR) {
-					newPlayer.sendMessage("§cYou have not been demoted your rank name has changed");
-				} else if (rank == Rank.POLICE) {
-					newPlayer.sendMessage("§cYou have not been demoted your rank name has changed");
-				}
-				List<String> text = new ArrayList<>();
-				text.add("§5Welcome to EvilBook " + version + "\n\n§7Things have changed since EvilBook 7.0.0, please read this book to get "
-						+ "a brief understanding of what has been added and changed");
-				text.add("§5§oSkyBlock Achievements\n\n§dMany skyblock survival achievements and challenges have been added, find them in /achievements");
-				text.add("§5§oTitles\n\n§dThe Sandman title has been added as a reward for crafting a bed in skyblock survival\n\n§d"
-						+ "The Juke title has been added as a reward for crafting a jukebox in skyblock survival");
-				newPlayer.getInventory().addItem(EvilBook.getBook("EvilBook 7.1 Guide", EvilBook.config.getProperty("server_name"), text));
-				setString("evilbook_version", version);
 			}
 		} catch (Exception exception) {
 			newPlayer.kickPlayer("§cA login error has occured and our team has been notified, sorry for the inconvenience");

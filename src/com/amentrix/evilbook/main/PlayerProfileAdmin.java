@@ -158,6 +158,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 			setInteger("total_logins", query.getInteger("total_logins") + 1);
 			setString("last_login", sdf.format(date));
 			setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
+			setString("evilbook_version", plugin.getDescription().getVersion());
 			//
 			// SQL query close
 			//
