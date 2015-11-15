@@ -46,10 +46,10 @@ public class PlayerProfileNormal extends PlayerProfile {
 				if (getProperty("achievement_list") != null) for (String ach : getProperty("achievement_list").split(",")) this.achievements.add(Achievement.valueOf(ach));
 				this.runAmplifier = Integer.parseInt(getProperty("run_amplifier"));
 				this.walkAmplifier = Float.parseFloat(getProperty("walk_amplifier"));
-				newPlayer.setWalkSpeed((float) this.walkAmplifier);
+				newPlayer.setWalkSpeed(this.walkAmplifier);
 				this.flyAmplifier = Float.parseFloat(getProperty("fly_amplifier"));
-				newPlayer.setFlySpeed((float) this.flyAmplifier);
-				this.jumpAmplifier = Double.valueOf(getProperty("jump_amplifier"));
+				newPlayer.setFlySpeed(this.flyAmplifier);
+				this.jumpAmplifier = Float.valueOf(getProperty("jump_amplifier"));
 				this.nameTitle = getProperty("name_title");
 				if (this.nameTitle == null) {
 					newPlayer.setDisplayName(this.name + "§f");

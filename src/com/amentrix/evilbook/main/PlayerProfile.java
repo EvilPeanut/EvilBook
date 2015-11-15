@@ -25,6 +25,7 @@ import com.amentrix.evilbook.sql.TableType;
  * PlayerProfile parent instance
  * @author Reece Aaron Lecrivain
  */
+//TODO: Use one query to load player profile from SQL
 public abstract class PlayerProfile {
 	String name, nameTitle;
 	public String lastMessage;
@@ -34,9 +35,9 @@ public abstract class PlayerProfile {
 	public Boolean isAway = false, isInvisible = false, isDrunk = false;
 	List<Achievement> achievements = new ArrayList<>();
 	public long lastMessageTime = 0, lastActionTime = 0;
-	public double jumpAmplifier = 0;
-	double flyAmplifier = 0.1;
-	double walkAmplifier = 0.2;
+	public float jumpAmplifier = 0;
+	float flyAmplifier = 0.1f;
+	float walkAmplifier = 0.2f;
 	public Rank rank = Rank.BUILDER;
 	public Entity disguise;
 	public Location lastLocation;

@@ -4,11 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.Clipboard;
+import com.amentrix.evilbook.sql.SQLQuery;
 import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 
@@ -28,89 +26,142 @@ public class PlayerProfileAdmin extends PlayerProfile {
 	String nameAlias, customRankPrefix = "§0[§6Custom§0]", customRankColor = "6";
 	public Clipboard clipboard = new Clipboard();
 
-	/**
-	 * Construct a new admin PlayerProfile instance
-	 * @param playerName The name of the player
-	 */
-	public PlayerProfileAdmin(EvilBook plugin, Player newPlayer) {
+	public PlayerProfileAdmin(EvilBook plugin, Player newPlayer, boolean showWelcome) {
 		super(plugin);
 		try {
-			this.name = newPlayer.getName();
-			this.UUID = newPlayer.getUniqueId().toString();
-			this.rank = Rank.valueOf(getProperty("rank"));
-			if (this.rank.isCustomRank()) {
-				String prefix = getProperty("rank_prefix");
+			name = newPlayer.getName();
+			UUID = newPlayer.getUniqueId().toString();
+			//
+			// SQL query
+			//
+			SQLQuery query = new SQLQuery(TableType.PlayerProfile, UUID);
+			query.addField("rank");
+			query.addField("rank_prefix");
+			query.addField("money");
+			query.addField("warp_list");
+			query.addField("achievement_list");
+			query.addField("run_amplifier");
+			query.addField("walk_amplifier");
+			query.addField("fly_amplifier");
+			query.addField("jump_amplifier");
+			query.addField("name_title");
+			query.addField("name_alias");
+			query.addField("muted_players");
+			query.addField("total_logins");
+			query.execute();
+			//
+			// Rank
+			//
+			rank = query.getRank("rank");
+			if (rank.isCustomRank()) {
+				String prefix = query.getString("rank_prefix");
 				if (prefix != null) {
-					this.customRankColor = prefix.substring(4, 5);
-					this.customRankPrefix = prefix;
+					customRankColor = prefix.substring(4, 5);
+					customRankPrefix = prefix;
 				}
 			}
-			this.money = Integer.parseInt(getProperty("money"));
+			//
+			// Money
+			//
+			money = query.getInteger("money");
+			//
+			// Home location
+			//
+			//TODO: Improve home_location retrieval
 			if (getProperty(TableType.PlayerLocation, "home_location") != null) {
 				String[] location = getProperty(TableType.PlayerLocation, "home_location").split(">");
-				this.homeLocation = new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2]));
+				homeLocation = new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2]));
 			}
-			if (getProperty("warp_list") != null) this.warps.addAll(Arrays.asList(getProperty("warp_list").toLowerCase().split(",")));
-			if (getProperty("achievement_list") != null) for (String ach : getProperty("achievement_list").split(",")) this.achievements.add(Achievement.valueOf(ach));
-			this.runAmplifier = Integer.parseInt(getProperty("run_amplifier"));
-			this.walkAmplifier = Float.parseFloat(getProperty("walk_amplifier"));
-			newPlayer.setWalkSpeed((float) this.walkAmplifier);
-			this.flyAmplifier = Float.parseFloat(getProperty("fly_amplifier"));
-			newPlayer.setFlySpeed((float) this.flyAmplifier);
-			this.jumpAmplifier = Double.valueOf(getProperty("jump_amplifier"));
-			this.nameTitle = getProperty("name_title");
-			this.nameAlias = getProperty("name_alias");
-			if (this.nameAlias != null) {
-				if (this.nameTitle == null) {
-					newPlayer.setDisplayName(this.nameAlias + "§f");
-				} else {
-					newPlayer.setDisplayName("§d" + this.nameTitle + " §f" + this.nameAlias + "§f");
+			//
+			// Warp list
+			//
+			//TODO: Remove toLowerCase dependancy
+			if (query.getString("warp_list") != null) {
+				warps.addAll(Arrays.asList(query.getString("warp_list").toLowerCase().split(",")));
+			}
+			//
+			// Achievement list
+			//
+			if (query.getString("achievement_list") != null) {
+				for (String achievement : query.getString("achievement_list").split(",")) {
+					achievements.add(Achievement.valueOf(achievement));
 				}
-				updatePlayerListName();
-			} else {
-				if (this.nameTitle == null) {
-					newPlayer.setDisplayName(this.name + "§f");
+			}
+			//
+			// Amplifiers
+			//
+			runAmplifier = query.getInteger("run_amplifier");
+			walkAmplifier = query.getFloat("walk_amplifier");
+			newPlayer.setWalkSpeed(walkAmplifier);
+			flyAmplifier = query.getFloat("fly_amplifier");
+			newPlayer.setFlySpeed(flyAmplifier);
+			jumpAmplifier = query.getFloat("jump_amplifier");
+			//
+			// Name title and alias
+			//
+			nameTitle = query.getString("name_title");
+			nameAlias = query.getString("name_alias");
+			if (nameAlias != null) {
+				if (nameTitle == null) {
+					newPlayer.setDisplayName(nameAlias + "§f");
 				} else {
-					newPlayer.setDisplayName("§d" + this.nameTitle + " §f" + this.name + "§f");
+					newPlayer.setDisplayName("§d" + nameTitle + " §f" + nameAlias + "§f");
 				}
-				updatePlayerListName();
-			}
-			if (getProperty("muted_players") != null) this.mutedPlayers.addAll(Arrays.asList(getProperty("muted_players").split(",")));
-			for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-				if (p.getName().equals(this.name)) continue;
-				p.sendMessage("§9[§6" + Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getServer().getMaxPlayers() + "§9] §6Everyone welcome " + newPlayer.getDisplayName() + "§6 back to the game!");
-			}
-			// Welcome message
-			if (getMailCount() == 0) {
-				newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔");
 			} else {
-				newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔ §c✉" + getMailCount());
+				if (nameTitle == null) {
+					newPlayer.setDisplayName(name + "§f");
+				} else {
+					newPlayer.setDisplayName("§d" + nameTitle + " §f" + name + "§f");
+				}
 			}
-			newPlayer.sendMessage("  §3Type §a/survival §3to enter the survival world");
-			newPlayer.sendMessage("  §3Type §a/minigame §3to enter a minigame");
-			newPlayer.sendMessage("  §3Type §a/ranks §3for the list of ranks");
-			newPlayer.sendMessage("  §3Type §a/donate §3for instructions on how to donate");
-			newPlayer.sendMessage("  §3Type §a/help §3for help");
+			updatePlayerListName();
+			//
+			// Muted players list
+			//
+			if (query.getString("muted_players") != null) {
+				mutedPlayers.addAll(Arrays.asList(query.getString("muted_players").split(",")));
+			}
+			//
+			// Join messages
+			//
+			if (showWelcome) {
+				//
+				// Join message to other players
+				//
+				for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+					if (player.getName().equals(name)) continue;
+					player.sendMessage("§9[§6" + plugin.getServer().getOnlinePlayers().size() + "/" + plugin.getServer().getMaxPlayers() + "§9] §6Everyone welcome " + newPlayer.getDisplayName() + "§6 back to the game!");
+				}
+				//
+				// Welcome message
+				//
+				if (getMailCount() == 0) {
+					newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔");
+				} else {
+					newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔ §c✉" + getMailCount());
+				}
+				newPlayer.sendMessage("  §3Type §a/survival §3to enter the survival world");
+				newPlayer.sendMessage("  §3Type §a/minigame §3to enter a minigame");
+				newPlayer.sendMessage("  §3Type §a/ranks §3for the list of ranks");
+				newPlayer.sendMessage("  §3Type §a/donate §3for instructions on how to donate");
+				newPlayer.sendMessage("  §3Type §a/help §3for help");
+			}
+			//
 			// NametagEdit
-			updateNametag("§" + this.rank.getColor(this), null);
-			// Player profile statistics
+			//
+			updateNametag("§" + rank.getColor(this), null);
+			//
+			// Statistics
+			//
 			Date date = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			setInteger("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
+			setInteger("total_logins", query.getInteger("total_logins") + 1);
 			setString("last_login", sdf.format(date));
 			setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
-			// Supply a changelog book if the current evilbook version is different to when last logged in
-			String version = plugin.getDescription().getVersion();
-			if (getProperty("evilbook_version") == null || !getProperty("evilbook_version").equals(version)) {
-				List<String> text = new ArrayList<>();
-				text.add("§5Welcome to EvilBook " + version + "\n\n§7Things have changed since EvilBook 7.0.0, please read this book to get "
-						+ "a brief understanding of what has been added and changed");
-				text.add("§5§oSkyBlock Achievements\n\n§dMany skyblock survival achievements and challenges have been added, find them in /achievements");
-				text.add("§5§oTitles\n\n§dThe Sandman title has been added as a reward for crafting a bed in skyblock survival\n\n§d"
-						+ "The Juke title has been added as a reward for crafting a jukebox in skyblock survival");
-				newPlayer.getInventory().addItem(EvilBook.getBook("EvilBook 7.1 Guide", EvilBook.config.getProperty("server_name"), text));
-				setString("evilbook_version", version);
-			}
+			//
+			// SQL query close
+			//
+			query.close();
 		} catch (Exception exception) {
 			newPlayer.kickPlayer("§cA login error has occured and our team has been notified, sorry for the inconvenience");
 			try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("EvilBook.log", true)))) {
@@ -123,96 +174,78 @@ public class PlayerProfileAdmin extends PlayerProfile {
 	}
 
 	public String getStrippedNameAlias() {
-		return ChatColor.stripColor(this.nameAlias);
+		return ChatColor.stripColor(nameAlias);
 	}
-	
-	/**
-	 * Save the player profile
-	 */
+
 	@Override
 	public void saveProfile() {
 		StatementSet profileSaveAgent = new StatementSet();
-		profileSaveAgent.setProperty(TableType.PlayerLocation, this.name, "home_location", this.homeLocation == null ? "NULL" : this.homeLocation.getX() + ">" + this.homeLocation.getY() + ">" + this.homeLocation.getZ() + ">" + this.homeLocation.getWorld().getName());
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "name_title", this.nameTitle == null ? "NULL" : this.nameTitle);
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "name_alias", this.nameAlias == null ? "NULL" : this.nameAlias);
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "muted_players", (this.mutedPlayers.size() != 0 ? StringUtils.join(this.mutedPlayers, ",") : "NULL"));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "rank", this.rank.toString());
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "rank_prefix", this.customRankPrefix);
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "money", Integer.toString(this.money));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "warp_list", (this.warps.size() != 0 ? StringUtils.join(this.warps, ",").replaceAll("'", "''") : "NULL"));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "run_amplifier", Integer.toString(this.runAmplifier));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "walk_amplifier", Double.toString(this.walkAmplifier));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "fly_amplifier", Double.toString(this.flyAmplifier));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "jump_amplifier", Double.toString(this.jumpAmplifier));
-		profileSaveAgent.setProperty(TableType.PlayerProfile, this.UUID, "achievement_list", (this.achievements.size() != 0 ? StringUtils.join(this.achievements, ",") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerLocation, name, "home_location", homeLocation == null ? "NULL" : homeLocation.getX() + ">" + homeLocation.getY() + ">" + homeLocation.getZ() + ">" + homeLocation.getWorld().getName());
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "name_title", nameTitle == null ? "NULL" : nameTitle);
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "name_alias", nameAlias == null ? "NULL" : nameAlias);
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "muted_players", (mutedPlayers.size() != 0 ? StringUtils.join(mutedPlayers, ",") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "rank", rank.toString());
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "rank_prefix", customRankPrefix);
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "money", Integer.toString(money));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "warp_list", (warps.size() != 0 ? StringUtils.join(warps, ",").replaceAll("'", "''") : "NULL"));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "run_amplifier", Integer.toString(runAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "walk_amplifier", Double.toString(walkAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "fly_amplifier", Double.toString(flyAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "jump_amplifier", Double.toString(jumpAmplifier));
+		profileSaveAgent.setProperty(TableType.PlayerProfile, UUID, "achievement_list", (achievements.size() != 0 ? StringUtils.join(achievements, ",") : "NULL"));
 		profileSaveAgent.execute();
 	}
 
-	/**
-	 * Set the title of the player
-	 * @param title The title
-	 */
 	@Override
 	public void setNameTitle(String title) {
-		Player player = getPlayer();
-		this.nameTitle = title;
-		if (this.nameAlias == null) {
-			if (this.nameTitle == null) {
-				player.setDisplayName(this.name + "§f");
+		nameTitle = title;
+		if (nameAlias == null) {
+			if (nameTitle == null) {
+				getPlayer().setDisplayName(name + "§f");
 			} else {
-				player.setDisplayName("§d" + this.nameTitle + " §f" + this.name + "§f");
+				getPlayer().setDisplayName("§d" + nameTitle + " §f" + name + "§f");
 			}
 		} else {
-			if (this.nameTitle == null) {
-				player.setDisplayName(this.nameAlias + "§f");
+			if (nameTitle == null) {
+				getPlayer().setDisplayName(nameAlias + "§f");
 			} else {
-				player.setDisplayName("§d" + this.nameTitle + " §f" + this.nameAlias + "§f");
+				getPlayer().setDisplayName("§d" + nameTitle + " §f" + nameAlias + "§f");
 			}
 		}
 	}
 
-	/**
-	 * Set the name alias of the player
-	 * @param alias The name alias
-	 */
 	public void setNameAlias(String alias) {
-		Player player = getPlayer();
 		if (alias == null) {
-			this.nameAlias = null;
-			if (this.nameTitle == null) {
-				player.setDisplayName(this.name + "§f");
+			nameAlias = null;
+			if (nameTitle == null) {
+				getPlayer().setDisplayName(name + "§f");
 			} else {
-				player.setDisplayName("§d" + this.nameTitle + " §f" + this.name + "§f");
+				getPlayer().setDisplayName("§d" + nameTitle + " §f" + name + "§f");
 			}
-			updatePlayerListName();
 		} else {
-			this.nameAlias = alias;
-			if (this.nameTitle == null) {
-				player.setDisplayName(this.nameAlias + "§f");
+			nameAlias = alias;
+			if (nameTitle == null) {
+				getPlayer().setDisplayName(nameAlias + "§f");
 			} else {
-				player.setDisplayName("§d" + this.nameTitle + " §f" + this.nameAlias + "§f");
+				getPlayer().setDisplayName("§d" + nameTitle + " §f" + nameAlias + "§f");
 			}
-			updatePlayerListName();
 		}
+		updatePlayerListName();
 	}
 
-	/**
-	 * Update the player's name in the player list
-	 */
 	@Override
 	public void updatePlayerListName() {
-		Player player = getPlayer();
-		if (this.nameAlias != null) {
-			if (this.isAway) {
-				player.setPlayerListName("§7*§" + this.rank.getColor(this) + (this.nameAlias.length() > 11 ? this.nameAlias.substring(0, 11) : this.nameAlias));
+		if (nameAlias != null) {
+			if (isAway) {
+				getPlayer().setPlayerListName("§7*§" + rank.getColor(this) + (nameAlias.length() > 11 ? nameAlias.substring(0, 11) : nameAlias));
 			} else {
-				player.setPlayerListName("§" + this.rank.getColor(this) + (this.nameAlias.length() > 14 ? this.nameAlias.substring(0, 14) : this.nameAlias));
+				getPlayer().setPlayerListName("§" + rank.getColor(this) + (nameAlias.length() > 14 ? nameAlias.substring(0, 14) : nameAlias));
 			}
 		} else {
-			if (this.isAway) {
-				player.setPlayerListName("§7*§" + this.rank.getColor(this) + (this.name.length() > 11 ? this.name.substring(0, 11) : this.name));
+			if (isAway) {
+				getPlayer().setPlayerListName("§7*§" + rank.getColor(this) + (name.length() > 11 ? name.substring(0, 11) : name));
 			} else {
-				player.setPlayerListName("§" + this.rank.getColor(this) + (this.name.length() > 14 ? this.name.substring(0, 14) : this.name));
+				getPlayer().setPlayerListName("§" + rank.getColor(this) + (name.length() > 14 ? name.substring(0, 14) : name));
 			}
 		}
 	}

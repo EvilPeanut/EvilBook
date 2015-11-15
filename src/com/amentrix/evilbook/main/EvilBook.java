@@ -978,7 +978,7 @@ public class EvilBook extends JavaPlugin {
 						if (getProfile(args[0]) instanceof PlayerProfileNormal) {
 							getProfile(args[0]).saveProfile();
 							playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-							playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0])));
+							playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0]), false));
 						}
 						// Set nametag color
 						getProfile(args[0]).updateNametag("§" + getProfile(getPlayer(args[0])).rank.getColor((getProfile(getPlayer(args[0])))), null);
@@ -1178,7 +1178,7 @@ public class EvilBook extends JavaPlugin {
 								if (getProfile(args[0]) instanceof PlayerProfileNormal) {
 									getProfile(args[0]).saveProfile();
 									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0])));
+									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0]), false));
 								}
 								//
 							}
@@ -1217,7 +1217,7 @@ public class EvilBook extends JavaPlugin {
 									// Player profile type conversion
 									getProfile(args[0]).saveProfile();
 									playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0])));
+									playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(this, getPlayer(args[0]), false));
 									//
 								}
 								// Set nametag color
@@ -2355,8 +2355,8 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("jump")) {
 			if (args.length == 1) {
-				if (isDouble(args[0]) && Double.valueOf(args[0]) <= 41) {
-					getProfile(sender).jumpAmplifier = Double.valueOf(args[0]) / 4;
+				if (isFloat(args[0]) && Float.valueOf(args[0]) <= 41) {
+					getProfile(sender).jumpAmplifier = Float.valueOf(args[0]) / 4;
 					sender.sendMessage("§7Your jump height has been set");
 				} else {
 					sender.sendMessage("§7Please enter a valid jump height");
@@ -2382,11 +2382,11 @@ public class EvilBook extends JavaPlugin {
 				if (isInteger(args[0])) {
 					int speed = Integer.parseInt(args[0]);
 					if (speed > 0 && speed <= 100) {
-						double doubleSpeed = (double)speed / 100;
-						getProfile(sender).walkAmplifier = doubleSpeed;
-						player.setWalkSpeed((float) doubleSpeed);
-						getProfile(sender).flyAmplifier = doubleSpeed;
-						player.setFlySpeed((float) doubleSpeed);
+						float floatSpeed = (float)speed / 100;
+						getProfile(sender).walkAmplifier = floatSpeed;
+						player.setWalkSpeed(floatSpeed);
+						getProfile(sender).flyAmplifier = floatSpeed;
+						player.setFlySpeed(floatSpeed);
 						getProfile(sender).runAmplifier = speed;
 						sender.sendMessage("§7Set all speed limits to " + args[0]);
 					} else {
@@ -2400,9 +2400,9 @@ public class EvilBook extends JavaPlugin {
 					if (isInteger(args[1])) {
 						int speed = Integer.parseInt(args[1]);
 						if (speed > 0 && speed <= 100) {
-							double doubleSpeed = (double)speed / 100;
-							getProfile(sender).walkAmplifier = doubleSpeed;
-							player.setWalkSpeed((float) doubleSpeed);
+							float floatSpeed = (float)speed / 100;
+							getProfile(sender).walkAmplifier = floatSpeed;
+							player.setWalkSpeed(floatSpeed);
 							sender.sendMessage("§7Set walk speed limit to " + args[1]);
 						} else {
 							sender.sendMessage("§7Please enter a valid speed above 0 and below 100");
@@ -2414,9 +2414,9 @@ public class EvilBook extends JavaPlugin {
 					if (isInteger(args[1])) {
 						int speed = Integer.parseInt(args[1]);
 						if (speed > 0 && speed <= 100) {
-							double doubleSpeed = (double)speed / 100;
-							getProfile(sender).flyAmplifier = doubleSpeed;
-							player.setFlySpeed((float) doubleSpeed);
+							float floatSpeed = (float)speed / 100;
+							getProfile(sender).flyAmplifier = floatSpeed;
+							player.setFlySpeed(floatSpeed);
 							sender.sendMessage("§7Set fly speed limit to " + args[1]);
 						} else {
 							sender.sendMessage("§7Please enter a valid speed above 0 and below 100");
@@ -3827,6 +3827,15 @@ public class EvilBook extends JavaPlugin {
 	 */
 	public static Boolean isDouble(String string) {
 		try {Double.valueOf(string); return true;} catch (Exception exception) {return false;}
+	}
+	
+	/**
+	 * Check if a string can be casted to a float
+	 * @param string The string to execute the cast check with
+	 * @return If the string can be casted to a float
+	 */
+	public static Boolean isFloat(String string) {
+		try {Float.valueOf(string); return true;} catch (Exception exception) {return false;}
 	}
 
 	/**

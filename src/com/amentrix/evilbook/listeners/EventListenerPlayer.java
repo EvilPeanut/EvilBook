@@ -135,7 +135,7 @@ public class EventListenerPlayer implements Listener {
 		}
 		//
 		if (SQL.getRank(event.getPlayer().getName()) != null && SQL.getRank(event.getPlayer().getName()).isAdmin()) {
-			EvilBook.playerProfiles.put(event.getPlayer().getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(plugin, event.getPlayer()));
+			EvilBook.playerProfiles.put(event.getPlayer().getName().toLowerCase(Locale.UK), new PlayerProfileAdmin(plugin, event.getPlayer(), true));
 		} else {
 			EvilBook.playerProfiles.put(event.getPlayer().getName().toLowerCase(Locale.UK), new PlayerProfileNormal(plugin, event.getPlayer()));
 		}
