@@ -13,12 +13,13 @@ import com.amentrix.evilbook.main.Rank;
 public class SQLQuery {
 	private TableType tableType;
 	private String fields = "";
-	private String keyValue;
+	private String keyValue, keyName;
 	private ResultSet resultSet;
 	private Statement statement;
 	
-	public SQLQuery(TableType tableType, String keyValue) {
+	public SQLQuery(TableType tableType, String keyName, String keyValue) {
 		this.tableType = tableType;
+		this.keyName = keyName;
 		this.keyValue = keyValue;
 	}
 	
@@ -29,7 +30,7 @@ public class SQLQuery {
 	public void execute() {
 		try {
 			statement = SQL.connection.createStatement();
-			resultSet = statement.executeQuery("SELECT " + fields + " FROM " + SQL.database + "." + tableType.tableName + " WHERE " + tableType.keyName + "='" + keyValue + "';");
+			resultSet = statement.executeQuery("SELECT " + fields + " FROM " + SQL.database + "." + tableType.tableName + " WHERE " + keyName + "='" + keyValue + "';");
 			resultSet.next();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -1035,7 +1035,7 @@ public class EvilBook extends JavaPlugin {
 							if (getProfile(args[0]) instanceof PlayerProfileAdmin) {
 								getProfile(args[0]).saveProfile();
 								playerProfiles.remove(getPlayer(args[0]).getName().toLowerCase(Locale.UK));
-								playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileNormal(this, getPlayer(args[0])));
+								playerProfiles.put(getPlayer(args[0]).getName().toLowerCase(Locale.UK), new PlayerProfileNormal(this, getPlayer(args[0]), false));
 							}
 							//
 						}

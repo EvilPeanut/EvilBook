@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.sql.SQL;
+import com.amentrix.evilbook.sql.SQLQuery;
 import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -27,48 +28,114 @@ public class PlayerProfileNormal extends PlayerProfile {
 	 * Construct a new non-admin PlayerProfile instance
 	 * @param playerName The name of the player
 	 */
-	public PlayerProfileNormal(EvilBook plugin, Player newPlayer) {
+	public PlayerProfileNormal(EvilBook plugin, Player newPlayer, boolean showWelcome) {
 		super(plugin);
 		try {
-			this.name = newPlayer.getName();
-			this.UUID = newPlayer.getUniqueId().toString();
+			name = newPlayer.getName();
+			UUID = newPlayer.getUniqueId().toString();
 			if (getProperty("player_name") != null) {
-				this.rank = Rank.valueOf(getProperty("rank"));
-				this.money = Integer.parseInt(getProperty("money"));
+				//
+				// SQL query
+				//
+				SQLQuery query = new SQLQuery(TableType.PlayerProfile, "player_name", name);
+				query.addField("rank");
+				query.addField("money");
+				query.addField("warp_list");
+				query.addField("achievement_list");
+				query.addField("run_amplifier");
+				query.addField("walk_amplifier");
+				query.addField("fly_amplifier");
+				query.addField("jump_amplifier");
+				query.addField("name_title");
+				query.addField("muted_players");
+				query.execute();
+				//
+				// Rank
+				//
+				rank = query.getRank("rank");
+				//
+				// Money
+				//
+				money = query.getInteger("money");
+				//
+				// Home location
+				//
+				//TODO: Improve home_location retrieval
 				if (getProperty(TableType.PlayerLocation, "home_location") != null) {
 					String[] location = getProperty(TableType.PlayerLocation, "home_location").split(">");
-					this.homeLocation = new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2]));
+					homeLocation = new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2]));
 				}
-				if (getProperty("warp_list") != null) this.warps.addAll(Arrays.asList(getProperty("warp_list").toLowerCase().split(",")));
-				if (getProperty("achievement_list") != null) for (String ach : getProperty("achievement_list").split(",")) this.achievements.add(Achievement.valueOf(ach));
-				this.runAmplifier = Integer.parseInt(getProperty("run_amplifier"));
-				this.walkAmplifier = Float.parseFloat(getProperty("walk_amplifier"));
-				newPlayer.setWalkSpeed(this.walkAmplifier);
-				this.flyAmplifier = Float.parseFloat(getProperty("fly_amplifier"));
-				newPlayer.setFlySpeed(this.flyAmplifier);
-				this.jumpAmplifier = Float.valueOf(getProperty("jump_amplifier"));
-				this.nameTitle = getProperty("name_title");
+				//
+				// Warp list
+				//
+				//TODO: Remove toLowerCase dependancy
+				if (query.getString("warp_list") != null) {
+					warps.addAll(Arrays.asList(query.getString("warp_list").toLowerCase().split(",")));
+				}
+				//
+				// Achievement list
+				//
+				if (query.getString("achievement_list") != null) {
+					for (String achievement : query.getString("achievement_list").split(",")) {
+						achievements.add(Achievement.valueOf(achievement));
+					}
+				}
+				//
+				// Amplifiers
+				//
+				runAmplifier = query.getInteger("run_amplifier");
+				walkAmplifier = query.getFloat("walk_amplifier");
+				newPlayer.setWalkSpeed(walkAmplifier);
+				flyAmplifier = query.getFloat("fly_amplifier");
+				newPlayer.setFlySpeed(flyAmplifier);
+				jumpAmplifier = query.getFloat("jump_amplifier");
+				//
+				// Name title
+				//
+				nameTitle = query.getString("name_title");
 				if (this.nameTitle == null) {
 					newPlayer.setDisplayName(this.name + "§f");
 				} else {
 					newPlayer.setDisplayName("§d" + this.nameTitle + " §f" + this.name + "§f");
 				}
 				updatePlayerListName();
-				newPlayer.setPlayerListName("§" + this.rank.getColor(this) + (this.name.length() > 14 ? this.name.substring(0, 14) : this.name));
-				if (getProperty("muted_players") != null) this.mutedPlayers.addAll(Arrays.asList(getProperty("muted_players").split(",")));
-				for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-					if (p.getName().equals(this.name)) continue;
-					p.sendMessage("§9[§6" + Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getServer().getMaxPlayers() + "§9] §6Everyone welcome " + newPlayer.getDisplayName() + "§6 back to the game!");
+				//
+				// Muted players list
+				//
+				if (query.getString("muted_players") != null) {
+					mutedPlayers.addAll(Arrays.asList(query.getString("muted_players").split(",")));
+				}
+				//
+				// Welcome message
+				//
+				if (showWelcome) {
+					for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+						if (p.getName().equals(this.name)) continue;
+						p.sendMessage("§9[§6" + Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getServer().getMaxPlayers() + "§9] §6Everyone welcome " + newPlayer.getDisplayName() + "§6 back to the game!");
+					}
 				}
 			} else {
+				//
+				// Create new player profile
+				//
 				try {
-					// Create new player profile
+					//
+					// Rank
+					//
 					this.rank = Rank.BUILDER;
+					//
+					// Money
+					//
 					this.money = 100;
+					//
+					// Add profile data to SQL
+					//
 					SQL.insert(TableType.PlayerProfile, 
 							"'" + this.name + "','" + newPlayer.getUniqueId().toString() + "','" + this.rank.toString() + "',NULL,'" + this.money + "'," +
 									"NULL,NULL,NULL,NULL,'4','0.2','0.1','0',NULL,'" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "','0',NULL,NULL,NULL,'" + newPlayer.getAddress().getAddress().getHostAddress() + "',NULL");
-					// Create new player locations profile
+					//
+					// Add location data to SQL
+					//
 					String fields = "player_name, home_location", data = "'" + this.name + "',NULL";
 					for (World world : Bukkit.getServer().getWorlds()) {
 						String worldName = world.getName();
@@ -79,11 +146,18 @@ public class PlayerProfileNormal extends PlayerProfile {
 						}
 					}
 					SQL.insert(TableType.PlayerLocation, fields, data);
+					//
 					// Statistics
+					//
 					GlobalStatistic.incrementStatistic(GlobalStatistic.LoginNewPlayers, 1);
 					//
+					// Player display and list name
+					//
 					newPlayer.setDisplayName("§f" + this.name);
-					newPlayer.setPlayerListName("§" + this.rank.getColor(this) + (this.name.length() > 14 ? this.name.substring(0, 14) : this.name));
+					updatePlayerListName();
+					//
+					// Add welcome book to player inventory
+					//
 					newPlayer.getInventory().addItem(EvilBook.getBook("Welcome to " + EvilBook.config.getProperty("server_name"), EvilBook.config.getProperty("server_name"), Arrays.asList("§1Welcome to " + EvilBook.config.getProperty("server_name") + "\n\n§dRules\n§5§l1 §5Do not grief\n§5§l2 §5Do not advertise\n§5§l3 §5Do not spam\n\n§dWebsite\n§5www.amentrix.com\n\n§dHave fun!\n§7 - " + EvilBook.config.getProperty("server_host"))));
 				} catch (Exception exception) {
 					EvilBook.logSevere("Failed to create " + this.name + "'s player profile");
@@ -95,31 +169,38 @@ public class PlayerProfileNormal extends PlayerProfile {
 					p.sendMessage("§9[§6" + Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getServer().getMaxPlayers() + "§9] §6Everyone welcome " + newPlayer.getDisplayName() + "§6 for the first time!");
 				}
 			}
-			// Welcome message
-			if (getMailCount() == 0) {
-				newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔");
-			} else {
-				newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔ §c✉" + getMailCount());
+			//
+			// Join message
+			//
+			if (showWelcome) {
+				//
+				// Welcome message
+				//
+				if (getMailCount() == 0) {
+					newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔");
+				} else {
+					newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔ §c✉" + getMailCount());
+				}
+				newPlayer.sendMessage("  §3Type §a/survival §3to enter the survival world");
+				newPlayer.sendMessage("  §3Type §a/minigame §3to enter a minigame");
+				newPlayer.sendMessage("  §3Type §a/admin §3to discover how to become an admin");
+				newPlayer.sendMessage("  §3Type §a/ranks §3for the list of ranks");
+				newPlayer.sendMessage("  §3Type §a/donate §3for instructions on how to donate");
+				newPlayer.sendMessage("  §3Type §a/help §3for help");
 			}
-			newPlayer.sendMessage("  §3Type §a/survival §3to enter the survival world");
-			newPlayer.sendMessage("  §3Type §a/minigame §3to enter a minigame");
-			newPlayer.sendMessage("  §3Type §a/admin §3to discover how to become an admin");
-			newPlayer.sendMessage("  §3Type §a/ranks §3for the list of ranks");
-			newPlayer.sendMessage("  §3Type §a/donate §3for instructions on how to donate");
-			newPlayer.sendMessage("  §3Type §a/help §3for help");
+			//
 			// NametagEdit
+			//
 			updateNametag("§" + this.rank.getColor(this), null);
-			// Player profile statistics
-			try {
-				Date date = new Date();
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				setInteger("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
-				setString("last_login", sdf.format(date));
-				setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
-				setString("evilbook_version", plugin.getDescription().getVersion());
-			} catch (Exception statsException) {
-				EvilBook.logSevere("Failed to update on-login stats for " + newPlayer.getName());
-			}
+			//
+			// Statistics
+			//
+			Date date = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			setInteger("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
+			setString("last_login", sdf.format(date));
+			setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
+			setString("evilbook_version", plugin.getDescription().getVersion());
 		} catch (Exception exception) {
 			newPlayer.kickPlayer("§cA login error has occured and our team has been notified, sorry for the inconvenience");
 			try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("EvilBook.log", true)))) {

@@ -34,7 +34,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 			//
 			// SQL query
 			//
-			SQLQuery query = new SQLQuery(TableType.PlayerProfile, UUID);
+			SQLQuery query = new SQLQuery(TableType.PlayerProfile, "player_name", name);
 			query.addField("rank");
 			query.addField("rank_prefix");
 			query.addField("money");
