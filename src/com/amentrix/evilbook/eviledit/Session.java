@@ -24,6 +24,92 @@ import com.amentrix.evilbook.main.EvilBook;
  */
 public class Session implements CommandExecutor {
 	/**
+	 * Register session commands
+	 */
+	public Session(EvilBook plugin) {
+		// Generation
+		plugin.getCommand("pumpkins").setExecutor(this);
+		plugin.getCommand("forest").setExecutor(this);
+		plugin.getCommand("forestgen").setExecutor(this);
+		plugin.getCommand("pyramid").setExecutor(this);
+		plugin.getCommand("hpyramid").setExecutor(this);
+		plugin.getCommand("cyl").setExecutor(this);
+		plugin.getCommand("hcyl").setExecutor(this);
+		plugin.getCommand("cylinder").setExecutor(this);
+		plugin.getCommand("hcylinder").setExecutor(this);
+		plugin.getCommand("esphere").setExecutor(this);
+		plugin.getCommand("hsphere").setExecutor(this);
+		plugin.getCommand("sphere").setExecutor(this);
+		plugin.getCommand("tree").setExecutor(this);
+		plugin.getCommand("/pyramid").setExecutor(this);
+		plugin.getCommand("/hpyramid").setExecutor(this);
+		plugin.getCommand("/cyl").setExecutor(this);
+		plugin.getCommand("/hcyl").setExecutor(this);
+		plugin.getCommand("/cylinder").setExecutor(this);
+		plugin.getCommand("/hcylinder").setExecutor(this);
+		plugin.getCommand("/esphere").setExecutor(this);
+		plugin.getCommand("/hsphere").setExecutor(this);
+		plugin.getCommand("/sphere").setExecutor(this);
+		// Movement
+		plugin.getCommand("thru").setExecutor(this);
+		plugin.getCommand("ascend").setExecutor(this);
+		plugin.getCommand("descend").setExecutor(this);
+		plugin.getCommand("ceil").setExecutor(this);
+		// Region
+		plugin.getCommand("deforest").setExecutor(this);
+		plugin.getCommand("move").setExecutor(this);
+		plugin.getCommand("/move").setExecutor(this);
+		plugin.getCommand("snow").setExecutor(this);
+		plugin.getCommand("thaw").setExecutor(this);
+		plugin.getCommand("flip").setExecutor(this);
+		plugin.getCommand("/flip").setExecutor(this);
+		plugin.getCommand("undo").setExecutor(this);
+		plugin.getCommand("/undo").setExecutor(this);
+		plugin.getCommand("fill").setExecutor(this);
+		plugin.getCommand("/fill").setExecutor(this);
+		plugin.getCommand("set").setExecutor(this);
+		plugin.getCommand("/set").setExecutor(this);
+		plugin.getCommand("rfill").setExecutor(this);
+		plugin.getCommand("rreplace").setExecutor(this);
+		plugin.getCommand("del").setExecutor(this);
+		plugin.getCommand("delete").setExecutor(this);
+		plugin.getCommand("rdel").setExecutor(this);
+		plugin.getCommand("copy").setExecutor(this);
+		plugin.getCommand("cut").setExecutor(this);
+		plugin.getCommand("paste").setExecutor(this);
+		plugin.getCommand("drain").setExecutor(this);
+		plugin.getCommand("green").setExecutor(this);
+		plugin.getCommand("setbiome").setExecutor(this);
+		plugin.getCommand("regen").setExecutor(this);
+		plugin.getCommand("overlay").setExecutor(this);
+		plugin.getCommand("walls").setExecutor(this);
+		plugin.getCommand("outline").setExecutor(this);
+		plugin.getCommand("hollow").setExecutor(this);
+		plugin.getCommand("replace").setExecutor(this);
+		plugin.getCommand("/copy").setExecutor(this);
+		plugin.getCommand("/cut").setExecutor(this);
+		plugin.getCommand("/paste").setExecutor(this);
+		plugin.getCommand("/drain").setExecutor(this);
+		plugin.getCommand("/green").setExecutor(this);
+		plugin.getCommand("/setbiome").setExecutor(this);
+		plugin.getCommand("/regen").setExecutor(this);
+		plugin.getCommand("/overlay").setExecutor(this);
+		plugin.getCommand("/walls").setExecutor(this);
+		plugin.getCommand("/outline").setExecutor(this);
+		plugin.getCommand("/hollow").setExecutor(this);
+		plugin.getCommand("/replace").setExecutor(this);
+		plugin.getCommand("count").setExecutor(this);
+		plugin.getCommand("/count").setExecutor(this);
+		plugin.getCommand("size").setExecutor(this);
+		plugin.getCommand("/size").setExecutor(this);
+		plugin.getCommand("desel").setExecutor(this);
+		plugin.getCommand("/desel").setExecutor(this);
+		plugin.getCommand("wand").setExecutor(this);
+		plugin.getCommand("/wand").setExecutor(this);
+		plugin.getCommand("toggleeditwand").setExecutor(this);		
+	}
+	
+	/**
 	 * Called when a command is executed
 	 */
 	@Override

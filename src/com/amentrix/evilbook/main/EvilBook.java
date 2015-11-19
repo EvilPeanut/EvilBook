@@ -111,7 +111,7 @@ public class EvilBook extends JavaPlugin {
 	public static final List<UUID> rareSpawnList = new ArrayList<>();
 	//
 	private static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
-	private Session editSession = new Session();
+	private Session editSession = new Session(this);
 	private Random random = new Random();
 	// Log block API
 	public static Consumer lbConsumer = null;
@@ -340,89 +340,6 @@ public class EvilBook extends JavaPlugin {
 		cmdBlockWhitelist.put("toggledownfall", false);
 		cmdBlockWhitelist.put("weather", false);
 		cmdBlockWhitelist.put("time", false);
-		//
-		// Register EvilEdit Commands
-		//
-		// Generation
-		getCommand("pumpkins").setExecutor(this.editSession);
-		getCommand("forest").setExecutor(this.editSession);
-		getCommand("forestgen").setExecutor(this.editSession);
-		getCommand("pyramid").setExecutor(this.editSession);
-		getCommand("hpyramid").setExecutor(this.editSession);
-		getCommand("cyl").setExecutor(this.editSession);
-		getCommand("hcyl").setExecutor(this.editSession);
-		getCommand("cylinder").setExecutor(this.editSession);
-		getCommand("hcylinder").setExecutor(this.editSession);
-		getCommand("esphere").setExecutor(this.editSession);
-		getCommand("hsphere").setExecutor(this.editSession);
-		getCommand("sphere").setExecutor(this.editSession);
-		getCommand("tree").setExecutor(this.editSession);
-		getCommand("/pyramid").setExecutor(this.editSession);
-		getCommand("/hpyramid").setExecutor(this.editSession);
-		getCommand("/cyl").setExecutor(this.editSession);
-		getCommand("/hcyl").setExecutor(this.editSession);
-		getCommand("/cylinder").setExecutor(this.editSession);
-		getCommand("/hcylinder").setExecutor(this.editSession);
-		getCommand("/esphere").setExecutor(this.editSession);
-		getCommand("/hsphere").setExecutor(this.editSession);
-		getCommand("/sphere").setExecutor(this.editSession);
-		// Movement
-		getCommand("thru").setExecutor(this.editSession);
-		getCommand("ascend").setExecutor(this.editSession);
-		getCommand("descend").setExecutor(this.editSession);
-		getCommand("ceil").setExecutor(this.editSession);
-		// Region
-		getCommand("deforest").setExecutor(this.editSession);
-		getCommand("move").setExecutor(this.editSession);
-		getCommand("/move").setExecutor(this.editSession);
-		getCommand("snow").setExecutor(this.editSession);
-		getCommand("thaw").setExecutor(this.editSession);
-		getCommand("flip").setExecutor(this.editSession);
-		getCommand("/flip").setExecutor(this.editSession);
-		getCommand("undo").setExecutor(this.editSession);
-		getCommand("/undo").setExecutor(this.editSession);
-		getCommand("fill").setExecutor(this.editSession);
-		getCommand("/fill").setExecutor(this.editSession);
-		getCommand("set").setExecutor(this.editSession);
-		getCommand("/set").setExecutor(this.editSession);
-		getCommand("rfill").setExecutor(this.editSession);
-		getCommand("rreplace").setExecutor(this.editSession);
-		getCommand("del").setExecutor(this.editSession);
-		getCommand("delete").setExecutor(this.editSession);
-		getCommand("rdel").setExecutor(this.editSession);
-		getCommand("copy").setExecutor(this.editSession);
-		getCommand("cut").setExecutor(this.editSession);
-		getCommand("paste").setExecutor(this.editSession);
-		getCommand("drain").setExecutor(this.editSession);
-		getCommand("green").setExecutor(this.editSession);
-		getCommand("setbiome").setExecutor(this.editSession);
-		getCommand("regen").setExecutor(this.editSession);
-		getCommand("overlay").setExecutor(this.editSession);
-		getCommand("walls").setExecutor(this.editSession);
-		getCommand("outline").setExecutor(this.editSession);
-		getCommand("hollow").setExecutor(this.editSession);
-		getCommand("replace").setExecutor(this.editSession);
-		getCommand("/copy").setExecutor(this.editSession);
-		getCommand("/cut").setExecutor(this.editSession);
-		getCommand("/paste").setExecutor(this.editSession);
-		getCommand("/drain").setExecutor(this.editSession);
-		getCommand("/green").setExecutor(this.editSession);
-		getCommand("/setbiome").setExecutor(this.editSession);
-		getCommand("/regen").setExecutor(this.editSession);
-		getCommand("/overlay").setExecutor(this.editSession);
-		getCommand("/walls").setExecutor(this.editSession);
-		getCommand("/outline").setExecutor(this.editSession);
-		getCommand("/hollow").setExecutor(this.editSession);
-		getCommand("/replace").setExecutor(this.editSession);
-		getCommand("count").setExecutor(this.editSession);
-		getCommand("/count").setExecutor(this.editSession);
-		getCommand("size").setExecutor(this.editSession);
-		getCommand("/size").setExecutor(this.editSession);
-		getCommand("desel").setExecutor(this.editSession);
-		getCommand("/desel").setExecutor(this.editSession);
-		getCommand("wand").setExecutor(this.editSession);
-		getCommand("/wand").setExecutor(this.editSession);
-		getCommand("toggleeditwand").setExecutor(this.editSession);		
 		//
 		// Log Block Integration
 		//
@@ -831,7 +748,7 @@ public class EvilBook extends JavaPlugin {
 				paidWorldList.clear();
 				regionList.clear();
 				emitterList.clear();
-				this.editSession = new Session();
+				this.editSession = new Session(this);
 				this.random = new Random();
 				lbConsumer = null;
 				HandlerList.unregisterAll();
