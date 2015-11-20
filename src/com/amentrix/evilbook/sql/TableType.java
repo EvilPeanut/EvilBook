@@ -5,7 +5,7 @@ package com.amentrix.evilbook.sql;
  * @author Reece Aaron Lecrivain
  */
 public enum TableType {
-	PlayerProfile("`evilbook-playerprofiles`", "player", "player_name, player, rank, rank_prefix, money, name_title, name_alias, muted_players, warp_list, run_amplifier, walk_amplifier, fly_amplifier, jump_amplifier, achievement_list, last_login, total_logins, inventory_creative, inventory_survival, inventory_skyblock, ip, evilbook_version"),
+	PlayerProfile("`evilbook-playerprofiles`", "player_name", "player_name, player, rank, rank_prefix, money, name_title, name_alias, muted_players, warp_list, run_amplifier, walk_amplifier, fly_amplifier, jump_amplifier, achievement_list, last_login, total_logins, inventory_creative, inventory_survival, inventory_skyblock, ip, evilbook_version"),
 	PlayerLocation("`evilbook-playerlocations`", "player_name", null),
 	PlayerStatistics("`evilbook-playerstatistics`", "player_name", "player_name, mined_coal, mined_iron, mined_lapis, mined_gold, mined_diamond, mined_redstone, "
 			+ "mined_emerald, mined_netherquartz, killed_pigs, killed_villagers, killed_cavespiders, killed_endermen, killed_spiders, killed_wolves, killed_zombiepigs, "

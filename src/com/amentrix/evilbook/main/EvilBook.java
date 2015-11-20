@@ -4215,7 +4215,7 @@ public class EvilBook extends JavaPlugin {
 	 * @return If the player's profile is existant
 	 */
 	private static boolean isProfileExistant(String playerName) {
-		return SQL.getString(TableType.PlayerProfile, Bukkit.getOfflinePlayer(playerName).getUniqueId().toString(), "player_name") != null;
+		return SQL.getString(TableType.PlayerProfile, playerName, "player_name") != null;
 	}
 	
 	public static Boolean isInSurvival(Entity entity) {

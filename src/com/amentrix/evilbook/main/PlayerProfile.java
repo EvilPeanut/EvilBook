@@ -161,7 +161,7 @@ public abstract class PlayerProfile {
 	 * @param value The value of the property
 	 */
 	void setString(String property, String value) {
-		SQL.setString(TableType.PlayerProfile, UUID, property, value);
+		SQL.setString(TableType.PlayerProfile, name, property, value);
 	}
 	
 	/**
@@ -170,7 +170,7 @@ public abstract class PlayerProfile {
 	 * @param value The value of the property
 	 */
 	void setInteger(String property, int value) {
-		SQL.setInteger(TableType.PlayerProfile, UUID, property, value);
+		SQL.setInteger(TableType.PlayerProfile, name, property, value);
 	}
 	
 	/**
@@ -180,7 +180,7 @@ public abstract class PlayerProfile {
 	 */
 	//TODO: Remove
 	String getProperty(String property) {
-		String value = SQL.getString(TableType.PlayerProfile, UUID, property);
+		String value = SQL.getString(TableType.PlayerProfile, name, property);
 		if (value == null) {
 			return SQL.getStringFromCriteria(TableType.PlayerProfile, "player_name='" + this.name + "'", property);
 		}
@@ -194,7 +194,7 @@ public abstract class PlayerProfile {
 	 */
 	//TODO: Remove
 	String getProperty(TableType tableType, String property) {
-		String value = SQL.getString(tableType, UUID, property);
+		String value = SQL.getString(tableType, name, property);
 		if (value == null) {
 			return SQL.getStringFromCriteria(tableType, "player_name='" + this.name + "'", property);
 		}
