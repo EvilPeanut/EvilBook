@@ -111,7 +111,7 @@ public class EvilBook extends JavaPlugin {
 	public static final List<UUID> rareSpawnList = new ArrayList<>();
 	//
 	private static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
-	private Session editSession = new Session(this);
+	private Session editSession;
 	private Random random = new Random();
 	// Log block API
 	public static Consumer lbConsumer = null;
@@ -163,6 +163,10 @@ public class EvilBook extends JavaPlugin {
 		pluginManager.registerEvents(new EventListenerVehicle(), this);		
 		pluginManager.registerEvents(new SkyBlockMinigameListener(), this);
 		pluginManager.registerEvents(new RegionListener(this), this);
+		//
+		// Initialize EvilEdit session
+		//
+		editSession = new Session(this);
 		//
 		// Maps Module
 		//
@@ -387,9 +391,6 @@ public class EvilBook extends JavaPlugin {
 	 */
 	@Override
 	public void onDisable() {
-		for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
-			profile.saveProfile();
-		}
 		this.maps.saveMapIdList();
 	}
 	
@@ -1443,6 +1444,7 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§5My unlocked titles");
 				String titles = getUnlockedTitles(player);
 				sender.sendMessage("§d" + (titles.equals("") ? "You haven't unlocked any titles" : titles));
+				sender.sendMessage("§7§oSet a title using /title [title]");
 			} else if (args.length >= 1) {
 				//
 				// Player is trying to set a title
