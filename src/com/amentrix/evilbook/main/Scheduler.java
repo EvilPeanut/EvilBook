@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
+import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
+
 /**
  * Schedulers and timed events
  * @author Reece Aaron Lecrivain
@@ -43,23 +45,23 @@ class Scheduler {
 					if (profile.rank.isAdmin()) {
 						if (profile.rank.isHigher(Rank.INVESTOR)) {
 							if (random >= 0 && random < 50) {
-								player.sendMessage("§c❤ §dYou can §l/donate §dto support the server §c❤");
+								ChatExtensions.sendClickableMessage(player, "§c❤ §dYou can §l/donate §dto support the server §c❤", EnumClickAction.SUGGEST_COMMAND, "/donate");
 							} else if (random >= 50 && random < 65) {
-								player.sendMessage("§c⚔ §dYou can play survival §l/survival §c⚔");
+								ChatExtensions.sendClickableMessage(player, "§c⚔ §dYou can play survival §l/survival §c⚔", EnumClickAction.SUGGEST_COMMAND, "/survival");
 							} else if (random >= 65 && random < 80) {
-								player.sendMessage("§c⚒ §dYou can play minigames §l/minigame §c⚒");
+								ChatExtensions.sendClickableMessage(player, "§c⚒ §dYou can play minigames §l/minigame §c⚒", EnumClickAction.SUGGEST_COMMAND, "/minigame");
 							} else {
-								player.sendMessage("§c✔ §dComplete §l/achievements §dfor unique rewards §c✔");
+								ChatExtensions.sendClickableMessage(player, "§c✔ §dComplete §l/achievements §dfor unique rewards §c✔", EnumClickAction.SUGGEST_COMMAND, "/achievements");
 							}
 						} else {
 							if (random >= 0 && random < 60) {
-								player.sendMessage("§c❤ §dYou can §l/donate §dfor a higher rank §c❤");
+								ChatExtensions.sendClickableMessage(player, "§c❤ §dYou can §l/donate §dfor a higher rank §c❤", EnumClickAction.SUGGEST_COMMAND, "/donate");
 							} else if (random >= 50 && random < 65) {
-								player.sendMessage("§c⚔ §dYou can play survival §l/survival §c⚔");
+								ChatExtensions.sendClickableMessage(player, "§c⚔ §dYou can play survival §l/survival §c⚔", EnumClickAction.SUGGEST_COMMAND, "/survival");
 							} else if (random >= 65 && random < 80) {
-								player.sendMessage("§c⚒ §dYou can play minigames §l/minigame §c⚒");
+								ChatExtensions.sendClickableMessage(player, "§c⚒ §dYou can play minigames §l/minigame §c⚒", EnumClickAction.SUGGEST_COMMAND, "/minigame");
 							} else {
-								player.sendMessage("§c✔ §dComplete §l/achievements §dfor unique rewards §c✔");
+								ChatExtensions.sendClickableMessage(player, "§c✔ §dComplete §l/achievements §dfor unique rewards §c✔", EnumClickAction.SUGGEST_COMMAND, "/achievements");
 							}
 						}
 						plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
@@ -72,15 +74,15 @@ class Scheduler {
 						});
 					} else {
 						if (random >= 0 && random < 70) {
-							player.sendMessage("§c❤ §dDonate to become an admin §l/donate §c❤");
+							ChatExtensions.sendClickableMessage(player, "§c❤ §dDonate to become an admin §l/donate §c❤", EnumClickAction.SUGGEST_COMMAND, "/donate");
 						} else if (random >= 70 && random < 75) {
-							player.sendMessage("§c⚔ §dYou can play survival §l/survival §c⚔");
+							ChatExtensions.sendClickableMessage(player, "§c⚔ §dYou can play survival §l/survival §c⚔", EnumClickAction.SUGGEST_COMMAND, "/survival");
 						} else if (random >= 75 && random < 80) {
-							player.sendMessage("§c⚒ §dYou can play minigames §l/minigame §c⚒");
+							ChatExtensions.sendClickableMessage(player, "§c⚒ §dYou can play minigames §l/minigame §c⚒", EnumClickAction.SUGGEST_COMMAND, "/minigame");
 						} else if (random >= 80 && random < 90) {
-							player.sendMessage("§c✔ §dComplete §l/achievements §dfor unique rewards §c✔");
+							ChatExtensions.sendClickableMessage(player, "§c✔ §dComplete §l/achievements §dfor unique rewards §c✔", EnumClickAction.SUGGEST_COMMAND, "/achievements");
 						} else {
-							player.sendMessage("§c✉ §dYou can give feedback on the server §l/feedback §c✉");
+							ChatExtensions.sendClickableMessage(player, "§c✉ §dYou can give feedback on the server §l/feedback §c✉", EnumClickAction.SUGGEST_COMMAND, "/feedback");
 						}
 						plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 							@Override

@@ -82,6 +82,7 @@ import org.bukkit.util.Vector;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
+import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
@@ -101,6 +102,8 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+
+import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
 
 /**
  * Player event listener
@@ -234,7 +237,7 @@ public class EventListenerPlayer implements Listener {
 		Player player = event.getPlayer();
 		if (!EvilBook.getProfile(player).rank.isAdmin() && !EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && (!EvilBook.isInSurvival(player) || !EvilBook.getProfile(player).rank.isHigher(Rank.ARCHITECT))) {
 			player.sendMessage((event.getBucket() == Material.LAVA_BUCKET ? "§dLava buckets" : "§dWater buckets") + " are an §5Admin §donly feature");
-			player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
+			ChatExtensions.sendAdminRequiredMessage(player);
 			event.setCancelled(true);
 		}
 	}
@@ -622,7 +625,7 @@ public class EventListenerPlayer implements Listener {
 				//
 			} else if ((block.getType() == Material.COMMAND || block.getType() == Material.COMMAND_MINECART) && !EvilBook.getProfile(player.getName()).rank.isAdmin()) {
 				player.sendMessage("§dCommand Blocks are an §5Admin §donly feature");
-				player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
+				ChatExtensions.sendAdminRequiredMessage(player);
 				event.setCancelled(true);
 				//
 				// Survival container protection and ender chest blocking
@@ -743,15 +746,15 @@ public class EventListenerPlayer implements Listener {
 			if (!EvilBook.getProfile(player).rank.isHigher(CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getPreviousRank())) {
 				if (EvilBook.getProfile(player).rank.isAdmin() == false && CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.ADMIN)) {
 					player.sendMessage("§dThis is an §5Admin §donly command");
-					player.sendMessage("§dPlease type §6/admin §dto learn how to become admin");
+					ChatExtensions.sendAdminRequiredMessage(player);
 				} else if (CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).equals(Rank.SERVER_HOST)) {
 					player.sendMessage("§7This command is blocked for security reasons");
 				} else {
 					player.sendMessage("§dThis is an §" + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank and higher only command");
 					if (CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).isAdmin()) {
-						player.sendMessage("§dPlease type §6/donate §dto learn how to become §" + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank");
+						ChatExtensions.sendClickableMessage(player, "§dPlease type §6/donate §dto learn how to become §" + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank", EnumClickAction.SUGGEST_COMMAND, "/donate");
 					} else {
-						player.sendMessage("§dPlease type §6/ranks §dto learn how to become §" + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank");
+						ChatExtensions.sendClickableMessage(player, "§dPlease type §6/ranks §dto learn how to become §" + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getColor() + CommandReference.commandBlacklist.get(event.getMessage().toLowerCase().split(" ")[0]).getName() + " §drank", EnumClickAction.SUGGEST_COMMAND, "/ranks");
 					}
 				}
 				event.setCancelled(true);
@@ -839,7 +842,7 @@ public class EventListenerPlayer implements Listener {
 			// Load skyblock inventory
 			player.setGameMode(GameMode.SURVIVAL);
 			player.sendMessage("§bWelcome to Skyblock Survival");
-			player.sendMessage("§7Reset the map using /reset");
+			ChatExtensions.sendClickableMessage(player, "§7Reset the map using /reset", EnumClickAction.SUGGEST_COMMAND, "/reset");
 			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SKYBLOCK);
 			SQL.getInventory(player, "skyblock");
 		} else {

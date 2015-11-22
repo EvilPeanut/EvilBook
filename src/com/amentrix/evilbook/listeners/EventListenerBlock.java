@@ -24,6 +24,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
+import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
@@ -35,6 +36,8 @@ import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
+
+import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
 
 /**
  * Block event listener
@@ -93,7 +96,7 @@ public class EventListenerBlock implements Listener {
 					}
 				} else {
 					player.sendMessage(ChatColor.DARK_PURPLE + "You don't have permission to build here");
-					player.sendMessage(ChatColor.LIGHT_PURPLE + "This plot can be purchased for $100 using /claim");
+					ChatExtensions.sendClickableMessage(player, ChatColor.LIGHT_PURPLE + "This plot can be purchased for $100 using /claim", EnumClickAction.SUGGEST_COMMAND, "/claim");
 					event.setCancelled(true);
 					return;
 				}
@@ -180,7 +183,7 @@ public class EventListenerBlock implements Listener {
 							block.getType() == Material.TNT || block.getType() == Material.FIRE ||
 							block.getType() == Material.PORTAL || block.getType() == Material.DRAGON_EGG) {
 						player.sendMessage(ChatColor.LIGHT_PURPLE + "This block is " + ChatColor.DARK_PURPLE + "Admin " + ChatColor.LIGHT_PURPLE + "only");
-						player.sendMessage(ChatColor.LIGHT_PURPLE + "Please type " + ChatColor.GOLD + "/admin " + ChatColor.LIGHT_PURPLE + "to learn how to become admin");
+						ChatExtensions.sendAdminRequiredMessage(player);
 						event.setCancelled(true);
 						return;
 					} else if (block.getType() == Material.ICE) {
@@ -199,7 +202,7 @@ public class EventListenerBlock implements Listener {
 					}
 				} else {
 					player.sendMessage(ChatColor.DARK_PURPLE + "You don't have permission to build here");
-					player.sendMessage(ChatColor.LIGHT_PURPLE + "This plot can be purchased for $100 using /claim");
+					ChatExtensions.sendClickableMessage(player, ChatColor.LIGHT_PURPLE + "This plot can be purchased for $100 using /claim", EnumClickAction.SUGGEST_COMMAND, "/claim");
 					event.setCancelled(true);
 					return;
 				}

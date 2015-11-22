@@ -33,9 +33,12 @@ import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
+
+import net.minecraft.server.v1_8_R3.ChatHoverable.EnumHoverAction;
 
 /**
  * Entity and hanging entity event listener
@@ -262,8 +265,7 @@ public class EventListenerEntity implements Listener {
 				List<Entity> entityList = spawnedEntity.getNearbyEntities(32, 32, 32);
 				for (Entity entity : entityList) {
 					if (entity instanceof Player) {
-						Player player = (Player) entity;
-						player.sendMessage("§a☠ A rare creature has spawned near you! ☠");
+						ChatExtensions.sendHoverableMessage((Player) entity, "§a☠ A rare creature has spawned near you! ☠", EnumHoverAction.SHOW_TEXT, "Killing a rare creature gives bonus XP and rare loot");
 					}
 				}
 				EvilBook.rareSpawnList.add(spawnedEntity.getUniqueId());

@@ -18,6 +18,8 @@ import com.amentrix.evilbook.sql.SQLQuery;
 import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 
+import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
+
 /**
  * PlayerProfileAdmin instance
  * @author Reece Aaron Lecrivain
@@ -140,11 +142,11 @@ public class PlayerProfileAdmin extends PlayerProfile {
 				} else {
 					newPlayer.sendMessage("⚔ §bWelcome to " + EvilBook.config.getProperty("server_name") + " §r⚔ §c✉" + getMailCount());
 				}
-				newPlayer.sendMessage("  §3Type §a/survival §3to enter the survival world");
-				newPlayer.sendMessage("  §3Type §a/minigame §3to enter a minigame");
-				newPlayer.sendMessage("  §3Type §a/ranks §3for the list of ranks");
-				newPlayer.sendMessage("  §3Type §a/donate §3for instructions on how to donate");
-				newPlayer.sendMessage("  §3Type §a/help §3for help");
+				ChatExtensions.sendClickableMessage(newPlayer, "  §3Type §a/survival §3to enter the survival world", EnumClickAction.SUGGEST_COMMAND, "/survival");
+				ChatExtensions.sendClickableMessage(newPlayer, "  §3Type §a/minigame §3to enter a minigame", EnumClickAction.SUGGEST_COMMAND, "/minigame");
+				ChatExtensions.sendClickableMessage(newPlayer, "  §3Type §a/ranks §3for the list of ranks", EnumClickAction.SUGGEST_COMMAND, "/ranks");
+				ChatExtensions.sendClickableMessage(newPlayer, "  §3Type §a/donate §3for instructions on how to donate", EnumClickAction.SUGGEST_COMMAND, "/donate");
+				ChatExtensions.sendClickableMessage(newPlayer, "  §3Type §a/help §3for help", EnumClickAction.SUGGEST_COMMAND, "/help");
 			}
 			//
 			// NametagEdit

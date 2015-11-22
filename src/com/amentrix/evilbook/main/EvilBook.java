@@ -94,6 +94,7 @@ import com.amentrix.evilbook.worldgen.SkylandGenerator;
 
 import de.diddiz.LogBlock.Consumer;
 import de.diddiz.LogBlock.LogBlock;
+import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
 
 /**
  * EvilBook core class
@@ -443,8 +444,7 @@ public class EvilBook extends JavaPlugin {
 					exception.printStackTrace();
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/alt [playerName]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/alt [playerName]");
 			}
 			return true;
 		}
@@ -461,8 +461,7 @@ public class EvilBook extends JavaPlugin {
 				}
 				sender.sendMessage("§7Please note IPs change and bans should not be based on IP");
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/ip [playerName]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/ip [playerName]");
 			}
 			return true;
 		}
@@ -471,15 +470,15 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("drwatson")) {
 			if (args.length == 0) {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/drwatson sql");
-				sender.sendMessage("§d/drwatson sqlclean");
-				sender.sendMessage("§d/drwatson respring");
-				sender.sendMessage("§d/drwatson memstat");
-				sender.sendMessage("§d/drwatson liststat");
-				sender.sendMessage("§d/drwatson listscan");
-				sender.sendMessage("§d/drwatson opfix");
-				sender.sendMessage("§d/drwatson worldinfo [worldName]");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/drwatson sql",
+								"/drwatson sqlclean",
+								"/drwatson respring",
+								"/drwatson memstat",
+								"/drwatson liststat",
+								"/drwatson listscan",
+								"/drwatson opfix",
+								"/drwatson worldinfo [worldName]"));
 			} else if (args[0].equalsIgnoreCase("sql")) {
 				//
 				// Check `evilbook-commandblock` table
@@ -830,8 +829,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§dPlayers in world = " + world.getPlayers().size());
 					}
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/drwatson worldinfo [worldName]");
+					ChatExtensions.sendCommandHelpMessage(sender, "/drwatson worldinfo [worldName]");
 				}
 			}
 			return true;
@@ -843,8 +841,7 @@ public class EvilBook extends JavaPlugin {
 			if (args.length > 0) {
 				broadcastPlayerMessage(sender.getName(), "§d[§5" + (sender.getName().equals("CONSOLE") ? "Server" : sender.getName()) + "§d] " + toFormattedString(StringUtils.join(args, " ")));
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [message]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [message]");
 			}
 			return true;
 		}
@@ -878,8 +875,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You can't view a player's account balance who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " <player>");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " <player>");
 			}
 			return true;
 		}
@@ -911,8 +907,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You can't give admin rank to a player who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/makeadmin [player]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/makeadmin [player]");
 			}
 			return true;
 		}
@@ -971,8 +966,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You can't demote a player who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/demote [player]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/demote [player]");
 			}
 			return true;
 		}
@@ -1164,8 +1158,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You can't promote a player who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/promote [player] <rank>");
+				ChatExtensions.sendCommandHelpMessage(sender, "/promote [player] <rank>");
 			}
 			return true;
 		}
@@ -1230,8 +1223,7 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§7Message sent to the server host");
 				sender.sendMessage("§7Thank you for your feedback");
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/feedback [message]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/feedback [message]");
 			}
 			return true;
 		}
@@ -1313,10 +1305,10 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7This drug doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/drug cocain");
-				sender.sendMessage("§d/drug shrooms");
-				sender.sendMessage("§d/drug alcohol");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/drug cocain",
+								"/drug shrooms",
+								"/drug alcohol"));
 			}
 			return true;
 		}
@@ -1426,10 +1418,10 @@ public class EvilBook extends JavaPlugin {
 					}
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " server");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " player [player]");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " survival <player>");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/" + command.getName().toLowerCase(Locale.UK) + " server",
+								"/" + command.getName().toLowerCase(Locale.UK) + " player [player]",
+								"/" + command.getName().toLowerCase(Locale.UK) + " survival <player>"));
 			}
 			return true;
 		}
@@ -1482,10 +1474,10 @@ public class EvilBook extends JavaPlugin {
 					}
 				}	
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/title");
-				sender.sendMessage("§d/title [title]");
-				sender.sendMessage("§d/title remove");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/title",
+								"/title [title]",
+								"/title remove"));
 			}
 			return true;
 		}
@@ -1519,9 +1511,9 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("mail")) {
 			if (args.length == 0) {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/mail inbox");
-				sender.sendMessage("§d/mail send [player] [message]");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/mail inbox",
+								"/mail send [player] [message]"));
 			} else if (args[0].equalsIgnoreCase("inbox")) {
 				getProfile(sender).viewMailInbox();
 			} else if (args[0].equalsIgnoreCase("send")) {
@@ -1535,8 +1527,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§7The recipient player doesn't exist");
 					}
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/mail send [player] [message]");
+					ChatExtensions.sendCommandHelpMessage(player, "/mail send [player] [message]");
 				}
 			}
 			return true;
@@ -1581,9 +1572,9 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("minigame")) {
 			if (args.length != 1) {
-				sender.sendMessage("§5§oPlease select a minigame to play");
-				sender.sendMessage("§d/minigame skyBlock");
-				sender.sendMessage("§7/minigame towerDefense");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/minigame skyBlock",
+								"/minigame towerDefense"));
 			} else if (args[0].equalsIgnoreCase("skyBlock")) {
 				File skyblockMap = new File("plugins/EvilBook/SkyBlock/" + player.getUniqueId() + "/");
 				if (skyblockMap.exists()) {
@@ -1618,7 +1609,7 @@ public class EvilBook extends JavaPlugin {
 			} else {
 				sender.sendMessage("§5§oPlease select a minigame to play");
 				sender.sendMessage("§7The minigame you entered doesn't exist");
-				sender.sendMessage("§d/minigame towerDefense");
+				ChatExtensions.sendClickableMessage(player, "§d/minigame skyBlock", EnumClickAction.SUGGEST_COMMAND, "/minigame skyBlock");
 			}
 			return true;
 		}
@@ -1661,8 +1652,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You can't message an offline player");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/msg [player] [message]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/msg [player] [message]");
 			}
 			return true;
 		}
@@ -1721,10 +1711,10 @@ public class EvilBook extends JavaPlugin {
 					player.sendMessage("§7Edit wand in tree mode");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/tool none");
-				sender.sendMessage("§d/tool selection");
-				sender.sendMessage("§d/tool tree");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/tool none",
+								"/tool selection",
+								"/tool tree"));
 			}
 			return true;
 		}
@@ -1733,13 +1723,14 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("effect")) {
 			if (args.length == 0) {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/effect remove");
-				sender.sendMessage("§d/effect [effect]");
-				sender.sendMessage("§d/effect [effect] [frequency]");
-				sender.sendMessage("§d/effect [effect] [frequency] [amount]");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/effect remove",
+								"/effect [effect]",
+								"/effect [effect] [frequency]",
+								"/effect [effect] [frequency] [amount]"));
 				String effects = "";
 				for (EmitterEffect effectType : EmitterEffect.values()) effects += effectType.name().toLowerCase() + " ";
+				//TODO: ChatExtensions on each effect listed
 				sender.sendMessage("§7Effects: " + effects);
 			} else if (args.length >= 1) {
 				if (args[0].equalsIgnoreCase("remove")) {
@@ -1787,22 +1778,23 @@ public class EvilBook extends JavaPlugin {
 									sender.sendMessage("§5Please enter a valid frequency and amount");
 								}
 							} else {
-								sender.sendMessage("§5§oIncorrect command usage");
-								sender.sendMessage("§d/effect " + effect.name());
-								sender.sendMessage("§d/effect " + effect.name() + " [frequency]");
-								sender.sendMessage("§d/effect " + effect.name() + " [frequency] [amount]");
+								ChatExtensions.sendCommandHelpMessage(sender, 
+										Arrays.asList("/effect " + effect.name(),
+												"/effect " + effect.name() + " [frequency]",
+												"/effect " + effect.name() + " [frequency] [amount]"));
 							}
 						} else {
 							sender.sendMessage("§5You have to be a higher rank");
 							sender.sendMessage("§d" + effect.minimumRank.getName() + " rank is required to create this effect");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/effect [effect]");
-						sender.sendMessage("§d/effect [effect] [frequency]");
-						sender.sendMessage("§d/effect [effect] [frequency] [amount]");
+						ChatExtensions.sendCommandHelpMessage(sender, 
+								Arrays.asList("/effect [effect]",
+										"/effect [effect] [frequency]",
+										"/effect [effect] [frequency] [amount]"));
 						String effects = "";
 						for (EmitterEffect effectType : EmitterEffect.values()) effects += effectType.name().toLowerCase() + " ";
+						//TODO: ChatExtensions on each effect listed
 						sender.sendMessage("§7Effects: " + effects);
 					}
 				}
@@ -1859,10 +1851,10 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§d8 - North West");
 					}
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/chimney");
-					sender.sendMessage("§d/chimney [direction]");
-					sender.sendMessage("§d/chimney [direction] [frequency]");
+					ChatExtensions.sendCommandHelpMessage(sender, 
+							Arrays.asList("/chimney",
+									"/chimney [direction]",
+									"/chimney [direction] [frequency]"));
 				}
 			} else {
 				sender.sendMessage("§7Please stand on a block before creating a chimney");
@@ -1874,16 +1866,17 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("world")) {
 			if (args.length < 1) {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/world [worldName]");
-				sender.sendMessage("§d/world invite [worldName] [player]");
-				sender.sendMessage("§d/world uninvite [worldName] [player]");
-				sender.sendMessage("§d/world list");
+				List<String> help = new ArrayList<>();
+				help.add("/world [worldName]");
+				help.add("/world invite [worldName] [player]");
+				help.add("/world uninvite [worldName] [player]");
+				help.add("/world list");
 				if (getProfile(sender).rank == Rank.SERVER_HOST) {
-					sender.sendMessage("§d/world load [worldName]");
-					sender.sendMessage("§d/world unload [worldName]");
-					sender.sendMessage("§d/world create [worldName] [worldType] [worldOwner]");
+					help.add("/world load [worldName]");
+					help.add("/world unload [worldName]");
+					help.add("/world create [worldName] [worldType] [worldOwner]");
 				}
+				ChatExtensions.sendCommandHelpMessage(sender, help);
 			} else {
 				if (args[0].equalsIgnoreCase("list")) {
 					sender.sendMessage("§5Private worlds");
@@ -1926,8 +1919,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7A player with this name does not exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/world invite [worldName] [player]");
+						ChatExtensions.sendCommandHelpMessage(player, "/world invite [worldName] [player]");
 					}
 				} else if (args[0].equalsIgnoreCase("uninvite")) {
 					if (args.length == 3) {
@@ -1944,8 +1936,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7A player with this name does not exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/world invite [worldName] [player]");
+						ChatExtensions.sendCommandHelpMessage(player, "/world invite [worldName] [player]");
 					}
 				} else if (args[0].equalsIgnoreCase("create") && args.length == 4) {
 					if (player.getName().equals(EvilBook.config.getProperty("server_host"))) {
@@ -2132,8 +2123,7 @@ public class EvilBook extends JavaPlugin {
 				player.setVelocity(new Vector(this.random.nextDouble() * 2.0D - 1.0D, this.random.nextDouble() * 1.0D, this.random.nextDouble() * 2.0D - 1.0D));
 				sender.sendMessage("§7You slapped yourself");
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/slap <player>");
+				ChatExtensions.sendCommandHelpMessage(sender, "/slap <player>");
 			}
 			return true;
 		}
@@ -2157,8 +2147,7 @@ public class EvilBook extends JavaPlugin {
 				player.getWorld().strikeLightning(player.getLocation());
 				sender.sendMessage("§7You shocked yourself");
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/shock <player>");
+				ChatExtensions.sendCommandHelpMessage(sender, "/shock <player>");
 			}
 			return true;
 		}
@@ -2182,8 +2171,7 @@ public class EvilBook extends JavaPlugin {
 				player.setVelocity(new Vector(0, 20, 0));
 				sender.sendMessage("§7You rocketed yourself");
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/rocket <player>");
+				ChatExtensions.sendCommandHelpMessage(sender, "/rocket <player>");
 			}
 			return true;
 		}
@@ -2215,8 +2203,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7The maximum custom rank name length excluding colors is 16 characters");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/setrank [rank]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/setrank [rank]");
 			}
 			return true;
 		}
@@ -2281,8 +2268,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7Please enter a valid jump height");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/jump [height]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/jump [height]");
 			}
 			return true;
 		}
@@ -2357,12 +2343,12 @@ public class EvilBook extends JavaPlugin {
 					}
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/speed");
-				sender.sendMessage("§d/speed [speed]");
-				sender.sendMessage("§d/speed walk [speed]");
-				sender.sendMessage("§d/speed fly [speed]");
-				sender.sendMessage("§d/speed run [speed]");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/speed",
+								"/speed [speed]",
+								"/speed walk [speed]",
+								"/speed fly [speed]",
+								"/speed run [speed]"));
 			}
 			return true;
 		}
@@ -2391,10 +2377,10 @@ public class EvilBook extends JavaPlugin {
 						}
 					}
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/disguise [mobName]");
-					sender.sendMessage("§d/disguise [mobID]");
-					sender.sendMessage("§d/disguise remove");
+					ChatExtensions.sendCommandHelpMessage(sender, 
+							Arrays.asList("/disguise [mobName]",
+									"/disguise [mobID]",
+									"/disguise remove"));
 				}
 			}
 			return true;
@@ -2436,8 +2422,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You must be holding an item to rename it");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/name [name]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/name [name]");
 			}
 			return true;
 		}
@@ -2465,8 +2450,7 @@ public class EvilBook extends JavaPlugin {
 				player.setItemInHand(skull);
 				sender.sendMessage("§7Skull owner set to §d" + args[0]);
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/skull [owner]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/skull [owner]");
 			}
 			return true;
 		}
@@ -2490,8 +2474,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§dYou need to earn $" + (40 - getProfile(sender).money));
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [message]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [message]");
 			}
 			return true;
 		}
@@ -2617,8 +2600,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " created");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region add [regionName]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region add [regionName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("protect")) {
@@ -2653,8 +2635,7 @@ public class EvilBook extends JavaPlugin {
 							}
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region protect [regionName]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region protect [regionName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("remove")) {
@@ -2677,8 +2658,7 @@ public class EvilBook extends JavaPlugin {
 							return true;
 						}
 					}
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/region remove [regionName]");
+					ChatExtensions.sendCommandHelpMessage(player, "/region remove [regionName]");
 					return true;
 				} else if (args[0].equalsIgnoreCase("setwelcome")) {
 					if (args.length > 2) {
@@ -2699,8 +2679,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region setWelcome [regionName] [welcomeMessage]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region setWelcome [regionName] [welcomeMessage]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("setleave")) {
@@ -2722,8 +2701,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region setLeave [regionName] [leaveMessage]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region setLeave [regionName] [leaveMessage]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("allow")) {
@@ -2748,8 +2726,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region allow [regionName] [playerName]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region allow [regionName] [playerName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("deny")) {
@@ -2776,8 +2753,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region deny [regionName] [playerName]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region deny [regionName] [playerName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("teleport") || args[0].equalsIgnoreCase("tp") || args[0].equalsIgnoreCase("tpa")) {
@@ -2787,7 +2763,7 @@ public class EvilBook extends JavaPlugin {
 							break;
 						}
 					} else {
-						sender.sendMessage("§d/region tp [regionName]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region tp [regionName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("setWarp")) {
@@ -2813,8 +2789,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region setWarp [regionName] [warpName]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region setWarp [regionName] [warpName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("removeWarp")) {
@@ -2836,8 +2811,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region removeWarp [regionName]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region removeWarp [regionName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("select")) {
@@ -2855,8 +2829,7 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region select [regionName]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region select [regionName]");
 					}
 					return true;
 				} else if (args[0].equalsIgnoreCase("inherit")) {
@@ -2890,26 +2863,25 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7One of the regions specified doesn't exist");
 						}
 					} else {
-						sender.sendMessage("§5§oIncorrect command usage");
-						sender.sendMessage("§d/region inherit [regionName] [regionToInherit]");
+						ChatExtensions.sendCommandHelpMessage(player, "/region inherit [regionName] [regionToInherit]");
 					}
 					return true;
 				}
 			}
-			sender.sendMessage("§5§oIncorrect command usage");
-			sender.sendMessage("§d/region scan");
-			sender.sendMessage("§d/region create [regionName]");
-			sender.sendMessage("§d/region protect [regionName]");
-			sender.sendMessage("§d/region remove [regionName]");
-			sender.sendMessage("§d/region select [regionName]");
-			sender.sendMessage("§d/region inherit [regionName] [regionToInherit]");
-			sender.sendMessage("§d/region setWelcome [regionName] [welcomeMessage]");
-			sender.sendMessage("§d/region setLeave [regionName] [leaveMessage]");
-			sender.sendMessage("§d/region tp [regionName]");
-			sender.sendMessage("§d/region setWarp [regionName] [warpName]");
-			sender.sendMessage("§d/region removeWarp [regionName]");
-			sender.sendMessage("§d/region allow [regionName] [playerName]");
-			sender.sendMessage("§d/region deny [regionName] [playerName]");
+			ChatExtensions.sendCommandHelpMessage(sender, 
+					Arrays.asList("/region scan",
+							"/region create [regionName]",
+							"/region protect [regionName]",
+							"/region remove [regionName]",
+							"/region select [regionName]",
+							"/region inherit [regionName] [regionToInherit]",
+							"/region setWelcome [regionName] [welcomeMessage]",
+							"/region setLeave [regionName] [leaveMessage]",
+							"/region tp [regionName]",
+							"/region setWarp [regionName] [warpName]",
+							"/region removeWarp [regionName]",
+							"/region allow [regionName] [playerName]",
+							"/region deny [regionName] [playerName]"));
 			return true;
 		}
 		//
@@ -2930,8 +2902,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7No staff are online to recieve your request");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [message]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [message]");
 			}
 			return true;
 		}
@@ -2965,8 +2936,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You can't pay a player who doesn't exist");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [player] [amount]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [player] [amount]");
 			}
 			return true;
 		}
@@ -3019,8 +2989,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You change the gamemode of an offline player");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [mode]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [mode]");
 			}
 			return true;
 		}
@@ -3044,8 +3013,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7The maximum rename length excluding colors is 16 characters");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [name]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [name]");
 			}
 			return true;
 		}
@@ -3057,8 +3025,7 @@ public class EvilBook extends JavaPlugin {
 				getProfile(sender).mutedPlayers.add(args[0].toLowerCase(Locale.UK));
 				sender.sendMessage("§7You have muted " + args[0]);
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [player]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [player]");
 			}
 			return true;
 		}
@@ -3074,8 +3041,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You have unmuted " + args[0]);
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/unmute [player]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/unmute [player]");
 			}
 			return true;
 		}
@@ -3207,8 +3173,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§7This creature doesn't exist");
 					}
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [mob] <amount>");
+					ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [mob] <amount>");
 				}
 			} else {
 				sender.sendMessage("§7Creatures can't be spawned in survival");
@@ -3222,6 +3187,7 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (args[0].equalsIgnoreCase("list")) {
 					if (!getProfile(sender).warps.isEmpty()) {
+						//TODO: ChatExtensions on each effect listed
 						sender.sendMessage("§5My warps");
 						sender.sendMessage("§d" + getProfile(sender).warps.toString().substring(1).substring(0, getProfile(sender).warps.toString().length() - 2));
 					} else {
@@ -3245,8 +3211,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7" + args[1] + " doesn't own any warps");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/warp [warpName]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/warp [warpName]");
 			}
 			return true;
 		}
@@ -3273,8 +3238,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You don't own any warps");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [warpName]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [warpName]");
 			}
 			return true;
 		}
@@ -3320,8 +3284,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§dYou need to earn $" + (20 - getProfile(sender).money));
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [warpName]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [warpName]");
 			}
 			return true;
 		}
@@ -3369,8 +3332,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§7Please enter a valid enchantment level");
 					}
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/enchant [enchantmentID] [enchantmentLevel]");
+					ChatExtensions.sendCommandHelpMessage(sender, "/enchant [enchantmentID] [enchantmentLevel]");
 				}
 			} else {
 				sender.sendMessage("§7Items can't be enchanted in survival via command");
@@ -3462,12 +3424,12 @@ public class EvilBook extends JavaPlugin {
 					}
 					sender.sendMessage("§7World time changed");
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/time [time]");
-					sender.sendMessage("§d/time dawn");
-					sender.sendMessage("§d/time day");
-					sender.sendMessage("§d/time dusk");
-					sender.sendMessage("§d/time night");
+					ChatExtensions.sendCommandHelpMessage(sender, 
+							Arrays.asList("/time [time]",
+									"/time dawn",
+									"/time day",
+									"/time dusk",
+									"/time night"));
 				}
 			} else {
 				sender.sendMessage("§7Time can't be changed in survival");
@@ -3631,14 +3593,13 @@ public class EvilBook extends JavaPlugin {
 					player.teleport(destination);
 					sender.sendMessage("§7Teleported to " + args[0] + ", " + args[1] + ", " + args[2]);
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]");
+					ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]");
 					sender.sendMessage("§7The X, Y and Z values must be numbers");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [player]");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]");
+				ChatExtensions.sendCommandHelpMessage(sender, 
+						Arrays.asList("/" + command.getName().toLowerCase(Locale.UK) + " [player]",
+								"/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]"));
 			}
 			return true;
 		}
@@ -3657,8 +3618,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You can't teleport an offline player");
 				}
 			} else {
-				sender.sendMessage("§5§oIncorrect command usage");
-				sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [player]");
+				ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [player]");
 			}
 			return true;
 		}
@@ -3697,8 +3657,7 @@ public class EvilBook extends JavaPlugin {
 						player.getInventory().addItem(new ItemStack(material, Integer.parseInt(args[1]), Byte.parseByte(args[2])));
 					}
 				} else {
-					sender.sendMessage("§5§oIncorrect command usage");
-					sender.sendMessage("§d/" + command.getName().toLowerCase(Locale.UK) + " [ID / name] <amount> <data>");
+					ChatExtensions.sendCommandHelpMessage(sender, "/" + command.getName().toLowerCase(Locale.UK) + " [ID / name] <amount> <data>");
 				}
 			}
 			return true;

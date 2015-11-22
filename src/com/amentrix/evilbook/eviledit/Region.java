@@ -1,6 +1,7 @@
 package com.amentrix.evilbook.eviledit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -17,6 +18,7 @@ import com.amentrix.evilbook.eviledit.utils.CraftEvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.eviledit.utils.EvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.Selection;
+import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.DynamicSign;
 import com.amentrix.evilbook.main.Emitter;
 import com.amentrix.evilbook.main.EvilBook;
@@ -27,6 +29,8 @@ import com.amentrix.evilbook.reference.BiomeReference;
 import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
+import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
+
 /**
  * EvilEdit region methods
  * @author Reece Aaron Lecrivain
@@ -35,8 +39,7 @@ class Region {
 	static void deforestArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/deforest");
+			ChatExtensions.sendCommandHelpMessage(player, "/deforest");
 		} else if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
@@ -60,10 +63,10 @@ class Region {
 	static void flipArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 || (!args[0].equalsIgnoreCase("x") && !args[0].equalsIgnoreCase("y") && !args[0].equalsIgnoreCase("z"))) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/flip x");
-			player.sendMessage("§d/flip y");
-			player.sendMessage("§d/flip z");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/flip x",
+							"/flip y",
+							"/flip z"));
 		} else if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			List<BlockState> blockList = new ArrayList<>();
@@ -90,10 +93,10 @@ class Region {
 	static void moveArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 || !EvilBook.isInteger(args[0]) || (!args[1].equalsIgnoreCase("x") && !args[1].equalsIgnoreCase("y") && !args[1].equalsIgnoreCase("z"))) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/move [count] x");
-			player.sendMessage("§d/move [count] y");
-			player.sendMessage("§d/move [count] z");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/move [count] x",
+							"/move [count] y",
+							"/move [count] z"));
 		} else if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			List<BlockState> blockList = new ArrayList<>();
@@ -174,8 +177,7 @@ class Region {
 	static void drainArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/drain");
+			ChatExtensions.sendCommandHelpMessage(player, "/drain");
 		} else if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
@@ -222,8 +224,7 @@ class Region {
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else if (args.length != 0) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/paste");
+			ChatExtensions.sendCommandHelpMessage(player, "/paste");
 		} else if (((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().size() == 0) {
 			player.sendMessage("§7Please copy an area of blocks before attempting paste");
 		} else {
@@ -325,8 +326,7 @@ class Region {
 	static void copy(final Player player, String[] args) {
 		final Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/copy");
+			ChatExtensions.sendCommandHelpMessage(player, "/copy");
 		} else if (selection.isValid()) {
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearCopy();
 			if (selection.getVolume() <= 200000) {
@@ -401,8 +401,7 @@ class Region {
 	static void cut(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/cut");
+			ChatExtensions.sendCommandHelpMessage(player, "/cut");
 		} else if (selection.isValid()) {
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearCopy();
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
@@ -445,10 +444,10 @@ class Region {
 	static void randomDeleteArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length > 2) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/rdel");
-			player.sendMessage("§d/rdel [blockID / blockName]");
-			player.sendMessage("§d/rdel [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/rdel",
+							"/rdel [blockID / blockName]",
+							"/rdel [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType actionBlock = null;
 			if (args.length >= 1) {
@@ -478,10 +477,10 @@ class Region {
 	static void deleteArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length > 2) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/del");
-			player.sendMessage("§d/del [blockID / blockName]");
-			player.sendMessage("§d/del [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/del",
+							"/del [blockID / blockName]",
+							"/del [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType actionBlock = null;
 			if (args.length >= 1) {
@@ -510,9 +509,9 @@ class Region {
 	static void randomReplaceArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 && args.length != 4) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/rreplace [blockID / blockName] [blockID / blockName]");
-			player.sendMessage("§d/rreplace [blockID / blockName] [blockData] [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/rreplace [blockID / blockName] [blockID / blockName]",
+							"/rreplace [blockID / blockName] [blockData] [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType oldBlock = new BlockType(args[0]);
 			if (args.length == 4) oldBlock.setData(args[1]);
@@ -544,9 +543,9 @@ class Region {
 	static void randomFillArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/rfill [blockID / blockName]");
-			player.sendMessage("§d/rfill [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/rfill [blockID / blockName]",
+							"/rfill [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType actionBlock = null;
 			if (args.length >= 1) {
@@ -575,9 +574,9 @@ class Region {
 	static void fillArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/fill [blockID / blockName]");
-			player.sendMessage("§d/fill [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/fill [blockID / blockName]",
+							"/fill [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType actionBlock = null;
 			if (args.length >= 1) {
@@ -604,8 +603,7 @@ class Region {
 	static void setBiome(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/setbiome [biome]");
+			ChatExtensions.sendCommandHelpMessage(player, "/setbiome [biome]");
 		} else if (selection.isValid()) {
 			Biome blockBiome = BiomeReference.getBiome(args[0]);
 			if (blockBiome == null) {
@@ -681,8 +679,7 @@ class Region {
 	static void hollowArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 0) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/hollow");
+			ChatExtensions.sendCommandHelpMessage(player, "/hollow");
 		} else if (selection.isValid()) {
 			EvilEditEngine engine = CraftEvilEditEngine.createEngine(selection.getWorld(), player);
 			for (int x = selection.getBottomXBlock(); x <= selection.getTopXBlock(); x++)
@@ -705,9 +702,9 @@ class Region {
 	static void outlineArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/outline [blockID / blockName]");
-			player.sendMessage("§d/outline [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/outline [blockID / blockName]",
+							"/outline [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType actionBlock = null;
 			if (args.length >= 1) {
@@ -736,9 +733,9 @@ class Region {
 	static void wallArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/walls [blockID / blockName]");
-			player.sendMessage("§d/walls [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/walls [blockID / blockName]",
+							"/walls [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType actionBlock = null;
 			if (args.length >= 1) {
@@ -803,9 +800,9 @@ class Region {
 	static void overlayArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/overlay [blockID / blockName]");
-			player.sendMessage("§d/overlay [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/overlay [blockID / blockName]",
+							"/overlay [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType actionBlock = null;
 			if (args.length >= 1) {
@@ -830,9 +827,9 @@ class Region {
 	static void replaceArea(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 2 && args.length != 4) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/replace [blockID / blockName] [blockID / blockName]");
-			player.sendMessage("§d/replace [blockID / blockName] [blockData] [blockID / blockName] [blockData]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/replace [blockID / blockName] [blockID / blockName]",
+							"/replace [blockID / blockName] [blockData] [blockID / blockName] [blockData]"));
 		} else if (selection.isValid()) {
 			BlockType oldBlock = new BlockType(args[0]);
 			if (args.length == 4) oldBlock.setData(args[1]);
@@ -885,10 +882,10 @@ class Region {
 					player.sendMessage("§7Selection contains " + blockCount + " " + BlockReference.getFriendlyName(actionBlock.getMaterial()) + " blocks");
 				}
 			} else {
-				player.sendMessage("§5§oIncorrect command usage");
-				player.sendMessage("§d/count");
-				player.sendMessage("§d/count [blockID / blockName]");
-				player.sendMessage("§d/count [blockID / blockName] [blockData]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/count",
+								"/count [blockID / blockName]",
+								"/count [blockID / blockName] [blockData]"));
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package com.amentrix.evilbook.eviledit;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.bukkit.Material;
@@ -11,12 +12,15 @@ import com.amentrix.evilbook.eviledit.utils.CraftEvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.EvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.Selection;
 import com.amentrix.evilbook.eviledit.utils.TreeGenerationDelegate;
+import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.reference.TreeReference;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
+
+import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
 
 /**
  * EvilEdit generation methods
@@ -49,9 +53,9 @@ class Generation {
 	static void createForest(Player player, String[] args) {
 		Selection selection = new Selection(player);
 		if (args.length != 1 && args.length != 2) {
-			player.sendMessage("§5§oIncorrect command usage");
-			player.sendMessage("§d/forest [treeType]");
-			player.sendMessage("§d/forest [treeType] [density]");
+			ChatExtensions.sendCommandHelpMessage(player, 
+					Arrays.asList("/forest [treeType]",
+							"/forest [treeType] [density]"));
 		} else if (args.length == 2 && !EvilBook.isDouble(args[1])) {
 			player.sendMessage("§7Please enter a valid forest density");
 		} else if (selection.isValid()) {
@@ -88,13 +92,14 @@ class Generation {
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 				player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else if (args.length != 2 && args.length != 3 && args.length != 5) {
-			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
-				player.sendMessage("§d/hpyramid [blockID / blockName] [size]");
-				player.sendMessage("§d/hpyramid [blockID / blockName] [blockData] [size]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/hpyramid [blockID / blockName] [size]",
+								"/hpyramid [blockID / blockName] [blockData] [size]"));
 			} else {
-				player.sendMessage("§d/pyramid [blockID / blockName] [size]");
-				player.sendMessage("§d/pyramid [blockID / blockName] [blockData] [size]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/pyramid [blockID / blockName] [size]",
+								"/pyramid [blockID / blockName] [blockData] [size]"));
 			}
 		} else if (!EvilBook.isInteger(args.length == 2 ? args[1] : args[2])) {
 			player.sendMessage("§7Please enter a valid size");
@@ -134,15 +139,16 @@ class Generation {
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else if (args.length != 2 && args.length != 3 && args.length != 5) {
-			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
-				player.sendMessage("§d/hsphere [blockID / blockName] [radius]");
-				player.sendMessage("§d/hsphere [blockID / blockName] [blockData] [radius]");
-				player.sendMessage("§d/hsphere [blockID / blockName] [blockData] [radiusX] [radiusY] [radiusZ]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/hsphere [blockID / blockName] [radius]",
+								"/hsphere [blockID / blockName] [blockData] [radius]",
+								"/hsphere [blockID / blockName] [blockData] [radiusX] [radiusY] [radiusZ]"));
 			} else {
-				player.sendMessage("§d/sphere [blockID / blockName] [radius]");
-				player.sendMessage("§d/sphere [blockID / blockName] [blockData] [radius]");
-				player.sendMessage("§d/sphere [blockID / blockName] [blockData] [radiusX] [radiusY] [radiusZ]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/sphere [blockID / blockName] [radius]",
+								"/sphere [blockID / blockName] [blockData] [radius]",
+								"/sphere [blockID / blockName] [blockData] [radiusX] [radiusY] [radiusZ]"));
 			}
 		} else if (args.length == 2 && !EvilBook.isInteger(args[1])) {
 			player.sendMessage("§7Please enter a valid radius");
@@ -241,15 +247,16 @@ class Generation {
 		} else if (EvilBook.isInMinigame(player, MinigameType.SKYBLOCK) && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 			player.sendMessage("§7EvilEdit can't be used in skyblock survival");
 		} else if (args.length != 3 && args.length != 4 && args.length != 5) {
-			player.sendMessage("§5§oIncorrect command usage");
 			if (hollow) {
-				player.sendMessage("§d/hcylinder [blockID / blockName] [radius] [height]");
-				player.sendMessage("§d/hcylinder [blockID / blockName] [blockData] [radius] [height]");
-				player.sendMessage("§d/hcylinder [blockID / blockName] [blockData] [radiusX] [radiusZ] [height]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/hcylinder [blockID / blockName] [radius] [height]",
+								"/hcylinder [blockID / blockName] [blockData] [radius] [height]",
+								"/hcylinder [blockID / blockName] [blockData] [radiusX] [radiusZ] [height]"));
 			} else {
-				player.sendMessage("§d/cylinder [blockID / blockName] [radius] [height]");
-				player.sendMessage("§d/cylinder [blockID / blockName] [blockData] [radius] [height]");
-				player.sendMessage("§d/cylinder [blockID / blockName] [blockData] [radiusX] [radiusZ] [height]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/cylinder [blockID / blockName] [radius] [height]",
+								"/cylinder [blockID / blockName] [blockData] [radius] [height]",
+								"/cylinder [blockID / blockName] [blockData] [radiusX] [radiusZ] [height]"));
 			}
 		} else if (args.length == 3 && (!EvilBook.isInteger(args[1]) || !EvilBook.isInteger(args[2]))) {
 			player.sendMessage("§7Please enter a valid radius and height");
@@ -333,9 +340,9 @@ class Generation {
 					}
 				}
 			} else {
-				player.sendMessage("§5§oIncorrect command usage");
-				player.sendMessage("§d/tree");
-				player.sendMessage("§d/tree [treeType]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/tree",
+								"/tree [treeType]"));
 			}
 		}
 	}

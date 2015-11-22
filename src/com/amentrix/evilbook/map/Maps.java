@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.bukkit.ChatColor;
@@ -25,7 +26,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
+import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.EvilBook;
+
+import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
 
 /**
  *
@@ -121,16 +125,16 @@ public class Maps implements CommandExecutor {
 						}
 					}
 				} else {
-					sender.sendMessage("§5Incorrect command usage");
-					sender.sendMessage("§d/map head [player]");
-					sender.sendMessage("§d/map body [player]");
-					sender.sendMessage("§d/map url [url]");
+					ChatExtensions.sendCommandHelpMessage(player, 
+							Arrays.asList("/map head [player]",
+									"/map body [player]",
+									"/map url [url]"));
 				}
 			} else {
-				sender.sendMessage("§5Incorrect command usage");
-				sender.sendMessage("§d/map head [player]");
-				sender.sendMessage("§d/map body [player]");
-				sender.sendMessage("§d/map url [url]");
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/map head [player]",
+								"/map body [player]",
+								"/map url [url]"));
 			}
 			return true;
 		}
