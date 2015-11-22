@@ -17,6 +17,7 @@ import org.bukkit.inventory.Inventory;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
+import com.amentrix.evilbook.minigame.TowerDefenseMinigame;
 import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
@@ -48,6 +49,8 @@ public abstract class PlayerProfile {
 	public Location actionLocationA, actionLocationB;
 	private EvilBook plugin;
 	public String UUID;
+	//TODO: Make all minigames extend minigame base class (Liked PlayerProfile is extended)
+	public TowerDefenseMinigame towerDefenseMinigame = null;
 	
 	PlayerProfile(EvilBook plugin) {
 		this.plugin = plugin;

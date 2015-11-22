@@ -167,7 +167,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Initialize EvilEdit session
 		//
-		editSession = new Session(this);
+		setEditSession(new Session(this));
 		//
 		// Maps Module
 		//
@@ -748,7 +748,7 @@ public class EvilBook extends JavaPlugin {
 				paidWorldList.clear();
 				regionList.clear();
 				emitterList.clear();
-				this.editSession = new Session(this);
+				setEditSession(new Session(this));
 				this.random = new Random();
 				lbConsumer = null;
 				HandlerList.unregisterAll();
@@ -1603,7 +1603,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§cThis minigame is currently in beta testing");
 					sender.sendMessage("§cIt will be available to the public shortly");
 				} else {
-					TowerDefenseMinigame towerDefense = new TowerDefenseMinigame(player, MinigameDifficulty.NORMAL, this);
+					getProfile(sender).towerDefenseMinigame = new TowerDefenseMinigame(player, MinigameDifficulty.NORMAL, this);
 					player.teleport(getServer().getWorld("Minigame").getSpawnLocation());
 				}
 			} else {
@@ -4395,5 +4395,20 @@ public class EvilBook extends JavaPlugin {
 	/** round n up to nearest multiple of m */
 	private static long roundUp(long n, long m) {
 	    return n >= 0 ? ((n + m - 1) / m) * m : (n / m) * m;
+	}
+
+	/**
+	 * @return The EvilEdit session
+	 */
+	public Session getEditSession() {
+		return editSession;
+	}
+
+	/**
+	 * Set the current EvilEdit session
+	 * @param editSession The EvilEdit session to be assigned
+	 */
+	public void setEditSession(Session editSession) {
+		this.editSession = editSession;
 	}
 }
