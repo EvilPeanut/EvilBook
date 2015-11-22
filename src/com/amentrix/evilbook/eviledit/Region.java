@@ -29,8 +29,6 @@ import com.amentrix.evilbook.reference.BiomeReference;
 import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
-import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
-
 /**
  * EvilEdit region methods
  * @author Reece Aaron Lecrivain

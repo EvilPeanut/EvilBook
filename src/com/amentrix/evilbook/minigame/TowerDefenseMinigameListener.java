@@ -25,23 +25,21 @@ class TowerDefenseMinigameListener implements Listener {
 			Block towerBlock = block.getRelative(0, 1, 0);
 			towerBlock.setType(Material.DISPENSER);
 			if (player.getItemInHand().getType() == Material.ARROW) {
-				
-			} else if (player.getItemInHand().getType() == Material.ARROW) {
-
+				// Place arrow tower
 			} else if (player.getItemInHand().getType() == Material.BLAZE_POWDER) {
-
+				// Place mage tower
 			} else if (player.getItemInHand().getType() == Material.FIREWORK_CHARGE) {
-
+				// Place bomb tower
 			} else if (player.getItemInHand().getType() == Material.BOW) {
-
+				// Place archery tower
 			} else if (player.getItemInHand().getType() == Material.SNOW_BALL) {
-
+				// Place snowball tower
 			} else if (player.getItemInHand().getType() == Material.EGG) {
-
+				// Place egg tower
 			} else if (player.getItemInHand().getType() == Material.POTION) {
-
+				// Place witch hut tower
 			} else if (player.getItemInHand().getType() == Material.GOLD_INGOT) {
-
+				// Place butter tower
 			}
 		}
 	}

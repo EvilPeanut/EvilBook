@@ -74,7 +74,7 @@ public class TowerDefenseMinigame {
 		
 		ItemStack superDartTowerItem = new ItemStack(Material.BOW);
 		ItemMeta superDartTowerItemMeta = arrowTowerItem.getItemMeta();
-		superDartTowerItemMeta.setDisplayName("Super Dart Tower");
+		superDartTowerItemMeta.setDisplayName("Archery Tower");
 		superDartTowerItemMeta.setLore(Arrays.asList("Damage: ?", "Range: ?", "Cost: $?"));
 		superDartTowerItem.setItemMeta(superDartTowerItemMeta);
 		hostPlayer.getInventory().addItem(superDartTowerItem);

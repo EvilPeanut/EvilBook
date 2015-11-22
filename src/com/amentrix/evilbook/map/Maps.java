@@ -29,8 +29,6 @@ import org.bukkit.map.MapView;
 import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.EvilBook;
 
-import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
-
 /**
  *
  * @author cnaude
