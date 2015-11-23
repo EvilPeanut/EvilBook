@@ -48,7 +48,6 @@ import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
-import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -78,15 +77,13 @@ import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.minigame.SkyBlockMinigameListener;
 import com.amentrix.evilbook.minigame.TowerDefenseMinigame;
 import com.amentrix.evilbook.nametag.NametagManager;
-import com.amentrix.evilbook.reference.BiomeReference;
 import com.amentrix.evilbook.reference.BlockReference;
-import com.amentrix.evilbook.reference.CommandReference;
-import com.amentrix.evilbook.reference.TreeReference;
-import com.amentrix.evilbook.region.Region;
-import com.amentrix.evilbook.region.RegionListener;
+import com.amentrix.evilbook.regions.Region;
+import com.amentrix.evilbook.regions.RegionListener;
+import com.amentrix.evilbook.regions.Regions;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
-import com.amentrix.evilbook.statistics.CommandStatistics;
+import com.amentrix.evilbook.statistics.CommandStatistic;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
 import com.amentrix.evilbook.worldgen.PlotlandGenerator;
@@ -105,8 +102,8 @@ public class EvilBook extends JavaPlugin {
 	private static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
 	public static final Map<World, List<DynamicSign>> dynamicSignList = new HashMap<>();
 	public static final List<String> paidWorldList = new ArrayList<>();
-	public static final List<Region> regionList = new ArrayList<>();
-	private static final List<Region> plotRegionList = new ArrayList<>();
+	//public static final List<Region> regionList = new ArrayList<>();
+	public static final List<Region> plotRegionList = new ArrayList<>();
 	public static final List<Emitter> emitterList = new ArrayList<>();
 	//
 	public static final List<UUID> rareSpawnList = new ArrayList<>();
@@ -275,6 +272,9 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Load regions
 		//
+		for (World world : getServer().getWorlds()) {
+			Regions.initWorld(world.getName());
+		}
 		try (Statement statement = SQL.connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
 				while (rs.next()) {
@@ -282,7 +282,7 @@ public class EvilBook extends JavaPlugin {
 						if (rs.getString("region_name").startsWith("PlotRegion")) {
 							plotRegionList.add(new Region(rs));
 						} else {
-							regionList.add(new Region(rs));
+							Regions.addRegion(rs.getString("world"), new Region(rs));
 						}
 					} else {
 						logInfo("Region " + rs.getString("region_name") + " in " + rs.getString("world") + " not loaded location unavailable");
@@ -382,6 +382,7 @@ public class EvilBook extends JavaPlugin {
 		// Scheduler
 		//
 		Scheduler scheduler = new Scheduler(this);
+		scheduler.sqlBatchUpdate();
 		scheduler.tipsAutosave();
 		scheduler.updateServices();
 		scheduler.updateDisguise();
@@ -424,7 +425,7 @@ public class EvilBook extends JavaPlugin {
 		// Statistics
 		//
 		GlobalStatistic.incrementStatistic(GlobalStatistic.CommandsExecuted, 1);
-		CommandStatistics.increment(command.getName());
+		CommandStatistic.increment(command.getName());
 		//
 		// Alt Command
 		//
@@ -473,7 +474,6 @@ public class EvilBook extends JavaPlugin {
 				ChatExtensions.sendCommandHelpMessage(sender, 
 						Arrays.asList("/drwatson sql",
 								"/drwatson sqlclean",
-								"/drwatson respring",
 								"/drwatson memstat",
 								"/drwatson liststat",
 								"/drwatson listscan",
@@ -585,19 +585,21 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Check for region warp issues
 				//
+				//TODO: Regions: Re-add
+				/*
 				sender.sendMessage("§7Dr. Watson scanning regions for warp issues...");
 				for (Region region : regionList) {
 					if (region.getWarp() != null) {
 						Location warp = SQL.getWarp(region.getWarp());
 						if (warp != null) {
-							if (isInRegion(region, warp)) {
+							if (Region.isInRegion(region, warp)) {
 								sender.sendMessage("§7--> Region " + region.getRegionName() + " has an infinite warp loop"); 
 							}
 						} else {
 							sender.sendMessage("§7--> Region " + region.getRegionName() + " has a non-existant warp"); 
 						}
 					}
-				}
+				}*/
 				sender.sendMessage("§7Dr. Watson scan finished");
 			} else if (args[0].equalsIgnoreCase("sqlclean")) {
 				//
@@ -717,12 +719,14 @@ public class EvilBook extends JavaPlugin {
 				//
 				// Clean region warp issues
 				//
+				//TODO: Regions: Re-add
+				/*
 				sender.sendMessage("§7Dr. Watson fixing region warp issues...");
 				for (Region region : regionList) {
 					if (region.getWarp() != null) {
 						Location warp = SQL.getWarp(region.getWarp());
 						if (warp != null) {
-							if (isInRegion(region, warp)) {
+							if (Region.isInRegion(region, warp)) {
 								region.setWarp(null);
 								region.saveRegion();
 								sender.sendMessage("§7--> FIXED: Region " + region.getRegionName() + " has an infinite warp loop"); 
@@ -733,27 +737,8 @@ public class EvilBook extends JavaPlugin {
 							sender.sendMessage("§7--> FIXED: Region " + region.getRegionName() + " has a non-existant warp"); 
 						}
 					}
-				}
+				}*/
 				sender.sendMessage("§7Dr. Watson scan finished");
-			} else if (args[0].equalsIgnoreCase("respring")) {
-				//
-				// Respring
-				//
-				broadcastPlayerMessage(sender.getName(), "§d[§5Server§d] Server respringing...");
-				BlockReference.blockList.clear();
-				BiomeReference.biomeList.clear();
-				TreeReference.treeTypeList.clear();
-				CommandReference.commandBlacklist.clear();
-				dynamicSignList.clear();
-				paidWorldList.clear();
-				regionList.clear();
-				emitterList.clear();
-				setEditSession(new Session(this));
-				this.random = new Random();
-				lbConsumer = null;
-				HandlerList.unregisterAll();
-				onEnable();
-				broadcastPlayerMessage(sender.getName(), "§d[§5Server§d] Server resprung");
 			} else if (args[0].equalsIgnoreCase("memstat")) {
 				//
 				// Memory statistics
@@ -767,7 +752,8 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§dPlayer Profiles = " + playerProfiles.size());
 				sender.sendMessage("§dDynamic Signs = " + dynamicSignList.size());
 				sender.sendMessage("§dPaid Worlds = " + paidWorldList.size());
-				sender.sendMessage("§dRegions = " + regionList.size());
+				//TODO: Regions: Re-add?
+				//sender.sendMessage("§dRegions = " + regionList.size());
 				sender.sendMessage("§dPlot Regions = " + plotRegionList.size());
 				sender.sendMessage("§dEmitters = " + emitterList.size());
 				sender.sendMessage("§dRare Spawns = " + rareSpawnList.size());
@@ -1178,8 +1164,8 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("claim")) {
 			if (isInPlotWorld(player)) {
-				if (isInPlotworldRegion(player.getLocation())) {
-					if (isInProtectedPlotworldRegion(player.getLocation(), player)) {
+				if (Regions.isInPlotworldRegion(player.getLocation())) {
+					if (Regions.isInProtectedPlotworldRegion(player.getLocation(), player)) {
 						player.sendMessage(ChatColor.GRAY + "This plot has already been claimed");
 					} else {
 						player.sendMessage(ChatColor.GRAY + "You already have permission to build here");
@@ -1893,6 +1879,7 @@ public class EvilBook extends JavaPlugin {
 						}
 						paidWorldList.add(args[1]);
 						getServer().createWorld(privateWorld);
+						Regions.initWorld(privateWorld.name());
 						sender.sendMessage("§7Loaded private world");
 					} else {
 						sender.sendMessage("§cYou don't have permission to load private worlds");
@@ -1974,6 +1961,7 @@ public class EvilBook extends JavaPlugin {
 								exception.printStackTrace();
 							}
 						}
+						Regions.initWorld(newWorld.name());
 					} else {
 						sender.sendMessage("§cYou don't have permission to create private worlds");
 					}
@@ -2564,10 +2552,9 @@ public class EvilBook extends JavaPlugin {
 			if (args.length >= 1) {
 				if (args[0].equalsIgnoreCase("scan")) {
 					List<String> regionsFoundList = new ArrayList<>();
-					for (Region region : regionList) {
-						if (region.getLocationA().getWorld().getName().equals(player.getLocation().getWorld().getName()) == false) continue;
-						if (isInRegionXRange(region, player.getLocation()) && isInRegionYRange(region, player.getLocation()) && isInRegionZRange(region, player.getLocation())) {
-							regionsFoundList.add(ChatColor.LIGHT_PURPLE + region.getRegionName() + " region owned by " + region.getOwner());
+					for (Region region : Regions.getRegions(player.getWorld().getName())) {
+						if (Regions.isInRegion(region, player.getLocation())) {
+							regionsFoundList.add(ChatColor.LIGHT_PURPLE + region.getName() + " region owned by " + region.getOwner());
 						}
 					}
 					if (regionsFoundList.size() != 0) {
@@ -2576,51 +2563,40 @@ public class EvilBook extends JavaPlugin {
 					} else {
 						sender.sendMessage("§7You are not in any regions");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("create")) {
 					if (args.length == 2) {
 						if (getProfile(player).actionLocationA == null || getProfile(player).actionLocationB == null) {
 							sender.sendMessage("§7Please select two region boundaries using the golden shovel tool");
 						} else {
-							if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-								sender.sendMessage(ChatColor.GRAY + "The region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " already exists");
-								return true;
+							Region region = Regions.getRegion(args[1]);
+							if (region == null) {
+								region = new Region(args[1],
+										getProfile(player).actionLocationA,
+										getProfile(player).actionLocationB,
+										false,
+										sender.getName(),
+										null,
+										null,
+										null,
+										null);
+								region.saveRegion();
+								Regions.addRegion(player.getWorld().getName(), region);
+								sender.sendMessage("§7Region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + " created");
+							} else {
+								sender.sendMessage(ChatColor.GRAY + "The region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + " already exists");
 							}
-							Region region = new Region(args[1],
-									getProfile(player).actionLocationA,
-									getProfile(player).actionLocationB,
-									false,
-									sender.getName(),
-									null,
-									null,
-									null,
-									null);
-							region.saveRegion();
-							regionList.add(region);
-							sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " created");
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region add [regionName]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("protect")) {
 					if (args.length == 2) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-									sender.sendMessage("§7You don't have ownership of this region");
-									return true;
-								}
-								region.isProtected(true);	
-								region.saveRegion();
-								break;
-							}
-							sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " protected");
-						} else {
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
 							if (getProfile(player).actionLocationA == null || getProfile(player).actionLocationB == null) {
 								sender.sendMessage("§7Please select two region boundaries using the golden shovel tool");
 							} else {
-								Region region = new Region(args[1],
+								region = new Region(args[1],
 										getProfile(player).actionLocationA,
 										getProfile(player).actionLocationB,
 										true,
@@ -2630,258 +2606,225 @@ public class EvilBook extends JavaPlugin {
 										null,
 										null);
 								region.saveRegion();
-								regionList.add(region);
+								Regions.addRegion(player.getWorld().getName(), region);
 								sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " created and protected");
+							}
+						} else {
+							if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You don't have ownership of this region");
+							} else {
+								region.isProtected(true);	
+								region.saveRegion();
+								sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " protected");
 							}
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region protect [regionName]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("remove")) {
 					if (args.length == 2) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							for (Region region : regionList) {
-								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-										sender.sendMessage("§7You don't have ownership of this region");
-										return true;
-									}
-									region.delete();
-									regionList.remove(region);
-									sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " removed");
-									return true;
-								}
-							}
-						} else {
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
 							sender.sendMessage("§7No regions with this name exist");
-							return true;
+						} else {
+							if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You don't have ownership of this region");
+							} else {
+								region.delete();
+								Regions.removeRegion(region.getLocationA().getWorld().getName(), region);
+								sender.sendMessage("§7Region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + " removed");
+							}
 						}
+					} else {
+						ChatExtensions.sendCommandHelpMessage(player, "/region remove [regionName]");
 					}
-					ChatExtensions.sendCommandHelpMessage(player, "/region remove [regionName]");
-					return true;
 				} else if (args[0].equalsIgnoreCase("setwelcome")) {
 					if (args.length > 2) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							StringBuilder message = new StringBuilder();
-							for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
-							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-									sender.sendMessage("§7You don't have ownership of this region");
-									return true;
-								}
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
+							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You don't have ownership of this region");
+							} else {
+								StringBuilder message = new StringBuilder();
+								for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
 								region.setWelcomeMessage(toFormattedString(message.toString().trim()));
 								region.saveRegion();
-								break;
+								sender.sendMessage("§7Region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + "'s welcome message set");
 							}
-							sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + "'s welcome message set");
-						} else {
-							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region setWelcome [regionName] [welcomeMessage]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("setleave")) {
 					if (args.length > 2) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							StringBuilder message = new StringBuilder();
-							for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
-							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-									sender.sendMessage("§7You don't have ownership of this region");
-									return true;
-								}
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
+							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You don't have ownership of this region");
+							} else {
+								StringBuilder message = new StringBuilder();
+								for (int i = 2; i < args.length; i++) message.append(args[i] + " ");
 								region.setLeaveMessage(toFormattedString(message.toString().trim()));	
 								region.saveRegion();
-								break;
+								sender.sendMessage("§7Region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + "'s leave message set");
 							}
-							sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + "'s leave message set");
-						} else {
-							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region setLeave [regionName] [leaveMessage]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("allow")) {
 					if (args.length == 3) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
-								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-									sender.sendMessage("§7You don't have ownership of this region");
-									return true;
-								}
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
+							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You don't have ownership of this region");
+							} else {
 								if (isProfileExistant(args[2])) {
 									OfflinePlayer regionPlayer = getServer().getOfflinePlayer(args[2]);
 									region.addAllowedPlayer(regionPlayer.getName());
 									region.saveRegion();
-									sender.sendMessage("§7" + args[2] + "'s allowed permissions for region " + ChatColor.ITALIC + args[1]);
+									sender.sendMessage("§7" + regionPlayer.getName() + "'s allowed permissions for region " + ChatColor.ITALIC + region.getName());
 								} else {
 									sender.sendMessage("§7This player doesn't exist");
 								}
-								break;
 							}
-						} else {
-							sender.sendMessage("§7No regions with this name exist");
-						}
+						}	
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region allow [regionName] [playerName]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("deny")) {
 					if (args.length == 3) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							for (Region region : regionList) {
-								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-										sender.sendMessage("§7You don't have ownership of this region");
-										return true;
-									}
-									if (isProfileExistant(args[2])) {
-										OfflinePlayer regionPlayer = getServer().getOfflinePlayer(args[2]);
-										region.removeAllowedPlayer(regionPlayer.getName());
-										region.saveRegion();
-										sender.sendMessage("§7" + args[2] + "'s permissions removed for region " + ChatColor.ITALIC + args[1]);
-										break;
-									}
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
+							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You don't have ownership of this region");
+							} else {
+								if (isProfileExistant(args[2])) {
+									OfflinePlayer regionPlayer = getServer().getOfflinePlayer(args[2]);
+									region.removeAllowedPlayer(regionPlayer.getName());
+									region.saveRegion();
+									sender.sendMessage("§7" + regionPlayer.getName() + "'s permissions removed for region " + ChatColor.ITALIC + region.getName());
+								} else {
 									sender.sendMessage("§7This player doesn't exist");
-									break;
 								}
 							}
-						} else {
-							sender.sendMessage("§7No regions with this name exist");
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region deny [regionName] [playerName]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("teleport") || args[0].equalsIgnoreCase("tp") || args[0].equalsIgnoreCase("tpa")) {
 					if (args.length == 2) {
-						for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
+							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							//TODO: Regions: Teleport to center of region
 							player.teleport(region.getLocationA());
-							break;
+							sender.sendMessage("§7Teleported to region " + ChatColor.ITALIC + region.getName());
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region tp [regionName]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("setWarp")) {
 					if (args.length == 3) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							for (Region region : regionList) {
-								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-										sender.sendMessage("§7You don't have ownership of this region");
-										return true;
-									} else if (SQL.isKeyExistant(TableType.Warps, args[2].toLowerCase(Locale.UK))) {
-										region.setWarp(args[2].toLowerCase(Locale.UK));	
-										region.saveRegion();
-										sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " warp set");
-										break;
-									} else {
-										sender.sendMessage("§7No warps with this name exist");
-										break;
-									}
-								}
-							}
-						} else {
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
 							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You don't have ownership of this region");
+							//TODO: Regions: Don't use SQL here?
+							} else if (SQL.isKeyExistant(TableType.Warps, args[2].toLowerCase(Locale.UK))) {
+								region.setWarp(args[2].toLowerCase(Locale.UK));	
+								region.saveRegion();
+								sender.sendMessage("§7Region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + " warp set");
+							} else {
+								sender.sendMessage("§7No warps with this name exist");
+							}
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region setWarp [regionName] [warpName]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("removeWarp")) {
 					if (args.length == 2) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							for (Region region : regionList) {
-								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-										sender.sendMessage("§7You don't have ownership of this region");
-										return true;
-									}
-									region.setWarp(null);	
-									region.saveRegion();
-									sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " warp removed");
-									break;
-								}
-							}
-						} else {
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
 							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
+								sender.sendMessage("§7You don't have ownership of this region");
+							} else {
+								region.setWarp(null);	
+								region.saveRegion();
+								sender.sendMessage("§7Region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + " warp removed");
+							}
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region removeWarp [regionName]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("select")) {
 					if (args.length == 2) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''"))) {
-							for (Region region : regionList) {
-								if (region.getRegionName().equalsIgnoreCase(args[1])) {
-									getProfile(sender).actionLocationA = region.getLocationA();
-									getProfile(sender).actionLocationB = region.getLocationB();
-									sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + " boundaries selected");
-									break;
-								}
-							}
-						} else {
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
 							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							getProfile(sender).actionLocationA = region.getLocationA();
+							getProfile(sender).actionLocationB = region.getLocationB();
+							sender.sendMessage("§7Region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + " boundaries selected");
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region select [regionName]");
 					}
-					return true;
 				} else if (args[0].equalsIgnoreCase("inherit")) {
 					if (args.length == 3) {
-						if (SQL.isKeyExistant(TableType.Region, args[1].replaceAll("'", "''")) && SQL.isKeyExistant(TableType.Region, args[2].replaceAll("'", "''"))) {
-							Region regionToInherit = null;
-							for (Region region : regionList) {
-								if (region.getRegionName().equalsIgnoreCase(args[2])) {
-									regionToInherit = region;
-									break;
-								}
-							}
+						Region region = Regions.getRegion(args[1]);
+						if (region == null) {
+							sender.sendMessage("§7No regions with this name exist");
+						} else {
+							Region regionToInherit = Regions.getRegion(args[2]);
 							if (regionToInherit == null) {
 								sender.sendMessage("§7The region to inherit from couldn't be found");
-								return true;
-							}
-							for (Region region : regionList) if (region.getRegionName().equalsIgnoreCase(args[1])) {
+							} else {
 								if (!sender.getName().equals(region.getOwner()) && !getProfile(sender).rank.isHigher(Rank.TYCOON)) {
 									sender.sendMessage("§7You don't have ownership of this region");
-									return true;
+								} else {
+									region.setAllowedPlayers(regionToInherit.getAllowedPlayers());
+									region.setLeaveMessage(regionToInherit.getLeaveMessage());
+									region.setWarp(regionToInherit.getWarp());
+									region.setWelcomeMessage(regionToInherit.getWelcomeMessage());
+									region.saveRegion();
+									sender.sendMessage("§7Region " + ChatColor.ITALIC + region.getName() + ChatColor.GRAY + "'s settings inherited from " + ChatColor.ITALIC + regionToInherit.getName());
 								}
-								region.setAllowedPlayers(regionToInherit.getAllowedPlayers());
-								region.setLeaveMessage(regionToInherit.getLeaveMessage());
-								region.setWarp(regionToInherit.getWarp());
-								region.setWelcomeMessage(regionToInherit.getWelcomeMessage());
-								region.saveRegion();
-								break;
 							}
-							sender.sendMessage("§7Region " + ChatColor.ITALIC + args[1] + ChatColor.GRAY + "'s settings inherited from " + ChatColor.ITALIC + args[2]);
-						} else {
-							sender.sendMessage("§7One of the regions specified doesn't exist");
 						}
 					} else {
 						ChatExtensions.sendCommandHelpMessage(player, "/region inherit [regionName] [regionToInherit]");
 					}
-					return true;
 				}
+			} else {
+				ChatExtensions.sendCommandHelpMessage(player, 
+						Arrays.asList("/region scan",
+								"/region create [regionName]",
+								"/region protect [regionName]",
+								"/region remove [regionName]",
+								"/region select [regionName]",
+								"/region inherit [regionName] [regionToInherit]",
+								"/region setWelcome [regionName] [welcomeMessage]",
+								"/region setLeave [regionName] [leaveMessage]",
+								"/region tp [regionName]",
+								"/region setWarp [regionName] [warpName]",
+								"/region removeWarp [regionName]",
+								"/region allow [regionName] [playerName]",
+								"/region deny [regionName] [playerName]"));
 			}
-			ChatExtensions.sendCommandHelpMessage(player, 
-					Arrays.asList("/region scan",
-							"/region create [regionName]",
-							"/region protect [regionName]",
-							"/region remove [regionName]",
-							"/region select [regionName]",
-							"/region inherit [regionName] [regionToInherit]",
-							"/region setWelcome [regionName] [welcomeMessage]",
-							"/region setLeave [regionName] [leaveMessage]",
-							"/region tp [regionName]",
-							"/region setWarp [regionName] [warpName]",
-							"/region removeWarp [regionName]",
-							"/region allow [regionName] [playerName]",
-							"/region deny [regionName] [playerName]"));
 			return true;
 		}
 		//
@@ -3224,7 +3167,7 @@ public class EvilBook extends JavaPlugin {
 					if (getProfile(sender).rank.isHigher(Rank.ELITE) || getProfile(sender).warps.contains(args[0].toLowerCase(Locale.UK))) {
 						getProfile(sender).warps.remove(args[0].toLowerCase(Locale.UK));
 						SQL.deleteRow(TableType.Warps, args[0].toLowerCase(Locale.UK));
-						for (Region region : regionList) {
+						for (Region region : Regions.getRegions(player.getWorld().getName())) {
 							if (region.getWarp() != null && region.getWarp().equals(args[0].toLowerCase(Locale.UK))) {
 								region.setWarp(null);
 							}
@@ -3590,8 +3533,12 @@ public class EvilBook extends JavaPlugin {
 					destination.setX(Double.valueOf(args[0]));
 					destination.setY(Double.valueOf(args[1]));
 					destination.setZ(Double.valueOf(args[2]));
-					player.teleport(destination);
-					sender.sendMessage("§7Teleported to " + args[0] + ", " + args[1] + ", " + args[2]);
+					if (destination.getBlockX() > 12550820 || destination.getBlockX() < -12550820 || destination.getBlockZ() > 12550820 || destination.getBlockZ() < -12550820) {
+						player.sendMessage("§7The Far Lands are blocked");
+					} else {
+						player.teleport(destination);
+						sender.sendMessage("§7Teleported to " + args[0] + ", " + args[1] + ", " + args[2]);
+					}
 				} else {
 					ChatExtensions.sendCommandHelpMessage(player, "/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]");
 					sender.sendMessage("§7The X, Y and Z values must be numbers");
@@ -3759,118 +3706,6 @@ public class EvilBook extends JavaPlugin {
 			if (profile.rank.isHigher(Rank.POLICE)) Bukkit.getServer().getPlayer(profile.name).sendMessage("§7§O" + alert);
 		}
 		*/
-	}
-
-	/**
-	 * Returns if a location is in a region
-	 * @param region The region to execute the check with
-	 * @param loc The location to execute the check with
-	 * @return If the location is inside the region
-	 */
-	public static Boolean isInRegion(Region region, Location loc) {
-		if (region.getLocationA().getWorld().getName().equals(loc.getWorld().getName()) == false) return false;
-		if (isInRegionXRange(region, loc) && isInRegionYRange(region, loc) && isInRegionZRange(region, loc)) return true;
-		return false;
-	}
-
-	/**
-	 * Returns if the region is protected or not for the player
-	 * @param player The player to execute the check with
-	 * @param loc The location to execute the check with
-	 * @return If the location is in a protected region which the player doesn't have rights to
-	 */
-	public static Boolean isInProtectedRegion(Location loc, Player player) {
-		if (getProfile(player).rank.isAdmin()) return false;
-		for (Region region : regionList) {
-			if (region.isProtected() == false) continue;
-			if (region.getLocationA().getWorld().getName().equals(loc.getWorld().getName()) == false) continue;
-			if (region.getOwner().equals(player.getName()) || region.getAllowedPlayers().contains(player.getName())) continue;
-			if (isInRegionXRange(region, loc)) {
-				if (isInRegionYRange(region, loc)) {
-					if (isInRegionZRange(region, loc)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
-	public static Boolean isInPlotworldRegion(Location loc) {
-		for (Region region : plotRegionList) {
-			if (isInRegionXRange(region, loc)) {
-				if (isInRegionYRange(region, loc)) {
-					if (isInRegionZRange(region, loc)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
-	public static Boolean isInProtectedPlotworldRegion(Location loc, Player player) {
-		if (getProfile(player).rank == Rank.SERVER_HOST) return false;
-		Boolean isProtected = false;
-		for (Region region : plotRegionList) {
-			if (region.isProtected() == false) continue;
-			if (isInRegionXRange(region, loc)) {
-				if (isInRegionYRange(region, loc)) {
-					if (isInRegionZRange(region, loc)) {
-						if (region.getOwner().equals(player.getName()) || region.getAllowedPlayers().contains(player.getName())) {
-							return false;
-						}
-						isProtected = true;
-					}
-				}
-			}
-		}
-		return isProtected;
-	}
-
-	/**
-	 * Returns if the player is in the region's X range or not
-	 * @param region The region to execute the check with
-	 * @param location The location to execute the check with
-	 * @return If the location is in the region's X range
-	 */
-	private static Boolean isInRegionXRange(Region region, Location location) {
-		if (region.getLocationA().getBlockX() <= region.getLocationB().getBlockX()) {
-			if (location.getBlockX() >= region.getLocationA().getBlockX() && location.getBlockX() <= region.getLocationB().getBlockX()) return true;
-		} else if (region.getLocationA().getBlockX() >= region.getLocationB().getBlockX()) {
-			if (location.getBlockX() <= region.getLocationA().getBlockX() && location.getBlockX() >= region.getLocationB().getBlockX()) return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Returns if the player is in the region's Y range or not
-	 * @param region The region to execute the check with
-	 * @param location The location to execute the check with
-	 * @return If the location is in the region's Y range
-	 */
-	private static Boolean isInRegionYRange(Region region, Location playerLocation) {
-		if (region.getLocationA().getBlockY() <= region.getLocationB().getBlockY()) {
-			if (playerLocation.getBlockY() >= region.getLocationA().getBlockY() && playerLocation.getBlockY() <= region.getLocationB().getBlockY()) return true;
-		} else if (region.getLocationA().getBlockY() >= region.getLocationB().getBlockY()) {
-			if (playerLocation.getBlockY() <= region.getLocationA().getBlockY() && playerLocation.getBlockY() >= region.getLocationB().getBlockY()) return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Returns if the player is in the region's Z range or not
-	 * @param region The region to execute the check with
-	 * @param location The location to execute the check with
-	 * @return If the location is in the region's Z range
-	 */
-	private static Boolean isInRegionZRange(Region region, Location playerLocation) {
-		if (region.getLocationA().getBlockZ() <= region.getLocationB().getBlockZ()) {
-			if (playerLocation.getBlockZ() >= region.getLocationA().getBlockZ() && playerLocation.getBlockZ() <= region.getLocationB().getBlockZ()) return true;
-		} else if (region.getLocationA().getBlockZ() >= region.getLocationB().getBlockZ()) {
-			if (playerLocation.getBlockZ() <= region.getLocationA().getBlockZ() && playerLocation.getBlockZ() >= region.getLocationB().getBlockZ()) return true;
-		}
-		return false;
 	}
 
 	/**

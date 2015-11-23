@@ -34,7 +34,7 @@ public class BlockType {
 		return this.data;
 	}
 	
-	//TODO: Update for 1.8
+	//TODO: EvilEdit: Update for 1.8
 	public void setData(String blockData) {
 		if (EvilBook.isByte(blockData)) {
 			this.data = Byte.parseByte(blockData);

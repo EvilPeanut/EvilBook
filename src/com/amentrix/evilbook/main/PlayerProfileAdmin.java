@@ -69,7 +69,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 			//
 			// Home location
 			//
-			//TODO: Improve home_location retrieval
+			//TODO: PlayerProfiles: Improve home_location retrieval
 			if (getProperty(TableType.PlayerLocation, "home_location") != null) {
 				String[] location = getProperty(TableType.PlayerLocation, "home_location").split(">");
 				homeLocation = new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2]));
@@ -77,7 +77,7 @@ public class PlayerProfileAdmin extends PlayerProfile {
 			//
 			// Warp list
 			//
-			//TODO: Remove toLowerCase dependancy
+			//TODO: PlayerProfiles: Remove toLowerCase dependancy
 			if (query.getString("warp_list") != null) {
 				warps.addAll(Arrays.asList(query.getString("warp_list").toLowerCase().split(",")));
 			}

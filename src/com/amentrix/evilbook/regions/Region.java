@@ -1,4 +1,4 @@
-package com.amentrix.evilbook.region;
+package com.amentrix.evilbook.regions;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.StatementSet;
@@ -101,12 +100,12 @@ public class Region {
 	/**
 	 * @return The region nam
 	 */
-	public String getRegionName(){ return this.regionName; }
+	public String getName(){ return this.regionName; }
 	
 	/**
 	 * @param regionName The region name
 	 */
-	public void setRegionName(String regionName) { this.regionName = regionName; }
+	public void setName(String regionName) { this.regionName = regionName; }
 	
 	/**
 	 * @return If protection is enabled

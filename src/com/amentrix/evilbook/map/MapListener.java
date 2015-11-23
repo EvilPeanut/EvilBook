@@ -31,7 +31,7 @@ class MapListener implements Listener {
 				event.getPlayer().sendMap(mapView);
 			}
 		} catch (Exception e) {
-			//TODO: Fix concurrent modification
+			//TODO: Maps: Fix concurrent modification
 		}
 		this.mapModule.plugin.getServer().getScheduler().runTaskAsynchronously(this.mapModule.plugin, new Runnable() {
 			@Override

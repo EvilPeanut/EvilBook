@@ -36,6 +36,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
+import com.amentrix.evilbook.regions.Regions;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
 
 import net.minecraft.server.v1_8_R3.ChatHoverable.EnumHoverAction;
@@ -148,7 +149,7 @@ public class EventListenerEntity implements Listener {
 			if (!EvilBook.getProfile(player).isCanEditWorld(event.getEntity().getWorld())) {
 				player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 				event.setCancelled(true);
-			} else if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), player) == true) {
+			} else if (Regions.isInProtectedRegion(event.getEntity().getLocation(), player) == true) {
 				// Regions
 				player.sendMessage("§cYou don't have permission to build here");
 				event.setCancelled(true);
@@ -164,7 +165,7 @@ public class EventListenerEntity implements Listener {
 		if (!EvilBook.getProfile(event.getPlayer()).isCanEditWorld(event.getBlock().getWorld())) {
 			event.getPlayer().sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 			event.setCancelled(true);
-		} else if (EvilBook.isInProtectedRegion(event.getBlock().getLocation(), event.getPlayer()) == true) {
+		} else if (Regions.isInProtectedRegion(event.getBlock().getLocation(), event.getPlayer()) == true) {
 			// Regions
 			event.getPlayer().sendMessage("§cYou don't have permission to build here");
 			event.setCancelled(true);
@@ -189,7 +190,7 @@ public class EventListenerEntity implements Listener {
 			if (!EvilBook.getProfile(event.getRemover()).isCanEditWorld(event.getEntity().getWorld())) {
 				((Player)event.getRemover()).sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 				event.setCancelled(true);
-			} else if (EvilBook.isInProtectedRegion(event.getEntity().getLocation(), (Player)event.getRemover())) {
+			} else if (Regions.isInProtectedRegion(event.getEntity().getLocation(), (Player)event.getRemover())) {
 				// Regions
 				((Player)event.getRemover()).sendMessage("§cYou don't have permission to build here");
 				event.setCancelled(true);

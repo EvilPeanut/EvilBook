@@ -32,6 +32,7 @@ import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.reference.BlockReference;
+import com.amentrix.evilbook.regions.Regions;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -82,14 +83,14 @@ public class EventListenerBlock implements Listener {
 				player.getWorld().generateTree(block.getRelative(BlockFace.UP).getLocation(), TreeType.TREE);
 			}
 			event.setCancelled(true);
-		} else if (EvilBook.isInProtectedRegion(block.getLocation(), player) == true) {
+		} else if (Regions.isInProtectedRegion(block.getLocation(), player)) {
 			player.sendMessage(ChatColor.RED + "You don't have permission to build here");
 			event.setCancelled(true);
 		} else {
 			if (EvilBook.isInPlotWorld(player)) {
 				// Plotworld plot protection
-				if (EvilBook.isInPlotworldRegion(block.getLocation())) {
-					if (EvilBook.isInProtectedPlotworldRegion(block.getLocation(), player)) {
+				if (Regions.isInPlotworldRegion(block.getLocation())) {
+					if (Regions.isInProtectedPlotworldRegion(block.getLocation(), player)) {
 						player.sendMessage(ChatColor.RED + "You don't have permission to build here");
 						event.setCancelled(true);
 						return;
@@ -166,7 +167,7 @@ public class EventListenerBlock implements Listener {
 			event.setCancelled(true);
 		} else if (event.getBlockAgainst().getState() instanceof Sign) {
 			event.setCancelled(true);
-		} else if (EvilBook.isInProtectedRegion(block.getLocation(), player)) {
+		} else if (Regions.isInProtectedRegion(block.getLocation(), player)) {
 			player.sendMessage(ChatColor.RED + "You don't have permission to build here");
 			event.setCancelled(true);
 		} else {
@@ -194,8 +195,8 @@ public class EventListenerBlock implements Listener {
 			}
 			// Plotworld plot protection
 			if (EvilBook.isInPlotWorld(player)) {
-				if (EvilBook.isInPlotworldRegion(block.getLocation())) {
-					if (EvilBook.isInProtectedPlotworldRegion(block.getLocation(), player)) {
+				if (Regions.isInPlotworldRegion(block.getLocation())) {
+					if (Regions.isInProtectedPlotworldRegion(block.getLocation(), player)) {
 						player.sendMessage(ChatColor.RED + "You don't have permission to build here");
 						event.setCancelled(true);
 						return;

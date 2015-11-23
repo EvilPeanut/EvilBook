@@ -26,6 +26,19 @@ class Scheduler {
 	}
 
 	/**
+	 * Handle SQL batch updates
+	 */
+	void sqlBatchUpdate() {
+		this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new Runnable() {
+			@Override
+			public void run() {
+				//TODO: Handle GlobalStatistic/PlayerStatistic/CommandStatistic here
+				//TODO: Handle this code onDisable aswell
+			}
+		}, 0L, 6000L);
+	}
+	
+	/**
 	 * Autosave the player profiles and display a tip
 	 */
 	void tipsAutosave() {

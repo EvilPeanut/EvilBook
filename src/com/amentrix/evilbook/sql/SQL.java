@@ -195,6 +195,7 @@ public class SQL {
 	// Set Methods
 	//
 	public static void setString(TableType table, String key, String property, String value) {
+		//EvilBook.logInfo("Set " + table.tableName + " " + property + " = " + value);
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("UPDATE " + database + "." + table.tableName + " SET " + property + (value.equals("NULL") ? "=NULL WHERE " : "='" + value + "' WHERE ") + table.keyName + "='" + key + "';");
 		} catch (Exception e) {
@@ -203,6 +204,7 @@ public class SQL {
 	}
 	
 	public static void setInteger(TableType table, String key, String property, int value) {
+		//EvilBook.logInfo("Set " + table.tableName + " " + property + " = " + value);
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("UPDATE " + database + "." + table.tableName + " SET " + property + "=" + value + " WHERE " + table.keyName + "='" + key + "';");
 		} catch (Exception e) {

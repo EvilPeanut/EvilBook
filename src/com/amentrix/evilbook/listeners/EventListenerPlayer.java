@@ -93,7 +93,8 @@ import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.reference.CommandReference;
-import com.amentrix.evilbook.region.Region;
+import com.amentrix.evilbook.regions.Region;
+import com.amentrix.evilbook.regions.Regions;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -196,8 +197,8 @@ public class EventListenerPlayer implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerPortal(PlayerPortalEvent event) {
 		// Regions
-		for (Region region : EvilBook.regionList) {
-			if (EvilBook.isInRegion(region, event.getFrom())) {
+		for (Region region : Regions.getRegions(event.getPlayer().getWorld().getName())) {
+			if (Regions.isInRegion(region, event.getFrom())) {
 				if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
 					event.setCancelled(true);
 					return;
@@ -576,7 +577,7 @@ public class EventListenerPlayer implements Listener {
 					//
 					// Sign editing
 					//
-					if (!EvilBook.isInProtectedRegion(block.getLocation(), player)) {
+					if (!Regions.isInProtectedRegion(block.getLocation(), player)) {
 						try {
 							for (Iterator<DynamicSign> iterator = EvilBook.dynamicSignList.get(sign.getLocation().getWorld()).iterator(); iterator.hasNext();) {
 								DynamicSign dynamicSign = iterator.next();
@@ -649,7 +650,7 @@ public class EventListenerPlayer implements Listener {
 					event.setCancelled(true);
 				} else {
 					// Regions
-					if (EvilBook.isInProtectedRegion(block.getLocation(), player) == true) {
+					if (Regions.isInProtectedRegion(block.getLocation(), player) == true) {
 						if (event.getItem().getType() == Material.INK_SACK) {
 							player.sendMessage("§cYou don't have permission to dye blocks here");
 						} else {
@@ -765,10 +766,14 @@ public class EventListenerPlayer implements Listener {
 	/**
 	 * Called when a player teleports
 	 */
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		Player player = event.getPlayer();
 		EvilBook.getProfile(player).lastLocation = event.getFrom();
+		//
+		// Handle private world permissions
+		//
+		long startTime = System.currentTimeMillis();
 		for (String world : EvilBook.paidWorldList) {
 			if (event.getTo().getWorld().getName().toLowerCase().endsWith(world.toLowerCase())) {
 				if (!EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON) && !EvilBook.getPrivateWorldProperty(event.getTo().getWorld().getName().split("plugins/EvilBook/Private worlds/")[1], "AllowedPlayers").contains(player.getName().toLowerCase())) {
@@ -778,29 +783,42 @@ public class EventListenerPlayer implements Listener {
 				}
 			}
 		}
-		if (event.getTo().getBlockX() > 12550820 || event.getTo().getBlockX() < -12550820 || event.getTo().getBlockZ() > 12550820 || event.getTo().getBlockZ() < -12550820) {
-			player.sendMessage("§7The Far Lands are blocked");
-			event.setCancelled(true);
-		} else {
-			if (event.getTo().getWorld() != event.getFrom().getWorld() && !event.getFrom().getWorld().getName().equals("SurvivalLandTheEnd") && !event.getFrom().getWorld().getName().equals("SurvivalLandNether") && !event.getFrom().getWorld().getName().equals("Amentrix_nether") && !event.getFrom().getWorld().getName().equals("Amentrix_the_end")) EvilBook.getProfile(player.getName()).setWorldLastPosition(event.getFrom());
-			// Teleport particle effect
-			if (!EvilBook.getProfile(player).isInvisible && ((event.getTo().getWorld() == event.getFrom().getWorld() && event.getFrom().distance(event.getTo()) > 2)) || event.getTo().getWorld() != event.getFrom().getWorld()) {
-				event.getFrom().getWorld().playEffect(event.getFrom(), Effect.SMOKE, 0);
-				event.getTo().getWorld().playEffect(event.getTo(), Effect.ENDER_SIGNAL, 0);
-			}
-			// Regions
-			for (Region region : EvilBook.regionList) {
-				if (region.getLeaveMessage() != null && EvilBook.isInRegion(region, event.getFrom()) && EvilBook.isInRegion(region, event.getTo()) == false) {
-					event.getPlayer().sendMessage(region.getLeaveMessage());
-				} else if (EvilBook.isInRegion(region, event.getTo())) {
-					if (region.getWelcomeMessage() != null && EvilBook.isInRegion(region, event.getFrom()) == false) event.getPlayer().sendMessage(region.getWelcomeMessage());
-					if (SQL.getWarp(region.getWarp()) != null) {
-						event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
-						break;
-					}
+		long endTime = System.currentTimeMillis();
+		EvilBook.logInfo("Handle private world permissions: " + (endTime - startTime) + "ms");
+		//
+		// Set last world position
+		//
+		startTime = System.currentTimeMillis();
+		if (event.getTo().getWorld() != event.getFrom().getWorld() && !event.getFrom().getWorld().getName().equals("SurvivalLandTheEnd") && !event.getFrom().getWorld().getName().equals("SurvivalLandNether") && !event.getFrom().getWorld().getName().equals("Amentrix_nether") && !event.getFrom().getWorld().getName().equals("Amentrix_the_end")) EvilBook.getProfile(player.getName()).setWorldLastPosition(event.getFrom());
+		endTime = System.currentTimeMillis();
+		EvilBook.logInfo("Set last world position: " + (endTime - startTime) + "ms");
+		//
+		// Teleport particle effect
+		//
+		startTime = System.currentTimeMillis();
+		if (!EvilBook.getProfile(player).isInvisible && ((event.getTo().getWorld() == event.getFrom().getWorld() && event.getFrom().distance(event.getTo()) > 2)) || event.getTo().getWorld() != event.getFrom().getWorld()) {
+			event.getFrom().getWorld().playEffect(event.getFrom(), Effect.SMOKE, 0);
+			event.getTo().getWorld().playEffect(event.getTo(), Effect.ENDER_SIGNAL, 0);
+		}
+		endTime = System.currentTimeMillis();
+		EvilBook.logInfo("Teleport particle effect: " + (endTime - startTime) + "ms");
+		//
+		// Regions
+		//
+		startTime = System.currentTimeMillis();
+		for (Region region : Regions.getRegions(player.getWorld().getName())) {
+			if (region.getLeaveMessage() != null && Regions.isInRegion(region, event.getFrom()) && Regions.isInRegion(region, event.getTo()) == false) {
+				event.getPlayer().sendMessage(region.getLeaveMessage());
+			} else if (Regions.isInRegion(region, event.getTo())) {
+				if (region.getWelcomeMessage() != null && Regions.isInRegion(region, event.getFrom()) == false) event.getPlayer().sendMessage(region.getWelcomeMessage());
+				if (SQL.getWarp(region.getWarp()) != null) {
+					event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
+					break;
 				}
 			}
 		}
+		endTime = System.currentTimeMillis();
+		EvilBook.logInfo("Regions: " + (endTime - startTime) + "ms");
 	}
 
 	/**

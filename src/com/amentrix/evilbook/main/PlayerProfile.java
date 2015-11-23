@@ -49,7 +49,7 @@ public abstract class PlayerProfile {
 	public Location actionLocationA, actionLocationB;
 	private EvilBook plugin;
 	public String UUID;
-	//TODO: Make all minigames extend minigame base class (Liked PlayerProfile is extended)
+	//TODO: PlayerProfiles: Make all minigames extend minigame base class (Liked PlayerProfile is extended)
 	public TowerDefenseMinigame towerDefenseMinigame = null;
 	
 	PlayerProfile(EvilBook plugin) {
@@ -139,10 +139,12 @@ public abstract class PlayerProfile {
 		if (!hasAchievement(achievement)) {
 			this.achievements.add(achievement);
 			if (achievement != Achievement.GLOBAL_COMMAND_DONATE) {
+				//TODO: PlayerProfiles: Add hover message
 				getPlayer().sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
 				if (achievement.getReward() != null) getPlayer().sendMessage(ChatColor.GRAY + "You have unlocked the " + achievement.getReward());
 			}
 			for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+				//TODO: PlayerProfiles: Add hover message
 				if (!player.getName().equals(this.name)) player.sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " " + this.name + " got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
 				player.playSound(getPlayer().getLocation(), Sound.FIREWORK_TWINKLE, 99.0F, 1.0F);
 			}
@@ -181,7 +183,7 @@ public abstract class PlayerProfile {
 	 * @param property The property to get
 	 * @return The value of the property
 	 */
-	//TODO: Remove
+	//TODO: PlayerProfiles/SQL: Remove
 	String getProperty(String property) {
 		String value = SQL.getString(TableType.PlayerProfile, name, property);
 		if (value == null) {
@@ -195,7 +197,7 @@ public abstract class PlayerProfile {
 	 * @param property The property to get
 	 * @return The value of the property
 	 */
-	//TODO: Remove
+	//TODO: PlayerProfiles/SQL: Remove
 	String getProperty(TableType tableType, String property) {
 		String value = SQL.getString(tableType, name, property);
 		if (value == null) {
@@ -210,7 +212,7 @@ public abstract class PlayerProfile {
 	 * @param location Their location in the world
 	 */
 	public void setWorldLastPosition(Location location) {
-		//TODO: Change to SQL.setLocation()
+		//TODO: PlayerProfiles/SQL: Change to SQL.setLocation()
 		String worldName = location.getWorld().getName();
 		if (!worldName.contains("SkyBlock/")) {
 			if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
@@ -223,7 +225,7 @@ public abstract class PlayerProfile {
 	 * @param world The world to get their last location in
 	 */
 	Location getWorldLastPosition(String world) {
-		//TODO: Change to SQL.getLocation()
+		//TODO: PlayerProfiles/SQL: Change to SQL.getLocation()
 		String worldName = world;
 		if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
 		String result = SQL.getString(TableType.PlayerLocation, this.name, worldName);

@@ -37,7 +37,7 @@ public class CraftEvilEditEngine implements EvilEditEngine {
 		return this.blocksModified;
 	}
 	
-	//TODO: Re-add support
+	//TODO: EvilEdit: Re-add support
 	/*
 	// Dynamic signs
 	if (location.getBlock().getType() == Material.SIGN_POST || location.getBlock().getType() == Material.WALL_SIGN) {

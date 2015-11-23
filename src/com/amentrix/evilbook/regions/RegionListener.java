@@ -1,4 +1,4 @@
-package com.amentrix.evilbook.region;
+package com.amentrix.evilbook.regions;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -27,9 +27,10 @@ public class RegionListener implements Listener {
 	 * Called when a player joins the server after login
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
+	//TODO: Regions: is onPlayerTeleport called when the player joins? If so... why run this code twice?
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		for (Region region : EvilBook.regionList) {
-			if (EvilBook.isInRegion(region, event.getPlayer().getLocation())) {
+		for (Region region : Regions.getRegions(event.getPlayer().getWorld().getName())) {
+			if (Regions.isInRegion(region, event.getPlayer().getLocation())) {
 				if (region.getWelcomeMessage() != null) event.getPlayer().sendMessage(region.getWelcomeMessage());
 				if (region.getWarp() != null) {
 					event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
@@ -51,11 +52,11 @@ public class RegionListener implements Listener {
 			@Override
 			public void run() {
 				try {
-					for (Region region : EvilBook.regionList) {
-						if (region.getLeaveMessage() != null && EvilBook.isInRegion(region, from) && EvilBook.isInRegion(region, to) == false) {
+					for (Region region : Regions.getRegions(player.getWorld().getName())) {
+						if (region.getLeaveMessage() != null && Regions.isInRegion(region, from) && Regions.isInRegion(region, to) == false) {
 							player.sendMessage(region.getLeaveMessage());
-						} else if (EvilBook.isInRegion(region, to)) {
-							if (region.getWelcomeMessage() != null && EvilBook.isInRegion(region, from) == false) player.sendMessage(region.getWelcomeMessage());
+						} else if (Regions.isInRegion(region, to)) {
+							if (region.getWelcomeMessage() != null && Regions.isInRegion(region, from) == false) player.sendMessage(region.getWelcomeMessage());
 							if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
 								player.teleport(SQL.getWarp(region.getWarp()));
 								break;
@@ -63,6 +64,7 @@ public class RegionListener implements Listener {
 						}
 					}
 				} catch (Exception e) {
+					//TODO: Regions: Test this and try to remove try/catch
 					//Ignore rare async entity world add - WARNING: May be cause of crashes if thrown in large quantity
 				}
 			}
@@ -74,8 +76,8 @@ public class RegionListener implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		for (Region region : EvilBook.regionList) {
-			if (EvilBook.isInRegion(region, event.getRespawnLocation())) {
+		for (Region region : Regions.getRegions(event.getPlayer().getWorld().getName())) {
+			if (Regions.isInRegion(region, event.getRespawnLocation())) {
 				if (region.getWelcomeMessage() != null) event.getPlayer().sendMessage(region.getWelcomeMessage());
 				if (region.getWarp() != null && SQL.getWarp(region.getWarp()) != null) {
 					event.getPlayer().teleport(SQL.getWarp(region.getWarp()));
