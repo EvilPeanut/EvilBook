@@ -773,7 +773,6 @@ public class EventListenerPlayer implements Listener {
 		//
 		// Handle private world permissions
 		//
-		long startTime = System.currentTimeMillis();
 		for (String world : EvilBook.paidWorldList) {
 			if (event.getTo().getWorld().getName().toLowerCase().endsWith(world.toLowerCase())) {
 				if (!EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON) && !EvilBook.getPrivateWorldProperty(event.getTo().getWorld().getName().split("plugins/EvilBook/Private worlds/")[1], "AllowedPlayers").contains(player.getName().toLowerCase())) {
@@ -783,29 +782,20 @@ public class EventListenerPlayer implements Listener {
 				}
 			}
 		}
-		long endTime = System.currentTimeMillis();
-		EvilBook.logInfo("Handle private world permissions: " + (endTime - startTime) + "ms");
 		//
 		// Set last world position
 		//
-		startTime = System.currentTimeMillis();
 		if (event.getTo().getWorld() != event.getFrom().getWorld() && !event.getFrom().getWorld().getName().equals("SurvivalLandTheEnd") && !event.getFrom().getWorld().getName().equals("SurvivalLandNether") && !event.getFrom().getWorld().getName().equals("Amentrix_nether") && !event.getFrom().getWorld().getName().equals("Amentrix_the_end")) EvilBook.getProfile(player.getName()).setWorldLastPosition(event.getFrom());
-		endTime = System.currentTimeMillis();
-		EvilBook.logInfo("Set last world position: " + (endTime - startTime) + "ms");
 		//
 		// Teleport particle effect
 		//
-		startTime = System.currentTimeMillis();
 		if (!EvilBook.getProfile(player).isInvisible && ((event.getTo().getWorld() == event.getFrom().getWorld() && event.getFrom().distance(event.getTo()) > 2)) || event.getTo().getWorld() != event.getFrom().getWorld()) {
 			event.getFrom().getWorld().playEffect(event.getFrom(), Effect.SMOKE, 0);
 			event.getTo().getWorld().playEffect(event.getTo(), Effect.ENDER_SIGNAL, 0);
 		}
-		endTime = System.currentTimeMillis();
-		EvilBook.logInfo("Teleport particle effect: " + (endTime - startTime) + "ms");
 		//
 		// Regions
 		//
-		startTime = System.currentTimeMillis();
 		for (Region region : Regions.getRegions(player.getWorld().getName())) {
 			if (region.getLeaveMessage() != null && Regions.isInRegion(region, event.getFrom()) && Regions.isInRegion(region, event.getTo()) == false) {
 				event.getPlayer().sendMessage(region.getLeaveMessage());
@@ -817,8 +807,6 @@ public class EventListenerPlayer implements Listener {
 				}
 			}
 		}
-		endTime = System.currentTimeMillis();
-		EvilBook.logInfo("Regions: " + (endTime - startTime) + "ms");
 	}
 
 	/**
