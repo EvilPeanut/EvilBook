@@ -80,62 +80,11 @@ public class Regions {
 		return isProtected;
 	}
 	
-	//TODO: Regions: Calculate locationA and locationB on region constructor to avoid un-needed if statements
 	public static Boolean isInRegion(Region region, Location location) {
-		if (region.getLocationA().getBlockX() <= region.getLocationB().getBlockX()) {
-			if (location.getBlockX() >= region.getLocationA().getBlockX() && location.getBlockX() <= region.getLocationB().getBlockX()) {
-				if (region.getLocationA().getBlockY() <= region.getLocationB().getBlockY()) {
-					if (location.getBlockY() >= region.getLocationA().getBlockY() && location.getBlockY() <= region.getLocationB().getBlockY()) {
-						if (region.getLocationA().getBlockZ() <= region.getLocationB().getBlockZ()) {
-							if (location.getBlockZ() >= region.getLocationA().getBlockZ() && location.getBlockZ() <= region.getLocationB().getBlockZ()) {
-								return true;
-							}
-						} else if (region.getLocationA().getBlockZ() >= region.getLocationB().getBlockZ()) {
-							if (location.getBlockZ() <= region.getLocationA().getBlockZ() && location.getBlockZ() >= region.getLocationB().getBlockZ()) {
-								return true;
-							}
-						}
-					}
-				} else if (region.getLocationA().getBlockY() >= region.getLocationB().getBlockY()) {
-					if (location.getBlockY() <= region.getLocationA().getBlockY() && location.getBlockY() >= region.getLocationB().getBlockY()) {
-						if (region.getLocationA().getBlockZ() <= region.getLocationB().getBlockZ()) {
-							if (location.getBlockZ() >= region.getLocationA().getBlockZ() && location.getBlockZ() <= region.getLocationB().getBlockZ()) {
-								return true;
-							}
-						} else if (region.getLocationA().getBlockZ() >= region.getLocationB().getBlockZ()) {
-							if (location.getBlockZ() <= region.getLocationA().getBlockZ() && location.getBlockZ() >= region.getLocationB().getBlockZ()) {
-								return true;
-							}
-						}
-					}
-				}
-			}
-		} else if (region.getLocationA().getBlockX() >= region.getLocationB().getBlockX()) {
-			if (location.getBlockX() <= region.getLocationA().getBlockX() && location.getBlockX() >= region.getLocationB().getBlockX()) {
-				if (region.getLocationA().getBlockY() <= region.getLocationB().getBlockY()) {
-					if (location.getBlockY() >= region.getLocationA().getBlockY() && location.getBlockY() <= region.getLocationB().getBlockY()) {
-						if (region.getLocationA().getBlockZ() <= region.getLocationB().getBlockZ()) {
-							if (location.getBlockZ() >= region.getLocationA().getBlockZ() && location.getBlockZ() <= region.getLocationB().getBlockZ()) {
-								return true;
-							}
-						} else if (region.getLocationA().getBlockZ() >= region.getLocationB().getBlockZ()) {
-							if (location.getBlockZ() <= region.getLocationA().getBlockZ() && location.getBlockZ() >= region.getLocationB().getBlockZ()) {
-								return true;
-							}
-						}
-					}
-				} else if (region.getLocationA().getBlockY() >= region.getLocationB().getBlockY()) {
-					if (location.getBlockY() <= region.getLocationA().getBlockY() && location.getBlockY() >= region.getLocationB().getBlockY()) {
-						if (region.getLocationA().getBlockZ() <= region.getLocationB().getBlockZ()) {
-							if (location.getBlockZ() >= region.getLocationA().getBlockZ() && location.getBlockZ() <= region.getLocationB().getBlockZ()) {
-								return true;
-							}
-						} else if (region.getLocationA().getBlockZ() >= region.getLocationB().getBlockZ()) {
-							if (location.getBlockZ() <= region.getLocationA().getBlockZ() && location.getBlockZ() >= region.getLocationB().getBlockZ()) {
-								return true;
-							}
-						}
-					}
+		if (location.getBlockX() >= region.getLocationA().getBlockX() && location.getBlockX() <= region.getLocationB().getBlockX()) {
+			if (location.getBlockY() >= region.getLocationA().getBlockY() && location.getBlockY() <= region.getLocationB().getBlockY()) {
+				if (location.getBlockZ() >= region.getLocationA().getBlockZ() && location.getBlockZ() <= region.getLocationB().getBlockZ()) {
+					return true;
 				}
 			}
 		}

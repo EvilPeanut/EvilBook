@@ -153,6 +153,7 @@ public class Region {
 		this.regionName = regionName;
 		this.locationA = locationA;
 		this.locationB = locationB;
+		optimizeLocations();
 		this.isProtected = isProtected;
 		this.ownerName = ownerName;
 		if (welcomeMessage != null) this.welcomeMessage = EvilBook.toFormattedString(welcomeMessage);
@@ -166,6 +167,7 @@ public class Region {
 			this.regionName = rs.getString("region_name");
 			this.locationA = new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x1"), rs.getInt("y1"), rs.getInt("z1"));
 			this.locationB = new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x2"), rs.getInt("y2"), rs.getInt("z2"));
+			optimizeLocations();
 			this.isProtected = rs.getBoolean("protected");
 			this.ownerName = rs.getString("player_name");
 			this.welcomeMessage = rs.getString("welcome_message");
@@ -175,6 +177,33 @@ public class Region {
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
+	}
+	
+	private void optimizeLocations() {
+		int minX, minY, minZ, maxX, maxY, maxZ;
+		if (locationA.getBlockX() <= locationB.getBlockX()) {
+			minX = locationA.getBlockX();
+			maxX = locationB.getBlockX();
+		} else {
+			minX = locationB.getBlockX();
+			maxX = locationA.getBlockX();
+		}
+		if (locationA.getBlockY() <= locationB.getBlockY()) {
+			minY = locationA.getBlockY();
+			maxY = locationB.getBlockY();
+		} else {
+			minY = locationB.getBlockY();
+			maxY = locationA.getBlockY();
+		}
+		if (locationA.getBlockZ() <= locationB.getBlockZ()) {
+			minZ = locationA.getBlockZ();
+			maxZ = locationB.getBlockZ();
+		} else {
+			minZ = locationB.getBlockZ();
+			maxZ = locationA.getBlockZ();
+		}
+		locationA = new Location(locationA.getWorld(), minX, minY, minZ);
+		locationB = new Location(locationB.getWorld(), maxX, maxY, maxZ);
 	}
 	
 	public void delete() {
