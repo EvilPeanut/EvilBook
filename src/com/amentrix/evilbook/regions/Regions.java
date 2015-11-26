@@ -62,19 +62,17 @@ public class Regions {
 		return false;
 	}
 	
-	//TODO: Regions: Why isProtected? Shouldn't it just return true???
 	public static Boolean isInProtectedPlotworldRegion(Location location, Player player) {
 		if (EvilBook.getProfile(player).rank == Rank.SERVER_HOST) return false;
-		Boolean isProtected = false;
 		for (Region region : EvilBook.plotRegionList) {
 			if (isInRegion(region, location)) {
 				if (region.getOwner().equals(player.getName()) || region.getAllowedPlayers().contains(player.getName())) {
 					return false;
 				}
-				isProtected = true;
+				return true;
 			}
 		}
-		return isProtected;
+		return false;
 	}
 	
 	public static Boolean isInRegion(Region region, Location location) {
