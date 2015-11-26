@@ -401,10 +401,6 @@ public class EvilBook extends JavaPlugin {
 	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-		// TODO: Add message to player showing unlocks on rankup
-		// TODO: Add questing system, mobs that talk and give quests, sendBlockChange to show route of quest by a line of wool, mabey an adventure questing world?
-		// TODO: Add ability to use EvilEdit in survival if the player has the needed blocks
-		// TODO: Add rotate command to rotate an area of blocks / copied blocks for evil edit
 		//
 		// Command block command handling
 		//
@@ -3041,7 +3037,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7Please set a home first using /sethome");
 				}
 			} else {
-				//TODO: Change to SQL.getLocation()
+				//TODO: SQL: Change to SQL.getLocation()
 				if (SQL.getString(TableType.PlayerLocation, args[0], "home_location") != null) {
 					String[] location = SQL.getString(TableType.PlayerLocation, args[0], "home_location").split(">");
 					player.teleport(new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2])));

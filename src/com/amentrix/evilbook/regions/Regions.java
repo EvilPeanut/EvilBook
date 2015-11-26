@@ -13,7 +13,6 @@ import com.amentrix.evilbook.main.Rank;
 public class Regions {
 	//Key: World name TODO: Regions: Change to World UUID
 	//Value: List of regions
-	//TODO: Regions: Load world names and new arraylist instances into map onEnable then add regions
 	private static final Map<String, ArrayList<Region>> regionList = new HashMap();
 	
 	public static void initWorld(String worldName) {

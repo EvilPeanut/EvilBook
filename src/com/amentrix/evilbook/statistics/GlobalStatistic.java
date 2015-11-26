@@ -27,7 +27,7 @@ public enum GlobalStatistic {
 	}
 	
 	public static String getStatistic(GlobalStatistic statistic) {
-		//TODO: Change to SQL.getInteger()
+		//TODO: SQL: Change to SQL.getInteger()
 		String value = SQL.getString(TableType.Statistics, new SimpleDateFormat("yyyy-MM-dd").format(new Date()), statistic.columnName);
 		if (value == null) {
 			try {

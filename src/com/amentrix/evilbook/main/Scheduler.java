@@ -32,8 +32,8 @@ class Scheduler {
 		this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new Runnable() {
 			@Override
 			public void run() {
-				//TODO: Handle GlobalStatistic/PlayerStatistic/CommandStatistic here
-				//TODO: Handle this code onDisable aswell
+				//TODO: Statistics: Handle GlobalStatistic/PlayerStatistic/CommandStatistic here
+				//TODO: Statistics: Handle this code onDisable aswell
 			}
 		}, 0L, 6000L);
 	}

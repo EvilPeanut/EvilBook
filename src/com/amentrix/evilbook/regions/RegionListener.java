@@ -27,7 +27,6 @@ public class RegionListener implements Listener {
 	 * Called when a player joins the server after login
 	 */
 	@EventHandler(priority = EventPriority.HIGH)
-	//TODO: Regions: is onPlayerTeleport called when the player joins? If so... why run this code twice?
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		for (Region region : Regions.getRegions(event.getPlayer().getWorld().getName())) {
 			if (Regions.isInRegion(region, event.getPlayer().getLocation())) {

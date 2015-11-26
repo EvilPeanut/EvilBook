@@ -22,7 +22,7 @@ import com.amentrix.evilbook.main.Rank;
  * @author Reece Aaron Lecrivain
  */
 public class SQL {
-	//TODO: Add 'owner_name' column to warps table and remove player profiles 'warps' property
+	//TODO: SQL: Add 'owner_name' column to warps table and remove player profiles 'warps' property
 	public static Connection connection;
 	public static String database;
 
@@ -365,7 +365,7 @@ public class SQL {
 	}
 
 	public static Location getWarp(String name) {
-		//TODO: Change to SQL.getLocation()
+		//TODO: SQL: Change to SQL.getLocation()
 		try {
 			if (!isKeyExistant(TableType.Warps, name)) return null;
 			String rawWarp = getString(TableType.Warps, name, "Location");
