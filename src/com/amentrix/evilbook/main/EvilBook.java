@@ -3148,6 +3148,7 @@ public class EvilBook extends JavaPlugin {
 				String playerWarps = SQL.getString(TableType.PlayerProfile, args[1], "warp_list");
 				if (playerWarps != null) {
 					List<String> warps = Arrays.asList(playerWarps.split(","));
+					//TODO: ChatExtensions on each effect listed
 					sender.sendMessage("§5" + args[1] + "'s warps");
 					sender.sendMessage("§d" + warps.toString().substring(1).substring(0, warps.toString().length() - 2));
 				} else {

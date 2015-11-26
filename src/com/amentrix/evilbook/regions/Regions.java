@@ -27,7 +27,6 @@ public class Regions {
 	public static Region getRegion(String regionName) {
 		for (ArrayList<Region> regions : regionList.values()) {
 			for (Region region : regions) {
-				//TODO: equalsIgnoreCase?
 				if (region.getName().equalsIgnoreCase(regionName)) return region;
 			}
 		}
@@ -63,13 +62,11 @@ public class Regions {
 		return false;
 	}
 	
-	//TODO: Regions: Aren't all plotworld regions protected???
 	//TODO: Regions: Why isProtected? Shouldn't it just return true???
 	public static Boolean isInProtectedPlotworldRegion(Location location, Player player) {
 		if (EvilBook.getProfile(player).rank == Rank.SERVER_HOST) return false;
 		Boolean isProtected = false;
 		for (Region region : EvilBook.plotRegionList) {
-			if (region.isProtected() == false) continue;
 			if (isInRegion(region, location)) {
 				if (region.getOwner().equals(player.getName()) || region.getAllowedPlayers().contains(player.getName())) {
 					return false;
