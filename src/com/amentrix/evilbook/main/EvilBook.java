@@ -2722,8 +2722,10 @@ public class EvilBook extends JavaPlugin {
 						if (region == null) {
 							sender.sendMessage("§7No regions with this name exist");
 						} else {
-							//TODO: Regions: Teleport to center of region
-							player.teleport(region.getLocationA());
+							double x = (region.getLocationA().getX() + region.getLocationB().getX()) / 2;
+							double y = (region.getLocationA().getY() + region.getLocationB().getY()) / 2;
+							double z = (region.getLocationA().getZ() + region.getLocationB().getZ()) / 2;
+							player.teleport(new Location(region.getLocationA().getWorld(), x, y, z));
 							sender.sendMessage("§7Teleported to region " + ChatColor.ITALIC + region.getName());
 						}
 					} else {
