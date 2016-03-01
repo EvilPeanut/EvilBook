@@ -32,7 +32,7 @@ class SkylandFlowerPopulator extends BlockPopulator {
 							if (this.random.nextInt(100) < 7){
 								block.setType((this.random.nextInt(100) < 75) ? Material.YELLOW_FLOWER : Material.RED_ROSE);
 							}
-						} else if (biome != Biome.DESERT && biome != Biome.TAIGA && biome != Biome.TAIGA_HILLS && biome != Biome.ICE_PLAINS && biome != Biome.ICE_MOUNTAINS && biome != Biome.FROZEN_RIVER && biome != Biome.FROZEN_OCEAN) {
+						} else if (biome != Biome.DESERT && biome != Biome.TAIGA && biome != Biome.TAIGA_HILLS && biome != Biome.ICE_FLATS && biome != Biome.ICE_MOUNTAINS && biome != Biome.FROZEN_RIVER && biome != Biome.FROZEN_OCEAN) {
 							if (this.random.nextInt(100) < 2){
 								block.setType((this.random.nextInt(100) < 75) ? Material.YELLOW_FLOWER : Material.RED_ROSE);
 							}

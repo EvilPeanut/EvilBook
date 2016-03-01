@@ -219,8 +219,8 @@ public class SkylandGenerator extends org.bukkit.generator.ChunkGenerator {
 					b2 = (byte) Material.DIRT.getId();
 
 					if (biome == Biome.SWAMPLAND){
-						biomes.setBiome(x, z, Biome.ICE_PLAINS);
-					}else if (biome == Biome.MUSHROOM_ISLAND || biome == Biome.MUSHROOM_SHORE){
+						biomes.setBiome(x, z, Biome.ICE_FLATS);
+					}else if (biome == Biome.MUSHROOM_ISLAND || biome == Biome.MUSHROOM_ISLAND_SHORE){
 						biomes.setBiome(x, z, Biome.FOREST);
 					}
 				}

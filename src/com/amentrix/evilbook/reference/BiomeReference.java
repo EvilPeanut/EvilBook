@@ -27,10 +27,10 @@ public class BiomeReference {
 		biomeList.put(Biome.SKY, Arrays.asList("Sky"));
 		biomeList.put(Biome.FROZEN_OCEAN, Arrays.asList("Frozen Ocean", "FrozenOcean", "FrozenSea"));
 		biomeList.put(Biome.FROZEN_RIVER, Arrays.asList("Frozen River", "FrozenRiver"));
-		biomeList.put(Biome.ICE_PLAINS, Arrays.asList("Ice Plains", "IcePlains", "IcePlain"));
+		biomeList.put(Biome.ICE_FLATS, Arrays.asList("Ice Plains", "IcePlains", "IcePlain"));
 		biomeList.put(Biome.ICE_MOUNTAINS, Arrays.asList("Ice Mountains", "IceMountains", "IceMountain"));
 		biomeList.put(Biome.MUSHROOM_ISLAND, Arrays.asList("Mushroom Island", "MushroomIsland", "Mushroom"));
-		biomeList.put(Biome.BEACH, Arrays.asList("Beach"));
+		biomeList.put(Biome.BEACHES, Arrays.asList("Beach"));
 		biomeList.put(Biome.JUNGLE, Arrays.asList("Jungle"));
 		biomeList.put(Biome.SAVANNA, Arrays.asList("Savanna"));
 		biomeList.put(Biome.MESA, Arrays.asList("MESA"));

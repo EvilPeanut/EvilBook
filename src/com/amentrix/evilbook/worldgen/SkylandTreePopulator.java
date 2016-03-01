@@ -44,7 +44,7 @@ class SkylandTreePopulator extends BlockPopulator {
 					biome = world.getBiome(worldChunkX + x, worldChunkZ + z);
 
 					if (ground.getType() == Material.GRASS){
-						if (biome == Biome.PLAINS || biome == Biome.ICE_PLAINS){
+						if (biome == Biome.PLAINS || biome == Biome.ICE_FLATS){
 							if (this.random.nextInt(1000) < 5){
 								world.generateTree(block.getLocation(), TreeType.TREE);
 							}

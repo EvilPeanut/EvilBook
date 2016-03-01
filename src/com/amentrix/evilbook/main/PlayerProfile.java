@@ -146,7 +146,7 @@ public abstract class PlayerProfile {
 			for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 				//TODO: PlayerProfiles: Add hover message
 				if (!player.getName().equals(this.name)) player.sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " " + this.name + " got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
-				player.playSound(getPlayer().getLocation(), Sound.FIREWORK_TWINKLE, 99.0F, 1.0F);
+				player.playSound(getPlayer().getLocation(), Sound.ENTITY_FIREWORK_TWINKLE, 99.0F, 1.0F);
 			}
 		}
 	}

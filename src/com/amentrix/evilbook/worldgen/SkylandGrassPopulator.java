@@ -45,7 +45,7 @@ class SkylandGrassPopulator extends BlockPopulator {
 								block.setType(Material.LONG_GRASS);
 								block.setData((byte) 0x2);
 							}
-						} else if (biome == Biome.TAIGA || biome == Biome.TAIGA_HILLS || biome == Biome.ICE_PLAINS || biome == Biome.ICE_MOUNTAINS || biome == Biome.FROZEN_RIVER || biome == Biome.FROZEN_OCEAN) {
+						} else if (biome == Biome.TAIGA || biome == Biome.TAIGA_HILLS || biome == Biome.ICE_FLATS || biome == Biome.ICE_MOUNTAINS || biome == Biome.FROZEN_RIVER || biome == Biome.FROZEN_OCEAN) {
 							if (this.random.nextInt(100) < 1) {
 								block.setType(Material.LONG_GRASS);
 								block.setData((byte) 0x1);

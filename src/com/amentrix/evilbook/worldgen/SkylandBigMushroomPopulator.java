@@ -14,7 +14,7 @@ class SkylandBigMushroomPopulator extends BlockPopulator
         int par3 = chunk.getX() * 16;
         int par5 = chunk.getZ() * 16;
         int par4 = world.getHighestBlockYAt(par3, par5);
-    	if (chunk.getBlock(par3, par4, par5).getBiome() != Biome.MUSHROOM_ISLAND && chunk.getBlock(par3, par4, par5).getBiome() != Biome.MUSHROOM_SHORE) return;
+    	if (chunk.getBlock(par3, par4, par5).getBiome() != Biome.MUSHROOM_ISLAND && chunk.getBlock(par3, par4, par5).getBiome() != Biome.MUSHROOM_ISLAND_SHORE) return;
     	
     	Random par2Random = new Random();
     	int var6 = par2Random.nextInt(2);
