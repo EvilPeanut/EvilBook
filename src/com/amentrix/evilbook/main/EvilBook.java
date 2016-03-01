@@ -57,8 +57,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
-import org.dynmap.DynmapAPI;
-import org.dynmap.markers.MarkerAPI;
 
 import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.dynmap.PlayerHomeMarkers;
@@ -91,7 +89,7 @@ import com.amentrix.evilbook.worldgen.SkylandGenerator;
 
 import de.diddiz.LogBlock.Consumer;
 import de.diddiz.LogBlock.LogBlock;
-import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
+import net.minecraft.server.v1_9_R1.ChatClickable.EnumClickAction;
 
 /**
  * EvilBook core class
@@ -114,8 +112,8 @@ public class EvilBook extends JavaPlugin {
 	// Log block API
 	public static Consumer lbConsumer = null;
 	// Dynmap API
-	private static DynmapAPI dynmapAPI;
-	public static MarkerAPI markerAPI;
+	//private static DynmapAPI dynmapAPI;
+	//public static MarkerAPI markerAPI;
 	// Maps Module
 	private Maps maps;
 	// Config
@@ -359,6 +357,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Dynmap Integration
 		//
+		/*
 		final Plugin dynmapPlugin = pluginManager.getPlugin("dynmap");
 		if (dynmapPlugin != null) {
 			try {
@@ -373,7 +372,7 @@ public class EvilBook extends JavaPlugin {
 			logSevere("Failed to load Dynmap module");
 			getServer().shutdown();
 			return;
-		}
+		}*/
 		//
 		// Register protocolLib listeners
 		//
@@ -3014,7 +3013,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("sethome") || command.getName().equalsIgnoreCase("createhome")) {
 			getProfile(sender).homeLocation = player.getLocation();
-			PlayerHomeMarkers.setPlayerHome(player.getName(), player.getLocation());
+			//PlayerHomeMarkers.setPlayerHome(player.getName(), player.getLocation());
 			sender.sendMessage("§7Your home location has been set");
 			return true;
 		}
@@ -3023,7 +3022,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("delhome") || command.getName().equalsIgnoreCase("remhome") || command.getName().equalsIgnoreCase("rmhome")) {
 			getProfile(sender).homeLocation = null;
-			PlayerHomeMarkers.setPlayerHome(player.getName(), null);
+			//PlayerHomeMarkers.setPlayerHome(player.getName(), null);
 			sender.sendMessage("§7Your home location has been removed");
 			return true;
 		}
@@ -3172,7 +3171,7 @@ public class EvilBook extends JavaPlugin {
 							}
 						}
 						sender.sendMessage("§7Deleted warp §d" + args[0]);
-						WarpMarkers.removeWarp(args[0]);
+						//WarpMarkers.removeWarp(args[0]);
 					} else {
 						sender.sendMessage("§7You don't own this warp");
 					}
@@ -3212,7 +3211,7 @@ public class EvilBook extends JavaPlugin {
 										sender.sendMessage("§7Created warp §d" + args[0] + " §c-$20");
 									}
 									getProfile(sender).warps.add(args[0].toLowerCase(Locale.UK));
-									WarpMarkers.setWarp(args[0], loc);
+									//WarpMarkers.setWarp(args[0], loc);
 								} else {
 									sender.sendMessage("§7A warp named §d" + args[0] + " §7already exists");
 								}

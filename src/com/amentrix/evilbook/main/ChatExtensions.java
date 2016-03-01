@@ -5,14 +5,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import net.minecraft.server.v1_8_R3.ChatClickable;
-import net.minecraft.server.v1_8_R3.ChatMessage;
-import net.minecraft.server.v1_8_R3.ChatModifier;
-import net.minecraft.server.v1_8_R3.IChatBaseComponent;
-import net.minecraft.server.v1_8_R3.MinecraftServer;
-import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
-import net.minecraft.server.v1_8_R3.ChatHoverable;
-import net.minecraft.server.v1_8_R3.ChatHoverable.EnumHoverAction;
+import net.minecraft.server.v1_9_R1.ChatClickable;
+import net.minecraft.server.v1_9_R1.ChatMessage;
+import net.minecraft.server.v1_9_R1.ChatModifier;
+import net.minecraft.server.v1_9_R1.IChatBaseComponent;
+import net.minecraft.server.v1_9_R1.MinecraftServer;
+import net.minecraft.server.v1_9_R1.ChatClickable.EnumClickAction;
+import net.minecraft.server.v1_9_R1.ChatHoverable;
+import net.minecraft.server.v1_9_R1.ChatHoverable.EnumHoverAction;
 
 /**
  * Chat extensions

@@ -4,15 +4,11 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 import org.bukkit.Location;
-import org.dynmap.markers.Marker;
-import org.dynmap.markers.MarkerIcon;
-import org.dynmap.markers.MarkerSet;
-
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.sql.SQL;
 
 public class PlayerHomeMarkers {
-	private static MarkerSet set;
+	/*private static MarkerSet set;
 	private static MarkerIcon icon;
 
 	public static void loadPlayerHomes() {
@@ -55,5 +51,5 @@ public class PlayerHomeMarkers {
 		} catch (Exception exception) {
 			EvilBook.logSevere("Failed to set player home marker");
 		}
-	}
+	}*/
 }

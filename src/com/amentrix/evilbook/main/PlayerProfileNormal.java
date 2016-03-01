@@ -19,7 +19,7 @@ import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
-import net.minecraft.server.v1_8_R3.ChatClickable.EnumClickAction;
+import net.minecraft.server.v1_9_R1.ChatClickable.EnumClickAction;
 
 /**
  * PlayerProfileNormal instance
