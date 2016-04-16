@@ -122,6 +122,7 @@ public class CommandReference {
 		commandBlacklist.put("/nickname", Rank.ADMIN);
 		commandBlacklist.put("/tool", Rank.ADMIN);
 		commandBlacklist.put("/toggleeditwand", Rank.ADMIN);
+		commandBlacklist.put("/ip", Rank.ADMIN);
 		//
 		commandBlacklist.put("/region", Rank.STAFF_DIAMOND);
 		//
@@ -147,7 +148,6 @@ public class CommandReference {
 		commandBlacklist.put("/time", Rank.STAFF_COPPER);
 		//
 		commandBlacklist.put("/sky", Rank.MODERATOR);
-		commandBlacklist.put("/ip", Rank.MODERATOR);
 		commandBlacklist.put("/alt", Rank.MODERATOR);
 		//
 		commandBlacklist.put("/chimney", Rank.ARCHITECT);
