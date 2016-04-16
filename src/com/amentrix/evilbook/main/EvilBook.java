@@ -102,22 +102,24 @@ public class EvilBook extends JavaPlugin {
 	private static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
 	public static final Map<World, List<DynamicSign>> dynamicSignList = new HashMap<>();
 	public static final List<String> paidWorldList = new ArrayList<>();
-	//public static final List<Region> regionList = new ArrayList<>();
 	public static final List<Region> plotRegionList = new ArrayList<>();
 	public static final List<Emitter> emitterList = new ArrayList<>();
-	//
 	public static final List<UUID> rareSpawnList = new ArrayList<>();
 	//
 	private static List<Location> inUseSurvivalWorkbenchesList = new ArrayList<>();
 	private Session editSession;
 	private Random random = new Random();
+	
 	// Log block API
 	public static Consumer lbConsumer = null;
+	
 	// Dynmap API
 	private static DynmapAPI dynmapAPI;
 	public static MarkerAPI markerAPI;
+	
 	// Maps Module
 	private Maps maps;
+	
 	// Config
 	public static Properties config;
 
