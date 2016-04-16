@@ -5,11 +5,15 @@ import java.sql.Statement;
 import java.util.Locale;
 
 import org.bukkit.Location;
+import org.dynmap.markers.Marker;
+import org.dynmap.markers.MarkerIcon;
+import org.dynmap.markers.MarkerSet;
+
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.sql.SQL;
 
 public class WarpMarkers {
-	/*private static MarkerSet set;
+	private static MarkerSet set;
 	private static MarkerIcon icon;
 
 	public static void loadWarps() {
@@ -52,5 +56,5 @@ public class WarpMarkers {
 	public static void removeWarp(String warpName) {
 		Marker warpMarker = set.findMarker("evilbook.warps." + warpName.toLowerCase(Locale.UK));
 		warpMarker.deleteMarker();
-	}*/
+	}
 }
