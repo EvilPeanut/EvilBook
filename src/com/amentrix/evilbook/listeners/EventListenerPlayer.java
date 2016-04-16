@@ -603,7 +603,7 @@ public class EventListenerPlayer implements Listener {
 									WrappedChatComponent.fromText(signText[2]), WrappedChatComponent.fromText(signText[3])};
 							signUpdatePacket.getChatComponentArrays().write(0, signTextArray);
 							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signUpdatePacket);
-							PacketContainer signEditPacket = new PacketContainer(PacketType.Play.Server.OPEN_SIGN_ENTITY);
+							PacketContainer signEditPacket = new PacketContainer(PacketType.Play.Server.OPEN_SIGN_EDITOR);
 							signEditPacket.getBlockPositionModifier().write(0, new BlockPosition(block.getX(), block.getY(), block.getZ()));
 							ProtocolLibrary.getProtocolManager().sendServerPacket(player, signEditPacket);
 						} catch (Exception exception) {
