@@ -38,7 +38,7 @@ import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
 
-import net.minecraft.server.v1_9_R1.ChatClickable.EnumClickAction;
+import net.minecraft.server.v1_10_R1.ChatClickable.EnumClickAction;
 
 /**
  * Block event listener

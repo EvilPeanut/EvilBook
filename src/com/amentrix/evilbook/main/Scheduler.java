@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 
-import net.minecraft.server.v1_9_R1.ChatClickable.EnumClickAction;
+import net.minecraft.server.v1_10_R1.ChatClickable.EnumClickAction;
 
 /**
  * Schedulers and timed events
