@@ -32,7 +32,6 @@ public class PlayerProfileAdmin extends PlayerProfile {
 		super(plugin);
 		try {
 			name = newPlayer.getName();
-			UUID = newPlayer.getUniqueId().toString();
 			//
 			// SQL query
 			//

@@ -13,7 +13,7 @@ import org.bukkit.block.Biome;
  * @author Reece Aaron Lecrivain
  */
 public class BiomeReference {
-	public static final Map<Biome, List<String>> biomeList = new LinkedHashMap<>();
+	private static final Map<Biome, List<String>> biomeList = new LinkedHashMap<>();
 	
 	static {
 		biomeList.put(Biome.OCEAN, Arrays.asList("Ocean", "Sea"));

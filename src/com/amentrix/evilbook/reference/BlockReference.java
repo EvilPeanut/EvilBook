@@ -15,7 +15,7 @@ import com.amentrix.evilbook.main.EvilBook;
  * @author Reece Aaron Lecrivain
  */
 public class BlockReference {
-	public static final Map<Material, List<String>> blockList = new LinkedHashMap<>();
+	private static final Map<Material, List<String>> blockList = new LinkedHashMap<>();
 	
     static
     {

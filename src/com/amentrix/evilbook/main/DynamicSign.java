@@ -22,7 +22,7 @@ public class DynamicSign {
 	public Location location;
 	public String[] textLines;
 	
-	public DynamicSign(Location location, String[] textLines) {
+	private DynamicSign(Location location, String[] textLines) {
 		this.location = location;
 		this.textLines = textLines;
 		try {
@@ -82,7 +82,7 @@ public class DynamicSign {
 		}
 	}
 
-	public void update() {
+	void update() {
 		if (isSeen()) {
 			Sign sign = (Sign) location.getBlock().getState();
 			for (int i = 0; i < 4; i++) {
@@ -97,7 +97,7 @@ public class DynamicSign {
 		}
 	}
 	
-	public Boolean isSeen() {
+	private Boolean isSeen() {
 		if (!location.getChunk().isLoaded()) return false;
 		for (Player player : location.getWorld().getPlayers()) {
 			if (Math.abs(player.getLocation().getBlockX() - location.getBlockX()) <= 16

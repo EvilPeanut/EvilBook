@@ -110,7 +110,7 @@ public class Region {
 	/**
 	 * @return If protection is enabled
 	 */
-	public Boolean isProtected(){ return this.isProtected; }
+	Boolean isProtected(){ return this.isProtected; }
 	
 	/**
 	 * @param isProtected If protection is enabled

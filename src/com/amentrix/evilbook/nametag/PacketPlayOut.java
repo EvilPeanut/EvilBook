@@ -18,14 +18,15 @@ class PacketPlayOut
 	PacketPlayOut(String name, String prefix, String suffix, Collection players, int paramInt) throws IllegalAccessException, InstantiationException, NoSuchFieldException
 	{
 		this.packet = packetType.newInstance();
+
 		setField("a", name);
-		setField("h", Integer.valueOf(paramInt));
+		setField("i", Integer.valueOf(paramInt));
 
 		if ((paramInt == 0) || (paramInt == 2)) {
 			setField("b", name);
 			setField("c", prefix);
 			setField("d", suffix);
-			setField("g", players);
+			setField("h", players);
 		}
 		if (paramInt == 0)
 			addAll(players);
@@ -40,7 +41,7 @@ class PacketPlayOut
 		}
 
 		setField("a", name);
-		setField("h", Integer.valueOf(paramInt));
+		setField("i", Integer.valueOf(paramInt));
 		addAll(players);
 	}
 
@@ -59,7 +60,7 @@ class PacketPlayOut
 	}
 
 	private void addAll(Collection<?> col) throws NoSuchFieldException, IllegalAccessException {
-		Field f = this.packet.getClass().getDeclaredField("g");
+		Field f = this.packet.getClass().getDeclaredField("h");
 		f.setAccessible(true);
 		((Collection)f.get(this.packet)).addAll(col);
 	}

@@ -53,7 +53,7 @@ public class ChatExtensions {
 		}
 	}
 	
-	public static void sendCommandHelpMessage(CommandSender sender, String usage) {
+	static void sendCommandHelpMessage(CommandSender sender, String usage) {
 		sender.sendMessage(ChatColor.DARK_PURPLE + "§oIncorrect command usage");
 		if (sender instanceof Player) {
 			sendClickableMessage((Player)sender, ChatColor.LIGHT_PURPLE + usage, EnumClickAction.SUGGEST_COMMAND, usage);
@@ -62,7 +62,7 @@ public class ChatExtensions {
 		}
 	}
 	
-	public static void sendCommandHelpMessage(CommandSender sender, List<String> usages) {
+	static void sendCommandHelpMessage(CommandSender sender, List<String> usages) {
 		sender.sendMessage(ChatColor.DARK_PURPLE + "§oIncorrect command usage");
 		for (String usage : usages) {
 			if (sender instanceof Player) {

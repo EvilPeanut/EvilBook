@@ -244,14 +244,6 @@ public class SQL {
 	//
 	//
 	//
-	public static void deleteColumn(TableType table, String column) {
-		try (Statement statement = connection.createStatement()) {
-			statement.execute("ALTER TABLE " + database + "." + table.tableName + " DROP COLUMN " + column + ";");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public static void deleteRow(TableType table, String key) {
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("DELETE FROM " + database + "." + table.tableName + " WHERE " + table.keyName + "='" + key + "';");

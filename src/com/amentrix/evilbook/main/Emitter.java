@@ -36,7 +36,7 @@ public class Emitter {
 		}
 	}
 
-	public void update() {
+	void update() {
 		if (isSeen()) {
 			if (this.frequencyTick == this.frequency) {
 				switch (this.effect) {
@@ -107,7 +107,7 @@ public class Emitter {
 		}
 	}
 	
-	public Boolean isSeen() {
+	private Boolean isSeen() {
 		if (!location.getChunk().isLoaded()) return false;
 		for (Player player : location.getWorld().getPlayers()) {
 			if (Math.abs(player.getLocation().getBlockX() - location.getBlockX()) <= 16

@@ -34,7 +34,6 @@ public class PlayerProfileNormal extends PlayerProfile {
 		super(plugin);
 		try {
 			name = newPlayer.getName();
-			UUID = newPlayer.getUniqueId().toString();
 			if (getProperty("player_name") != null) {
 				//
 				// SQL query

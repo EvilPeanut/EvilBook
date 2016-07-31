@@ -48,7 +48,6 @@ public abstract class PlayerProfile {
 	public EditWandMode wandMode = EditWandMode.Selection;
 	public Location actionLocationA, actionLocationB;
 	private EvilBook plugin;
-	public String UUID;
 	//TODO: PlayerProfiles: Make all minigames extend minigame base class (Liked PlayerProfile is extended)
 	public TowerDefenseMinigame towerDefenseMinigame = null;
 	
