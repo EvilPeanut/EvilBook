@@ -91,13 +91,14 @@ import com.amentrix.evilbook.main.PlayerProfileNormal;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.nametag.NametagManager;
-import com.amentrix.evilbook.reference.BlockReference;
-import com.amentrix.evilbook.reference.CommandReference;
 import com.amentrix.evilbook.regions.Region;
 import com.amentrix.evilbook.regions.Regions;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
+import com.amentrix.evilbook.utils.BlockReference;
+import com.amentrix.evilbook.utils.CommandReference;
+import com.amentrix.evilbook.utils.InventoryManager;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
@@ -256,6 +257,8 @@ public class EventListenerPlayer implements Listener {
 		if (damageEvent instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent kie = (EntityDamageByEntityEvent)damageEvent;
 			Entity damager = kie.getDamager();
+			//TODO: Maybe not group by damage cause
+			//TODO: Allow death messages to be read/set via config
 			if (damageCause == DamageCause.ENTITY_ATTACK) {
 				if (damager instanceof Player)
 				{
@@ -391,7 +394,7 @@ public class EventListenerPlayer implements Listener {
 				plugin.getServer().unloadWorld(event.getPlayer().getWorld(), true);
 			}
 			// Save skyblock inventory
-			SQL.setInventory(player, "skyblock");
+			InventoryManager.set(player, "skyblock");
 		}
 		//
 		event.setQuitMessage(ChatColor.GRAY + event.getPlayer().getName() + " has left the game");
@@ -534,11 +537,10 @@ public class EventListenerPlayer implements Listener {
 			//
 			// Command block ownership logging and protection
 			//
-			if (block.getType() == Material.COMMAND) {
-				if (SQL.getStringFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'", "player") == null) {
+			if (block.getType() == Material.COMMAND) {		
+				if (SQL.getString(TableType.CommandBlock, "player", block.getWorld().getUID().toString(), block.getX(), block.getY(), block.getZ()) == null) {
 					SQL.insert(TableType.CommandBlock, "'" + player.getUniqueId().toString() + "','" + block.getWorld().getUID().toString() + "'," + block.getX() + "," + block.getY() + "," + block.getZ());
-				} else if (!SQL.getStringFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'"
-						, "player").equals(player.getUniqueId().toString()) &&
+				} else if (!SQL.getString(TableType.CommandBlock, "player", block.getWorld().getUID().toString(), block.getX(), block.getY(), block.getZ()).equals(player.getUniqueId().toString()) &&
 						!EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 					player.sendMessage(ChatColor.GRAY + "You don't have permission to edit this command block");
 					player.closeInventory();
@@ -821,15 +823,15 @@ public class EventListenerPlayer implements Listener {
 		// Handle inventory saving
 		//
 		if (EvilBook.isInSurvival(from) && !EvilBook.isInSurvival(to)) {
-			SQL.setInventory(player, "survival");
+			InventoryManager.set(player, "survival");
 		} else if (EvilBook.isInMinigame(from, MinigameType.SKYBLOCK) && !EvilBook.isInMinigame(to, MinigameType.SKYBLOCK)) {
-			SQL.setInventory(player, "skyblock");
+			InventoryManager.set(player, "skyblock");
 			// Unload the minigame world if empty
 			if (from.getPlayers().size() == 0) {
 				plugin.getServer().unloadWorld(from, true);
 			}
 		} else {
-			SQL.setInventory(player, "creative");
+			InventoryManager.set(player, "creative");
 		}
 		//
 		// Handle inventory loading
@@ -843,18 +845,18 @@ public class EventListenerPlayer implements Listener {
 				EvilBook.getProfile(player).isInvisible = false;
 				player.sendMessage("§7Vanish isn't allowed in survival, you are now visible");
 			}
-			SQL.getInventory(player, "survival");
+			InventoryManager.get(player, "survival");
 		} else if (!EvilBook.isInMinigame(from, MinigameType.SKYBLOCK) && EvilBook.isInMinigame(to, MinigameType.SKYBLOCK)) {
 			// Load skyblock inventory
 			player.setGameMode(GameMode.SURVIVAL);
 			player.sendMessage("§bWelcome to Skyblock Survival");
 			ChatExtensions.sendClickableMessage(player, "§7Reset the map using /reset", EnumClickAction.SUGGEST_COMMAND, "/reset");
 			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SKYBLOCK);
-			SQL.getInventory(player, "skyblock");
+			InventoryManager.get(player, "skyblock");
 		} else {
 			// Load creative inventory
 			player.setGameMode(GameMode.CREATIVE);
-			SQL.getInventory(player, "creative");
+			InventoryManager.get(player, "creative");
 		}
 		//
 		// Handle world messages and achievements

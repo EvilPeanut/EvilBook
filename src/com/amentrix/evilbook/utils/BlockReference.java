@@ -1,4 +1,4 @@
-package com.amentrix.evilbook.reference;
+package com.amentrix.evilbook.utils;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

@@ -16,9 +16,9 @@ import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
-import com.amentrix.evilbook.reference.BlockReference;
-import com.amentrix.evilbook.reference.TreeReference;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
+import com.amentrix.evilbook.utils.BlockReference;
+import com.amentrix.evilbook.utils.TreeReference;
 
 /**
  * EvilEdit generation methods

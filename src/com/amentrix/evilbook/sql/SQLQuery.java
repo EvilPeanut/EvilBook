@@ -30,7 +30,7 @@ public class SQLQuery {
 	public void execute() {
 		try {
 			statement = SQL.connection.createStatement();
-			resultSet = statement.executeQuery("SELECT " + fields + " FROM " + SQL.database + "." + tableType.tableName + " WHERE " + keyName + "='" + keyValue + "';");
+			resultSet = statement.executeQuery("SELECT " + fields + " FROM " + SQL.database + "." + tableType.getName() + " WHERE " + keyName + "='" + keyValue + "';");
 			resultSet.next();
 		} catch (Exception e) {
 			e.printStackTrace();

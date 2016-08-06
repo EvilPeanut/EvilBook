@@ -46,7 +46,7 @@ public enum PlayerStatistic {
 	}
 	
 	public static int getStatistic(String playerName, PlayerStatistic statistic) {
-		return SQL.getInteger(TableType.PlayerStatistics, playerName, statistic.columnName);
+		return SQL.getInt(TableType.PlayerStatistics, statistic.columnName, playerName);
 	}
 	
 	public static void incrementStatistic(String playerName, PlayerStatistic statistic, int increment) {
@@ -54,7 +54,7 @@ public enum PlayerStatistic {
 	}
 
 	private static void setStatistic(String playerName, PlayerStatistic statistic, int value) {
-		SQL.setInteger(TableType.PlayerStatistics, playerName, statistic.columnName, value);
+		SQL.setValue(TableType.PlayerStatistics, statistic.columnName, playerName, value);
 		switch (statistic) {
 		case KILLED_RARES:
 			EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_RARE);

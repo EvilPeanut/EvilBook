@@ -20,7 +20,7 @@ public enum GlobalStatistic {
 	BlocksBroken("blocks_broken"),
 	BlocksPlaced("blocks_placed");
 	
-	String columnName;
+	private String columnName;
 	
 	GlobalStatistic(String columnName) {
 		this.columnName = columnName;
@@ -28,7 +28,7 @@ public enum GlobalStatistic {
 	
 	public static String getStatistic(GlobalStatistic statistic) {
 		//TODO: SQL: Change to SQL.getInteger()
-		String value = SQL.getString(TableType.Statistics, new SimpleDateFormat("yyyy-MM-dd").format(new Date()), statistic.columnName);
+		String value = SQL.getString(TableType.Statistics, statistic.columnName, new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 		if (value == null) {
 			try {
 				SQL.insert(TableType.Statistics, "'" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + "','0','0','0','0','0','0','0','0'");
@@ -41,7 +41,7 @@ public enum GlobalStatistic {
 	}
 
 	private static void setStatistic(GlobalStatistic statistic, int value) {
-		SQL.setInteger(TableType.Statistics, new SimpleDateFormat("yyyy-MM-dd").format(new Date()), statistic.columnName, value);
+		SQL.setValue(TableType.Statistics, statistic.columnName, new SimpleDateFormat("yyyy-MM-dd").format(new Date()), value);
 	}
 	
 	public static void incrementStatistic(GlobalStatistic statistic, int increment) {

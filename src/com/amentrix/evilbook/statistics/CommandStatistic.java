@@ -10,9 +10,10 @@ import com.amentrix.evilbook.sql.TableType;
  * @author Reece Aaron Lecrivain
  */
 public class CommandStatistic {
+	//TODO: SQL: Should this be part of SQL module?
 	public static void increment(String commandName) {
 		try (Statement statement = SQL.connection.createStatement()) {
-			statement.execute("INSERT INTO " + SQL.database + "." + TableType.CommandStatistics.tableName + "(command_name, execution_count) VALUES ('" + commandName + "', 1) ON DUPLICATE KEY UPDATE execution_count = execution_count + 1;");
+			statement.execute("INSERT INTO " + SQL.database + "." + TableType.CommandStatistics.getName() + "(command_name, execution_count) VALUES ('" + commandName + "', 1) ON DUPLICATE KEY UPDATE execution_count = execution_count + 1;");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

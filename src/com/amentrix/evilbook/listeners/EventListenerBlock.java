@@ -31,12 +31,12 @@ import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
-import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.regions.Regions;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
+import com.amentrix.evilbook.utils.BlockReference;
 
 import net.minecraft.server.v1_10_R1.ChatClickable.EnumClickAction;
 
@@ -143,9 +143,8 @@ public class EventListenerBlock implements Listener {
 						}
 					}
 					// Command block logging
-					if (blockType == Material.COMMAND && SQL.isRowExistant(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + 
-							"' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'")) {
-						SQL.deleteRowFromCriteria(TableType.CommandBlock, "world='" + block.getWorld().getUID().toString() + "' AND x='" + block.getX() + "' AND y='" + block.getY() + "' AND z='" + block.getZ() + "'");
+					if (blockType == Material.COMMAND && SQL.isRowExistant(TableType.CommandBlock, block.getWorld().getUID().toString(), block.getX(), block.getY(), block.getZ())) {
+						SQL.deleteRow(TableType.CommandBlock, block.getWorld().getUID().toString(), block.getX(), block.getY(), block.getZ());
 					}
 					// Statistics
 					GlobalStatistic.incrementStatistic(GlobalStatistic.BlocksBroken, 1);

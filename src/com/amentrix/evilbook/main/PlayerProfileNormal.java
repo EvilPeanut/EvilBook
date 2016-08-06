@@ -198,10 +198,10 @@ public class PlayerProfileNormal extends PlayerProfile {
 			//
 			Date date = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			setInteger("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
-			setString("last_login", sdf.format(date));
-			setString("ip", getPlayer().getAddress().getAddress().getHostAddress());
-			setString("evilbook_version", plugin.getDescription().getVersion());
+			setValue("total_logins", Integer.parseInt(getProperty("total_logins")) + 1);
+			setValue("last_login", sdf.format(date));
+			setValue("ip", getPlayer().getAddress().getAddress().getHostAddress());
+			setValue("evilbook_version", plugin.getDescription().getVersion());
 		} catch (Exception exception) {
 			newPlayer.kickPlayer("§cA login error has occured and our team has been notified, sorry for the inconvenience");
 			try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("EvilBook.log", true)))) {

@@ -26,11 +26,10 @@ public class WarpMarkers {
 		set.setMinZoom(4);
 		icon = EvilBook.markerAPI.getMarkerIcon("pin");	
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT warp_name, location FROM " + SQL.database + ".`evilbook-warps`;")) {
+			try (ResultSet rs = statement.executeQuery("SELECT warp_name, world, x, y, z FROM " + SQL.database + ".`evilbook-warps`;")) {
 				while (rs.next()) {
 					set.createMarker("evilbook.warps." + rs.getString("warp_name").toLowerCase(Locale.UK), rs.getString("warp_name"), 
-							rs.getString("location").split(">")[0], Double.parseDouble(rs.getString("location").split(">")[1]),
-							Double.parseDouble(rs.getString("location").split(">")[2]), Double.parseDouble(rs.getString("location").split(">")[3]), icon, false);
+							rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), icon, false);
 				}
 			}
 		} catch (Exception exception) {
@@ -49,7 +48,7 @@ public class WarpMarkers {
 						warpLocation.getY(), warpLocation.getZ(), icon, false);
 			}
 		} catch (Exception exception) {
-			EvilBook.logSevere("Failed to set player home marker");
+			EvilBook.logSevere("Failed to set warp marker");
 		}
 	}
 	

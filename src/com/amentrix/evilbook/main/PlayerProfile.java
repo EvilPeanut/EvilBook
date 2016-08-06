@@ -64,7 +64,7 @@ public abstract class PlayerProfile {
 		Inventory inboxMenu = Bukkit.createInventory(null, (int) (9 * (Math.ceil((double)mailCount / 9))) , mailCount == 0 ? "My inbox (empty)" : "My inbox");
 		if (mailCount != 0) {
 			try (Statement statement = SQL.connection.createStatement()) {
-				try (ResultSet rs = statement.executeQuery("SELECT date_sent, player_sender, message_text FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient_UUID='" + getPlayer().getUniqueId().toString() + "';")) {
+				try (ResultSet rs = statement.executeQuery("SELECT date_sent, player_sender, message_text FROM " + SQL.database + "." + TableType.Mail.getName() + " WHERE player_recipient_UUID='" + getPlayer().getUniqueId().toString() + "';")) {
 					while (rs.next()) {
 						inboxMenu.addItem(EvilBook.getBook(rs.getString("date_sent"), rs.getString("player_sender"), Arrays.asList(rs.getString("message_text"))));
 					}
@@ -103,7 +103,7 @@ public abstract class PlayerProfile {
 	
 	public int getMailCount() {
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM " + SQL.database + "." + TableType.Mail.tableName + " WHERE player_recipient_UUID='" + getPlayer().getUniqueId().toString() + "';")) {
+			try (ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM " + SQL.database + "." + TableType.Mail.getName() + " WHERE player_recipient_UUID='" + getPlayer().getUniqueId().toString() + "';")) {
 				while (rs.next()) {
 					return rs.getInt(1);
 				}
@@ -164,17 +164,8 @@ public abstract class PlayerProfile {
 	 * @param property The property to set
 	 * @param value The value of the property
 	 */
-	void setString(String property, String value) {
-		SQL.setString(TableType.PlayerProfile, name, property, value);
-	}
-	
-	/**
-	 * Set a player profile property
-	 * @param property The property to set
-	 * @param value The value of the property
-	 */
-	void setInteger(String property, int value) {
-		SQL.setInteger(TableType.PlayerProfile, name, property, value);
+	void setValue(String columnName, Object value) {
+		SQL.setValue(TableType.PlayerProfile, columnName, name, value);
 	}
 	
 	/**
@@ -184,11 +175,7 @@ public abstract class PlayerProfile {
 	 */
 	//TODO: PlayerProfiles/SQL: Remove
 	String getProperty(String property) {
-		String value = SQL.getString(TableType.PlayerProfile, name, property);
-		if (value == null) {
-			return SQL.getStringFromCriteria(TableType.PlayerProfile, "player_name='" + this.name + "'", property);
-		}
-		return value;
+		return SQL.getString(TableType.PlayerProfile, property, this.name);
 	}
 	
 	/**
@@ -198,11 +185,7 @@ public abstract class PlayerProfile {
 	 */
 	//TODO: PlayerProfiles/SQL: Remove
 	String getProperty(TableType tableType, String property) {
-		String value = SQL.getString(tableType, name, property);
-		if (value == null) {
-			return SQL.getStringFromCriteria(tableType, "player_name='" + this.name + "'", property);
-		}
-		return value;
+		return SQL.getString(tableType, property, this.name);
 	}
 
 	/**
@@ -215,7 +198,7 @@ public abstract class PlayerProfile {
 		String worldName = location.getWorld().getName();
 		if (!worldName.contains("SkyBlock/")) {
 			if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
-			SQL.setString(TableType.PlayerLocation, this.name, worldName, location.getX() + ">" + location.getY() + ">" + location.getZ());
+			SQL.setValue(TableType.PlayerLocation, worldName, this.name, location.getX() + ">" + location.getY() + ">" + location.getZ());
 		}
 	}
 
@@ -227,7 +210,7 @@ public abstract class PlayerProfile {
 		//TODO: PlayerProfiles/SQL: Change to SQL.getLocation()
 		String worldName = world;
 		if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
-		String result = SQL.getString(TableType.PlayerLocation, this.name, worldName);
+		String result = SQL.getString(TableType.PlayerLocation, worldName, this.name);
 		if (result == null) return Bukkit.getServer().getWorld(world).getSpawnLocation();
 		String[] location = result.split(">");
 		return new Location(Bukkit.getServer().getWorld(world), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2]));

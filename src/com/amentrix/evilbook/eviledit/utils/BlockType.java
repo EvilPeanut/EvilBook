@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.eviledit.Session;
 import com.amentrix.evilbook.main.EvilBook;
-import com.amentrix.evilbook.reference.BlockReference;
+import com.amentrix.evilbook.utils.BlockReference;
 
 public class BlockType {
 	private Material material;

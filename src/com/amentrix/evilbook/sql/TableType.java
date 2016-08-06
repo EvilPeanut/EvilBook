@@ -14,20 +14,33 @@ public enum TableType {
 	DynamicSign("`evilbook-dynamicsigns`", null, "world, x, y, z, line1, line2, line3, line4"),
 	Emitter("`evilbook-emitters`", null, "world, x, y, z, effect, data, frequency"),
 	Region("`evilbook-regions`", "region_name", "region_name, world, x1, y1, z1, x2, y2, z2, protected, player_name, welcome_message, leave_message, allowed_players, warp_name"),
-	ContainerProtection("`evilbook-protectedcontainers`", null, "world, x, y, z, player_name"),
-	Warps("`evilbook-warps`", "warp_name", "warp_name, location"),
+	ContainerProtection("`evilbook-protectedcontainers`", "world", "world, x, y, z, player_name"),
+	Warps("`evilbook-warps`", "warp_name", "warp_name, world, x, y, z, yaw, pitch"),
 	Statistics("`evilbook-statistics`", "date", "date, economy_growth, economy_trade, login_total, new_players, commands_executed, messages_sent, blocks_broken, blocks_placed"),
 	Mail("`evilbook-mail`", null, "player_sender, player_recipient_UUID, message_text, date_sent"),
-	CommandBlock("`evilbook-commandblock`", null, "player, world, x, y, z"),
+	CommandBlock("`evilbook-commandblock`", "player", "player, world, x, y, z"),
 	CommandStatistics("`evilbook-commandstatistics`", "command_name", "command_name, execution_count");
 	
-	public String tableName;
-	String keyName;
-	String fields;
+	private String name;
+	private String key;
+	private String fields;
 	
-	TableType(String tableName, String keyName, String fields) {
-		this.tableName = tableName;
-		this.keyName = keyName;
+	TableType(String name, String key, String fields) {
+		this.name = name;
+		this.key = key;
 		this.fields = fields;
+	}
+	
+	//TODO: SQL: Include 'database.' infront of returned name? Every usage seems to have this bar one
+	public String getName() {
+		return name;
+	}
+	
+	public String getKey() {
+		return key;
+	}
+	
+	public String getFields() {
+		return fields;
 	}
 }

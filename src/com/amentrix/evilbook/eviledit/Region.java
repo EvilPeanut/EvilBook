@@ -25,9 +25,9 @@ import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
 import com.amentrix.evilbook.main.Rank;
 import com.amentrix.evilbook.minigame.MinigameType;
-import com.amentrix.evilbook.reference.BiomeReference;
-import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
+import com.amentrix.evilbook.utils.BiomeReference;
+import com.amentrix.evilbook.utils.BlockReference;
 
 /**
  * EvilEdit region methods

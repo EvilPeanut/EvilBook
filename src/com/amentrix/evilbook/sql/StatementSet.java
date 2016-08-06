@@ -9,9 +9,9 @@ public class StatementSet {
 	
 	public void setProperty(TableType table, String key, String property, Object value) {
 		if (value instanceof String) {
-			this.statementList.add("UPDATE " + SQL.database + "." + table.tableName + " SET " + property + (value.equals("NULL") ? "=NULL WHERE " : "='" + value + "' WHERE ") + table.keyName + "='" + key + "';");
+			this.statementList.add("UPDATE " + SQL.database + "." + table.getName() + " SET " + property + (value.equals("NULL") ? "=NULL WHERE " : "='" + value + "' WHERE ") + table.getKey() + "='" + key + "';");
 		} else if (value instanceof Integer) {
-			this.statementList.add("UPDATE " + SQL.database + "." + table.tableName + " SET " + property + (value.equals("NULL") ? "=NULL WHERE " : "=" + value + " WHERE ") + table.keyName + "='" + key + "';");
+			this.statementList.add("UPDATE " + SQL.database + "." + table.getName() + " SET " + property + (value.equals("NULL") ? "=NULL WHERE " : "=" + value + " WHERE ") + table.getKey() + "='" + key + "';");
 		}
 	}
 	

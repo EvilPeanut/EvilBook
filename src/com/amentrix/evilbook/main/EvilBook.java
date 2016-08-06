@@ -77,7 +77,6 @@ import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.minigame.SkyBlockMinigameListener;
 import com.amentrix.evilbook.minigame.TowerDefenseMinigame;
 import com.amentrix.evilbook.nametag.NametagManager;
-import com.amentrix.evilbook.reference.BlockReference;
 import com.amentrix.evilbook.regions.Region;
 import com.amentrix.evilbook.regions.RegionListener;
 import com.amentrix.evilbook.regions.Regions;
@@ -86,6 +85,7 @@ import com.amentrix.evilbook.sql.TableType;
 import com.amentrix.evilbook.statistics.CommandStatistic;
 import com.amentrix.evilbook.statistics.GlobalStatistic;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
+import com.amentrix.evilbook.utils.BlockReference;
 import com.amentrix.evilbook.worldgen.PlotlandGenerator;
 import com.amentrix.evilbook.worldgen.SkylandGenerator;
 
@@ -226,7 +226,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Connect EvilBook to MySQL
 		//
-		if (!SQL.connect(this)) {
+		if (!SQL.connect()) {
 			logSevere("Failed to load MySQL module");
 			getServer().shutdown();
 			return;
@@ -238,7 +238,7 @@ public class EvilBook extends JavaPlugin {
 					while (rs.next()) {
 						try (Statement setStatement = SQL.connection.createStatement()) {
 							OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
-							setStatement.execute("UPDATE " + SQL.database + "." + TableType.PlayerProfile.tableName + " SET player='" + player.getUniqueId().toString() + "' WHERE player_name='" + rs.getString("player_name") + "';");
+							setStatement.execute("UPDATE " + SQL.database + "." + TableType.PlayerProfile.getName() + " SET player='" + player.getUniqueId().toString() + "' WHERE player_name='" + rs.getString("player_name") + "';");
 							logInfo("Auto-fixed missing UUID for " + rs.getString("player_name"));
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -264,11 +264,37 @@ public class EvilBook extends JavaPlugin {
 			if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
 			if (!SQL.isColumnExistant(TableType.PlayerLocation, worldName)) {
 				try {
-					SQL.insertNullColumn(TableType.PlayerLocation, worldName + " TINYTEXT");
+					SQL.addColumn(TableType.PlayerLocation, worldName + " TINYTEXT");
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}
 				logInfo("Auto-fixed missing world " + worldName + " in player locations table");
+			}
+		}
+		// Convert warp table to new format
+		if (SQL.isColumnExistant(TableType.Warps, "location")) {
+			SQL.addColumn(TableType.Warps, "world VARCHAR(36)");
+			SQL.addColumn(TableType.Warps, "x DOUBLE");
+			SQL.addColumn(TableType.Warps, "y DOUBLE");
+			SQL.addColumn(TableType.Warps, "z DOUBLE");
+			SQL.addColumn(TableType.Warps, "yaw FLOAT");
+			SQL.addColumn(TableType.Warps, "pitch FLOAT");
+			
+			try (Statement statement = SQL.connection.createStatement()) {
+				try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Warps.getName() + ";")) {
+					while (rs.next()) {
+						String rawWarp = rs.getString("location");
+						
+						SQL.setValue(TableType.Warps, "world", rs.getString("warp_name"), rawWarp.split(">")[0]);
+						SQL.setValue(TableType.Warps, "x", rs.getString("warp_name"), rawWarp.split(">")[1]);
+						SQL.setValue(TableType.Warps, "y", rs.getString("warp_name"), rawWarp.split(">")[2]);
+						SQL.setValue(TableType.Warps, "z", rs.getString("warp_name"), rawWarp.split(">")[3]);
+						SQL.setValue(TableType.Warps, "yaw", rs.getString("warp_name"), rawWarp.split(">")[4]);
+						SQL.setValue(TableType.Warps, "pitch", rs.getString("warp_name"), rawWarp.split(">")[5]);
+					}
+				}
+			} catch (Exception exception) {
+				exception.printStackTrace();
 			}
 		}
 		//
@@ -278,7 +304,7 @@ public class EvilBook extends JavaPlugin {
 			Regions.initWorld(world.getName());
 		}
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.getName() + ";")) {
 				while (rs.next()) {
 					if (getServer().getWorld(rs.getString("world")) != null) {
 						if (rs.getString("region_name").startsWith("PlotRegion")) {
@@ -301,7 +327,7 @@ public class EvilBook extends JavaPlugin {
 			dynamicSignList.put(world, new ArrayList());
 		}
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.getName() + ";")) {
 				while (rs.next()) {
 					World world = getServer().getWorld(UUID.fromString(rs.getString("world")));
 					if (world != null) {
@@ -318,7 +344,7 @@ public class EvilBook extends JavaPlugin {
 		// Load emitters
 		//
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
+			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Emitter.getName() + ";")) {
 				while (rs.next()) {
 					if (getServer().getWorld(rs.getString("world")) != null) {
 						emitterList.add(new Emitter(this, rs));
@@ -430,7 +456,7 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("alt")) {
 			if (args.length == 1) {
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.tableName + " WHERE ip='" + getPlayerIP(args[0]) + "' AND not(player_name='" + args[0] + "');")) {
+					try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.getName() + " WHERE ip='" + getPlayerIP(args[0]) + "' AND not(player_name='" + args[0] + "');")) {
 						if (!rs.isBeforeFirst()) {
 						    sender.sendMessage("§7No accounts are associated with this player's ip");
 						} else {
@@ -483,10 +509,10 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-commandblock`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.CommandBlock.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.CommandBlock.getName() + ";")) {
 						while (rs.next()) {
 							if (rs.getString("world") == null) {
-								sender.sendMessage("§7--> World is not available");
+								sender.sendMessage("§7--> WARNING: World is not available");
 							} else if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
 								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a command block"); 
 							}
@@ -500,10 +526,10 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-dynamicsigns`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.DynamicSign.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.DynamicSign.getName() + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(UUID.fromString(rs.getString("world"))) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded");
+								sender.sendMessage("§7--> WARNING: World '" + rs.getString("world") + "' is not loaded");
 							} else if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
 								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a sign"); 
 							}
@@ -517,10 +543,10 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-emitters`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.Emitter.getName() + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("§7--> WARNING: World '" + rs.getString("world") + "' is not loaded"); 
 							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) {
 								sender.sendMessage("§7--> Location under (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is air"); 
 							} else if (rs.getInt("y") > Bukkit.getWorld(rs.getString("world")).getMaxHeight()) {
@@ -538,10 +564,10 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-protectedcontainers`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.ContainerProtection.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.ContainerProtection.getName() + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("§7--> WARNING: World '" + rs.getString("world") + "' is not loaded"); 
 							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof InventoryHolder == false) {
 								sender.sendMessage("§7--> Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a container"); 
 							}
@@ -555,10 +581,10 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-regions`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + "." + TableType.Region.getName() + ";")) {
 						while (rs.next()) {
 							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("world") + "' is not loaded"); 
+								sender.sendMessage("§7--> WARNING: World '" + rs.getString("world") + "' is not loaded"); 
 							}
 						}
 					}
@@ -570,10 +596,10 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson scanning `evilbook-warps`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT location FROM " + SQL.database + "." + TableType.Warps.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + "." + TableType.Warps.getName() + ";")) {
 						while (rs.next()) {
-							if (Bukkit.getWorld(rs.getString("location").split(">")[0]) == null) {
-								sender.sendMessage("§7--> World '" + rs.getString("location").split(">")[0] + "' is not loaded"); 
+							if (Bukkit.getWorld(rs.getString("world")) == null) {
+								sender.sendMessage("§7--> WARNING: World '" + rs.getString("world") + "' is not loaded"); 
 							}
 						}
 					}
@@ -605,14 +631,11 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-commandblock`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.CommandBlock.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.CommandBlock.getName() + ";")) {
 						while (rs.next()) {
-							if (rs.getString("world") == null) {
-								sender.sendMessage("§7--> FIXED: World is not available");
-								SQL.deleteRowFromCriteria(TableType.CommandBlock, "x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "' AND world IS NULL");
-							} else if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
+							if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getType() != Material.COMMAND) {
 								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a command block"); 
-								SQL.deleteRowFromCriteria(TableType.CommandBlock, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
+								SQL.deleteRow(TableType.CommandBlock, rs.getString("world"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 							}
 						}
 					}
@@ -626,12 +649,9 @@ public class EvilBook extends JavaPlugin {
 				try (Statement statement = SQL.connection.createStatement()) {
 					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + ".`evilbook-dynamicsigns`;")) {
 						while (rs.next()) {
-							if (Bukkit.getWorld(UUID.fromString(rs.getString("world"))) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
-								SQL.deleteRowFromCriteria(TableType.DynamicSign, "world='" + rs.getString("world") + "'");
-							} else if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
+							if (new Location(Bukkit.getWorld(UUID.fromString(rs.getString("world"))), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof Sign == false) {
 								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a sign"); 
-								SQL.deleteRowFromCriteria(TableType.DynamicSign, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
+								SQL.deleteRow(TableType.DynamicSign, rs.getString("world"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 							}
 						}
 					}
@@ -643,20 +663,17 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-emitters`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.Emitter.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.Emitter.getName() + ";")) {
 						while (rs.next()) {
-							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
-								SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + rs.getString("world") + "'");
-							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) {
+							if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) {
 								sender.sendMessage("§7--> FIXED: Location under (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is air"); 
-								SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
+								SQL.deleteRow(TableType.Emitter, rs.getString("world"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 							} else if (rs.getInt("y") > Bukkit.getWorld(rs.getString("world")).getMaxHeight()) {
 								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is above world max height"); 
-								SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
+								SQL.deleteRow(TableType.Emitter, rs.getString("world"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 							} else if (rs.getInt("y") < 0) {
 								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is below world min height"); 
-								SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
+								SQL.deleteRow(TableType.Emitter, rs.getString("world"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 							}
 						}
 					}
@@ -668,47 +685,12 @@ public class EvilBook extends JavaPlugin {
 				//
 				sender.sendMessage("§7Dr. Watson cleaning `evilbook-protectedcontainers`...");
 				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.ContainerProtection.tableName + ";")) {
+					try (ResultSet rs = statement.executeQuery("SELECT world, x, y, z FROM " + SQL.database + "." + TableType.ContainerProtection.getName() + ";")) {
 						while (rs.next()) {
-							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
-								SQL.deleteRowFromCriteria(TableType.ContainerProtection, "world='" + rs.getString("world") + "'");
-							} else if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof InventoryHolder == false) {
+							if (new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z")).getBlock().getState() instanceof InventoryHolder == false) {
 								sender.sendMessage("§7--> FIXED: Location (" + rs.getString("world") + ", " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + ") is not a container"); 
-								SQL.deleteRowFromCriteria(TableType.ContainerProtection, "world='" + rs.getString("world") + "' AND x='" + rs.getString("x") + "' AND y='" + rs.getString("y") + "' AND z='" + rs.getString("z") + "'");
+								SQL.deleteRow(TableType.ContainerProtection, rs.getString("world"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 							}	
-						}
-					}
-				} catch (Exception exception) {
-					exception.printStackTrace();
-				}
-				//
-				// Clean `evilbook-regions` table
-				//
-				sender.sendMessage("§7Dr. Watson cleaning `evilbook-regions`...");
-				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT world FROM " + SQL.database + "." + TableType.Region.tableName + ";")) {
-						while (rs.next()) {
-							if (Bukkit.getWorld(rs.getString("world")) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("world") + "' is not loaded"); 
-								SQL.deleteRowFromCriteria(TableType.Region, "world='" + rs.getString("world") + "'");
-							}
-						}
-					}
-				} catch (Exception exception) {
-					exception.printStackTrace();
-				}
-				//
-				// Clean `evilbook-warps` table
-				//
-				sender.sendMessage("§7Dr. Watson cleaning `evilbook-warps`...");
-				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT location FROM " + SQL.database + "." + TableType.Warps.tableName + ";")) {
-						while (rs.next()) {
-							if (Bukkit.getWorld(rs.getString("location").split(">")[0]) == null) {
-								sender.sendMessage("§7--> FIXED: World '" + rs.getString("location").split(">")[0] + "' is not loaded"); 
-								SQL.deleteRowFromCriteria(TableType.Warps, "location='" + rs.getString("location") + "'");
-							}
 						}
 					}
 				} catch (Exception exception) {
@@ -853,7 +835,7 @@ public class EvilBook extends JavaPlugin {
 					if (getPlayer(args[0]) != null) {
 						sender.sendMessage("§5" + getPlayer(args[0]).getDisplayName() + "'s account balance is §d$" + getProfile(args[0]).money);
 					} else {
-						sender.sendMessage("§5" + getServer().getOfflinePlayer(args[0]).getName() + "'s account balance is §d$" + SQL.getInteger(TableType.PlayerProfile, args[0], "money"));
+						sender.sendMessage("§5" + getServer().getOfflinePlayer(args[0]).getName() + "'s account balance is §d$" + SQL.getInt(TableType.PlayerProfile, "money", args[0]));
 					}
 				} else {
 					sender.sendMessage("§7You can't view a player's account balance who doesn't exist");
@@ -883,7 +865,7 @@ public class EvilBook extends JavaPlugin {
 						//
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been promoted to Admin rank");
 					} else {
-						SQL.setRank(args[0], Rank.ADMIN);
+						setRank(args[0], Rank.ADMIN);
 						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to Admin rank");
 					}
 					getServer().getOfflinePlayer(args[0]).setOp(true);
@@ -943,7 +925,7 @@ public class EvilBook extends JavaPlugin {
 						broadcastPlayerMessage(getPlayer(args[0]).getName(), "§c" + getPlayer(args[0]).getDisplayName() + " §dhas been demoted to " + getProfile(args[0]).rank.getName() + " rank");
 					} else {
 						if (SQL.getRank(args[0]).getPreviousRank() == Rank.POLICE) getServer().getOfflinePlayer(args[0]).setOp(false);
-						SQL.setRank(args[0], SQL.getRank(args[0]).getPreviousRank());
+						setRank(args[0], SQL.getRank(args[0]).getPreviousRank());
 						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been demoted to " + SQL.getRank(args[0]).getName() + " rank");
 					}
 				} else {
@@ -1090,7 +1072,7 @@ public class EvilBook extends JavaPlugin {
 							return true;
 						}
 						if (SQL.getRank(args[0]).getNextRank().equals(Rank.STAFF_COPPER)) getServer().getOfflinePlayer(args[0]).setOp(true);
-						SQL.setRank(args[0], SQL.getRank(args[0]).getNextRank());
+						setRank(args[0], SQL.getRank(args[0]).getNextRank());
 						broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + SQL.getRank(args[0]).getName() + " rank");
 					}
 				} else {
@@ -1128,7 +1110,7 @@ public class EvilBook extends JavaPlugin {
 								return true;
 							}
 							if (rank.isHigher(Rank.POLICE) && !getServer().getOfflinePlayer(args[0]).isOp()) getServer().getOfflinePlayer(args[0]).setOp(true);
-							SQL.setRank(args[0], rank);
+							setRank(args[0], rank);
 							broadcastPlayerMessage(getServer().getOfflinePlayer(args[0]).getName(), "§c" + getServer().getOfflinePlayer(args[0]).getName() + " §dhas been promoted to " + SQL.getRank(args[0]).getName() + " rank");
 						}
 					} else {
@@ -1314,8 +1296,8 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§dBlocks placed = " + GlobalStatistic.getStatistic(GlobalStatistic.BlocksPlaced) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
 				} else if (args[0].equalsIgnoreCase("player")) {
 					sender.sendMessage("§5" + player.getName() + "'s General Statistics");
-					sender.sendMessage("§dMoney = $" + SQL.getInteger(TableType.PlayerProfile, player.getName(), "money"));
-					sender.sendMessage("§dTotal logins = " + SQL.getInteger(TableType.PlayerProfile, player.getName(), "total_logins"));
+					sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, player.getName(), "money"));
+					sender.sendMessage("§dTotal logins = " + SQL.getInt(TableType.PlayerProfile, player.getName(), "total_logins"));
 					sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(player.getLastPlayed())));
 				} else if (args[0].equalsIgnoreCase("survival")) {
 					List<String> text = new ArrayList<>();
@@ -1356,8 +1338,8 @@ public class EvilBook extends JavaPlugin {
 					OfflinePlayer statPlayer = getServer().getOfflinePlayer(args[1]);
 					if (statPlayer.hasPlayedBefore()) {
 						sender.sendMessage("§5" + statPlayer.getName() + "'s General Statistics");
-						sender.sendMessage("§dMoney = $" + SQL.getInteger(TableType.PlayerProfile, statPlayer.getName(), "money"));
-						sender.sendMessage("§dTotal logins = " + SQL.getInteger(TableType.PlayerProfile, statPlayer.getName(), "total_logins"));
+						sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, statPlayer.getName(), "money"));
+						sender.sendMessage("§dTotal logins = " + SQL.getInt(TableType.PlayerProfile, statPlayer.getName(), "total_logins"));
 						sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(statPlayer.getLastPlayed())));
 					} else {
 						sender.sendMessage("§7Statistics for this player weren't found");
@@ -1605,7 +1587,7 @@ public class EvilBook extends JavaPlugin {
 				p.teleport(getServer().getWorld(Bukkit.getWorlds().get(0).getName()).getSpawnLocation());
 			}
 			getServer().unloadWorld("plugins/EvilBook/SkyBlock/" + player.getUniqueId(), false);
-			SQL.setString(TableType.PlayerProfile, player.getName(), "inventory_skyblock", "NULL");
+			SQL.setValue(TableType.PlayerProfile, "inventory_skyblock", player.getName(), "NULL");
 			File skyblockMap = new File("plugins/EvilBook/SkyBlock/" + player.getUniqueId() + "/");
 			try {
 				FileUtils.deleteDirectory(skyblockMap);
@@ -1719,9 +1701,7 @@ public class EvilBook extends JavaPlugin {
 			} else if (args.length >= 1) {
 				if (args[0].equalsIgnoreCase("remove")) {
 					Location emitterLocation = player.getLocation();
-					SQL.deleteRowFromCriteria(TableType.Emitter, "world='" + emitterLocation.getWorld().getName() + 
-							"' AND x='" + emitterLocation.getBlockX() + "' AND y='" + emitterLocation.getBlockY() + "' AND z='" + 
-							emitterLocation.getBlockZ() + "'");
+					SQL.deleteRow(TableType.Emitter, emitterLocation.getWorld().getName(), emitterLocation.getBlockX(), emitterLocation.getBlockY(), emitterLocation.getBlockZ());
 					Iterator<Emitter> emit = EvilBook.emitterList.iterator();
 					while (emit.hasNext()) {
 						Emitter emitter = emit.next();
@@ -1954,7 +1934,7 @@ public class EvilBook extends JavaPlugin {
 						prop.save();
 						if (!SQL.isColumnExistant(TableType.PlayerLocation, args[1])) {
 							try {
-								SQL.insertNullColumn(TableType.PlayerLocation, args[1] + " TINYTEXT");
+								SQL.addColumn(TableType.PlayerLocation, args[1] + " TINYTEXT");
 							} catch (Exception exception) {
 								exception.printStackTrace();
 							}
@@ -2864,7 +2844,7 @@ public class EvilBook extends JavaPlugin {
 								sender.sendMessage("§7You have paid " + getPlayer(args[0]).getDisplayName() + " §c$" + args[1]);
 								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
 							} else {
-								SQL.setInteger(TableType.PlayerProfile, args[0], "money", SQL.getInteger(TableType.PlayerProfile, args[0], "money") + Integer.parseInt(args[1]));
+								SQL.setValue(TableType.PlayerProfile, args[0], "money", SQL.getInt(TableType.PlayerProfile, args[0], "money") + Integer.parseInt(args[1]));
 								getProfile(sender).money -= Integer.parseInt(args[1]);
 								sender.sendMessage("§7You have paid " + getServer().getOfflinePlayer(args[0]).getName() + " §c$" + args[1]);
 								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
@@ -3042,8 +3022,8 @@ public class EvilBook extends JavaPlugin {
 				}
 			} else {
 				//TODO: SQL: Change to SQL.getLocation()
-				if (SQL.getString(TableType.PlayerLocation, args[0], "home_location") != null) {
-					String[] location = SQL.getString(TableType.PlayerLocation, args[0], "home_location").split(">");
+				if (SQL.getString(TableType.PlayerLocation, "home_location", args[0]) != null) {
+					String[] location = SQL.getString(TableType.PlayerLocation, "home_location", args[0]).split(">");
 					player.teleport(new Location(Bukkit.getServer().getWorld(location[3]), Double.valueOf(location[0]), Double.valueOf(location[1]), Double.valueOf(location[2])));
 					sender.sendMessage("§7Welcome to " + args[0] + "'s home");
 				} else {
@@ -3145,7 +3125,7 @@ public class EvilBook extends JavaPlugin {
 					}
 				}
 			} else if (args.length == 2 && args[0].equalsIgnoreCase("list") && getProfile(sender).rank.isHigher(Rank.TYCOON)) {
-				String playerWarps = SQL.getString(TableType.PlayerProfile, args[1], "warp_list");
+				String playerWarps = SQL.getString(TableType.PlayerProfile, "warp_list", args[1]);
 				if (playerWarps != null) {
 					List<String> warps = Arrays.asList(playerWarps.split(","));
 					//TODO: ChatExtensions on each effect listed
@@ -3202,7 +3182,9 @@ public class EvilBook extends JavaPlugin {
 							} else {
 								if (!SQL.isKeyExistant(TableType.Warps, args[0].toLowerCase(Locale.UK).replaceAll("'", "''"))) {
 									try {
-										SQL.insert(TableType.Warps, "'" + args[0].toLowerCase(Locale.UK).replaceAll("'", "''") + "','" + loc.getWorld().getName() + ">" + loc.getX() + ">" + loc.getY() + ">" + loc.getZ() + ">" + loc.getYaw() + ">" + loc.getPitch() + "'");
+										SQL.insert(TableType.Warps, "'" + args[0].toLowerCase(Locale.UK).replaceAll("'", "''") + "','" + 
+												loc.getWorld().getName() + "','" + loc.getX() + "','" + loc.getY() + "','" + loc.getZ() + "','" + 
+												loc.getYaw() + "','" + loc.getPitch() + "'");
 									} catch (Exception exception) {
 										exception.printStackTrace();
 									}
@@ -4010,7 +3992,7 @@ public class EvilBook extends JavaPlugin {
 	 * @return If the player's profile is existant
 	 */
 	private static boolean isProfileExistant(String playerName) {
-		return SQL.getString(TableType.PlayerProfile, playerName, "player_name") != null;
+		return SQL.getString(TableType.PlayerProfile, "player_name", playerName) != null;
 	}
 	
 	public static Boolean isInSurvival(Entity entity) {
@@ -4074,8 +4056,7 @@ public class EvilBook extends JavaPlugin {
 	 * @param location The position of the container in the world
 	 */
 	public static void unprotectContainer(Location location) {
-		SQL.deleteRowFromCriteria(TableType.ContainerProtection, "world='" + location.getWorld().getName() + 
-				"' AND x='" + location.getBlockX() + "' AND y='" + location.getBlockY() + "' AND z='" + location.getBlockZ() + "'");
+		SQL.deleteRow(TableType.ContainerProtection, location.getWorld().getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
 	}
 
 	/**
@@ -4085,11 +4066,9 @@ public class EvilBook extends JavaPlugin {
 	 * @return If the container is protected to the player
 	 */
 	public static Boolean isContainerProtected(Location location, Player player) {
-		if (SQL.isRowExistant(TableType.ContainerProtection, "world='" + location.getWorld().getName() + 
-				"' AND x='" + location.getBlockX() + "' AND y='" + location.getBlockY() + "' AND z='" + location.getBlockZ() + "'") &&
-				!SQL.getStringFromCriteria(TableType.ContainerProtection, "world='" + location.getWorld().getName() + 
-						"' AND x='" + location.getBlockX() + "' AND y='" + location.getBlockY() + "' AND z='" + location.getBlockZ() + "'"
-						, "player_name").equals(player.getName())) {
+		if (SQL.isRowExistant(TableType.ContainerProtection, location.getWorld().getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ()) &&
+				!SQL.getString(TableType.ContainerProtection, "player_name", location.getWorld().getName(), location.getBlockX(),
+						location.getBlockY(), location.getBlockZ()).equals(player.getName())) {
 			return true;
 		}
 		return false;
@@ -4101,8 +4080,7 @@ public class EvilBook extends JavaPlugin {
 	 * @return If the container is protected
 	 */
 	public static Boolean isContainerProtected(Location location) {
-		if (SQL.isRowExistant(TableType.ContainerProtection, "world='" + location.getWorld().getName() + 
-				"' AND x='" + location.getBlockX() + "' AND y='" + location.getBlockY() + "' AND z='" + location.getBlockZ() + "'")) {
+		if (SQL.isRowExistant(TableType.ContainerProtection, location.getWorld().getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ())) {
 			return true;
 		}
 		return false;
@@ -4150,8 +4128,8 @@ public class EvilBook extends JavaPlugin {
 			getProfile(EvilBook.config.getProperty("server_host")).money += increment;
 			getPlayer(EvilBook.config.getProperty("server_host")).sendMessage("§7You have recieved §a$" + increment + " §7from taxes");
 		} else {
-			SQL.setInteger(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money",
-					SQL.getInteger(TableType.PlayerProfile, EvilBook.config.getProperty("server_host"), "money") + increment);
+			SQL.setValue(TableType.PlayerProfile, "money", EvilBook.config.getProperty("server_host"),
+			SQL.getInt(TableType.PlayerProfile, "money", EvilBook.config.getProperty("server_host")) + increment);
 		}
 	}
 	
@@ -4193,7 +4171,7 @@ public class EvilBook extends JavaPlugin {
 	
 	private static String getPlayerIP(String playerName) {
 		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.tableName + " WHERE player_name='" + playerName + "';")) {
+			try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.getName() + " WHERE player_name='" + playerName + "';")) {
 				if (!rs.isBeforeFirst()) return null;
 				while (rs.next()) {
 					if (rs.getString("ip") != null) {
@@ -4246,5 +4224,9 @@ public class EvilBook extends JavaPlugin {
 	 */
 	public void setEditSession(Session editSession) {
 		this.editSession = editSession;
+	}
+	
+	public static void setRank(String playerName, Rank rank) {
+		SQL.setValue(TableType.PlayerProfile, "rank", playerName, rank.toString());
 	}
 }
