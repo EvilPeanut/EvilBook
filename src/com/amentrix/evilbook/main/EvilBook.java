@@ -273,12 +273,16 @@ public class EvilBook extends JavaPlugin {
 		}
 		// Convert warp table to new format
 		if (SQL.isColumnExistant(TableType.Warps, "location")) {
+			logInfo("Converting warp table to new format");
+			
 			SQL.addColumn(TableType.Warps, "world VARCHAR(36)");
 			SQL.addColumn(TableType.Warps, "x DOUBLE");
 			SQL.addColumn(TableType.Warps, "y DOUBLE");
 			SQL.addColumn(TableType.Warps, "z DOUBLE");
 			SQL.addColumn(TableType.Warps, "yaw FLOAT");
 			SQL.addColumn(TableType.Warps, "pitch FLOAT");
+			
+			int errorsOccured = 0;
 			
 			try (Statement statement = SQL.connection.createStatement()) {
 				try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Warps.getName() + ";")) {
@@ -294,7 +298,18 @@ public class EvilBook extends JavaPlugin {
 					}
 				}
 			} catch (Exception exception) {
-				exception.printStackTrace();
+				errorsOccured++;
+			}
+			
+			if (errorsOccured == 0) {
+				try (Statement statement = SQL.connection.createStatement()) {
+					statement.execute("ALTER TABLE " + SQL.database + "." + TableType.Warps.getName() + " DROP COLUMN location;");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				logInfo("Successfully converted warp table to new format");
+			} else {
+				logSevere(errorsOccured + " errors whilst converting old warp format to new. Please manually delete obsolete location column");
 			}
 		}
 		//
