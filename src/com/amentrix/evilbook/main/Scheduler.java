@@ -144,7 +144,6 @@ class Scheduler {
 				// Mob Disguise
 				for (PlayerProfile profile : EvilBook.playerProfiles.values()) {
 					if (profile.disguise != null && profile.getPlayer() != null) {
-						//TODO: Throws exception causing console spam when player is leaving server whilst using disguise
 						profile.disguise.teleport(profile.getPlayer().getLocation());
 					}
 				}
