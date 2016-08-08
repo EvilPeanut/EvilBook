@@ -837,21 +837,44 @@ public class EventListenerPlayer implements Listener {
 		// Handle inventory loading
 		//
 		if (!EvilBook.isInSurvival(from) && EvilBook.isInSurvival(to)) {
-			// Load survival inventory
+			// Prepare the player for survival and load inventory
 			player.setGameMode(GameMode.SURVIVAL);
+			
 			for (PotionEffect effect : player.getActivePotionEffects()) player.removePotionEffect(effect.getType());
+			
 			if (EvilBook.getProfile(player).isInvisible && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
 				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
 				EvilBook.getProfile(player).isInvisible = false;
 				player.sendMessage("§7Vanish isn't allowed in survival, you are now visible");
 			}
+			
+			if (EvilBook.getProfile(player).disguise != null && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+				EvilBook.getProfile(player).disguise.remove();
+				EvilBook.getProfile(player).disguise = null;
+				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
+				EvilBook.getProfile(player).isInvisible = false;
+				player.sendMessage("§7Mob disguise isn't allowed in survival, your disguise has been removed");
+			}
+			
 			InventoryManager.get(player, "survival");
 		} else if (!EvilBook.isInMinigame(from, MinigameType.SKYBLOCK) && EvilBook.isInMinigame(to, MinigameType.SKYBLOCK)) {
-			// Load skyblock inventory
+			// Prepare the player for skyblock and load inventory
 			player.setGameMode(GameMode.SURVIVAL);
+			
 			player.sendMessage("§bWelcome to Skyblock Survival");
+			
 			ChatExtensions.sendClickableMessage(player, "§7Reset the map using /reset", EnumClickAction.SUGGEST_COMMAND, "/reset");
+			
 			EvilBook.getProfile(player).addAchievement(Achievement.GLOBAL_WORLD_SKYBLOCK);
+			
+			if (EvilBook.getProfile(player).disguise != null && !EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) {
+				EvilBook.getProfile(player).disguise.remove();
+				EvilBook.getProfile(player).disguise = null;
+				for (Player other : Bukkit.getServer().getOnlinePlayers()) other.showPlayer(player);
+				EvilBook.getProfile(player).isInvisible = false;
+				player.sendMessage("§7Mob disguise isn't allowed in Skyblock survival, your disguise has been removed");
+			}
+			
 			InventoryManager.get(player, "skyblock");
 		} else {
 			// Load creative inventory
