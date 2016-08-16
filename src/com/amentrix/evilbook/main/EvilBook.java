@@ -3543,9 +3543,25 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7The X, Y and Z values must be numbers");
 				}
 			} else {
-				ChatExtensions.sendCommandHelpMessage(player, 
-						Arrays.asList("/" + command.getName().toLowerCase(Locale.UK) + " [player]",
-								"/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]"));
+				if (getServer().getOnlinePlayers().size() == 1) {
+					ChatExtensions.sendCommandHelpMessage(player, 
+							Arrays.asList("/" + command.getName().toLowerCase(Locale.UK) + " [player]",
+									"/" + command.getName().toLowerCase(Locale.UK) + " [x] [y] [z]"));
+				} else {
+					EventListenerInventory.playerTeleportMenu = Bukkit.createInventory(null, (int)Math.ceil((float)getServer().getOnlinePlayers().size() / 9) * 9, "Teleport to a player");
+					
+					for (Player onlinePlayer : getServer().getOnlinePlayers()) {
+						if (onlinePlayer == player) continue;
+						ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (byte)SkullType.PLAYER.ordinal());
+						SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
+						skullMeta.setOwner(onlinePlayer.getName());
+						skullMeta.setDisplayName(onlinePlayer.getName());
+						playerHead.setItemMeta(skullMeta);
+						EventListenerInventory.playerTeleportMenu.addItem(playerHead);
+					}
+
+					player.openInventory(EventListenerInventory.playerTeleportMenu);
+				}
 			}
 			return true;
 		}

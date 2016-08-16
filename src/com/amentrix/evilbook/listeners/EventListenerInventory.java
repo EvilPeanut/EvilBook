@@ -56,6 +56,8 @@ public class EventListenerInventory implements Listener {
 		entitySpawnerMenu.setItem(27, new ItemStack(Material.MONSTER_EGG, 1, (short) 120));
 	}
 	
+	public static Inventory playerTeleportMenu = Bukkit.createInventory(null, 36, "Teleport to a player");
+	
 	/**
 	 * Called when a player clicks a slot in an inventory
 	 */
@@ -64,6 +66,7 @@ public class EventListenerInventory implements Listener {
 		if (event.getClickedInventory() != null) {
 			// Prevent the player editing read only inventories
 			if (event.getView().getTopInventory().getName().equals(entitySpawnerMenu.getName())) event.setCancelled(true);
+			if (event.getView().getTopInventory().getName().equals(playerTeleportMenu.getName())) event.setCancelled(true);
 			// Handle taking mail out of a player mailbox
 			if (event.getClickedInventory().getTitle().equals("My inbox") && event.getCurrentItem().getType() == Material.WRITTEN_BOOK) {
 				Player player = (Player)event.getWhoClicked();
@@ -82,6 +85,21 @@ public class EventListenerInventory implements Listener {
 				BlockState block = EvilBook.getProfile(player).lastBlockInteraction.getBlock().getState();
 				((CreatureSpawner)block).setSpawnedType(new SpawnEgg(event.getCurrentItem().getData().getData()).getSpawnedType());
 				block.update();
+				player.closeInventory();
+			}
+			// Handle selecting a player on the player teleport menu
+			if (event.getClickedInventory().getName().equals(playerTeleportMenu.getName()) && event.getCurrentItem().getType() == Material.SKULL_ITEM) {
+				Player player = (Player)event.getWhoClicked();
+				ItemStack item = event.getCurrentItem();
+				
+				Player playerTo = Bukkit.getPlayer(item.getItemMeta().getDisplayName());
+				
+				if (playerTo != null) {
+					player.teleport(playerTo);
+				} else {
+					player.sendMessage("§7You can't teleport to an offline player");
+				}
+				
 				player.closeInventory();
 			}
 		}
