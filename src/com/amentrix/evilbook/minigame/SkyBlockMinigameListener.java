@@ -28,7 +28,7 @@ public class SkyBlockMinigameListener implements Listener {
 		//
 		// Craft wooden door achievement
 		//
-		} else if (item.getType() == Material.WOODEN_DOOR) {
+		} else if (item.getType() == Material.WOOD_DOOR) {
 			EvilBook.getProfile(event.getViewers().get(0)).addAchievement(Achievement.SKYBLOCK_CRAFT_DOOR);
 		//
 		// Craft bow achievement
