@@ -275,7 +275,7 @@ public class EvilBook extends JavaPlugin {
 		if (SQL.isColumnExistant(TableType.Warps, "location")) {
 			logInfo("Converting warp table to new format");
 			
-			SQL.addColumn(TableType.Warps, "world VARCHAR(36)");
+			SQL.addColumn(TableType.Warps, "world VARCHAR(64)");
 			SQL.addColumn(TableType.Warps, "x DOUBLE");
 			SQL.addColumn(TableType.Warps, "y DOUBLE");
 			SQL.addColumn(TableType.Warps, "z DOUBLE");
@@ -288,13 +288,14 @@ public class EvilBook extends JavaPlugin {
 				try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Warps.getName() + ";")) {
 					while (rs.next()) {
 						String rawWarp = rs.getString("location");
+						String warpName = rs.getString("warp_name").toLowerCase(Locale.UK).replaceAll("'", "''");
 						
-						SQL.setValue(TableType.Warps, "world", rs.getString("warp_name"), rawWarp.split(">")[0]);
-						SQL.setValue(TableType.Warps, "x", rs.getString("warp_name"), rawWarp.split(">")[1]);
-						SQL.setValue(TableType.Warps, "y", rs.getString("warp_name"), rawWarp.split(">")[2]);
-						SQL.setValue(TableType.Warps, "z", rs.getString("warp_name"), rawWarp.split(">")[3]);
-						SQL.setValue(TableType.Warps, "yaw", rs.getString("warp_name"), rawWarp.split(">")[4]);
-						SQL.setValue(TableType.Warps, "pitch", rs.getString("warp_name"), rawWarp.split(">")[5]);
+						SQL.setValue(TableType.Warps, "world", warpName, rawWarp.split(">")[0]);
+						SQL.setValue(TableType.Warps, "x", warpName, rawWarp.split(">")[1]);
+						SQL.setValue(TableType.Warps, "y", warpName, rawWarp.split(">")[2]);
+						SQL.setValue(TableType.Warps, "z", warpName, rawWarp.split(">")[3]);
+						SQL.setValue(TableType.Warps, "yaw", warpName, rawWarp.split(">")[4]);
+						SQL.setValue(TableType.Warps, "pitch", warpName, rawWarp.split(">")[5]);
 					}
 				}
 			} catch (Exception exception) {

@@ -46,7 +46,7 @@ public class SQL {
 				}
 				statement.addBatch(locationTableStatement + "PRIMARY KEY (player_name))");
 				
-				statement.addBatch("CREATE TABLE IF NOT EXISTS " + database + "." + TableType.Warps.getName() + "(warp_name VARCHAR(32), world VARCHAR(36), x DOUBLE, y DOUBLE, z DOUBLE, yaw FLOAT, pitch FLOAT, PRIMARY KEY (warp_name))");
+				statement.addBatch("CREATE TABLE IF NOT EXISTS " + database + "." + TableType.Warps.getName() + "(warp_name VARCHAR(32), world VARCHAR(64), x DOUBLE, y DOUBLE, z DOUBLE, yaw FLOAT, pitch FLOAT, PRIMARY KEY (warp_name))");
 				
 				statement.addBatch("CREATE TABLE IF NOT EXISTS " + database + "." + TableType.DynamicSign.getName() + "(world VARCHAR(36), x INT, y INT, z INT, line1 VARCHAR(15), line2 VARCHAR(15), line3 VARCHAR(15), line4 VARCHAR(15))");
 				
@@ -110,7 +110,8 @@ public class SQL {
 	}
 	
 	public static Rank getRank(String playerName) {
-		return Rank.valueOf(getString(TableType.PlayerProfile, "rank", playerName));
+		String rank = getString(TableType.PlayerProfile, "rank", playerName);
+		return rank == null ? null : Rank.valueOf(rank);
 	}
 
 	public static void setValue(TableType table, String columnName, String keyValue, Object value) {
