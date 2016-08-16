@@ -233,6 +233,7 @@ class Region {
 				int bottomBlockY = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockY();
 				int topBlockZ = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockZ();
 				int bottomBlockZ = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(0).getLocation().getBlockZ();
+				
 				for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy()) {
 					if (block.getLocation().getBlockX() > topBlockX) topBlockX = block.getLocation().getBlockX();
 					if (block.getLocation().getBlockX() < bottomBlockX) bottomBlockX = block.getLocation().getBlockX();
@@ -241,39 +242,46 @@ class Region {
 					if (block.getLocation().getBlockZ() > topBlockZ) topBlockZ = block.getLocation().getBlockZ();
 					if (block.getLocation().getBlockZ() < bottomBlockZ) bottomBlockZ = block.getLocation().getBlockZ();
 				}
+				
 				EvilEditEngine engine = CraftEvilEditEngine.createEngine(player.getWorld(), player);
+				
+				Location playerLocation = player.getLocation();
+				
 				for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy()) {
-					Location loc = new Location(player.getWorld(), 
-							player.getLocation().getBlockX() + (block.getLocation().getBlockX() - bottomBlockX), 
-							player.getLocation().getBlockY() + (block.getLocation().getBlockY() - bottomBlockY), 
-							player.getLocation().getBlockZ() + (block.getLocation().getBlockZ() - bottomBlockZ));
+					Location loc = new Location(playerLocation.getWorld(), 
+							playerLocation.getBlockX() + (block.getLocation().getBlockX() - bottomBlockX), 
+							playerLocation.getBlockY() + (block.getLocation().getBlockY() - bottomBlockY), 
+							playerLocation.getBlockZ() + (block.getLocation().getBlockZ() - bottomBlockZ));
 					// Set the block material and data which includes direction
 					engine.setBlock(loc, block.getType().getId(), block.getData().getData());
 					// Handle blocks with special states
 					Session.setState(block, loc.getBlock().getState());
 				}
+				
 				// Paste dynamic signs
 				for (DynamicSign dynamicSign : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList) {
 					DynamicSign newDynamicSign = dynamicSign;
-					newDynamicSign.location = new Location(player.getWorld(), 
-							player.getLocation().getBlockX() + (newDynamicSign.location.getBlockX() - bottomBlockX), 
-							player.getLocation().getBlockY() + (newDynamicSign.location.getBlockY() - bottomBlockY), 
-							player.getLocation().getBlockZ() + (newDynamicSign.location.getBlockZ() - bottomBlockZ));
+					newDynamicSign.location = new Location(playerLocation.getWorld(), 
+							playerLocation.getBlockX() + (newDynamicSign.location.getBlockX() - bottomBlockX), 
+							playerLocation.getBlockY() + (newDynamicSign.location.getBlockY() - bottomBlockY), 
+							playerLocation.getBlockZ() + (newDynamicSign.location.getBlockZ() - bottomBlockZ));
 					newDynamicSign.create();
 					EvilBook.dynamicSignList.get(player.getWorld()).add(newDynamicSign);
 				}
 				((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList = new ArrayList<>();
+				
 				// Paste emitters
 				for (Emitter emitter : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList) {
 					Emitter newEmitter = emitter;
-					newEmitter.location = new Location(player.getWorld(), 
-							player.getLocation().getBlockX() + (newEmitter.location.getBlockX() - bottomBlockX), 
-							player.getLocation().getBlockY() + (newEmitter.location.getBlockY() - bottomBlockY), 
-							player.getLocation().getBlockZ() + (newEmitter.location.getBlockZ() - bottomBlockZ));
+					newEmitter.location = new Location(playerLocation.getWorld(), 
+							playerLocation.getBlockX() + (newEmitter.location.getBlockX() - bottomBlockX), 
+							playerLocation.getBlockY() + (newEmitter.location.getBlockY() - bottomBlockY), 
+							playerLocation.getBlockZ() + (newEmitter.location.getBlockZ() - bottomBlockZ));
 					newEmitter.save();
 					EvilBook.emitterList.add(newEmitter);
 				}
 				((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList = new ArrayList<>();
+				
 				//
 				engine.notifyClients(GlobalStatistic.BlocksPlaced);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks pasted");
@@ -298,16 +306,19 @@ class Region {
 				{
 					final int i = index;
 					count++;
+					
+					Location playerLocation = player.getLocation();
+					
 					Bukkit.getServer().getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugin("EvilBook"), new Runnable() {
 						@Override
 						public void run() {
 							int indexMax = Math.min(i + 21952, ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize());
 							for (int subIndex = i; subIndex < indexMax; subIndex++) {
 								BlockState block = ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopy().get(subIndex);
-								Location loc = new Location(player.getWorld(), 
-										player.getLocation().getBlockX() + (block.getLocation().getBlockX() - bottomBlockX2), 
-										player.getLocation().getBlockY() + (block.getLocation().getBlockY() - bottomBlockY2), 
-										player.getLocation().getBlockZ() + (block.getLocation().getBlockZ() - bottomBlockZ2));
+								Location loc = new Location(playerLocation.getWorld(), 
+										playerLocation.getBlockX() + (block.getLocation().getBlockX() - bottomBlockX2), 
+										playerLocation.getBlockY() + (block.getLocation().getBlockY() - bottomBlockY2), 
+										playerLocation.getBlockZ() + (block.getLocation().getBlockZ() - bottomBlockZ2));
 								// Set the block material and data which includes direction
 								engine.setBlock(loc, block.getType().getId(), block.getData().getData());
 								// Handle blocks with special states
