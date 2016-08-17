@@ -22,6 +22,8 @@ import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 
+import net.minecraft.server.v1_10_R1.ChatHoverable.EnumHoverAction;
+
 /**
  * PlayerProfile parent instance
  * @author Reece Aaron Lecrivain
@@ -138,13 +140,11 @@ public abstract class PlayerProfile {
 		if (!hasAchievement(achievement)) {
 			this.achievements.add(achievement);
 			if (achievement != Achievement.GLOBAL_COMMAND_DONATE) {
-				//TODO: PlayerProfiles: Add hover message
-				getPlayer().sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
+				ChatExtensions.sendHoverableMessage(getPlayer(), ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon(), EnumHoverAction.SHOW_TEXT, ChatColor.YELLOW + achievement.getName() + "\n\n" + ChatColor.BLUE + achievement.getDescription() + "\n\n" + ChatColor.GRAY + achievement.getValue() + " achievement points");
 				if (achievement.getReward() != null) getPlayer().sendMessage(ChatColor.GRAY + "You have unlocked the " + achievement.getReward());
 			}
 			for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-				//TODO: PlayerProfiles: Add hover message
-				if (!player.getName().equals(this.name)) player.sendMessage(ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " " + this.name + " got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon());
+				if (!player.getName().equals(this.name)) ChatExtensions.sendHoverableMessage(player, ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " " + this.name + " got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon(), EnumHoverAction.SHOW_TEXT, ChatColor.YELLOW + achievement.getName() + "\n\n" + ChatColor.BLUE + achievement.getDescription() + "\n\n" + ChatColor.GRAY + achievement.getValue() + " achievement points");
 				player.playSound(getPlayer().getLocation(), Sound.ENTITY_FIREWORK_TWINKLE, 99.0F, 1.0F);
 			}
 		}
