@@ -469,40 +469,33 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Alt Command
 		//
-		if (command.getName().equalsIgnoreCase("alt")) {
-			if (args.length == 1) {
-				try (Statement statement = SQL.connection.createStatement()) {
-					try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.getName() + " WHERE ip='" + getPlayerIP(args[0]) + "' AND not(player_name='" + args[0] + "');")) {
-						if (!rs.isBeforeFirst()) {
-						    sender.sendMessage("§7No accounts are associated with this player's ip");
-						} else {
-							sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s §lpossible §7alternative accounts:");
-							while (rs.next()) if (!args[0].equalsIgnoreCase(rs.getString("player_name"))) sender.sendMessage("§7" + getServer().getOfflinePlayer(rs.getString("player_name")).getName());
-						}
-						sender.sendMessage("§7Please note IPs change and bans should not be based on IP");
-					}
-				} catch (Exception exception) {
-					exception.printStackTrace();
-				}
-			} else {
-				ChatExtensions.sendCommandHelpMessage(sender, "/alt [playerName]");
-			}
-			return true;
-		}
-		//
-		// IP Command
-		//
-		if (command.getName().equalsIgnoreCase("ip")) {
+		if (command.getName().equalsIgnoreCase("alt") || command.getName().equalsIgnoreCase("ip")) {
 			if (args.length == 1) {
 				String ip = getPlayerIP(args[0]);
+				
 				if (ip == null) {
 					sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s IP isn't logged");
 				} else {
 					sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s §llast known IP §7is " + ip);
+					
+					try (Statement statement = SQL.connection.createStatement()) {
+						try (ResultSet rs = statement.executeQuery("SELECT player_name, ip FROM " + SQL.database + "." + TableType.PlayerProfile.getName() + " WHERE ip='" + ip + "' AND not(player_name='" + args[0] + "');")) {
+							if (!rs.isBeforeFirst()) {
+							    sender.sendMessage("§7No alternative accounts are linked to this player's ip");
+							} else {
+								sender.sendMessage("§7" + getServer().getOfflinePlayer(args[0]).getName() + "'s §lpossible §7alternative accounts:");
+								while (rs.next()) if (!args[0].equalsIgnoreCase(rs.getString("player_name"))) sender.sendMessage("  §7" + getServer().getOfflinePlayer(rs.getString("player_name")).getName());
+							}
+							sender.sendMessage("§7§oPlease note IPs change and bans should not be based on IP");
+						}
+					} catch (Exception exception) {
+						exception.printStackTrace();
+					}
 				}
-				sender.sendMessage("§7Please note IPs change and bans should not be based on IP");
 			} else {
-				ChatExtensions.sendCommandHelpMessage(sender, "/ip [playerName]");
+				ChatExtensions.sendCommandHelpMessage(sender,
+						Arrays.asList("/alt [playerName]",
+								"/ip [playerName]"));
 			}
 			return true;
 		}
