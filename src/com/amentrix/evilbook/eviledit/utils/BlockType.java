@@ -34,14 +34,136 @@ public class BlockType {
 		return this.data;
 	}
 	
-	//TODO: EvilEdit: Update for 1.8
 	public void setData(String blockData) {
 		if (EvilBook.isByte(blockData)) {
 			this.data = Byte.parseByte(blockData);
 		} else {
-			if (this.material == Material.WOOL || this.material == Material.CARPET || this.material == Material.STAINED_GLASS 
+			if (this.material == Material.STONE) {
+				switch (blockData.toLowerCase()) {
+				case "granite":
+					this.data = 1;
+					break;
+				case "polishedgranite":
+					this.data = 2;
+					break;
+				case "diorite":
+					this.data = 3;
+					break;
+				case "polisheddiorite":
+					this.data = 4;
+					break;
+				case "andesite":
+					this.data = 5;
+					break;
+				case "polishedandesite":
+					this.data = 6;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.WOOD || this.material == Material.WOOD_DOUBLE_STEP ||
+					this.material == Material.WOOD_STEP || this.material == Material.WOOD_STAIRS || this.material == Material.SAPLING) {
+				switch (blockData.toLowerCase()) {
+				case "spruce":
+					this.data = 1;
+					break;
+				case "birch":
+					this.data = 2;
+					break;
+				case "jungle":
+					this.data = 3;
+					break;
+				case "acacia":
+					this.data = 4;
+					break;
+				case "darkoak":
+					this.data = 5;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.SAND) {
+				switch (blockData.toLowerCase()) {
+				case "red":
+					this.data = 1;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.LOG) {
+				switch (blockData.toLowerCase()) {
+				case "spruce":
+					this.data = 1;
+					break;
+				case "birch":
+					this.data = 2;
+					break;
+				case "jungle":
+					this.data = 3;
+					break;
+				case "acacia":
+					this.material = Material.LOG_2;
+					break;
+				case "darkoak":
+					this.material = Material.LOG_2;
+					this.data = 1;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.LEAVES) {
+				switch (blockData.toLowerCase()) {
+				case "spruce":
+					this.data = 1;
+					break;
+				case "birch":
+					this.data = 2;
+					break;
+				case "jungle":
+					this.data = 3;
+					break;
+				case "acacia":
+					this.material = Material.LEAVES_2;
+					break;
+				case "darkoak":
+					this.material = Material.LEAVES_2;
+					this.data = 1;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.SPONGE) {
+				switch (blockData.toLowerCase()) {
+				case "wet":
+					this.data = 1;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.SANDSTONE) {
+				switch (blockData.toLowerCase()) {
+				case "chiseled":
+					this.data = 1;
+					break;
+				case "smooth":
+					this.data = 2;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.LONG_GRASS) {
+				switch (blockData.toLowerCase()) {
+				case "grass":
+					this.data = 1;
+					break;
+				case "fern":
+					this.data = 2;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.WOOL || this.material == Material.CARPET || this.material == Material.STAINED_GLASS 
 					|| this.material == Material.STAINED_GLASS_PANE || this.material == Material.STAINED_CLAY) {
-				// Dont use 'white' as switch case as 0 is the default data
 				switch (blockData.toLowerCase()) {
 				case "orange":
 					this.data = 1;
@@ -98,7 +220,6 @@ public class BlockType {
 					break;
 				}
 			} else if (this.material == Material.STEP || this.material == Material.DOUBLE_STEP) {
-				// Dont use 'stone' as switch case as 0 is the default data
 				switch (blockData.toLowerCase()) {
 				case "sandstone":
 					this.data = 1;
@@ -126,28 +247,6 @@ public class BlockType {
 					break;
 				case "quartz":
 					this.data = 7;
-					break;
-				default:
-					break;
-				}
-			} else if (this.material == Material.WOOD || this.material == Material.WOOD_DOUBLE_STEP || this.material == Material.LOG ||
-					this.material == Material.WOOD_STEP || this.material == Material.WOOD_STAIRS) {
-				// Dont use 'oak' as switch case as 0 is the default data
-				switch (blockData.toLowerCase()) {
-				case "spruce":
-					this.data = 1;
-					break;
-				case "birch":
-					this.data = 2;
-					break;
-				case "jungle":
-					this.data = 3;
-					break;
-				case "acacia":
-					this.data = 4;
-					break;
-				case "darkoak":
-					this.data = 5;
 					break;
 				default:
 					break;

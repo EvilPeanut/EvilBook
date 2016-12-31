@@ -18,7 +18,7 @@ import com.amentrix.evilbook.sql.SQLQuery;
 import com.amentrix.evilbook.sql.StatementSet;
 import com.amentrix.evilbook.sql.TableType;
 
-import net.minecraft.server.v1_10_R1.ChatClickable.EnumClickAction;
+import net.minecraft.server.v1_11_R1.ChatClickable.EnumClickAction;
 
 /**
  * PlayerProfileAdmin instance

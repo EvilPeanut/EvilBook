@@ -195,11 +195,9 @@ public class BlockReference {
 		blockList.put(Material.COAL_BLOCK, Arrays.asList("Block of Coal", "CoalBlock", "BlockofCoal"));
 		blockList.put(Material.PACKED_ICE, Arrays.asList("Packed Ice", "PackedIce"));
 		blockList.put(Material.DOUBLE_PLANT, Arrays.asList("Sunflower"));
-		// UNUSED BLOCKS
-		blockList.put(null, null);
-		blockList.put(null, null);
-		blockList.put(null, null);
-		//
+		blockList.put(Material.STANDING_BANNER, Arrays.asList("Standing Banner"));
+		blockList.put(Material.WALL_BANNER, Arrays.asList("Wall Banner"));
+		blockList.put(Material.DAYLIGHT_DETECTOR_INVERTED, Arrays.asList("Inverted Daylight Sensor", "InvertedDaylightSensor", "InvertedLightSensor", "InvertedSolarPanel"));
 		blockList.put(Material.RED_SANDSTONE, Arrays.asList("Red Sandstone", "RedSandstone"));
 		blockList.put(Material.RED_SANDSTONE_STAIRS, Arrays.asList("Red Sandstone Stairs", "RedSandstoneStairs"));
 		blockList.put(Material.DOUBLE_STONE_SLAB2, Arrays.asList("Double Red Sandstone Slab", "DoubleRedSandstoneSlab", "RedSandstoneDoubleSlab"));
@@ -229,12 +227,6 @@ public class BlockReference {
 	public static Material getBlockMaterial(String block) {
 		int blockID = 0;
 		for (Entry<Material, List<String>> entry : blockList.entrySet()) {
-			/*
-			if (entry.getKey() == null) {
-				blockID += 3;
-				continue;
-			}
-			*/
 			if (EvilBook.isInteger(block)) {
 				if (Integer.parseInt(block) == blockID) return entry.getKey();
 			} else {

@@ -39,7 +39,7 @@ import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.regions.Regions;
 import com.amentrix.evilbook.statistics.PlayerStatistic;
 
-import net.minecraft.server.v1_10_R1.ChatHoverable.EnumHoverAction;
+import net.minecraft.server.v1_11_R1.ChatHoverable.EnumHoverAction;
 
 /**
  * Entity and hanging entity event listener
