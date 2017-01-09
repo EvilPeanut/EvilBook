@@ -389,6 +389,7 @@ public class EvilBook extends JavaPlugin {
 		cmdBlockWhitelist.put("toggledownfall", false);
 		cmdBlockWhitelist.put("weather", false);
 		cmdBlockWhitelist.put("time", false);
+		cmdBlockWhitelist.put("give", false);
 		//
 		// Log Block Integration
 		//
