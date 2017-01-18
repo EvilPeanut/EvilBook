@@ -1,6 +1,6 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 8.1.6
+version: 9.0.0
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
   skyblock:
