@@ -7,10 +7,10 @@ package com.amentrix.evilbook.main;
 public enum Rank {
 	// Normal ranks
 	BUILDER("Builder", "§0[§EBuilder§0]", "E", 0, null),
-	ADVANCED_BUILDER("Creator", "§0[§5Creator§0]", "5", 0, "§aUnlocked usage of anvil block\nUnlocked usage of saplings\nUnlocked usage of sand block\nUnlocked usage of gravel block\nUnlocked usage of bone meal\nUnlocked survival world\nUnlocked flatlands world"),
-	ARCHITECT("Designer", "§0[§DDesigner§0]", "D", 0, "§aUnlocked smoke emitter effect\nUnlocked flames emitter effect\nUnlocked hearts emitter effect\nUnlocked redstone fumes emitter effect\nUnlocked slime emitter effect\nUnlocked masic critical hit emitter effect\nUnlocked enchantment table emitter effect\nUnlocked skylands world\nUnlocked /chimney"),
-	MODERATOR("Architect", "§0[§9Architect§0]", "9", 0, null),
-	POLICE("Engineer", "§0[§3Engineer§0]", "3", 0, null),
+	ADVANCED_BUILDER("Advanced Builder", "§0[§5Adv.Builder§0]", "5", 0, "§aUnlocked usage of anvil block\nUnlocked usage of saplings\nUnlocked usage of sand block\nUnlocked usage of gravel block\nUnlocked usage of bone meal\nUnlocked survival world\nUnlocked flatlands world"),
+	ARCHITECT("Master Builder", "§0[§DMaster Builder§0]", "D", 0, "§aUnlocked smoke emitter effect\nUnlocked flames emitter effect\nUnlocked hearts emitter effect\nUnlocked redstone fumes emitter effect\nUnlocked slime emitter effect\nUnlocked masic critical hit emitter effect\nUnlocked enchantment table emitter effect\nUnlocked skylands world\nUnlocked /chimney"),
+	MODERATOR("Engineer", "§0[§9Engineer§0]", "9", 0, null),
+	POLICE("Architect", "§0[§3Architect§0]", "3", 0, null),
 	// Staff ranks
 	STAFF_COPPER("Copper Staff", "§0[§EStaff§0]", "E", 1000, null),
 	STAFF_SILVER("Silver Staff", "§0[§7Staff§0]", "7", 2000, null),

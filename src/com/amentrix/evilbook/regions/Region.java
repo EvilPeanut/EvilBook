@@ -72,8 +72,8 @@ public class Region {
 		return this.leaveMessage == null ? null : this.leaveMessage.replaceAll("(?i)(\\[time\\])", EvilBook.getTime(locationA.getWorld()))
 				.replaceAll("(?i)(\\[weather\\])", EvilBook.getWeather(locationA.getBlock()))
 				.replaceAll("(?i)(\\[online\\])", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
-				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken))
-				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken));
+				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistic.getStatistic(GlobalStatistic.BLOCKS_BROKEN))
+				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistic.getStatistic(GlobalStatistic.BLOCKS_PLACED));
 	}
 	
 	/**
@@ -88,8 +88,8 @@ public class Region {
 		return this.welcomeMessage == null ? null : this.welcomeMessage.replaceAll("(?i)(\\[time\\])", EvilBook.getTime(locationA.getWorld()))
 				.replaceAll("(?i)(\\[weather\\])", EvilBook.getWeather(locationA.getBlock()))
 				.replaceAll("(?i)(\\[online\\])", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
-				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken))
-				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken));
+				.replaceAll("(?i)(\\[blocksbroken\\])", GlobalStatistic.getStatistic(GlobalStatistic.BLOCKS_BROKEN))
+				.replaceAll("(?i)(\\[blocksplaced\\])", GlobalStatistic.getStatistic(GlobalStatistic.BLOCKS_PLACED));
 	}
 	
 	/**

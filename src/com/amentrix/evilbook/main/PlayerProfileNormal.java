@@ -150,7 +150,7 @@ public class PlayerProfileNormal extends PlayerProfile {
 					//
 					// Statistics
 					//
-					GlobalStatistic.incrementStatistic(GlobalStatistic.LoginNewPlayers, 1);
+					GlobalStatistic.incrementStatistic(GlobalStatistic.NEW_PLAYERS, 1);
 					//
 					// Player display and list name
 					//

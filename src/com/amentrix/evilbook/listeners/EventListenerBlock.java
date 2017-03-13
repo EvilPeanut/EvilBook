@@ -26,6 +26,7 @@ import org.bukkit.inventory.InventoryHolder;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.DynamicSign;
+import com.amentrix.evilbook.main.DynamicSignManager;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
@@ -132,7 +133,7 @@ public class EventListenerBlock implements Listener {
 				public void run() {
 					// Dynamic signs
 					if (blockType == Material.SIGN_POST || blockType == Material.WALL_SIGN) {
-						Iterator<DynamicSign> dynamicSigns = EvilBook.dynamicSignList.get(block.getWorld()).iterator();
+						Iterator<DynamicSign> dynamicSigns = DynamicSignManager.signList.get(block.getWorld()).iterator();
 						while (dynamicSigns.hasNext()) {
 							DynamicSign dynamicSign = dynamicSigns.next();
 							if (dynamicSign.location.getWorld() == block.getWorld() && dynamicSign.location.getBlockX() == block.getX() 
@@ -147,7 +148,7 @@ public class EventListenerBlock implements Listener {
 						SQL.deleteRow(TableType.CommandBlock, block.getWorld().getUID().toString(), block.getX(), block.getY(), block.getZ());
 					}
 					// Statistics
-					GlobalStatistic.incrementStatistic(GlobalStatistic.BlocksBroken, 1);
+					GlobalStatistic.incrementStatistic(GlobalStatistic.BLOCKS_BROKEN, 1);
 				}
 			});
 		}
@@ -217,7 +218,7 @@ public class EventListenerBlock implements Listener {
 						player.sendMessage(ChatColor.GRAY + BlockReference.getFriendlyName(block.getType()) + " protected");
 					}
 					// Statistics
-					GlobalStatistic.incrementStatistic(GlobalStatistic.BlocksPlaced, 1);
+					GlobalStatistic.incrementStatistic(GlobalStatistic.BLOCKS_PLACED, 1);
 				}
 			});
 		}

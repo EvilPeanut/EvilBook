@@ -84,6 +84,7 @@ import com.amentrix.evilbook.achievement.Achievement;
 import com.amentrix.evilbook.eviledit.utils.EditWandMode;
 import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.DynamicSign;
+import com.amentrix.evilbook.main.DynamicSignManager;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfile;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
@@ -149,7 +150,7 @@ public class EventListenerPlayer implements Listener {
 		NametagManager.sendTeamsToPlayer(event.getPlayer());
 		NametagManager.clear(event.getPlayer().getName());
 		// Statistics
-		GlobalStatistic.incrementStatistic(GlobalStatistic.LoginTotal, 1);
+		GlobalStatistic.incrementStatistic(GlobalStatistic.LOGIN_TOTAL, 1);
 	}
 
 	/**
@@ -426,7 +427,7 @@ public class EventListenerPlayer implements Listener {
 				+ "<§f" + player.getDisplayName() + "§" + profile.rank.getColor(profile) 
 				+ "> §f" + EvilBook.toFormattedString(message));
 		// Statistics
-		GlobalStatistic.incrementStatistic(GlobalStatistic.MessagesSent, 1);
+		GlobalStatistic.incrementStatistic(GlobalStatistic.MESSAGES_SENT, 1);
 	}
 
 	/**
@@ -581,13 +582,13 @@ public class EventListenerPlayer implements Listener {
 					//
 					if (!Regions.isInProtectedRegion(block.getLocation(), player)) {
 						try {
-							for (Iterator<DynamicSign> iterator = EvilBook.dynamicSignList.get(sign.getLocation().getWorld()).iterator(); iterator.hasNext();) {
+							for (Iterator<DynamicSign> iterator = DynamicSignManager.signList.get(sign.getLocation().getWorld()).iterator(); iterator.hasNext();) {
 								DynamicSign dynamicSign = iterator.next();
 								if (dynamicSign.location.getBlockX() == sign.getLocation().getBlockX() && 
 										dynamicSign.location.getBlockY() == sign.getLocation().getBlockY() &&
 										dynamicSign.location.getBlockZ() == sign.getLocation().getBlockZ()) {
 									dynamicSign.delete();
-									EvilBook.dynamicSignList.remove(dynamicSign);
+									DynamicSignManager.signList.remove(dynamicSign);
 									signText[0] = dynamicSign.textLines[0];
 									signText[1] = dynamicSign.textLines[1];
 									signText[2] = dynamicSign.textLines[2];
@@ -680,7 +681,7 @@ public class EventListenerPlayer implements Listener {
 							case WHITE: dyeTextColor = ChatColor.WHITE; break;
 							default: dyeTextColor = ChatColor.BLACK;
 							}
-							for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(player.getWorld())) {
+							for (DynamicSign dynamicSign : DynamicSignManager.signList.get(player.getWorld())) {
 								if (dynamicSign.location.equals(block.getLocation())) {
 									if (dynamicSign.textLines[0].length() != 0) dynamicSign.textLines[0] = dyeTextColor + (dynamicSign.textLines[0].startsWith("§") && !dynamicSign.textLines[0].startsWith("§l") && !dynamicSign.textLines[0].startsWith("§k") && !dynamicSign.textLines[0].startsWith("§n") && !dynamicSign.textLines[0].startsWith("§m") && !dynamicSign.textLines[0].startsWith("§o") && !dynamicSign.textLines[0].startsWith("§r") ? dynamicSign.textLines[0].substring(2, dynamicSign.textLines[0].length()) : dynamicSign.textLines[0]);
 									if (dynamicSign.textLines[1].length() != 0) dynamicSign.textLines[1] = dyeTextColor + (dynamicSign.textLines[1].startsWith("§") && !dynamicSign.textLines[1].startsWith("§l") && !dynamicSign.textLines[1].startsWith("§k") && !dynamicSign.textLines[1].startsWith("§n") && !dynamicSign.textLines[1].startsWith("§m") && !dynamicSign.textLines[1].startsWith("§o") && !dynamicSign.textLines[1].startsWith("§r") ? dynamicSign.textLines[1].substring(2, dynamicSign.textLines[1].length()) : dynamicSign.textLines[1]);

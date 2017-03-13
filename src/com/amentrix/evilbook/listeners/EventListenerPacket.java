@@ -5,7 +5,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.Listener;
 
 import com.amentrix.evilbook.achievement.Achievement;
-import com.amentrix.evilbook.main.DynamicSign;
+import com.amentrix.evilbook.main.DynamicSignManager;
 import com.amentrix.evilbook.main.EvilBook;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -37,8 +37,8 @@ public class EventListenerPacket implements Listener {
 					sign.setLine(2, lines[2]);
 					sign.setLine(3, lines[3]);
 					formatSignText(sign);
-					if (DynamicSign.isDynamicSign(sign)) {
-						DynamicSign.formatDynamicSign(sign);
+					if (DynamicSignManager.isDynamicSign(sign)) {
+						DynamicSignManager.formatDynamicSign(sign);
 						EvilBook.getProfile(event.getPlayer()).addAchievement(Achievement.GLOBAL_DYNAMIC_SIGN);
 					}
 					sign.update();

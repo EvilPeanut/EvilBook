@@ -217,6 +217,43 @@ public class BlockReference {
 		blockList.put(Material.JUNGLE_DOOR, Arrays.asList("Jungle Door", "JungleDoor"));
 		blockList.put(Material.ACACIA_DOOR, Arrays.asList("Acacia Door", "AcaciaDoor"));
 		blockList.put(Material.DARK_OAK_DOOR, Arrays.asList("Dark Oak Door", "DarkOakDoor"));
+		blockList.put(Material.END_ROD, Arrays.asList("End Rod", "EndRod"));
+		blockList.put(Material.CHORUS_PLANT, Arrays.asList("Chorus Plant", "ChorusPlant"));
+		blockList.put(Material.CHORUS_FLOWER, Arrays.asList("Chorus Flower", "ChorusFlower"));
+		blockList.put(Material.PURPUR_BLOCK, Arrays.asList("Purpur Block", "PurpurBlock"));
+		blockList.put(Material.PURPUR_PILLAR, Arrays.asList("Purpur Pillar", "PurpurPillar"));
+		blockList.put(Material.PURPUR_STAIRS, Arrays.asList("Purpur Stairs", "PurpurStairs"));
+		blockList.put(Material.PURPUR_DOUBLE_SLAB, Arrays.asList("Purpur Double Slab", "PurpurDoubleSlab"));
+		blockList.put(Material.PURPUR_SLAB, Arrays.asList("Purpur Slab", "PurpurSlab"));
+		blockList.put(Material.END_BRICKS, Arrays.asList("End Stone Bricks", "EndStoneBricks"));
+		blockList.put(Material.BEETROOT_BLOCK, Arrays.asList("Beetroot Block", "BeetrootBlock", "Beetroot"));
+		blockList.put(Material.GRASS_PATH, Arrays.asList("Grass Path", "GrassPath"));
+		blockList.put(Material.END_GATEWAY, Arrays.asList("End Gateway", "EndGateway"));
+		blockList.put(Material.COMMAND_REPEATING, Arrays.asList("Repeating Command Block", "RepeatingCommandBlock", "RepeatingCommand"));
+		blockList.put(Material.COMMAND_CHAIN, Arrays.asList("Chain Command Block", "ChainCommandBlock", "ChainCommand"));
+		blockList.put(Material.FROSTED_ICE, Arrays.asList("Frosted Ice", "FrostedIce"));
+		blockList.put(Material.MAGMA, Arrays.asList("Magma Block", "MagmaBlock", "Magma"));
+		blockList.put(Material.NETHER_WART_BLOCK, Arrays.asList("Nether Wart Block", "NetherWartBlock"));
+		blockList.put(Material.RED_NETHER_BRICK, Arrays.asList("Red Nether Brick", "RedNetherBrick", "RedNetherBricks"));
+		blockList.put(Material.BONE_BLOCK, Arrays.asList("Bone Block", "BoneBlock"));
+		blockList.put(Material.STRUCTURE_VOID, Arrays.asList("Structure Void", "StructureVoid"));
+		blockList.put(Material.OBSERVER, Arrays.asList("Observer"));
+		blockList.put(Material.WHITE_SHULKER_BOX, Arrays.asList("White Shulker Box", "WhiteShulkerBox", "ShulkerBox"));
+		blockList.put(Material.ORANGE_SHULKER_BOX, Arrays.asList("Orange Shulker Box", "OrangeShulkerBox"));
+		blockList.put(Material.MAGENTA_SHULKER_BOX, Arrays.asList("Magenta Shulker Box", "MagentaShulkerBox"));
+		blockList.put(Material.LIGHT_BLUE_SHULKER_BOX, Arrays.asList("Light Blue Shulker Box", "LightBlueShulkerBox"));
+		blockList.put(Material.YELLOW_SHULKER_BOX, Arrays.asList("Yellow Shulker Box", "YellowShulkerBox"));
+		blockList.put(Material.LIME_SHULKER_BOX, Arrays.asList("Lime Shulker Box", "LimeShulkerBox"));
+		blockList.put(Material.PINK_SHULKER_BOX, Arrays.asList("Pink Shulker Box", "PinkShulkerBox"));
+		blockList.put(Material.GRAY_SHULKER_BOX, Arrays.asList("Gray Shulker Box", "GrayShulkerBox", "GreyShulkerBox"));
+		blockList.put(Material.SILVER_SHULKER_BOX, Arrays.asList("Light Gray Shulker Box", "LightGrayShulkerBox", "LightGreyShulkerBox", "SilverShulkerBox"));
+		blockList.put(Material.CYAN_SHULKER_BOX, Arrays.asList("Cyan Shulker Box", "CyanShulkerBox"));
+		blockList.put(Material.PURPLE_SHULKER_BOX, Arrays.asList("Purple Shulker Box", "PurpleShulkerBox"));
+		blockList.put(Material.BLUE_SHULKER_BOX, Arrays.asList("Blue Shulker Box", "BlueShulkerBox"));
+		blockList.put(Material.BROWN_SHULKER_BOX, Arrays.asList("Brown Shulker Box", "BrownShulkerBox"));
+		blockList.put(Material.GREEN_SHULKER_BOX, Arrays.asList("Green Shulker Box", "GreenShulkerBox"));
+		blockList.put(Material.RED_SHULKER_BOX, Arrays.asList("Red Shulker Box", "RedShulkerBox"));
+		blockList.put(Material.BLACK_SHULKER_BOX, Arrays.asList("Black Shulker Box", "BlackShulkerBox"));
     }
     
 	/**

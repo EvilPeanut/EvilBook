@@ -37,7 +37,7 @@ public class TreeGenerationDelegate implements BlockChangeDelegate {
 	}
 	
 	public void notifyClients() {
-		this.engine.notifyClients(GlobalStatistic.BlocksPlaced);
+		this.engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 	}
 	
 	@Override

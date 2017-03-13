@@ -7,12 +7,10 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
-import com.amentrix.evilbook.statistics.GlobalStatistic;
 
 /**
  * DynamicSign instance
@@ -22,22 +20,10 @@ public class DynamicSign {
 	public Location location;
 	public String[] textLines;
 	
-	private DynamicSign(Location location, String[] textLines) {
+	DynamicSign(Location location, String[] textLines) {
 		this.location = location;
 		this.textLines = textLines;
-		try {
-			SQL.insert(TableType.DynamicSign, "world, x, y, z, line1, line2, line3, line4", "'" + 
-			location.getWorld().getUID().toString() + "','" + 
-			location.getBlockX() + "','" +
-			location.getBlockY() + "','" + 
-			location.getBlockZ() + "','" +
-			textLines[0] + "','" +
-			textLines[1] + "','" +
-			textLines[2] + "','" +
-			textLines[3] + "'");
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
+		create();
 	}
 	
 	DynamicSign(ResultSet properties) {
@@ -65,7 +51,6 @@ public class DynamicSign {
 		}
 	}
 	
-	// Only used to create record if sign is destroyed and then remade eg. EvilEdit undo
 	public void create() {
 		try {
 			SQL.insert(TableType.DynamicSign, "'" + 
@@ -81,23 +66,8 @@ public class DynamicSign {
 			exception.printStackTrace();
 		}
 	}
-
-	void update() {
-		if (isSeen()) {
-			Sign sign = (Sign) location.getBlock().getState();
-			for (int i = 0; i < 4; i++) {
-				sign.setLine(i, textLines[i].replace("[time]", EvilBook.getTime(sign.getBlock().getWorld())
-						.replace("[weather]", EvilBook.getWeather(sign.getBlock())))
-						.replace("[online]", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()))
-						.replace("[blocksbroken]", GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken))
-						.replace("[blocksplaced]", GlobalStatistic.getStatistic(GlobalStatistic.BlocksPlaced))
-						);
-			}
-			sign.update();
-		}
-	}
 	
-	private Boolean isSeen() {
+	public Boolean isSeen() {
 		if (!location.getChunk().isLoaded()) return false;
 		for (Player player : location.getWorld().getPlayers()) {
 			if (Math.abs(player.getLocation().getBlockX() - location.getBlockX()) <= 16
@@ -106,42 +76,5 @@ public class DynamicSign {
 			}
 		}
 		return false;
-	}
-	
-	public static Boolean isDynamicSign(Sign sign) {
-		return sign.getLine(0).toLowerCase().contains("[time]") || 
-			   sign.getLine(1).toLowerCase().contains("[time]") || 
-			   sign.getLine(2).toLowerCase().contains("[time]") || 
-			   sign.getLine(3).toLowerCase().contains("[time]") ||
-			   sign.getLine(0).toLowerCase().contains("[weather]") || 
-			   sign.getLine(1).toLowerCase().contains("[weather]") || 
-			   sign.getLine(2).toLowerCase().contains("[weather]") || 
-			   sign.getLine(3).toLowerCase().contains("[weather]") ||
-			   sign.getLine(0).toLowerCase().contains("[online]") || 
-			   sign.getLine(1).toLowerCase().contains("[online]") || 
-			   sign.getLine(2).toLowerCase().contains("[online]") || 
-			   sign.getLine(3).toLowerCase().contains("[online]") ||
-			   sign.getLine(0).toLowerCase().contains("[blocksbroken]") || 
-			   sign.getLine(1).toLowerCase().contains("[blocksbroken]") || 
-			   sign.getLine(2).toLowerCase().contains("[blocksbroken]") || 
-			   sign.getLine(3).toLowerCase().contains("[blocksbroken]") ||
-			   sign.getLine(0).toLowerCase().contains("[blocksplaced]") || 
-			   sign.getLine(1).toLowerCase().contains("[blocksplaced]") || 
-			   sign.getLine(2).toLowerCase().contains("[blocksplaced]") || 
-			   sign.getLine(3).toLowerCase().contains("[blocksplaced]");
-	}
-	
-	public static void formatDynamicSign(Sign sign) {
-		String[] line = sign.getLines();
-		for (int i = 0; i < 4; i++) {
-			line[i] = EvilBook.replaceAllIgnoreCase(line[i], "[Time]", "[time]");
-			line[i] = EvilBook.replaceAllIgnoreCase(line[i], "[Weather]", "[weather]");
-			line[i] = EvilBook.replaceAllIgnoreCase(line[i], "[Online]", "[online]");
-			line[i] = EvilBook.replaceAllIgnoreCase(line[i], "[BlocksBroken]", "[blocksbroken]");
-			line[i] = EvilBook.replaceAllIgnoreCase(line[i], "[BlocksPlaced]", "[blocksplaced]");
-		}
-		DynamicSign dynamicSign = new DynamicSign(sign.getBlock().getLocation(), line);
-		EvilBook.dynamicSignList.get(sign.getWorld()).add(dynamicSign);
-		dynamicSign.update();
 	}
 }

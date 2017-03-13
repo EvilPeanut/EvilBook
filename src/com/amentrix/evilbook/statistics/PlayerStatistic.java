@@ -10,43 +10,37 @@ import com.amentrix.evilbook.sql.TableType;
  * @author Reece Aaron Lecrivain
  */
 public enum PlayerStatistic {
-	MINED_COAL("mined_coal"),
-	MINED_IRON("mined_iron"),
-	MINED_LAPIS("mined_lapis"),
-	MINED_GOLD("mined_gold"),
-	MINED_DIAMOND("mined_diamond"),
-	MINED_REDSTONE("mined_redstone"),
-	MINED_EMERALD("mined_emerald"),
-	MINED_NETHERQUARTZ("mined_netherquartz"),
-	KILLED_PIGS("killed_pigs"),
-	KILLED_VILLAGERS("killed_villagers"),
-	KILLED_CAVESPIDERS("killed_cavespiders"),
-	KILLED_ENDERMEN("killed_endermen"),
-	KILLED_SPIDERS("killed_spiders"),
-	KILLED_WOLVES("killed_wolves"),
-	KILLED_ZOMBIEPIGS("killed_zombiepigs"),
-	KILLED_BLAZES("killed_blazes"),
-	KILLED_CREEPERS("killed_creepers"),
-	KILLED_GHASTS("killed_ghasts"),
-	KILLED_MAGMACUBES("killed_magmacubes"),
-	KILLED_SILVERFISH("killed_silverfish"),
-	KILLED_SKELETONS("killed_skeletons"),
-	KILLED_SLIMES("killed_slimes"),
-	KILLED_WITCHES("killed_witches"),
-	KILLED_ZOMBIES("killed_zombies"),
-	KILLED_ENDERDRAGONS("killed_enderdragons"),
-	KILLED_WITHERS("killed_withers"),
-	KILLED_PLAYERS("killed_players"),
-	KILLED_RARES("killed_rares");
-	
-	String columnName;
-	
-	PlayerStatistic(String columnName) {
-		this.columnName = columnName;
-	}
+	MINED_COAL,
+	MINED_IRON,
+	MINED_LAPIS,
+	MINED_GOLD,
+	MINED_DIAMOND,
+	MINED_REDSTONE,
+	MINED_EMERALD,
+	MINED_NETHERQUARTZ,
+	KILLED_PIGS,
+	KILLED_VILLAGERS,
+	KILLED_CAVESPIDERS,
+	KILLED_ENDERMEN,
+	KILLED_SPIDERS,
+	KILLED_WOLVES,
+	KILLED_ZOMBIEPIGS,
+	KILLED_BLAZES,
+	KILLED_CREEPERS,
+	KILLED_GHASTS,
+	KILLED_MAGMACUBES,
+	KILLED_SILVERFISH,
+	KILLED_SKELETONS,
+	KILLED_SLIMES,
+	KILLED_WITCHES,
+	KILLED_ZOMBIES,
+	KILLED_ENDERDRAGONS,
+	KILLED_WITHERS,
+	KILLED_PLAYERS,
+	KILLED_RARES;
 	
 	public static int getStatistic(String playerName, PlayerStatistic statistic) {
-		return SQL.getInt(TableType.PlayerStatistics, statistic.columnName, playerName);
+		return SQL.getInt(TableType.PlayerStatistics, statistic.name(), playerName);
 	}
 	
 	public static void incrementStatistic(String playerName, PlayerStatistic statistic, int increment) {
@@ -54,7 +48,7 @@ public enum PlayerStatistic {
 	}
 
 	private static void setStatistic(String playerName, PlayerStatistic statistic, int value) {
-		SQL.setValue(TableType.PlayerStatistics, statistic.columnName, playerName, value);
+		SQL.setValue(TableType.PlayerStatistics, statistic.name(), playerName, value);
 		switch (statistic) {
 		case KILLED_RARES:
 			EvilBook.getProfile(playerName).addAchievement(Achievement.SURVIVAL_KILL_RARE);

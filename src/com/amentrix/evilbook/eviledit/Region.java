@@ -20,6 +20,7 @@ import com.amentrix.evilbook.eviledit.utils.EvilEditEngine;
 import com.amentrix.evilbook.eviledit.utils.Selection;
 import com.amentrix.evilbook.main.ChatExtensions;
 import com.amentrix.evilbook.main.DynamicSign;
+import com.amentrix.evilbook.main.DynamicSignManager;
 import com.amentrix.evilbook.main.Emitter;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.PlayerProfileAdmin;
@@ -53,7 +54,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BLOCKS_BROKEN);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks deforested");
 		}
 	}
@@ -83,7 +84,7 @@ class Region {
 				else if (args[0].equalsIgnoreCase("y")) engine.setBlock(block.getX(), selection.getBottomYBlock() + (selection.getTopYBlock() - block.getY()), block.getZ(), block.getTypeId(), block.getRawData());
 				else engine.setBlock(block.getX(), block.getY(), selection.getBottomZBlock() + (selection.getTopZBlock() - block.getZ()), block.getTypeId(), block.getRawData());
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks flipped on the " + args[0] + " axis");
 		}
 	}
@@ -127,7 +128,7 @@ class Region {
 					newLocationList.add(new Location(selection.getWorld(), block.getX(), block.getY(), block.getZ() + count));
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			if (args[1].equalsIgnoreCase("x")) {
 				EvilBook.getProfile(player).actionLocationA.add(count, 0, 0);
 				EvilBook.getProfile(player).actionLocationB.add(count, 0, 0);
@@ -157,7 +158,7 @@ class Region {
 			// Undo dynamic sign removals
 			for (DynamicSign dynamicSign : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoDynamicSignList) {
 				dynamicSign.create();
-				EvilBook.dynamicSignList.get(dynamicSign.location.getWorld()).add(dynamicSign);
+				DynamicSignManager.signList.get(dynamicSign.location.getWorld()).add(dynamicSign);
 			}
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoDynamicSignList = new ArrayList<>();
 			// Undo emitter removals
@@ -167,7 +168,7 @@ class Region {
 			}
 			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoEmitterList = new ArrayList<>();
 			//
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Undone " + engine.getBlocksChanged() + " block edit");
 		}
 	}
@@ -190,7 +191,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BLOCKS_BROKEN);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks drained");
 		}
 	}	
@@ -211,7 +212,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks greened");
 		}
 	}	
@@ -266,7 +267,7 @@ class Region {
 							playerLocation.getBlockY() + (newDynamicSign.location.getBlockY() - bottomBlockY), 
 							playerLocation.getBlockZ() + (newDynamicSign.location.getBlockZ() - bottomBlockZ));
 					newDynamicSign.create();
-					EvilBook.dynamicSignList.get(player.getWorld()).add(newDynamicSign);
+					DynamicSignManager.signList.get(player.getWorld()).add(newDynamicSign);
 				}
 				((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyDynamicSignList = new ArrayList<>();
 				
@@ -283,7 +284,7 @@ class Region {
 				((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.copyEmitterList = new ArrayList<>();
 				
 				//
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 				player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks pasted");
 			} else {
 				player.sendMessage("§7Using EvilEdit angel, your edit should take " + (int)Math.floor((double)((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getCopySize() / 219520) + " seconds");
@@ -348,7 +349,7 @@ class Region {
 							// Append the block to the copy list
 							((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendCopy(selection.getBlock(x, y, z).getState());
 							// Dynamic signs
-							for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(selection.getWorld())) {
+							for (DynamicSign dynamicSign : DynamicSignManager.signList.get(selection.getWorld())) {
 								if (dynamicSign.location.getWorld().getName().equals(selection.getWorld().getName()) && 
 										dynamicSign.location.getBlockX() == x &&
 										dynamicSign.location.getBlockY() == y &&
@@ -423,7 +424,7 @@ class Region {
 						// Append the block to the copy list
 						((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.appendCopy(selection.getBlock(x, y, z).getState());
 						// Dynamic signs
-						for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(selection.getWorld())) {
+						for (DynamicSign dynamicSign : DynamicSignManager.signList.get(selection.getWorld())) {
 							if (dynamicSign.location.getWorld().getName().equals(selection.getWorld().getName()) && 
 									dynamicSign.location.getBlockX() == x &&
 									dynamicSign.location.getBlockY() == y &&
@@ -445,7 +446,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BLOCKS_BROKEN);
 			player.sendMessage("§7Selection of " + selection.getVolume() + " blocks cut");
 		}
 	}
@@ -478,7 +479,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BLOCKS_BROKEN);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly deleted");
 		}
 	}
@@ -510,7 +511,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BLOCKS_BROKEN);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks deleted");
 		}
 	}
@@ -544,7 +545,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly replaced");
 		}
 	}
@@ -575,7 +576,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks randomly filled");
 		}
 	}
@@ -604,7 +605,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks filled");
 		}
 	}
@@ -703,7 +704,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BLOCKS_BROKEN);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks hollowed");
 		}
 	}
@@ -734,7 +735,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks outlined");
 		}
 	}
@@ -765,7 +766,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks walled");
 		}
 	}
@@ -784,7 +785,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksBroken);
+			engine.notifyClients(GlobalStatistic.BLOCKS_BROKEN);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks thawed");
 		}
 	}
@@ -801,7 +802,7 @@ class Region {
 					if (highestY != 0) engine.setBlock(x, highestY, z, Material.SNOW.getId(), 0);
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks simulated snow cover");
 		}
 	}
@@ -828,7 +829,7 @@ class Region {
 					if (highestY != 0) engine.setBlock(x, highestY, z, actionBlock.getMaterial().getId(), actionBlock.getData());
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks overlayed");
 		}
 	}
@@ -859,7 +860,7 @@ class Region {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Selection of " + engine.getBlocksChanged() + " blocks replaced");
 		}
 	}

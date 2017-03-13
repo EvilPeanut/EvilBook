@@ -43,7 +43,7 @@ class Generation {
 					}
 				}
 			}
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Created a " + engine.getBlocksChanged() + " pumpkin forest");
 		}
 	}
@@ -126,7 +126,7 @@ class Generation {
 				}
 			}
 			if (!hollow) Movement.ascendPlayer(player, false);
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block pyramid made of " + BlockReference.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}
@@ -234,7 +234,7 @@ class Generation {
 				}
 			}
 			if (!hollow) Movement.ascendPlayer(player, false);
-			engine.notifyClients(GlobalStatistic.BlocksPlaced);
+			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage((hollow ? empty ? "§7Created an empty hollow " : "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block sphere made of " + BlockReference.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}
@@ -307,7 +307,7 @@ class Generation {
 					}
 				}
 				if (!hollow) Movement.ascendPlayer(player, false);
-				engine.notifyClients(GlobalStatistic.BlocksPlaced);
+				engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 				player.sendMessage((hollow ? "§7Created a hollow " : "§7Created a ") + engine.getBlocksChanged() + " block cylinder made of " + BlockReference.getFriendlyName(actionBlock.getMaterial()));
 		}
 	}

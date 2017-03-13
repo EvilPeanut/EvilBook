@@ -2,7 +2,6 @@ package com.amentrix.evilbook.main;
 
 import java.util.Random;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.amentrix.evilbook.statistics.GlobalStatistic;
@@ -32,6 +31,8 @@ class Scheduler {
 		this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new Runnable() {
 			@Override
 			public void run() {
+				//TODO: Remove below useless code. Purely there as polling to prevent SQL timeout
+				GlobalStatistic.getStatistic(GlobalStatistic.BLOCKS_BROKEN);
 				//TODO: Statistics: Handle GlobalStatistic/PlayerStatistic/CommandStatistic here
 				//TODO: Statistics: Handle this code onDisable aswell
 			}
@@ -81,7 +82,7 @@ class Scheduler {
 							@Override
 							public void run() {
 								EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 20;
-								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyGrowth, 20);
+								GlobalStatistic.incrementStatistic(GlobalStatistic.ECONOMY_GROWTH, 20);
 								profile.saveProfile();
 							}
 						});
@@ -101,7 +102,7 @@ class Scheduler {
 							@Override
 							public void run() {
 								EvilBook.playerProfiles.get(player.getName().toLowerCase()).money += 10;
-								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyGrowth, 10);
+								GlobalStatistic.incrementStatistic(GlobalStatistic.ECONOMY_GROWTH, 10);
 								profile.saveProfile();
 							}
 						});
@@ -119,13 +120,8 @@ class Scheduler {
 			@Override
 			public void run() {
 				// Dynamic Signs
-				for (final World world : EvilBook.dynamicSignList.keySet()) {
-					if (world.getPlayers().size() != 0) {
-						for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
-							dynamicSign.update();
-						}
-					}
-				}
+				DynamicSignManager.updateAll();
+				
 				// Emitters
 				for (Emitter emit : EvilBook.emitterList) {
 					emit.update();

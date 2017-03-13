@@ -72,6 +72,7 @@ import com.amentrix.evilbook.listeners.EventListenerPacket;
 import com.amentrix.evilbook.listeners.EventListenerPlayer;
 import com.amentrix.evilbook.listeners.EventListenerVehicle;
 import com.amentrix.evilbook.map.Maps;
+import com.amentrix.evilbook.migration.WarpMigration;
 import com.amentrix.evilbook.minigame.MinigameDifficulty;
 import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.minigame.SkyBlockMinigameListener;
@@ -100,7 +101,6 @@ import net.minecraft.server.v1_11_R1.ChatClickable.EnumClickAction;
 public class EvilBook extends JavaPlugin {
 	public static final Map<String, PlayerProfile> playerProfiles = new HashMap<>();
 	private static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
-	public static final Map<World, List<DynamicSign>> dynamicSignList = new HashMap<>();
 	public static final List<String> paidWorldList = new ArrayList<>();
 	public static final List<Region> plotRegionList = new ArrayList<>();
 	public static final List<Emitter> emitterList = new ArrayList<>();
@@ -273,89 +273,16 @@ public class EvilBook extends JavaPlugin {
 		}
 		// Convert warp table to new format
 		if (SQL.isColumnExistant(TableType.Warps, "location")) {
-			logInfo("Converting warp table to new format");
-			
-			SQL.addColumn(TableType.Warps, "world VARCHAR(64)");
-			SQL.addColumn(TableType.Warps, "x DOUBLE");
-			SQL.addColumn(TableType.Warps, "y DOUBLE");
-			SQL.addColumn(TableType.Warps, "z DOUBLE");
-			SQL.addColumn(TableType.Warps, "yaw FLOAT");
-			SQL.addColumn(TableType.Warps, "pitch FLOAT");
-			
-			int errorsOccured = 0;
-			
-			try (Statement statement = SQL.connection.createStatement()) {
-				try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Warps.getName() + ";")) {
-					while (rs.next()) {
-						String rawWarp = rs.getString("location");
-						String warpName = rs.getString("warp_name").toLowerCase(Locale.UK).replaceAll("'", "''");
-						
-						SQL.setValue(TableType.Warps, "world", warpName, rawWarp.split(">")[0]);
-						SQL.setValue(TableType.Warps, "x", warpName, rawWarp.split(">")[1]);
-						SQL.setValue(TableType.Warps, "y", warpName, rawWarp.split(">")[2]);
-						SQL.setValue(TableType.Warps, "z", warpName, rawWarp.split(">")[3]);
-						SQL.setValue(TableType.Warps, "yaw", warpName, rawWarp.split(">")[4]);
-						SQL.setValue(TableType.Warps, "pitch", warpName, rawWarp.split(">")[5]);
-					}
-				}
-			} catch (Exception exception) {
-				errorsOccured++;
-			}
-			
-			if (errorsOccured == 0) {
-				try (Statement statement = SQL.connection.createStatement()) {
-					statement.execute("ALTER TABLE " + SQL.database + "." + TableType.Warps.getName() + " DROP COLUMN location;");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				logInfo("Successfully converted warp table to new format");
-			} else {
-				logSevere(errorsOccured + " errors whilst converting old warp format to new. Please manually delete obsolete location column");
-			}
+			WarpMigration.migrate();
 		}
 		//
 		// Load regions
 		//
-		for (World world : getServer().getWorlds()) {
-			Regions.initWorld(world.getName());
-		}
-		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.Region.getName() + ";")) {
-				while (rs.next()) {
-					if (getServer().getWorld(rs.getString("world")) != null) {
-						if (rs.getString("region_name").startsWith("PlotRegion")) {
-							plotRegionList.add(new Region(rs));
-						} else {
-							Regions.addRegion(rs.getString("world"), new Region(rs));
-						}
-					} else {
-						logInfo("Region " + rs.getString("region_name") + " in " + rs.getString("world") + " not loaded location unavailable");
-					}
-				}
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
+		Regions.load();
 		//
 		// Load dynamic signs
 		//
-		for (World world : getServer().getWorlds()) {
-			dynamicSignList.put(world, new ArrayList());
-		}
-		try (Statement statement = SQL.connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM " + SQL.database + "." + TableType.DynamicSign.getName() + ";")) {
-				while (rs.next()) {
-					World world = getServer().getWorld(UUID.fromString(rs.getString("world")));
-					if (world != null) {
-						dynamicSignList.get(world).add(new DynamicSign(rs));
-					} else {
-						logInfo("Dynamic sign in " + rs.getString("world") + " at " + rs.getString("x") + ", " + rs.getString("y") + ", " + rs.getString("z") + " not loaded location unavailable");
-					}
-				}
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
+		DynamicSignManager.load();
 		//
 		// Load emitters
 		//
@@ -465,7 +392,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Statistics
 		//
-		GlobalStatistic.incrementStatistic(GlobalStatistic.CommandsExecuted, 1);
+		GlobalStatistic.incrementStatistic(GlobalStatistic.COMMANDS_EXECUTED, 1);
 		CommandStatistic.increment(command.getName());
 		//
 		// Alt Command
@@ -740,7 +667,7 @@ public class EvilBook extends JavaPlugin {
 			} else if (args[0].equalsIgnoreCase("liststat")) {
 				sender.sendMessage("§5Lists Size Information");
 				sender.sendMessage("§dPlayer Profiles = " + playerProfiles.size());
-				sender.sendMessage("§dDynamic Signs = " + dynamicSignList.size());
+				sender.sendMessage("§dDynamic Signs = " + DynamicSignManager.signList.size());
 				sender.sendMessage("§dPaid Worlds = " + paidWorldList.size());
 				//TODO: Regions: Re-add?
 				//sender.sendMessage("§dRegions = " + regionList.size());
@@ -750,8 +677,8 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("§dIn Use Survival Workbenches = " + inUseSurvivalWorkbenchesList.size());
 			} else if (args[0].equalsIgnoreCase("listscan")) {
 				sender.sendMessage("§7Dr. Watson scanning dynamicSignList...");
-				for (final World world : EvilBook.dynamicSignList.keySet()) {
-					for (DynamicSign dynamicSign : EvilBook.dynamicSignList.get(world)) {
+				for (final World world : DynamicSignManager.signList.keySet()) {
+					for (DynamicSign dynamicSign : DynamicSignManager.signList.get(world)) {
 						if (dynamicSign.location.getBlock().getType() != Material.SIGN_POST && dynamicSign.location.getBlock().getType() != Material.WALL_SIGN) {
 							sender.sendMessage("§7--> Dynamic sign at (" + dynamicSign.location.getBlockX() + ", " + dynamicSign.location.getBlockY() + ", " + 
 									dynamicSign.location.getBlockZ() + ") isn't a sign");
@@ -966,11 +893,11 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 0 || args[0].equals("1")) {
 				sender.sendMessage("§dRanks §5- §dPage 1 of 3 §5- §7/ranks <page>");
 				sender.sendMessage("  §0[§EBuilder§0] §7Begin your journey on " + config.getProperty("server_name"));
-				sender.sendMessage("  §0[§5Creator§0] §7Show an admin your first creation");
-				sender.sendMessage("  §0[§DDesigner§0] §7Impress an admin with multiple creations");
-				sender.sendMessage("  §0[§9Architect§0] §7Help an admin or impress with amazing builds");
-				sender.sendMessage("  §0[§3Engineer§0] §7Show commitment and continue to impress");
-				sender.sendMessage("  §7To purchase a rank please see /admin");
+				sender.sendMessage("  §0[§5Adv.Builder§0] §7Show an admin your first creation");
+				sender.sendMessage("  §0[§DMaster Builder§0] §7Impress an admin with multiple creations");
+				sender.sendMessage("  §0[§9Engineer§0] §7Help an admin or impress with amazing builds");
+				sender.sendMessage("  §0[§3Architect§0] §7Show commitment and continue to impress");
+				sender.sendMessage("  §7To purchase a rank please see /donate");
 			} else if (args[0].equals("2")) {
 				sender.sendMessage("§dRanks §5- §dPage 2 of 3 §5- §7/ranks <page>");
 				sender.sendMessage("  §0[§EStaff§0] §7Selected by the Admin Staff team");
@@ -978,7 +905,7 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("  §0[§6Staff§0] §7Selected by the Admin Staff team");
 				sender.sendMessage("  §0[§1Staff§0] §7Selected by the Admin Staff team");
 				sender.sendMessage("  §0[§BStaff§0] §7Selected by the Admin Staff team");
-				sender.sendMessage("  §7To purchase a rank please see /admin");
+				sender.sendMessage("  §7To purchase a rank please see /donate");
 			} else if (args[0].equals("3")) {
 				sender.sendMessage("§dRanks §5- §dPage 3 of 3 §5- §7/ranks <page>");
 				sender.sendMessage("  §0[§4Admin§0] §7Purchased from the " + config.getProperty("server_name") + " website");
@@ -988,7 +915,7 @@ public class EvilBook extends JavaPlugin {
 				sender.sendMessage("  §0[§6§OTycoon§0] §7Purchased from the " + config.getProperty("server_name") + " website");
 				sender.sendMessage("  §0[§B§OAdmin Staff§0] §7Elected admin staff team");
 				sender.sendMessage("  §0[§BServer Host§0] §7" + EvilBook.config.getProperty("server_host"));
-				sender.sendMessage("  §7To purchase a rank please see /admin");
+				sender.sendMessage("  §7To purchase a rank please see /donate");
 			}
 			return true;
 		}
@@ -1295,15 +1222,15 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (args[0].equalsIgnoreCase("server")) {
 					sender.sendMessage("§5Server General Statistics");
-					sender.sendMessage("§dEconomic growth = $" + GlobalStatistic.getStatistic(GlobalStatistic.EconomyGrowth) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_growth") + " total");
-					sender.sendMessage("§dEconomic trade = $" + GlobalStatistic.getStatistic(GlobalStatistic.EconomyTrade) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_trade") + " total");
-					sender.sendMessage("§dPlayer logins = " + GlobalStatistic.getStatistic(GlobalStatistic.LoginTotal) + " today §7" + SQL.getColumnSum(TableType.Statistics, "login_total") + " total");
-					sender.sendMessage("§dNew players = " + GlobalStatistic.getStatistic(GlobalStatistic.LoginNewPlayers) + " today");
+					sender.sendMessage("§dEconomic growth = $" + GlobalStatistic.getStatistic(GlobalStatistic.ECONOMY_GROWTH) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_growth") + " total");
+					sender.sendMessage("§dEconomic trade = $" + GlobalStatistic.getStatistic(GlobalStatistic.ECONOMY_TRADE) + " today §7$" + SQL.getColumnSum(TableType.Statistics, "economy_trade") + " total");
+					sender.sendMessage("§dPlayer logins = " + GlobalStatistic.getStatistic(GlobalStatistic.LOGIN_TOTAL) + " today §7" + SQL.getColumnSum(TableType.Statistics, "login_total") + " total");
+					sender.sendMessage("§dNew players = " + GlobalStatistic.getStatistic(GlobalStatistic.NEW_PLAYERS) + " today");
 					sender.sendMessage("§dTotal unique players = " + SQL.getRowCount(TableType.PlayerProfile));
-					sender.sendMessage("§dCommands executed = " + GlobalStatistic.getStatistic(GlobalStatistic.CommandsExecuted) + " today §7" + SQL.getColumnSum(TableType.Statistics, "commands_executed") + " total");
-					sender.sendMessage("§dMessages sent = " + GlobalStatistic.getStatistic(GlobalStatistic.MessagesSent) + " today §7" + SQL.getColumnSum(TableType.Statistics, "messages_sent") + " total");
-					sender.sendMessage("§dBlocks broken = " + GlobalStatistic.getStatistic(GlobalStatistic.BlocksBroken) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_broken") + " total");
-					sender.sendMessage("§dBlocks placed = " + GlobalStatistic.getStatistic(GlobalStatistic.BlocksPlaced) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
+					sender.sendMessage("§dCommands executed = " + GlobalStatistic.getStatistic(GlobalStatistic.COMMANDS_EXECUTED) + " today §7" + SQL.getColumnSum(TableType.Statistics, "commands_executed") + " total");
+					sender.sendMessage("§dMessages sent = " + GlobalStatistic.getStatistic(GlobalStatistic.MESSAGES_SENT) + " today §7" + SQL.getColumnSum(TableType.Statistics, "messages_sent") + " total");
+					sender.sendMessage("§dBlocks broken = " + GlobalStatistic.getStatistic(GlobalStatistic.BLOCKS_BROKEN) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_broken") + " total");
+					sender.sendMessage("§dBlocks placed = " + GlobalStatistic.getStatistic(GlobalStatistic.BLOCKS_PLACED) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
 				} else if (args[0].equalsIgnoreCase("player")) {
 					sender.sendMessage("§5" + player.getName() + "'s General Statistics");
 					sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, player.getName(), "money"));
@@ -2852,12 +2779,12 @@ public class EvilBook extends JavaPlugin {
 								getProfile(args[0]).money += Integer.parseInt(args[1]);
 								getPlayer(args[0]).sendMessage("§7You have recieved §a$" + args[1] + " §7from " + player.getDisplayName());
 								sender.sendMessage("§7You have paid " + getPlayer(args[0]).getDisplayName() + " §c$" + args[1]);
-								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
+								GlobalStatistic.incrementStatistic(GlobalStatistic.ECONOMY_TRADE, Integer.parseInt(args[1]));
 							} else {
 								SQL.setValue(TableType.PlayerProfile, args[0], "money", SQL.getInt(TableType.PlayerProfile, args[0], "money") + Integer.parseInt(args[1]));
 								getProfile(sender).money -= Integer.parseInt(args[1]);
 								sender.sendMessage("§7You have paid " + getServer().getOfflinePlayer(args[0]).getName() + " §c$" + args[1]);
-								GlobalStatistic.incrementStatistic(GlobalStatistic.EconomyTrade, Integer.parseInt(args[1]));
+								GlobalStatistic.incrementStatistic(GlobalStatistic.ECONOMY_TRADE, Integer.parseInt(args[1]));
 							}
 						} else {
 							sender.sendMessage("§7You don't have enough money to do this");
