@@ -22,7 +22,7 @@ import com.amentrix.evilbook.nametag.NametagManager;
 import com.amentrix.evilbook.sql.SQL;
 import com.amentrix.evilbook.sql.TableType;
 
-import net.minecraft.server.v1_11_R1.ChatHoverable.EnumHoverAction;
+import net.minecraft.server.v1_12_R1.ChatHoverable.EnumHoverAction;
 
 /**
  * PlayerProfile parent instance

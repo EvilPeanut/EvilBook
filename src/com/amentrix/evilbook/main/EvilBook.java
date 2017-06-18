@@ -92,7 +92,7 @@ import com.amentrix.evilbook.worldgen.SkylandGenerator;
 
 import de.diddiz.LogBlock.Consumer;
 import de.diddiz.LogBlock.LogBlock;
-import net.minecraft.server.v1_11_R1.ChatClickable.EnumClickAction;
+import net.minecraft.server.v1_12_R1.ChatClickable.EnumClickAction;
 
 /**
  * EvilBook core class
