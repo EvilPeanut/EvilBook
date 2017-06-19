@@ -53,7 +53,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -72,7 +71,6 @@ import com.amentrix.evilbook.listeners.EventListenerPacket;
 import com.amentrix.evilbook.listeners.EventListenerPlayer;
 import com.amentrix.evilbook.listeners.EventListenerVehicle;
 import com.amentrix.evilbook.map.Maps;
-import com.amentrix.evilbook.migration.WarpMigration;
 import com.amentrix.evilbook.minigame.MinigameDifficulty;
 import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.minigame.SkyBlockMinigameListener;
@@ -101,6 +99,25 @@ import net.minecraft.server.v1_12_R1.ChatClickable.EnumClickAction;
 public class EvilBook extends JavaPlugin {
 	public static final Map<String, PlayerProfile> playerProfiles = new HashMap<>();
 	private static final Map<String, Boolean> cmdBlockWhitelist = new HashMap<>();
+	
+	static {
+		cmdBlockWhitelist.put("say", true);
+		cmdBlockWhitelist.put("broadcast", true);
+		cmdBlockWhitelist.put("setblock", false);
+		cmdBlockWhitelist.put("testfor", true);
+		cmdBlockWhitelist.put("testforblock", true);
+		cmdBlockWhitelist.put("testforblocks", true);
+		cmdBlockWhitelist.put("scoreboard", true);
+		cmdBlockWhitelist.put("effect", false);
+		cmdBlockWhitelist.put("me", true);
+		cmdBlockWhitelist.put("clear", false);
+		cmdBlockWhitelist.put("tell", true);
+		cmdBlockWhitelist.put("toggledownfall", false);
+		cmdBlockWhitelist.put("weather", false);
+		cmdBlockWhitelist.put("time", false);
+		cmdBlockWhitelist.put("give", false);
+	}
+	
 	public static final List<String> paidWorldList = new ArrayList<>();
 	public static final List<Region> plotRegionList = new ArrayList<>();
 	public static final List<Emitter> emitterList = new ArrayList<>();
@@ -137,6 +154,7 @@ public class EvilBook extends JavaPlugin {
 		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook/SkyBlock'");
 		check = new File("plugins/EvilBook/Private worlds");
 		if (check.exists() == false && check.mkdir() == false) logSevere("Failed to create directory 'plugins/EvilBook/Private worlds'");
+		
 		//
 		// Load or create config file
 		//
@@ -152,6 +170,7 @@ public class EvilBook extends JavaPlugin {
 			properties.save("plugins/EvilBook/Config.yml", "EvilBook Configuration");
 		}
 		config = new Properties(propertiesFile);
+		
 		//
 		// Register event listeners
 		//
@@ -163,15 +182,18 @@ public class EvilBook extends JavaPlugin {
 		pluginManager.registerEvents(new EventListenerVehicle(), this);		
 		pluginManager.registerEvents(new SkyBlockMinigameListener(), this);
 		pluginManager.registerEvents(new RegionListener(this), this);
+		
 		//
 		// Initialize EvilEdit session
 		//
 		setEditSession(new Session(this));
+		
 		//
 		// Maps Module
 		//
 		this.maps = new Maps(this);
 		getCommand("map").setExecutor(this.maps);
+		
 		//
 		// World generators
 		//
@@ -206,6 +228,7 @@ public class EvilBook extends JavaPlugin {
 			paidWorldList.add(world);
 			getServer().createWorld(privateWorld);
 		}
+		
 		//
 		// Load EvilBook-NametagEdit module
 		//
@@ -215,7 +238,7 @@ public class EvilBook extends JavaPlugin {
 			@Override
 			public void run()
 			{
-				Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+				Collection<? extends Player> onlinePlayers = getServer().getOnlinePlayers();
 
 				for (Player p : onlinePlayers)
 				{
@@ -223,6 +246,7 @@ public class EvilBook extends JavaPlugin {
 				}
 			}
 		});
+		
 		//
 		// Connect EvilBook to MySQL
 		//
@@ -231,58 +255,17 @@ public class EvilBook extends JavaPlugin {
 			getServer().shutdown();
 			return;
 		}
-		// Fix missing player UUID's
-		if (SQL.isColumnExistant(TableType.PlayerProfile, "player")) {
-			try (Statement statement = SQL.connection.createStatement()) {
-				try (ResultSet rs = statement.executeQuery("SELECT player, player_name FROM " + SQL.database + ".`evilbook-playerprofiles` WHERE player IS NULL;")) {
-					while (rs.next()) {
-						try (Statement setStatement = SQL.connection.createStatement()) {
-							OfflinePlayer player = getServer().getOfflinePlayer(rs.getString("player_name"));
-							setStatement.execute("UPDATE " + SQL.database + "." + TableType.PlayerProfile.getName() + " SET player='" + player.getUniqueId().toString() + "' WHERE player_name='" + rs.getString("player_name") + "';");
-							logInfo("Auto-fixed missing UUID for " + rs.getString("player_name"));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			} catch (Exception exception) {
-				exception.printStackTrace();
-			}
-		}
-		// Make sure the SQL emitter table contains all emitter effect types
-		String prepStatement = "ALTER TABLE " + SQL.database + ".`evilbook-emitters` MODIFY effect ENUM(";
-		for (EmitterEffect effect : EmitterEffect.values()) prepStatement += "'" + effect.name() + "',";
-		prepStatement = prepStatement.substring(0, prepStatement.length() - 1) + ");";
-		try (Statement statement = SQL.connection.createStatement()) {
-			statement.execute(prepStatement);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		// Fix missing world player location entries
-		for (World world : getServer().getWorlds()) {
-			String worldName = world.getName();
-			if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
-			if (!SQL.isColumnExistant(TableType.PlayerLocation, worldName)) {
-				try {
-					SQL.addColumn(TableType.PlayerLocation, worldName + " TINYTEXT");
-				} catch (Exception exception) {
-					exception.printStackTrace();
-				}
-				logInfo("Auto-fixed missing world " + worldName + " in player locations table");
-			}
-		}
-		// Convert warp table to new format
-		if (SQL.isColumnExistant(TableType.Warps, "location")) {
-			WarpMigration.migrate();
-		}
+		
 		//
 		// Load regions
 		//
 		Regions.load();
+		
 		//
 		// Load dynamic signs
 		//
 		DynamicSignManager.load();
+		
 		//
 		// Load emitters
 		//
@@ -299,57 +282,29 @@ public class EvilBook extends JavaPlugin {
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
-		//
-		// Load Command Block Whitelist
-		//
-		cmdBlockWhitelist.put("say", true);
-		cmdBlockWhitelist.put("broadcast", true);
-		cmdBlockWhitelist.put("setblock", false);
-		cmdBlockWhitelist.put("testfor", true);
-		cmdBlockWhitelist.put("testforblock", true);
-		cmdBlockWhitelist.put("testforblocks", true);
-		cmdBlockWhitelist.put("scoreboard", true);
-		cmdBlockWhitelist.put("effect", false);
-		cmdBlockWhitelist.put("me", true);
-		cmdBlockWhitelist.put("clear", false);
-		cmdBlockWhitelist.put("tell", true);
-		cmdBlockWhitelist.put("toggledownfall", false);
-		cmdBlockWhitelist.put("weather", false);
-		cmdBlockWhitelist.put("time", false);
-		cmdBlockWhitelist.put("give", false);
+		
 		//
 		// Log Block Integration
 		//
-		final Plugin plugin = pluginManager.getPlugin("EvilBook-Logging");
-		if (plugin != null) {
-			lbConsumer = ((LogBlock) plugin).getConsumer();
-		} else {
-			logSevere("Failed to load EvilBook-Logging module");
-			getServer().shutdown();
-			return;
-		}
+		lbConsumer = ((LogBlock) pluginManager.getPlugin("EvilBook-Logging")).getConsumer();
+		
 		//
 		// Dynmap Integration
 		//
-		final Plugin dynmapPlugin = pluginManager.getPlugin("dynmap");
-		if (dynmapPlugin != null) {
-			try {
-				dynmapAPI = ((DynmapAPI) dynmapPlugin);
-				markerAPI = dynmapAPI.getMarkerAPI();
-				PlayerHomeMarkers.loadPlayerHomes();
-				WarpMarkers.loadWarps();
-			} catch (Exception exception) {
-				logSevere("Failed to load Dynmap module, is Dynmap out of date?");
-			}
-		} else {
+		try {
+			dynmapAPI = ((DynmapAPI) pluginManager.getPlugin("dynmap"));
+			markerAPI = dynmapAPI.getMarkerAPI();
+			PlayerHomeMarkers.loadPlayerHomes();
+			WarpMarkers.loadWarps();
+		} catch (Exception exception) {
 			logSevere("Failed to load Dynmap module");
-			getServer().shutdown();
-			return;
 		}
+		
 		//
 		// Register protocolLib listeners
 		//
 		EventListenerPacket.registerSignUpdatePacketReceiver(this);
+		
 		//
 		// Scheduler
 		//

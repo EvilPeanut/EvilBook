@@ -4,7 +4,7 @@ package com.amentrix.evilbook.main;
  * Emitter effect enumerator
  * @author Reece Aaron Lecrivain
  */
-enum EmitterEffect {
+public enum EmitterEffect {
 	Smoke(Rank.ARCHITECT),
 	LavaPop(Rank.ARCHITECT),
 	LavaDrip(Rank.ARCHITECT),

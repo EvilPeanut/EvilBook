@@ -9,6 +9,8 @@ import java.sql.Statement;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+
+import com.amentrix.evilbook.main.EmitterEffect;
 import com.amentrix.evilbook.main.EvilBook;
 import com.amentrix.evilbook.main.Rank;
 
@@ -69,11 +71,59 @@ public class SQL {
 				statement.executeBatch();
 			}
 			
+			runChecks();
+			
 			return true;
 		} catch (RuntimeException exception) {
 			return false;
 		} catch (Exception exception) {
 			return false;
+		}
+	}
+	
+	private static void runChecks() {
+		// Fix missing player UUID's
+		//TODO: Is needed?
+		/*if (SQL.isColumnExistant(TableType.PlayerProfile, "player")) {
+			try (Statement statement = SQL.connection.createStatement()) {
+				try (ResultSet rs = statement.executeQuery("SELECT player, player_name FROM " + SQL.database + ".`evilbook-playerprofiles` WHERE player IS NULL;")) {
+					while (rs.next()) {
+						try (Statement setStatement = SQL.connection.createStatement()) {
+							OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(rs.getString("player_name"));
+							setStatement.execute("UPDATE " + SQL.database + "." + TableType.PlayerProfile.getName() + " SET player='" + player.getUniqueId().toString() + "' WHERE player_name='" + rs.getString("player_name") + "';");
+							EvilBook.logInfo("Auto-fixed missing UUID for " + rs.getString("player_name"));
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+		}*/
+		
+		// Make sure the SQL emitter table contains all emitter effect types
+		String prepStatement = "ALTER TABLE " + SQL.database + ".`evilbook-emitters` MODIFY effect ENUM(";
+		for (EmitterEffect effect : EmitterEffect.values()) prepStatement += "'" + effect.name() + "',";
+		prepStatement = prepStatement.substring(0, prepStatement.length() - 1) + ");";
+		try (Statement statement = SQL.connection.createStatement()) {
+			statement.execute(prepStatement);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Fix missing world player location entries
+		for (World world : Bukkit.getServer().getWorlds()) {
+			String worldName = world.getName();
+			if (worldName.contains("Private worlds/")) worldName = worldName.split("Private worlds/")[1];
+			if (!SQL.isColumnExistant(TableType.PlayerLocation, worldName)) {
+				try {
+					SQL.addColumn(TableType.PlayerLocation, worldName + " TINYTEXT");
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+				EvilBook.logInfo("Auto-fixed missing world " + worldName + " in player locations table");
+			}
 		}
 	}
 	
