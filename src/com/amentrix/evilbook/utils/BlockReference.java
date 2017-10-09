@@ -283,25 +283,18 @@ public class BlockReference {
 	 * @return The block material or null if it can't be found
 	 */
 	public static Material getBlockMaterial(String block) {
-		int blockID = 0;
+		if (EvilBook.isInteger(block)) {
+			return Material.getMaterial(Integer.parseInt(block));
+		}
+
 		for (Entry<Material, List<String>> entry : blockList.entrySet()) {
-			if (EvilBook.isInteger(block)) {
-				if (Integer.parseInt(block) == blockID) return entry.getKey();
-			} else {
-				for (String subItem : entry.getValue()) {
-					if (block.equalsIgnoreCase(subItem)) {
-						return entry.getKey();
-					}
+			for (String subItem : entry.getValue()) {
+				if (block.equalsIgnoreCase(subItem)) {
+					return entry.getKey();
 				}
 			}
-			
-			// Temporary fix to skip two IDs which don't have blocks
-			if (blockID == 252) {
-				blockID = 255;
-			} else {
-				blockID++;
-			}
-		}
+		}	
+
 		return null;
 	}
     
