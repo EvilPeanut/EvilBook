@@ -140,11 +140,15 @@ public abstract class PlayerProfile {
 		if (!hasAchievement(achievement)) {
 			this.achievements.add(achievement);
 			if (achievement != Achievement.GLOBAL_COMMAND_DONATE) {
-				ChatExtensions.sendHoverableMessage(getPlayer(), ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " You got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon(), EnumHoverAction.SHOW_TEXT, ChatColor.YELLOW + achievement.getName() + "\n\n" + ChatColor.BLUE + achievement.getDescription() + "\n\n" + ChatColor.GRAY + achievement.getValue() + " achievement points");
-				if (achievement.getReward() != null) getPlayer().sendMessage(ChatColor.GRAY + "You have unlocked the " + achievement.getReward());
+				getPlayer().sendTitle(achievement.getName(), achievement.getDescription(), 10, 70, 20);
+				String chatMessage = ChatColor.DARK_PURPLE + "" + achievement.getIcon() + ChatColor.GRAY + " New Achievement " + ChatColor.WHITE + "[" + achievement.getName() + "] " + ChatColor.DARK_PURPLE + achievement.getIcon();
+				ChatExtensions.sendHoverableMessage(getPlayer(), chatMessage, EnumHoverAction.SHOW_TEXT, ChatColor.WHITE + achievement.getName() + "\n" + ChatColor.GRAY + achievement.getDescription() + "\n\n" + ChatColor.DARK_PURPLE + achievement.getValue() + " achievement points");
+				if (achievement.getReward() != null) getPlayer().sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You have unlocked the " + achievement.getReward());
 			}
+			
+			String chatMessage = ChatColor.DARK_PURPLE + "" + achievement.getIcon() + ChatColor.GRAY + " " + this.name + " Earned Achievement " + ChatColor.WHITE + "[" + achievement.getName() + "] " + ChatColor.DARK_PURPLE + achievement.getIcon();
 			for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-				if (!player.getName().equals(this.name)) ChatExtensions.sendHoverableMessage(player, ChatColor.GREEN + "" + achievement.getIcon() + ChatColor.BLUE + " " + this.name + " got the " + ChatColor.YELLOW + "[" + achievement.getName() + "] " + ChatColor.BLUE + "achievement " + ChatColor.GREEN + achievement.getIcon(), EnumHoverAction.SHOW_TEXT, ChatColor.YELLOW + achievement.getName() + "\n\n" + ChatColor.BLUE + achievement.getDescription() + "\n\n" + ChatColor.GRAY + achievement.getValue() + " achievement points");
+				if (!player.getName().equals(this.name)) ChatExtensions.sendHoverableMessage(player, chatMessage, EnumHoverAction.SHOW_TEXT, ChatColor.WHITE + achievement.getName() + "\n" + ChatColor.GRAY + achievement.getDescription() + "\n\n" + ChatColor.DARK_PURPLE + achievement.getValue() + " achievement points");
 				player.playSound(getPlayer().getLocation(), Sound.ENTITY_FIREWORK_TWINKLE, 99.0F, 1.0F);
 			}
 		}
