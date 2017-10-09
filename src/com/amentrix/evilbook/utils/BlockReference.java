@@ -53,11 +53,11 @@ public class BlockReference {
 		blockList.put(Material.LONG_GRASS, Arrays.asList("Tall Grass", "TallGrass"));
 		blockList.put(Material.DEAD_BUSH, Arrays.asList("Dead Bush", "DeadBush", "DeadSapling"));
 		blockList.put(Material.PISTON_BASE, Arrays.asList("Piston"));
-		blockList.put(Material.PISTON_EXTENSION, Arrays.asList("Piston Extension"));
+		blockList.put(Material.PISTON_EXTENSION, Arrays.asList("Piston Extension", "PistonExtension"));
 		blockList.put(Material.WOOL, Arrays.asList("Wool"));
 		blockList.put(Material.PISTON_MOVING_PIECE, Arrays.asList("Block Moved By Piston"));
 		blockList.put(Material.YELLOW_FLOWER, Arrays.asList("Dandelion"));
-		blockList.put(Material.RED_ROSE, Arrays.asList("Poppy"));
+		blockList.put(Material.RED_ROSE, Arrays.asList("Red Rose", "Rose", "Poppy"));
 		blockList.put(Material.BROWN_MUSHROOM, Arrays.asList("Brown Mushroom", "BrownMushroom", "Mushroom"));
 		blockList.put(Material.RED_MUSHROOM, Arrays.asList("Red Mushroom", "RedMushroom"));
 		blockList.put(Material.GOLD_BLOCK, Arrays.asList("Gold Block", "GoldBlock"));
@@ -158,7 +158,7 @@ public class BlockReference {
 		blockList.put(Material.JUNGLE_WOOD_STAIRS, Arrays.asList("Jungle Wood Stairs", "JungleWoodStairs"));
 		blockList.put(Material.COMMAND, Arrays.asList("Command Block", "CommandBlock", "CommandBeacon"));
 		blockList.put(Material.BEACON, Arrays.asList("Beacon"));
-		blockList.put(Material.COBBLE_WALL, Arrays.asList("Cobble Stone Wall", "CobblestoneWall", "CobbleWall"));
+		blockList.put(Material.COBBLE_WALL, Arrays.asList("Cobble Stone Wall", "CobblestoneWall", "CobbleWall", "Wall"));
 		blockList.put(Material.FLOWER_POT, Arrays.asList("Flower Pot", "FlowerPot", "PlantPot", "Pot"));
 		blockList.put(Material.CARROT, Arrays.asList("Carrots"));
 		blockList.put(Material.POTATO, Arrays.asList("Potatoes", "Potatos"));
