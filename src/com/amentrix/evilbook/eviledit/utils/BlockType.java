@@ -140,7 +140,7 @@ public class BlockType {
 				default:
 					break;
 				}
-			} else if (this.material == Material.SANDSTONE) {
+			} else if (this.material == Material.SANDSTONE || this.material == Material.RED_SANDSTONE) {
 				switch (blockData.toLowerCase()) {
 				case "chiseled":
 					this.data = 1;
@@ -163,7 +163,8 @@ public class BlockType {
 					break;
 				}
 			} else if (this.material == Material.WOOL || this.material == Material.CARPET || this.material == Material.STAINED_GLASS 
-					|| this.material == Material.STAINED_GLASS_PANE || this.material == Material.STAINED_CLAY) {
+					|| this.material == Material.STAINED_GLASS_PANE || this.material == Material.STAINED_CLAY
+					|| this.material == Material.CONCRETE || this.material == Material.CONCRETE_POWDER) {
 				switch (blockData.toLowerCase()) {
 				case "orange":
 					this.data = 1;
@@ -247,6 +248,139 @@ public class BlockType {
 					break;
 				case "quartz":
 					this.data = 7;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.DOUBLE_PLANT) {
+				switch (blockData.toLowerCase()) {
+				case "lilac":
+					this.data = 1;
+					break;
+				case "tallgrass":
+					this.data = 2;
+					break;
+				case "fern":
+					this.data = 3;
+					break;
+				case "rose":
+					this.data = 4;
+					break;
+				case "peony":
+					this.data = 5;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.PRISMARINE) {
+				switch (blockData.toLowerCase()) {
+				case "brick":
+					this.data = 1;
+					break;
+				case "bricks":
+					this.data = 1;
+					break;
+				case "dark":
+					this.data = 2;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.QUARTZ_BLOCK) {
+				switch (blockData.toLowerCase()) {
+				case "chiseled":
+					this.data = 1;
+					break;
+				case "pillar":
+					this.data = 2;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.COBBLE_WALL) {
+				switch (blockData.toLowerCase()) {
+				case "moss":
+					this.data = 1;
+					break;
+				case "mossy":
+					this.data = 1;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.SMOOTH_BRICK) {
+				switch (blockData.toLowerCase()) {
+				case "moss":
+					this.data = 1;
+					break;
+				case "mossy":
+					this.data = 1;
+					break;
+				case "cracked":
+					this.data = 2;
+					break;
+				case "chiseled":
+					this.data = 3;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.RED_ROSE) {
+				switch (blockData.toLowerCase()) {
+				case "blue":
+					this.data = 1;
+					break;
+				case "orchid":
+					this.data = 1;
+					break;
+				case "allium":
+					this.data = 2;
+					break;
+				case "azure":
+					this.data = 3;
+					break;
+				case "bluet":
+					this.data = 3;
+					break;
+				case "red":
+					this.data = 4;
+					break;
+				case "orange":
+					this.data = 5;
+					break;
+				case "white":
+					this.data = 6;
+					break;
+				case "pink":
+					this.data = 7;
+					break;
+				case "oxeye":
+					this.data = 8;
+					break;
+				case "daisy":
+					this.data = 8;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.LONG_GRASS) {
+				switch (blockData.toLowerCase()) {
+				case "grass":
+					this.data = 1;
+					break;
+				case "fern":
+					this.data = 2;
+					break;
+				default:
+					break;
+				}
+			} else if (this.material == Material.DIRT) {
+				switch (blockData.toLowerCase()) {
+				case "coarse":
+					this.data = 1;
+					break;
+				case "podzol":
+					this.data = 2;
 					break;
 				default:
 					break;

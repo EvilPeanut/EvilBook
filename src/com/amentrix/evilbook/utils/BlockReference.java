@@ -270,9 +270,7 @@ public class BlockReference {
 		blockList.put(Material.GREEN_GLAZED_TERRACOTTA, Arrays.asList("Green Glazed Terracotta", "GreenGlazedTerracotta"));
 		blockList.put(Material.RED_GLAZED_TERRACOTTA, Arrays.asList("Red Glazed Terracotta", "RedGlazedTerracotta"));
 		blockList.put(Material.BLACK_GLAZED_TERRACOTTA, Arrays.asList("Black Glazed Terracotta", "BlackGlazedTerracotta"));
-		//TODO: Add concrete colour support to BlockType
 		blockList.put(Material.CONCRETE, Arrays.asList("Concrete"));
-		//TODO: Add concrete powder colour support to BlockType
 		blockList.put(Material.CONCRETE_POWDER, Arrays.asList("Concrete Powder", "ConcretePowder"));
 		blockList.put(Material.STRUCTURE_BLOCK, Arrays.asList("Structure Block", "Structure", "StructureBlock"));
     }
