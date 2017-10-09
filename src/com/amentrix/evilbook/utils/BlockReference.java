@@ -254,6 +254,27 @@ public class BlockReference {
 		blockList.put(Material.GREEN_SHULKER_BOX, Arrays.asList("Green Shulker Box", "GreenShulkerBox"));
 		blockList.put(Material.RED_SHULKER_BOX, Arrays.asList("Red Shulker Box", "RedShulkerBox"));
 		blockList.put(Material.BLACK_SHULKER_BOX, Arrays.asList("Black Shulker Box", "BlackShulkerBox"));
+		blockList.put(Material.WHITE_GLAZED_TERRACOTTA, Arrays.asList("White Glazed Terracotta", "WhiteGlazedTerracotta"));
+		blockList.put(Material.ORANGE_GLAZED_TERRACOTTA, Arrays.asList("Orange Glazed Terracotta", "OrangeGlazedTerracotta"));
+		blockList.put(Material.MAGENTA_GLAZED_TERRACOTTA, Arrays.asList("Magenta Glazed Terracotta", "MagentaGlazedTerracotta"));
+		blockList.put(Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Arrays.asList("Light Blue Glazed Terracotta", "LightBlueGlazedTerracotta"));
+		blockList.put(Material.YELLOW_GLAZED_TERRACOTTA, Arrays.asList("Yellow Glazed Terracotta", "YellowGlazedTerracotta"));
+		blockList.put(Material.LIME_GLAZED_TERRACOTTA, Arrays.asList("Lime Glazed Terracotta", "LimeGlazedTerracotta"));
+		blockList.put(Material.PINK_GLAZED_TERRACOTTA, Arrays.asList("Pink Glazed Terracotta", "PinkGlazedTerracotta"));
+		blockList.put(Material.GRAY_GLAZED_TERRACOTTA, Arrays.asList("Gray Glazed Terracotta", "GrayGlazedTerracotta"));
+		blockList.put(Material.SILVER_GLAZED_TERRACOTTA, Arrays.asList("Silver Glazed Terracotta", "Light Gray Glazed Terracotta", "LightGrayGlazedTerracotta", "SilverGlazedTerracotta"));
+		blockList.put(Material.CYAN_GLAZED_TERRACOTTA, Arrays.asList("Cyan Glazed Terracotta", "CyanGlazedTerracotta"));
+		blockList.put(Material.PURPLE_GLAZED_TERRACOTTA, Arrays.asList("Purple Glazed Terracotta", "PurpleGlazedTerracotta"));
+		blockList.put(Material.BLUE_GLAZED_TERRACOTTA, Arrays.asList("Blue Glazed Terracotta", "BlueGlazedTerracotta"));
+		blockList.put(Material.BROWN_GLAZED_TERRACOTTA, Arrays.asList("Brown Glazed Terracotta", "BrownGlazedTerracotta"));
+		blockList.put(Material.GREEN_GLAZED_TERRACOTTA, Arrays.asList("Green Glazed Terracotta", "GreenGlazedTerracotta"));
+		blockList.put(Material.RED_GLAZED_TERRACOTTA, Arrays.asList("Red Glazed Terracotta", "RedGlazedTerracotta"));
+		blockList.put(Material.BLACK_GLAZED_TERRACOTTA, Arrays.asList("Black Glazed Terracotta", "BlackGlazedTerracotta"));
+		//TODO: Add concrete colour support to BlockType
+		blockList.put(Material.CONCRETE, Arrays.asList("Concrete"));
+		//TODO: Add concrete powder colour support to BlockType
+		blockList.put(Material.CONCRETE_POWDER, Arrays.asList("Concrete Powder", "ConcretePowder"));
+		blockList.put(Material.STRUCTURE_BLOCK, Arrays.asList("Structure Block", "Structure", "StructureBlock"));
     }
     
 	/**
@@ -267,14 +288,19 @@ public class BlockReference {
 			if (EvilBook.isInteger(block)) {
 				if (Integer.parseInt(block) == blockID) return entry.getKey();
 			} else {
-				if (entry.getValue() == null) continue;
 				for (String subItem : entry.getValue()) {
-					if (subItem != null && block.equalsIgnoreCase(subItem)) {
+					if (block.equalsIgnoreCase(subItem)) {
 						return entry.getKey();
 					}
 				}
 			}
-			blockID++;
+			
+			// Temporary fix to skip two IDs which don't have blocks
+			if (blockID == 252) {
+				blockID = 255;
+			} else {
+				blockID++;
+			}
 		}
 		return null;
 	}
