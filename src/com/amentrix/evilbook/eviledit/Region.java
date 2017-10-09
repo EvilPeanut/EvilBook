@@ -144,29 +144,36 @@ class Region {
 	}
 	
 	static void undoEdit(Player player) {
-		if (((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getUndo().size() == 0) {
+		PlayerProfileAdmin playerProfile = (PlayerProfileAdmin) EvilBook.getProfile(player);
+		
+		if (playerProfile.clipboard.getUndo().size() == 0) {
 			player.sendMessage("§7You have no EvilEdit actions to undo");
 		} else {
-			EvilEditEngine engine = CraftEvilEditEngine.createEngineSilent(((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getUndo().get(0).getWorld(), player);
-			for (BlockState block : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.getUndo()) {
+			EvilEditEngine engine = CraftEvilEditEngine.createEngineSilent(playerProfile.clipboard.getUndo().get(0).getWorld(), player);
+			
+			for (BlockState block : playerProfile.clipboard.getUndo()) {
 				// Set the block material and data which includes direction
 				engine.setBlock(block.getLocation(), block.getType().getId(), block.getData().getData());
 				// Handle blocks with special states
 				Session.setState(block, block.getLocation().getBlock().getState());
 			}
-			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.clearUndo();
+			
+			playerProfile.clipboard.clearUndo();
+			
 			// Undo dynamic sign removals
-			for (DynamicSign dynamicSign : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoDynamicSignList) {
+			for (DynamicSign dynamicSign : playerProfile.clipboard.undoDynamicSignList) {
 				dynamicSign.create();
 				DynamicSignManager.signList.get(dynamicSign.location.getWorld()).add(dynamicSign);
 			}
-			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoDynamicSignList = new ArrayList<>();
+			playerProfile.clipboard.undoDynamicSignList = new ArrayList<>();
+			
 			// Undo emitter removals
-			for (Emitter emitter : ((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoEmitterList) {
+			for (Emitter emitter : playerProfile.clipboard.undoEmitterList) {
 				emitter.save();
 				EvilBook.emitterList.add(emitter);
 			}
-			((PlayerProfileAdmin)EvilBook.getProfile(player)).clipboard.undoEmitterList = new ArrayList<>();
+			playerProfile.clipboard.undoEmitterList = new ArrayList<>();
+			
 			//
 			engine.notifyClients(GlobalStatistic.BLOCKS_PLACED);
 			player.sendMessage("§7Undone " + engine.getBlocksChanged() + " block edit");

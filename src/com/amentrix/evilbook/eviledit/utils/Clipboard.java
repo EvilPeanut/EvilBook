@@ -1,6 +1,7 @@
 package com.amentrix.evilbook.eviledit.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.block.BlockState;
@@ -18,6 +19,7 @@ public class Clipboard {
 	public List<DynamicSign> undoDynamicSignList = new ArrayList<>(), copyDynamicSignList = new ArrayList<>();
 
 	public List<BlockState> getUndo() {
+		Collections.reverse(this.undoList); //TODO: This is a dirty temporary fix to prevent undo issues caused by multiple entries for the same block
 		return this.undoList;
 	}
 	
