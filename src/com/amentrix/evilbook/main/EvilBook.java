@@ -2383,7 +2383,7 @@ public class EvilBook extends JavaPlugin {
 			ItemStack butter = new ItemStack(Material.GOLD_INGOT);
 			ItemMeta yourItemStackMeta = butter.getItemMeta();
 			yourItemStackMeta.setDisplayName("Butter");
-			yourItemStackMeta.setLore(Arrays.asList("This butter was made by JacobClark"));
+			yourItemStackMeta.setLore(Arrays.asList("This butter was made by RedDiamondREC"));
 			butter.setItemMeta(yourItemStackMeta);
 			butter.setAmount(64);
 			player.getInventory().addItem(butter);
