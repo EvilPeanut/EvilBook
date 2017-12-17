@@ -76,7 +76,7 @@ commands:
     description: Flip an area of blocks
     usage: /<command> [axis]
   more:
-    description: Turn the item stack into your hand to a full item stack
+    description: Set the quantity of the held item to the maximum possible quantity
     usage: /<command>
   hyperhorse:
     description: Hyper horse
