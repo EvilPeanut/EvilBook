@@ -1188,8 +1188,8 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§dBlocks placed = " + GlobalStatistic.getStatistic(GlobalStatistic.BLOCKS_PLACED) + " today §7" + SQL.getColumnSum(TableType.Statistics, "blocks_placed") + " total");
 				} else if (args[0].equalsIgnoreCase("player")) {
 					sender.sendMessage("§5" + player.getName() + "'s General Statistics");
-					sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, player.getName(), "money"));
-					sender.sendMessage("§dTotal logins = " + SQL.getInt(TableType.PlayerProfile, player.getName(), "total_logins"));
+					sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, "money", player.getName()));
+					sender.sendMessage("§dTotal logins = " + SQL.getInt(TableType.PlayerProfile, "total_logins", player.getName()));
 					sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(player.getLastPlayed())));
 				} else if (args[0].equalsIgnoreCase("survival")) {
 					List<String> text = new ArrayList<>();
@@ -1230,8 +1230,8 @@ public class EvilBook extends JavaPlugin {
 					OfflinePlayer statPlayer = getServer().getOfflinePlayer(args[1]);
 					if (statPlayer.hasPlayedBefore()) {
 						sender.sendMessage("§5" + statPlayer.getName() + "'s General Statistics");
-						sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, statPlayer.getName(), "money"));
-						sender.sendMessage("§dTotal logins = " + SQL.getInt(TableType.PlayerProfile, statPlayer.getName(), "total_logins"));
+						sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, "money", statPlayer.getName()));
+						sender.sendMessage("§dTotal logins = " + SQL.getInt(TableType.PlayerProfile, "total_logins", statPlayer.getName()));
 						sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(statPlayer.getLastPlayed())));
 					} else {
 						sender.sendMessage("§7Statistics for this player weren't found");
@@ -2736,7 +2736,7 @@ public class EvilBook extends JavaPlugin {
 								sender.sendMessage("§7You have paid " + getPlayer(args[0]).getDisplayName() + " §c$" + args[1]);
 								GlobalStatistic.incrementStatistic(GlobalStatistic.ECONOMY_TRADE, Integer.parseInt(args[1]));
 							} else {
-								SQL.setValue(TableType.PlayerProfile, args[0], "money", SQL.getInt(TableType.PlayerProfile, args[0], "money") + Integer.parseInt(args[1]));
+								SQL.setValue(TableType.PlayerProfile, "money", args[0], SQL.getInt(TableType.PlayerProfile, "money", args[0]) + Integer.parseInt(args[1]));
 								getProfile(sender).money -= Integer.parseInt(args[1]);
 								sender.sendMessage("§7You have paid " + getServer().getOfflinePlayer(args[0]).getName() + " §c$" + args[1]);
 								GlobalStatistic.incrementStatistic(GlobalStatistic.ECONOMY_TRADE, Integer.parseInt(args[1]));
