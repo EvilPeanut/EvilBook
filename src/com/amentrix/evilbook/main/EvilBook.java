@@ -1190,7 +1190,8 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§5" + player.getName() + "'s General Statistics");
 					sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, "money", player.getName()));
 					sender.sendMessage("§dTotal logins = " + SQL.getInt(TableType.PlayerProfile, "total_logins", player.getName()));
-					sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(player.getLastPlayed())));
+					String lastLogin = SQL.getString(TableType.PlayerProfile, "last_login", player.getName());
+					sender.sendMessage("§dLast login = " + lastLogin.substring(0, lastLogin.length() - 2));
 				} else if (args[0].equalsIgnoreCase("survival")) {
 					List<String> text = new ArrayList<>();
 					text.add("§5Server Survival Statistics\n\n§7Page 1 - Mined ores\n§7Page 2 - Mob kills\n§7Page 3 - Mob kills");
@@ -1228,17 +1229,18 @@ public class EvilBook extends JavaPlugin {
 			} else if (args.length == 2) {
 				if (args[0].equalsIgnoreCase("player")) {
 					OfflinePlayer statPlayer = getServer().getOfflinePlayer(args[1]);
-					if (statPlayer.hasPlayedBefore()) {
+					if (SQL.isKeyExistant(TableType.PlayerStatistics, args[1])) {
 						sender.sendMessage("§5" + statPlayer.getName() + "'s General Statistics");
 						sender.sendMessage("§dMoney = $" + SQL.getInt(TableType.PlayerProfile, "money", statPlayer.getName()));
 						sender.sendMessage("§dTotal logins = " + SQL.getInt(TableType.PlayerProfile, "total_logins", statPlayer.getName()));
-						sender.sendMessage("§dLast login = " + new SimpleDateFormat("dd-MM-yyyy").format(new Date(statPlayer.getLastPlayed())));
+						String lastLogin = SQL.getString(TableType.PlayerProfile, "last_login", statPlayer.getName());
+						sender.sendMessage("§dLast login = " + lastLogin.substring(0, lastLogin.length() - 2));
 					} else {
 						sender.sendMessage("§7Statistics for this player weren't found");
 					}
 				} else if (args[0].equalsIgnoreCase("survival")) {
 					OfflinePlayer statPlayer = getServer().getOfflinePlayer(args[1]);
-					if (statPlayer.hasPlayedBefore()) {
+					if (SQL.isKeyExistant(TableType.PlayerStatistics, args[1])) {
 						List<String> text = new ArrayList<>();
 						text.add("§5" + statPlayer.getName() + "'s Survival Statistics\n\n§7Page 1 - Mined ores\n§7Page 2 - Mob kills\n§7Page 3 - Mob kills");
 						text.add("§5§oTotal ores mined\n\n§dCoal = " + PlayerStatistic.getStatistic(statPlayer.getName(), PlayerStatistic.MINED_COAL) + "\n" +
@@ -1278,7 +1280,7 @@ public class EvilBook extends JavaPlugin {
 			} else {
 				ChatExtensions.sendCommandHelpMessage(player, 
 						Arrays.asList("/" + command.getName().toLowerCase(Locale.UK) + " server",
-								"/" + command.getName().toLowerCase(Locale.UK) + " player [player]",
+								"/" + command.getName().toLowerCase(Locale.UK) + " player <player>",
 								"/" + command.getName().toLowerCase(Locale.UK) + " survival <player>"));
 			}
 			return true;
