@@ -1138,13 +1138,13 @@ public class EvilBook extends JavaPlugin {
 		//
 		if (command.getName().equalsIgnoreCase("drug")) {
 			if (args.length == 1) {
-				if (args[0].equalsIgnoreCase("cocain")) {
-					ItemStack cocain = new ItemStack(Material.SUGAR);
-					ItemMeta meta = cocain.getItemMeta();
-					meta.setDisplayName("Cocain");
+				if (args[0].equalsIgnoreCase("cocaine")) {
+					ItemStack cocaine = new ItemStack(Material.SUGAR);
+					ItemMeta meta = cocaine.getItemMeta();
+					meta.setDisplayName("Cocaine");
 					meta.setLore(Arrays.asList("Ruff stuff"));
-					cocain.setItemMeta(meta);
-					player.getInventory().addItem(cocain);
+					cocaine.setItemMeta(meta);
+					player.getInventory().addItem(cocaine);
 				} else if (args[0].equalsIgnoreCase("shrooms")) {
 					ItemStack shrooms = new ItemStack(Material.RED_MUSHROOM);
 					ItemMeta meta = shrooms.getItemMeta();
@@ -1164,7 +1164,7 @@ public class EvilBook extends JavaPlugin {
 				}
 			} else {
 				ChatExtensions.sendCommandHelpMessage(player, 
-						Arrays.asList("/drug cocain",
+						Arrays.asList("/drug cocaine",
 								"/drug shrooms",
 								"/drug alcohol"));
 			}

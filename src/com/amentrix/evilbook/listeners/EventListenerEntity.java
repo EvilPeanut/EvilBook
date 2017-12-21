@@ -61,12 +61,12 @@ public class EventListenerEntity implements Listener {
 			if (randomNum >= 0 && randomNum <= 100) {
 				event.getDrops().add(new ItemStack(Material.DIAMOND_SWORD));
 			} else if (randomNum >= 101 && randomNum <= 150) {
-				ItemStack cocain = new ItemStack(Material.SUGAR);
-				ItemMeta meta = cocain.getItemMeta();
-				meta.setDisplayName("Cocain");
+				ItemStack cocaine = new ItemStack(Material.SUGAR);
+				ItemMeta meta = cocaine.getItemMeta();
+				meta.setDisplayName("Cocaine");
 				meta.setLore(Arrays.asList("Ruff stuff"));
-				cocain.setItemMeta(meta);
-				event.getDrops().add(cocain);
+				cocaine.setItemMeta(meta);
+				event.getDrops().add(cocaine);
 			} else if (randomNum >= 151 && randomNum <= 200) {
 				ItemStack shrooms = new ItemStack(Material.RED_MUSHROOM);
 				ItemMeta meta = shrooms.getItemMeta();

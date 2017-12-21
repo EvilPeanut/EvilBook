@@ -477,9 +477,9 @@ public class EventListenerPlayer implements Listener {
 		//
 		if (event.hasItem()) {
 			if (player.getItemInHand().getItemMeta().getLore() != null && player.getItemInHand().getItemMeta().getLore().size() == 1) {
-				if (player.getItemInHand().getItemMeta().getLore().get(0).equals("Ruff stuff")) { //Cocain
+				if (player.getItemInHand().getItemMeta().getLore().get(0).equals("Ruff stuff")) { //Cocaine
 					player.setItemInHand(null);
-					EvilBook.broadcastPlayerMessage(player.getName(), player.getDisplayName() + ChatColor.GRAY + " sniffed cocain");
+					EvilBook.broadcastPlayerMessage(player.getName(), player.getDisplayName() + ChatColor.GRAY + " sniffed cocaine");
 					for (int blocks = 0; blocks != 1200; blocks++) {
 						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("EvilBook"), new Runnable() {
 							@Override
