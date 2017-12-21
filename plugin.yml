@@ -534,6 +534,9 @@ commands:
   msg:
     description: Send a private message to a player
     usage: /<command> [player] [message]
+  pm:
+    description: Send a private message to a player
+    usage: /<command> [player] [message]
   time:
     description: Change the world time
     usage: /<command> [time]

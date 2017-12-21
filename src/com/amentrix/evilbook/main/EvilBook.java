@@ -1493,7 +1493,7 @@ public class EvilBook extends JavaPlugin {
 		//
 		// Message Command
 		//
-		if (command.getName().equalsIgnoreCase("msg")) {
+		if (command.getName().equalsIgnoreCase("msg") || command.getName().equalsIgnoreCase("pm")) {
 			if (args.length > 1) {
 				if (getPlayer(args[0]) != null) {
 					if (!getProfile(getPlayer(args[0])).isMuted(player.getName())) {
@@ -1510,7 +1510,7 @@ public class EvilBook extends JavaPlugin {
 					sender.sendMessage("§7You can't message an offline player");
 				}
 			} else {
-				ChatExtensions.sendCommandHelpMessage(player, "/msg [player] [message]");
+				ChatExtensions.sendCommandHelpMessage(player, "/" + command.getName().toLowerCase(Locale.UK) + " [player] [message]");
 			}
 			return true;
 		}

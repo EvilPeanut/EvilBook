@@ -1,10 +1,13 @@
 package com.amentrix.evilbook.main;
 
 import java.util.List;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.v1_12_R1.ChatClickable;
 import net.minecraft.server.v1_12_R1.ChatMessage;
 import net.minecraft.server.v1_12_R1.ChatModifier;
@@ -19,6 +22,15 @@ import net.minecraft.server.v1_12_R1.ChatHoverable.EnumHoverAction;
  * @author Reece Aaron Lecrivain
  */
 public class ChatExtensions {
+	public static void broadcastPlayerMessage(String playerName, TextComponent message) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			PlayerProfile profile = EvilBook.getProfile(player);
+			if (!profile.isMuted(playerName)) {
+				profile.getPlayer().spigot().sendMessage(message);
+			}
+		}
+	}
+	
 	public static void sendClickableMessage(Player player, String message, EnumClickAction action, String data) {
         IChatBaseComponent base;
         base = new ChatMessage(message);

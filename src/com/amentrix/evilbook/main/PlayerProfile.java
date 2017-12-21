@@ -159,7 +159,7 @@ public abstract class PlayerProfile {
 	 * @param playerName The player to test with
 	 * @return If the player if muted
 	 */
-	Boolean isMuted(String playerName) {
+	public Boolean isMuted(String playerName) {
 		return this.mutedPlayers.contains(playerName.toLowerCase(Locale.UK));
 	}
 

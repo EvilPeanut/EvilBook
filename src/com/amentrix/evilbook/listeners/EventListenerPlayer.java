@@ -106,6 +106,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.v1_12_R1.ChatClickable.EnumClickAction;
 
 /**
@@ -422,10 +424,14 @@ public class EventListenerPlayer implements Listener {
 			EvilBook.getProfile(event.getPlayer()).updatePlayerListName();
 		}
 		event.setCancelled(true);
-		String message = event.getMessage();
-		EvilBook.broadcastPlayerMessage(player.getName(), profile.rank.getPrefix(profile) + " §" + profile.rank.getColor(profile) 
-				+ "<§f" + player.getDisplayName() + "§" + profile.rank.getColor(profile) 
-				+ "> §f" + EvilBook.toFormattedString(message));
+
+		TextComponent message = new TextComponent(profile.rank.getPrefix(profile) + " §" + profile.rank.getColor(profile) + "<§f");
+		TextComponent name = new TextComponent(player.getDisplayName());
+		name.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/msg " + player.getName() + " "));
+		message.addExtra(name);
+		message.addExtra("§" + profile.rank.getColor(profile) + "> §f" + EvilBook.toFormattedString(event.getMessage()));
+		ChatExtensions.broadcastPlayerMessage(player.getName(), message);
+		
 		// Statistics
 		GlobalStatistic.incrementStatistic(GlobalStatistic.MESSAGES_SENT, 1);
 	}
