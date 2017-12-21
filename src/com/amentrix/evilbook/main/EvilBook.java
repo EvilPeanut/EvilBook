@@ -90,6 +90,8 @@ import com.amentrix.evilbook.worldgen.SkylandGenerator;
 
 import de.diddiz.LogBlock.Consumer;
 import de.diddiz.LogBlock.LogBlock;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.v1_12_R1.ChatClickable.EnumClickAction;
 
 /**
@@ -3004,9 +3006,22 @@ public class EvilBook extends JavaPlugin {
 			if (args.length == 1) {
 				if (args[0].equalsIgnoreCase("list")) {
 					if (!getProfile(sender).warps.isEmpty()) {
-						//TODO: ChatExtensions on each effect listed
-						sender.sendMessage("§5My warps");
-						sender.sendMessage("§d" + getProfile(sender).warps.toString().substring(1).substring(0, getProfile(sender).warps.toString().length() - 2));
+						sender.sendMessage("§5My Warps");
+						
+						TextComponent message = new TextComponent();
+						for (int i = 0; i < getProfile(sender).warps.size(); i++) {
+							String warpName = getProfile(sender).warps.get(i);
+							
+							TextComponent warpText = new TextComponent(warpName);
+							warpText.setColor(net.md_5.bungee.api.ChatColor.LIGHT_PURPLE);
+							warpText.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/warp " + warpName));
+							if (i != getProfile(sender).warps.size() - 1) {
+								warpText.addExtra(", ");
+							}
+							
+							message.addExtra(warpText);
+						}
+						player.spigot().sendMessage(message);
 					} else {
 						sender.sendMessage("§7You don't own any warps");
 					}
@@ -3022,9 +3037,23 @@ public class EvilBook extends JavaPlugin {
 				String playerWarps = SQL.getString(TableType.PlayerProfile, "warp_list", args[1]);
 				if (playerWarps != null) {
 					List<String> warps = Arrays.asList(playerWarps.split(","));
-					//TODO: ChatExtensions on each effect listed
-					sender.sendMessage("§5" + args[1] + "'s warps");
-					sender.sendMessage("§d" + warps.toString().substring(1).substring(0, warps.toString().length() - 2));
+
+					sender.sendMessage("§5" + args[1] + "'s Warps");
+					
+					TextComponent message = new TextComponent();
+					for (int i = 0; i < warps.size(); i++) {
+						String warpName = warps.get(i);
+						
+						TextComponent warpText = new TextComponent(warpName);
+						warpText.setColor(net.md_5.bungee.api.ChatColor.LIGHT_PURPLE);
+						warpText.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/warp " + warpName));
+						if (i != getProfile(sender).warps.size() - 1) {
+							warpText.addExtra(", ");
+						}
+						
+						message.addExtra(warpText);
+					}
+					player.spigot().sendMessage(message);
 				} else {
 					sender.sendMessage("§7" + args[1] + " doesn't own any warps");
 				}
