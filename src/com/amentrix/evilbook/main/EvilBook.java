@@ -1504,7 +1504,15 @@ public class EvilBook extends JavaPlugin {
 						StringBuilder message = new StringBuilder();
 						for (int i = 1; i < args.length; i++) message.append(" " + args[i]);
 						sender.sendMessage("§7To " + getPlayer(args[0]).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
-						getPlayer(args[0]).sendMessage("§7From " + ((Player) sender).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
+						
+						TextComponent cmessage = new TextComponent("§7From ");
+						TextComponent name = new TextComponent(getPlayer(args[0]).getDisplayName());
+						name.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/r "));
+						cmessage.addExtra(name);
+						cmessage.addExtra("§7:§f" + EvilBook.toFormattedString(message.toString()));
+						
+						getPlayer(args[0]).spigot().sendMessage(cmessage);
+						
 						getProfile(player).lastMsgPlayer = getPlayer(args[0]).getName();
 						getProfile(args[0]).lastMsgPlayer = sender.getName();
 					} else {
@@ -1528,7 +1536,14 @@ public class EvilBook extends JavaPlugin {
 						StringBuilder message = new StringBuilder();
 						for (String msg : args) message.append(" " + msg);
 						sender.sendMessage("§7To " + getServer().getPlayer(getProfile(player).lastMsgPlayer).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
-						getServer().getPlayer(getProfile(player).lastMsgPlayer).sendMessage("§7From " + ((Player) sender).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
+					
+						TextComponent cmessage = new TextComponent("§7From ");
+						TextComponent name = new TextComponent(getServer().getPlayer(getProfile(player).lastMsgPlayer).getDisplayName());
+						name.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/r "));
+						cmessage.addExtra(name);
+						cmessage.addExtra("§7:§f" + EvilBook.toFormattedString(message.toString()));
+						
+						getServer().getPlayer(getProfile(player).lastMsgPlayer).spigot().sendMessage(cmessage);
 					} else {
 						sender.sendMessage("§7You can't message a player who has muted you");
 					}
