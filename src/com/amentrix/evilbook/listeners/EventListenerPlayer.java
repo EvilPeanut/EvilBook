@@ -419,10 +419,7 @@ public class EventListenerPlayer implements Listener {
 		Player player = event.getPlayer();
 		PlayerProfile profile = EvilBook.getProfile(player);
 		profile.lastActionTime = System.currentTimeMillis();
-		if (profile.isAway) {
-			profile.isAway = false;
-			EvilBook.getProfile(event.getPlayer()).updatePlayerListName();
-		}
+		
 		event.setCancelled(true);
 
 		TextComponent message = new TextComponent(profile.rank.getPrefix(profile) + " §" + profile.rank.getColor(profile) + "<§f");
@@ -431,6 +428,20 @@ public class EventListenerPlayer implements Listener {
 		message.addExtra(name);
 		message.addExtra("§" + profile.rank.getColor(profile) + "> §f" + EvilBook.toFormattedString(event.getMessage()));
 		ChatExtensions.broadcastPlayerMessage(player.getName(), message);
+		
+		// AFK
+		if (event.getMessage().equalsIgnoreCase("brb")) {
+			if (!profile.isAway) {
+				profile.isAway = true;
+				EvilBook.broadcastPlayerMessage(player.getName(), "§5" + player.getDisplayName() + " §dhas gone AFK");
+				profile.updatePlayerListName();
+			}
+		} else {
+			if (profile.isAway) {
+				profile.isAway = false;
+				profile.updatePlayerListName();
+			}
+		}
 		
 		// Statistics
 		GlobalStatistic.incrementStatistic(GlobalStatistic.MESSAGES_SENT, 1);
