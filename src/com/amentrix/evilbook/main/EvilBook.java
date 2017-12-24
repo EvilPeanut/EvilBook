@@ -1034,6 +1034,24 @@ public class EvilBook extends JavaPlugin {
 		}
 		final Player player = (Player)sender;
 		//
+		// Pos1 Command
+		//
+		if (command.getName().equalsIgnoreCase("pos1") || command.getName().equalsIgnoreCase("/pos1")) {
+			Block block = player.getLocation().getBlock();
+			getProfile(sender).actionLocationA = block.getLocation();
+			player.sendMessage(ChatColor.GRAY + "First point selected (" + block.getX() + ", " + block.getY() + ", " + block.getZ() + ")");
+			return true;
+		}
+		//
+		// Pos2 Command
+		//
+		if (command.getName().equalsIgnoreCase("pos2") || command.getName().equalsIgnoreCase("/pos2")) {
+			Block block = player.getLocation().getBlock();
+			getProfile(sender).actionLocationB = block.getLocation();
+			player.sendMessage(ChatColor.GRAY + "Second point selected (" + block.getX() + ", " + block.getY() + ", " + block.getZ() + ")");
+			return true;
+		}
+		//
 		// Claim Command
 		//
 		if (command.getName().equalsIgnoreCase("claim")) {

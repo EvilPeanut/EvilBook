@@ -124,6 +124,10 @@ public class CommandReference {
 		commandBlacklist.put("/tool", Rank.ADMIN);
 		commandBlacklist.put("/toggleeditwand", Rank.ADMIN);
 		//
+		commandBlacklist.put("/pos1", Rank.STAFF_DIAMOND);
+		commandBlacklist.put("//pos1", Rank.STAFF_DIAMOND);
+		commandBlacklist.put("/pos2", Rank.STAFF_DIAMOND);
+		commandBlacklist.put("//pos2", Rank.STAFF_DIAMOND);
 		commandBlacklist.put("/region", Rank.STAFF_DIAMOND);
 		//
 		commandBlacklist.put("/vanish", Rank.STAFF_LAPIS);
