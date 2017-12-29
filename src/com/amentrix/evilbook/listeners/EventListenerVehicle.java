@@ -18,7 +18,7 @@ public class EventListenerVehicle implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onVehicleCreate(VehicleCreateEvent event) {
 		if (event.getVehicle().getNearbyEntities(64, 64, 64).size() >= 400) {
-			event.getVehicle().remove();
+			event.setCancelled(true); //TODO: Test this replacement for event.getVehicle().remove(); works
 		} else if (!EvilBook.isInSurvival(event.getVehicle()) && event.getVehicle() instanceof Boat) {
 			Boat boat = (Boat) event.getVehicle();
 			boat.setWorkOnLand(true);

@@ -8,6 +8,7 @@ import java.util.Random;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -270,7 +271,7 @@ public class EventListenerEntity implements Listener {
 					}
 				}
 				EvilBook.rareSpawnList.add(spawnedEntity.getUniqueId());
-				spawnedEntity.setMaxHealth(spawnedEntity.getMaxHealth() * 4);
+				spawnedEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(spawnedEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() * 4);
 				String[] names = {"Hercules", "Achilles", "Theseus", "Odysseus", "Perseus", "Bellerophon", "Orpheus", "Cadmus"};
 				spawnedEntity.setCustomName(names[rand.nextInt(names.length)]);
 				spawnedEntity.setCustomNameVisible(true);

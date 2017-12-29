@@ -74,7 +74,7 @@ public class EventListenerBlock implements Listener {
 		if (!profile.isCanEditWorld(block.getWorld())) {
 			player.sendMessage(ChatColor.RED + "You need to rank up to edit this world");
 			event.setCancelled(true);
-		} else if (profile.rank.isHigher(Rank.STAFF_LAPIS) && player.getItemInHand().getType() == Material.GOLD_SPADE 
+		} else if (profile.rank.isHigher(Rank.STAFF_LAPIS) && player.getInventory().getItemInMainHand().getType() == Material.GOLD_SPADE 
 				&& (EvilBook.isInSurvival(player) == false || EvilBook.getProfile(player).rank.isHigher(Rank.TYCOON)) 
 				&& ((PlayerProfileAdmin)profile).wandMode != EditWandMode.None) {
 			if (profile.wandMode == EditWandMode.Selection) {
