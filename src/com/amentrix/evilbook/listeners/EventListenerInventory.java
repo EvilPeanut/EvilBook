@@ -17,6 +17,8 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.material.SpawnEgg;
 
 import com.amentrix.evilbook.main.EvilBook;
+import com.amentrix.evilbook.main.Rank;
+import com.amentrix.evilbook.minigame.MinigameType;
 import com.amentrix.evilbook.sql.SQL;
 
 /**
@@ -95,7 +97,17 @@ public class EventListenerInventory implements Listener {
 				Player playerTo = Bukkit.getPlayer(item.getItemMeta().getDisplayName());
 				
 				if (playerTo != null) {
-					player.teleport(playerTo);
+					if ((EvilBook.isInMinigame(playerTo, MinigameType.SKYBLOCK) &&
+							EvilBook.getProfile(player).rank != Rank.SERVER_HOST)
+							|| !EvilBook.getProfile(player).rank.isHigher(EvilBook.getProfile(playerTo).rank.getPreviousRank())) {
+						EvilBook.getProfile(playerTo).teleportantName = player.getName();
+						playerTo.sendMessage("§d" + player.getDisplayName() + " §dwishes to teleport to you");
+						playerTo.sendMessage("§aTo accept the request type /accept");
+						if (EvilBook.isInMinigame(playerTo, MinigameType.SKYBLOCK)) player.sendMessage(playerTo.getDisplayName() + "§7 is in the SkyBlock Survival minigame");
+						player.sendMessage("§7A teleport request has been sent to " + playerTo.getDisplayName());
+					} else {
+						player.teleport(playerTo);
+					}
 				} else {
 					player.sendMessage("§7You can't teleport to an offline player");
 				}

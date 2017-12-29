@@ -31,7 +31,7 @@ import net.minecraft.server.v1_12_R1.ChatHoverable.EnumHoverAction;
 public abstract class PlayerProfile {
 	String name, nameTitle;
 	public String lastMessage;
-	String teleportantName;
+	public String teleportantName;
 	String lastMsgPlayer;
 	List<String> warps = new ArrayList<>(), mutedPlayers = new ArrayList<>();
 	public Boolean isAway = false, isInvisible = false, isDrunk = false;
