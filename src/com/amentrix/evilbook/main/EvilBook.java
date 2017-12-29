@@ -1329,8 +1329,9 @@ public class EvilBook extends JavaPlugin {
 				//
 				// List the players unlocked titles
 				//
-				sender.sendMessage("§5My unlocked titles");
-				String titles = getUnlockedTitles(player);
+				sender.sendMessage("§5My Titles");
+				String titles = getUnlockedTitles(player).replaceAll(" ", ", ");
+				titles = titles.substring(0, titles.length() - 2);
 				sender.sendMessage("§d" + (titles.equals("") ? "You haven't unlocked any titles" : titles));
 				sender.sendMessage("§7§oSet a title using /title [title]");
 			} else if (args.length >= 1) {
@@ -1789,7 +1790,7 @@ public class EvilBook extends JavaPlugin {
 				ChatExtensions.sendCommandHelpMessage(player, help);
 			} else {
 				if (args[0].equalsIgnoreCase("list")) {
-					sender.sendMessage("§5Private worlds");
+					sender.sendMessage("§5Private Worlds");
 					sender.sendMessage(paidWorldList.size() == 0 ? "§dThere are no private worlds" : "§d" + paidWorldList.toString().split("\\[")[1].split("\\]")[0]);
 				} else if (args[0].equalsIgnoreCase("load") && args.length == 2) {
 					if (player.getName().equals(EvilBook.config.getProperty("server_host"))) {
