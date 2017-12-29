@@ -28,6 +28,7 @@ public class CommandReference {
 		commandBlacklist.put("/drug", Rank.SERVER_HOST);
 		commandBlacklist.put("/troll", Rank.SERVER_HOST);
 		//
+		commandBlacklist.put("/showinv", Rank.ADMIN_STAFF);
 		commandBlacklist.put("/demote", Rank.ADMIN_STAFF);
 		commandBlacklist.put("/drwatson", Rank.ADMIN_STAFF);
 		//

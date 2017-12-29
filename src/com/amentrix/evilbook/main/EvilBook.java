@@ -1034,6 +1034,22 @@ public class EvilBook extends JavaPlugin {
 		}
 		final Player player = (Player)sender;
 		//
+		// Show Inventory Command
+		//
+		if (command.getName().equalsIgnoreCase("showinv")) {
+			if (args.length == 1) {
+				Player targetPlayer = getPlayer(args[0]);
+				if (targetPlayer != null) {
+					player.openInventory(targetPlayer.getInventory());
+				} else {
+					player.sendMessage(ChatColor.GRAY + "You can't view an offline player's inventory");
+				}
+			} else {
+				ChatExtensions.sendCommandHelpMessage(player, "/showinv [player]");
+			}
+			return true;
+		}
+		//
 		// Pos1 Command
 		//
 		if (command.getName().equalsIgnoreCase("pos1") || command.getName().equalsIgnoreCase("/pos1")) {

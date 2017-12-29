@@ -3,6 +3,9 @@ main: com.amentrix.evilbook.main.EvilBook
 version: 9.2.2
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
+  showinv:
+    description: View the inventory of another player
+    usage: /<command> [playerName]
   pos1:
     description: Set the first selected block to the block above where you're standing
     usage: /<command>
