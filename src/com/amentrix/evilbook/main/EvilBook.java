@@ -1768,6 +1768,7 @@ public class EvilBook extends JavaPlugin {
 					help.add("/world load [worldName]");
 					help.add("/world unload [worldName]");
 					help.add("/world create [worldName] [worldType] [worldOwner]");
+					help.add("/world loadedlist");
 				}
 				ChatExtensions.sendCommandHelpMessage(player, help);
 			} else {
@@ -1797,6 +1798,20 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§7Unloaded private world");
 					} else {
 						sender.sendMessage("§cYou don't have permission to unload private worlds");
+					}
+				} else if (args[0].equalsIgnoreCase("loadedlist")) {
+					if (player.getName().equals(EvilBook.config.getProperty("server_host"))) {
+						String worlds = "";
+						for (int i = 0; i < getServer().getWorlds().size(); i++) {
+						    worlds += getServer().getWorlds().get(i).getName();
+						    if (i != getServer().getWorlds().size() - 1) {
+						    	worlds += ", ";
+						    }
+						}
+						sender.sendMessage("§5Loaded Worlds");
+						sender.sendMessage("§d" + worlds);
+					} else {
+						sender.sendMessage("§cYou don't have permission to list loaded worlds");
 					}
 				} else if (args[0].equalsIgnoreCase("invite")) {
 					if (args.length == 3) {

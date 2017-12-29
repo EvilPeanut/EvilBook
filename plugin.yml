@@ -1,6 +1,6 @@
 name: EvilBook
 main: com.amentrix.evilbook.main.EvilBook
-version: 9.2.1
+version: 9.2.2
 depend: [dynmap, ProtocolLib, EvilBook-Logging]
 commands:
   pos1:

@@ -393,7 +393,7 @@ public class EventListenerPlayer implements Listener {
 		// Handle leaving minigame world
 		if (EvilBook.isInMinigame(event.getPlayer(), MinigameType.SKYBLOCK)) {
 			// Unload world
-			if (event.getPlayer().getWorld().getPlayers().size() >= 1) {
+			if (event.getPlayer().getWorld().getPlayers().size() >= 1) { //TODO: Is this check correct?
 				plugin.getServer().unloadWorld(event.getPlayer().getWorld(), true);
 			}
 			// Save skyblock inventory
