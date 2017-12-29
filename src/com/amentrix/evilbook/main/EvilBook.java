@@ -3143,38 +3143,42 @@ public class EvilBook extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("setwarp") || command.getName().equalsIgnoreCase("createwarp")) {
 			if (args.length == 1) {
 				if (getProfile(sender).rank.isAdmin() || getProfile(sender).money >= 20) {
-					if (args[0].length() <= 32) {
-						Location loc = player.getLocation();
-						if (loc.getY() < 1) {
-							sender.sendMessage("§7You can't create a warp below bedrock");
-						} else {
-							if (args[0].contains(",")) {
-								sender.sendMessage("§7The ',' character is blocked in warp names");
+					if (!isInMinigame(player, MinigameType.SKYBLOCK)) {
+						if (args[0].length() <= 32) {
+							Location loc = player.getLocation();
+							if (loc.getY() < 0) {
+								sender.sendMessage("§7You can't create a warp below bedrock");
 							} else {
-								if (!SQL.isKeyExistant(TableType.Warps, args[0].toLowerCase(Locale.UK).replaceAll("'", "''"))) {
-									try {
-										SQL.insert(TableType.Warps, "'" + args[0].toLowerCase(Locale.UK).replaceAll("'", "''") + "','" + 
-												loc.getWorld().getName() + "','" + loc.getX() + "','" + loc.getY() + "','" + loc.getZ() + "','" + 
-												loc.getYaw() + "','" + loc.getPitch() + "'");
-									} catch (Exception exception) {
-										exception.printStackTrace();
-									}
-									if (getProfile(sender).rank.isAdmin()) {
-										sender.sendMessage("§7Created warp §d" + args[0]);
-									} else {
-										getProfile(sender).money -= 20;
-										incrementOwnerBalance(20);
-										sender.sendMessage("§7Created warp §d" + args[0] + " §c-$20");
-									}
-									getProfile(sender).warps.add(args[0].toLowerCase(Locale.UK));
-									WarpMarkers.setWarp(args[0], loc);
+								if (args[0].contains(",")) {
+									sender.sendMessage("§7The ',' character is blocked in warp names");
 								} else {
-									sender.sendMessage("§7A warp named §d" + args[0] + " §7already exists");
+									if (!SQL.isKeyExistant(TableType.Warps, args[0].toLowerCase(Locale.UK).replaceAll("'", "''"))) {
+										try {
+											SQL.insert(TableType.Warps, "'" + args[0].toLowerCase(Locale.UK).replaceAll("'", "''") + "','" + 
+													loc.getWorld().getName() + "','" + loc.getX() + "','" + loc.getY() + "','" + loc.getZ() + "','" + 
+													loc.getYaw() + "','" + loc.getPitch() + "'");
+										} catch (Exception exception) {
+											exception.printStackTrace();
+										}
+										if (getProfile(sender).rank.isAdmin()) {
+											sender.sendMessage("§7Created warp §d" + args[0]);
+										} else {
+											getProfile(sender).money -= 20;
+											incrementOwnerBalance(20);
+											sender.sendMessage("§7Created warp §d" + args[0] + " §c-$20");
+										}
+										getProfile(sender).warps.add(args[0].toLowerCase(Locale.UK));
+										WarpMarkers.setWarp(args[0], loc);
+									} else {
+										sender.sendMessage("§7A warp named §d" + args[0] + " §7already exists");
+									}
 								}
 							}
+						} else {
+							sender.sendMessage("§7The maximum warp name length is 32 characters");
 						}
 					} else {
-						sender.sendMessage("§7The maximum warp name length is 32 characters");
+						sender.sendMessage("§7You can't create a warp in SkyBlock Survival");
 					}
 				} else {
 					sender.sendMessage("§5You don't have enough money for this item");
