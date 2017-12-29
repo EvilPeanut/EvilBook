@@ -203,7 +203,7 @@ public class EvilBook extends JavaPlugin {
 		flatLand.type(WorldType.FLAT);
 		getServer().createWorld(flatLand);
 		getServer().createWorld(new WorldCreator("SurvivalLand"));
-		getServer().createWorld(new WorldCreator("Minigame"));
+		//getServer().createWorld(new WorldCreator("Minigame"));
 		WorldCreator survivalLandNether = new WorldCreator("SurvivalLandNether");
 		survivalLandNether.environment(Environment.NETHER);
 		getServer().createWorld(survivalLandNether);
@@ -1479,13 +1479,13 @@ public class EvilBook extends JavaPlugin {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("towerDefense")) {
-				if (getProfile(sender).rank != Rank.SERVER_HOST) {
+				//if (getProfile(sender).rank != Rank.SERVER_HOST) {
 					sender.sendMessage("§cThis minigame is currently in beta testing");
 					sender.sendMessage("§cIt will be available to the public shortly");
-				} else {
+				/*} else {
 					getProfile(sender).towerDefenseMinigame = new TowerDefenseMinigame(player, MinigameDifficulty.NORMAL, this);
 					player.teleport(getServer().getWorld("Minigame").getSpawnLocation());
-				}
+				}*/
 			} else {
 				sender.sendMessage("§5§oPlease select a minigame to play");
 				sender.sendMessage("§7The minigame you entered doesn't exist");
