@@ -1524,7 +1524,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§7To " + getPlayer(args[0]).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
 						
 						TextComponent cmessage = new TextComponent("§7From ");
-						TextComponent name = new TextComponent(getPlayer(args[0]).getDisplayName());
+						TextComponent name = new TextComponent(player.getDisplayName());
 						name.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/r "));
 						cmessage.addExtra(name);
 						cmessage.addExtra("§7:§f" + EvilBook.toFormattedString(message.toString()));
@@ -1556,7 +1556,7 @@ public class EvilBook extends JavaPlugin {
 						sender.sendMessage("§7To " + getServer().getPlayer(getProfile(player).lastMsgPlayer).getDisplayName() + "§7:§f" + EvilBook.toFormattedString(message.toString()));
 					
 						TextComponent cmessage = new TextComponent("§7From ");
-						TextComponent name = new TextComponent(getServer().getPlayer(getProfile(player).lastMsgPlayer).getDisplayName());
+						TextComponent name = new TextComponent(player.getDisplayName());
 						name.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/r "));
 						cmessage.addExtra(name);
 						cmessage.addExtra("§7:§f" + EvilBook.toFormattedString(message.toString()));
